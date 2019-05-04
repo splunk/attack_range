@@ -1,0 +1,9 @@
+software:
+splunk_softare:
+    - Universal Forwarder 7.2.5-088f49762779
+    - Splunk Stream TA 7.1.2 build 157
+    - Splunk Sysmon TA 8.0
+sysmon configuration:
+    - https://git.splunk.com/projects/CRL/repos/attack_range/browse/Workstation/roles/install_sysmon/templates/SysmonConfig-Verbose.xml.j2
+host_name:
+    - 

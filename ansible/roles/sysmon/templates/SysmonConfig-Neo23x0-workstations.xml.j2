@@ -1,0 +1,88 @@
+{{ ansible_managed | comment('xml') }}
+<!-- 
+   This is a Microsoft Sysmon configuration to be used on Windows workstations
+   v0.2.1 December 2016
+   Florian Roth (with the help and ideas of others)
+   
+   The focus of this configuration is 
+   - malware detection (execution)
+   - malware detection (network connections)
+   - exploit detection
+   It is not focussed on 
+   - hacking activity on workstation (bad admin, attacker)
+   
+   See Windows server base config: https://gist.github.com/Neo23x0/a4b4af9481e01e749409
+--> 
+<Sysmon schemaversion="4.00">
+    <!-- Capture MD5 Hashes -->
+    <HashAlgorithms>MD5,SHA1,SHA256,IMPHASH</HashAlgorithms>
+    <EventFiltering>
+      <!-- Log all drivers except if the signature -->
+      <!-- contains Microsoft or Windows -->
+      <DriverLoad onmatch="exclude">
+          <Signature condition="contains">microsoft</Signature>
+          <Signature condition="contains">windows</Signature>
+      </DriverLoad>
+      <!-- Exclude certain processes that have the integrity level 'System' -->
+      <ProcessCreate onmatch="exclude">
+          <IntegrityLevel>System</IntegrityLevel>
+      </ProcessCreate>
+      <!-- Do log remote thread creation events with certain exceptions -->
+      <CreateRemoteThread onmatch="exclude">
+         <SourceImage condition="contains">WmiPrvSE.exe</SourceImage>
+         <SourceImage condition="contains">FireSvc.exe</SourceImage>
+      </CreateRemoteThread>
+      <!-- Do not log file creation time stamps -->
+      <FileCreateTime onmatch="include" />
+      <!-- Do not log raw disk access (caused event flooding with certain disk encryption drivers) -->
+      <RawAccessRead onmatch="include" />
+      <!-- Do not log process termination -->
+      <ProcessTerminate onmatch="include" />
+      <!-- Do log registry events to certain keys only (Autostart, Services, Debuggers) -->
+      <RegistryEvent onmatch="include">
+         <TargetObject condition="contains">Windows\CurrentVersion\Run</TargetObject>
+         <TargetObject condition="contains">Windows\CurrentVersion\Image File Execution Options</TargetObject>
+         <TargetObject condition="contains">CurrentControlSet\Services</TargetObject>
+         <TargetObject condition="contains">Microsoft\Windows NT\CurrentVersion\Winlogon</TargetObject>
+         <TargetObject condition="contains">Microsoft\Windows\CurrentVersion\Policies\Explorer</TargetObject>
+         <TargetObject condition="contains">Microsoft\Windows\CurrentVersion\RunOnce</TargetObject>
+         <TargetObject condition="contains">System\CurrentControlSet\Services\Tcpip\parameters</TargetObject>
+      </RegistryEvent>
+      <!-- Do not log file creation events -->
+      <FileCreate onmatch="include" />
+      <!-- Do not log if file stream is created -->
+      <FileCreateStreamHash onmatch="include" />
+      <!-- Do only log network connections to port 8080 (proxy) of every program that is not a browser -->
+      <NetworkConnect onmatch="exclude">
+          <Image condition="contains">chrome.exe</Image>
+          <Image condition="contains">iexplore.exe</Image> <!-- yes, malware that injects into IE will be missed -->
+          <Image condition="contains">firefox.exe</Image>
+          <DestinationPort condition="is not">8080</DestinationPort>
+          <!-- Direct access to Internet (without proxy server) -->
+          <!-- 
+          <DestinationPort condition="is not">80</DestinationPort>
+          -->
+      </NetworkConnect>
+<!-- https://www.eideon.com/2017-09-09-THL01-Mimikatz/ -->
+      <!--SYSMON EVENT ID 10 : INTER-PROCESS ACCESS-->
+      <!--DATA: UtcTime, SourceProcessGuid, SourceProcessId, SourceThreadId, SourceImage, TargetProcessGuid, TargetProcessId, TargetImage, GrantedAccess, CallTrace-->
+<!-- FIXME! issue with Sysmon v7/schema version 4
+      <ProcessAccess onmatch="include">
+          <TargetImage condition="contains">lsass.exe</TargetImage>
+      </ProcessAccess>
+      <ProcessAccess onmatch="exclude">
+          <SourceImage condition="end with">wmiprvse.exe</SourceImage>
+          <SourceImage condition="end with">GoogleUpdate.exe</SourceImage>
+          <SourceImage condition="end with">LTSVC.exe</SourceImage>
+          <SourceImage condition="end with">taskmgr.exe</SourceImage>
+          <SourceImage condition="end with">VBoxService.exe</SourceImage> # Virtual Box
+          <SourceImage condition="end with">vmtoolsd.exe</SourceImage>
+          <SourceImage condition="end with">taskmgr.exe</SourceImage>
+          <SourceImage condition="end with">\Citrix\System32\wfshell.exe</SourceImage> #Citrix process in C:\Program Files (x86)\Citrix\System32\wfshell.exe
+          <SourceImage condition="is">C:\Windows\System32\lsm.exe</SourceImage> # System process under C:\Windows\System32\lsm.exe
+          <SourceImage condition="end with">Microsoft.Identity.AadConnect.Health.AadSync.Host.exe</SourceImage> # Microsoft Azure AD Connect Health Sync Agent
+          <SourceImage condition="begin with">C:\Program Files (x86)\Symantec\Symantec Endpoint Protection</SourceImage> # Symantec
+      </ProcessAccess>
+-->
+    </EventFiltering>
+</Sysmon>

@@ -1,0 +1,6 @@
+---
+- name: Install Chocolately via Powershell
+  win_shell: "iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))"
+- name: Install notepadplusplus
+  win_chocolatey:
+    name: notepadplusplus

@@ -1,0 +1,23 @@
+VM_NAME= "splunk-server"
+Vagrant.configure("2") do |config|
+  config.vm.define "splunk-server" do |config|
+    config.vm.box = "generic/ubuntu1804"
+    config.vm.hostname = "#{VM_NAME}"
+    config.vm.boot_timeout = 600
+    config.vm.network "forwarded_port", guest: 8000, host: 8000, protocol: "tcp"
+    config.vm.network :private_network, ip: "10.0.0.10"
+
+    config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "../ansible/playbooks/splunk_server.yml"
+        ansible.config_file = "../ansible/ansible.config"
+        ansible.compatibility_mode = "2.0"
+    end
+
+    config.vm.provider "virtualbox" do |vb, override|
+      vb.gui = true
+      vb.name = "#{VM_NAME}" 
+      vb.customize ["modifyvm", :id, "--memory", 2048]
+      vb.customize ["modifyvm", :id, "--cpus", 1]
+    end
+  end
+end

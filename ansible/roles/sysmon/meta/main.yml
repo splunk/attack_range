@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: win_sysmon
+  author: Russ Nolen ported from juju4
+  description: setup Sysmon on Windows system
+  license: BSD
+  min_ansible_version: 2.4
+  platforms:
+  - name: Windows
+    versions:
+     - 2012R2
+     - Win10
+  galaxy_tags:
+    - system
+    - security
+dependencies: []

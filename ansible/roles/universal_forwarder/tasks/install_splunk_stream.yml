@@ -1,0 +1,26 @@
+- name: Check we have downloaded stream 
+  win_stat:
+    path: C:\splunk-stream.zip
+  register: stream_zip
+
+- name: Download Splunk Stream
+  win_get_url:
+    url: "{{ splunk_stream_zip }}"
+    dest: C:\splunk-stream.zip
+  when: stream_zip.stat.exists == False
+
+- name: Check we have unzip streams
+  win_stat:
+    path: "C:\\Program Files\\SplunkUniversalForwarder\\etc\\apps\\splunk_app_stream"
+  register: stream_app
+
+- name: Unzip Stream App
+  win_unzip: 
+    src: C:\splunk-stream.zip
+    dest: "C:\\Program Files\\SplunkUniversalForwarder\\etc\\apps\\"
+    when: stream_app.stat.exists == False
+
+- name: Copy Stream Config File
+  win_template:
+    src: inputs.conf.j2
+    dest: "C:\\Program Files\\SplunkUniversalForwarder\\etc\\apps\\Splunk_TA_stream\\local\\inputs.conf"

@@ -1,0 +1,12 @@
+---
+
+- name: Create ansible directories
+  win_file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ win_temp_dir }}"
+    - "{{ win_log_dir }}"
+
+- include: windows-sysmon.yml
+- include: windows-logging-registry.yml

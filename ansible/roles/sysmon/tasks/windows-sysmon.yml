@@ -1,0 +1,53 @@
+---
+
+- block:
+    - name: check if sysmon archive is present
+      win_stat: path="{{ win_temp_dir }}\\{{ win_sysmon_url | basename }}"
+      register: sysmondl
+    - name: download sysmon
+      win_get_url:
+        url: "{{ win_sysmon_url }}"
+        dest: "{{ win_temp_dir }}\\{{ win_sysmon_url | basename }}"
+      when: not sysmondl.stat.exists
+    - name: unzip sysmon
+      win_unzip:
+        src: "{{ win_temp_dir }}\\{{ win_sysmon_url | basename }}"
+        dest: "{{ win_temp_dir }}\\sysmon"
+        creates: "{{ win_temp_dir }}\\sysmon\\sysmon.exe"
+    - set_fact:
+        sysmon_path: "{{ win_temp_dir }}\\sysmon\\sysmon64.exe"
+    - debug:
+        msg: '{{ sysmon_path }}'
+  when: win_sysmon_direct
+
+- block:
+    - name: install sysmon with chocolatey
+      win_chocolatey:
+        name: sysmon
+        state: present
+        ignore_checksums: yes
+        ## FIXME!
+        #install_args: "--checksum {{ win_sysmon_sha256 }}"
+    - set_fact:
+        sysmon_path: "c:\\ProgramData\\chocolatey\\lib\\sysmon\\tools\\sysmon"
+  when: not win_sysmon_direct
+
+- block:
+    - name: Copy Sysmon template
+      win_template:
+        src: "{{ win_sysmon_template }}.j2"
+        dest: "{{ win_temp_dir }}\\{{ win_sysmon_template }}"
+    - debug:
+        msg: '"{{ sysmon_path }}" -n -accepteula -i "{{ win_temp_dir }}\\{{ win_sysmon_template }}"'
+    - name: install sysmon with defined config
+      win_command: '"{{ sysmon_path }}" -n -accepteula -i "{{ win_temp_dir }}\\{{ win_sysmon_template }}"'
+      ignore_errors: true
+      notify: restart machine
+  when: win_sysmon_template != ''
+
+- block:
+    - name: install sysmon
+      win_command: "{{ sysmon_path }} -i -n -accepteula"
+      ignore_errors: true
+      notify: restart machine
+  when: win_sysmon_template == ''

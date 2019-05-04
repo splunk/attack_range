@@ -1,0 +1,6 @@
+---
+# This playbook contains common tasks in this role
+
+- include: splunk.yml
+- name: Finished
+  debug: msg="Access your freshly configure splunk instance at http://localhost:8000 with password {{ splunk_pass }}"

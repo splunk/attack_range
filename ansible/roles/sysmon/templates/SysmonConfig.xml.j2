@@ -1,0 +1,57 @@
+{{ ansible_managed | comment('xml') }}
+<!-- 
+http://securitylogsanalysis.blogspot.ca/2016/04/sysmon-playbook-v1.html 
+https://gist.github.com/henrikjohansen/81d01b200ea3e58329ea#file-graylog_threat_hunt-txt-L24
+http://security-research.dyndns.org/pub/slides/BotConf/2016/Botconf-2016_Tom-Ueltschi_Sysmon.pdf
+https://github.com/SwiftOnSecurity/sysmon-config
+https://mobile.twitter.com/0xrawsec/status/1002478725605273600
+-->
+<Sysmon schemaversion="4.00">
+  <HashAlgorithms>*</HashAlgorithms>
+  <EventFiltering>
+  <!-- Log all drivers except if the signature  contains Microsoft or Windows -->
+    <DriverLoad onmatch="include">
+      <Signature condition="contains">microsoft</Signature>
+      <Signature condition="contains">windows</Signature>
+    </DriverLoad>
+    <CreateRemoteThread onmatch="exclude"/>
+    <FileCreateTime onmatch="include"/>
+    <ImageLoad onmatch="include"/>
+  <!-- Log non browser connections to proxy and remove connections to internal web servers -->
+    <NetworkConnect onmatch="exclude">
+      <Image condition="contains">chrome.exe</Image>
+      <Image condition="contains">iexplore.exe</Image>
+      <Image condition="contains">firefox.exe</Image>
+      <Image condition="contains">OUTLOOK.EXE</Image>
+      <Image condition="contains">Skype.exe</Image>
+      <Image condition="contains">lync.exe</Image>
+      <DestinationHostname condition="contains">*internal domain servers </DestinationHostname>
+      <DestinationPort condition="less than">proxy port</DestinationPort>
+      <DestinationPort condition="more than">proxy port</DestinationPort>
+    </NetworkConnect>
+    <NetworkConnect onmatch="include">
+      <DestinationPort>80</DestinationPort>
+      <DestinationPort>443</DestinationPort>
+    </NetworkConnect>
+    <ProcessCreate onmatch="exclude"/>
+    <ProcessTerminate onmatch="include"/>
+    <ProcessCreate onmatch="include ">
+      <Image condition=”begin with”>C:\Windows</Image>
+      <Image condition=”begin with”>C:\Users</Image>
+      <Image condition=”begin with”>C:\temp</Image>
+    </ProcessCreate>
+<!--
+    <ProcessCreate onmatch="exclude ">
+      <User>NT Authority\System</User>
+    </ProcessCreate>
+-->
+    <!-- Drop network noise and know good communications -->
+    <NetworkConnect onmatch="exclude">
+      <!-- local link layer multicast -->
+      <SourceIp>224.0.0.252</SourceIp>
+      <!-- broadcast traffic -->
+      <SourceIp condition="end with">.255</SourceIp>    
+    </NetworkConnect>
+  </EventFiltering>
+</Sysmon>
+

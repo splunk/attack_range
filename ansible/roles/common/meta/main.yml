@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: install_misc_software
+  author: Russ Nolen rnolen@splunk.com
+  description: Install some basic software
+  license: BSD
+  min_ansible_version: 2.4
+  platforms:
+  - name: Windows
+    versions:
+     - 2012R2
+     - Win10
+  galaxy_tags:
+    - system
+    - security
+dependencies: []
