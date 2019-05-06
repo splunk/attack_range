@@ -13,7 +13,7 @@ Role Variables
 
 The following variables in vars/vars.yml are required:
 * `phantom_repo_url` - the URL of the phantom repo installer package for the Phantom version this role will use
-* `phantom_community_username` - the username for my.phantom.us which is need to install Phantom
+* `phantom_community_user` - the username for my.phantom.us which is need to install Phantom
 * `phantom_community_pass` - the password for my.phantom.us which is needed to install Phantom
 * `phantom_pass` - the password which will be applied as the initial password of the admin user on the Phantom web interface
 
@@ -25,7 +25,7 @@ No known Ansible dependencies
 Example Playbook
 -------------------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+To use this role just populate vars/vars.yml and apply the role like so:
 
     - hosts: servers
       roles:
