@@ -3,4 +3,4 @@
 
 - include: phantom.yml
 - name: Finished
-  debug: msg="Access your Phantom instance at http://10.0.0.11:443 with username 'admin' and password '{{ phantom_pass }}'"
+  debug: msg="Access your Phantom instance at https://10.0.0.11:443 with username 'admin' and password '{{ phantom_pass }}'"
