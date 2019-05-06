@@ -20,7 +20,7 @@
   # expect this to take 10-15 minutes to install phantom and all apps
   shell: printf '{{phantom_community_user}}\n{{phantom_community_pass}}' | /opt/phantom/bin/phantom_setup.sh install --no-prompt --without-apps
   args:
-    creates: /var/log/phantom/phantom_install_log
+    creates: /var/log/phantom/initialize_log
 
 - name: drop password changer
   copy:
