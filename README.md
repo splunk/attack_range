@@ -1,14 +1,28 @@
+
+![](docs/range.jpg)
 # Splunk Attack Range
   
 ## Purpose
 
 This lab has been designed with reproducability in mind. Its primary purpose is to allow the user to quickly build various systems (Workstations, Domain Controllers, *nix machines,etc) in a quick and reproducable manner
 
-## Instructions
+## Developing 
+* For proper installation you will need access to AttackIQ Community Git Lab. See Russ for access
 
-Each subdirectory will build an individual machine or set of machines. The following is a high level over of the directories
+1. create virtualenv and install requirements: `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt`
 
-* Workstation is a standalone windows workstation
+2. install pre-commit hooks `pre-commit install`
 
 
-Each environment has there own build process and instructions can be found in each sub directory for how to build the environement
+## Running hosts
+
+1. `cd windows_workstation` jump into the host folder 
+2.  `vagrant up` bring up machine and provision per Vagrantfile settings and Ansible playbook
+3. `vagrant provision` (optionally) provision machine per [ansible](ansible/playbooks) playbook 
+
+
+## Docs
+
+* [Starting](docs/Starting.md)
+* [Build](docs/Build.md)
+* [To Do's](docs/ToDo.md)
