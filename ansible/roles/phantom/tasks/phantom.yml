@@ -1,0 +1,22 @@
+---
+# Install Phantom on CentOS/RHEL using RPMs from repo.phantom.us
+
+- name: checking if phantom is installed in /opt/
+  tags: install
+  stat: path=/opt/phantom
+  register: phantom_path
+
+- name: is phantom installed?
+  tags: install
+  debug: msg='phantom is already installed under /opt/phantom'
+  when: phantom_path.stat.exists
+
+- name: install phantom repo
+  shell: rpm -Uvh {{phantom_repo_url}}
+  when: phantom_path.stat.exists == false
+
+- name: install phantom packages
+  # we need to pipe my.phantom.us creds into the install script to do yum authentication
+  # expect this to take 10-15 minutes to install phantom and all apps
+  shell: printf '{{phantom_community_user}}\n{{phantom_community_pass}}' | /opt/phantom/bin/phantom_setup.sh install --no-prompt
+
