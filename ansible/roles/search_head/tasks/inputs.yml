@@ -1,0 +1,6 @@
+- name: copy inputs.conf
+  tags:
+   - install
+   - security
+  copy: src=opt/splunk/etc/system/local/inputs.conf dest=/opt/splunk/etc/system/local owner=splunk group=splunk mode=755
+  notify: restart splunk

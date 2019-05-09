@@ -2,5 +2,13 @@
 # This playbook contains common tasks in this role
 
 - include: splunk.yml
+- include: inputs.yml
+- include: install_escu_app.yml
+- include: install_stream_app.yml
+  when: stream is defined
+- include: install_sysmon_ta.yml
+  when: sysmon is defined
+- include: install_cim_app.yml
+- include: install_windows_ta.yml
 - name: Finished
-  debug: msg="Access your freshly configure splunk instance at http://localhost:8000 with password {{ splunk_pass }}"
+  debug: msg="Access your freshly configure splunk instance at http://localhost:8000 with username admin and password {{ splunk_pass }}"

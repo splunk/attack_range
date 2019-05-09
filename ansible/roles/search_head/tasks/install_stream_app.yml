@@ -1,0 +1,23 @@
+- name: Check we have downloaded splunk stream app
+  stat:
+    path: /tmp/stream_app.tgz
+  register: stream_app
+
+- name: Download stream app
+  get_url:
+    url: "{{ splunk_stream_app }}" 
+    dest: /tmp/stream_app.tgz
+    owner: splunk
+    group: splunk
+  notify: restart splunk
+  when: stream_app.stat.exists == False
+
+- name: install stream app
+  unarchive:
+    src: /tmp/stream_app.tgz
+    dest: /opt/splunk/etc/apps
+    remote_src: yes
+  notify: restart splunk
+  become: yes
+  become_user: splunk
+  when: stream_app.stat.exists == False
