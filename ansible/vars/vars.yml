@@ -6,11 +6,12 @@ splunk_pass: changeme
 # Apps
 sysmon: True
 stream: True
+enterprise_security: True
 
 # Apps binaries
 splunk_stream_app: http://www.splunkresearch.com/splunk-stream_713.tgz
-splunk_cim_app: http://www.splunkresearch.com/splunk-common-information-model-cim_4130.tgz
 splunk_escu_app: http://www.splunkresearch.com/splunk-es-content-update_1037.tgz
+splunk_es_app: http://www.splunkresearch.com/splunk-enterprise-security_530.spl
 
 ## Variables for Splunk Universal Forwarders
 splunk_uf_indexer_ip: 10.0.0.10

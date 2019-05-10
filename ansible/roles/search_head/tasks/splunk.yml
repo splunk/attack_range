@@ -11,7 +11,7 @@
   tags:
    - install
    - security
-  user: name=splunk comment="Splunk service user" shell=/usr/sbin/nologin groups=splunk createhome=no 
+  user: name=splunk comment="Splunk service user" shell=/usr/sbin/nologin groups=splunk createhome=yes 
 
 - name: make /opt writetable by splunk
   tags:
@@ -54,5 +54,11 @@
   tags:
    - install
   shell: /opt/splunk/bin/splunk enable boot-start -user splunk
+  when: splunk_path.stat.exists == false
+  
+- name: restart splunk 
+  service:
+    name: Splunkd
+    state: restarted
   when: splunk_path.stat.exists == false
 

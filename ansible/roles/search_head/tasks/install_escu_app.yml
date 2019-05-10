@@ -12,12 +12,17 @@
   notify: restart splunk
   when: escu_app.stat.exists == False
 
-- name: install escu app
-  unarchive:
-    src: /tmp/escu_app.tgz
-    dest: /opt/splunk/etc/apps
-    remote_src: yes
-  notify: restart splunk
-  become: yes
-  become_user: splunk
+- name: Install escu app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_pass }}"
+    validate_certs: false
+    body: "name=/tmp/escu_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
   when: escu_app.stat.exists == False
+  notify: restart splunk
