@@ -19,10 +19,10 @@
     user: "admin"
     password: "{{ splunk_pass }}"
     validate_certs: false
-    body: "name=/tmp/sysmon_app.tgz&update=true&filename=true"
+    body: "name=/tmp/sysmon_ta.tgz&update=true&filename=true"
     headers:
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
     timeout: 30
-  when: sysmon_app.stat.exists == False
+  when: sysmon_ta.stat.exists == False
   notify: restart splunk
