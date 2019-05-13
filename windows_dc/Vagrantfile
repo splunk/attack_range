@@ -2,7 +2,7 @@ VM_NAME= "Windows-2016-DC"
 Vagrant.configure("2") do |config|
 
   config.vm.define "dc" do |cfg|
-    cfg.vm.box = "../boxes/windows_2016_virtualbox.box"
+    cfg.vm.box = "d1vious/windows2016"
     cfg.vm.hostname = "#{VM_NAME}"
     cfg.vm.boot_timeout = 600
     cfg.winrm.transport = :plaintext
