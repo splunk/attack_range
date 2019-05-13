@@ -1,8 +1,8 @@
 - hosts: dc
   gather_facts: True
-#  tasks:
-#    - debug:
-#        msg: "{{ hostvars[inventory_hostname] }}"
+  tasks:
+    - debug:
+        msg: "{{ hostvars[inventory_hostname] }}"
   roles:
     - common
     - universal_forwarder
