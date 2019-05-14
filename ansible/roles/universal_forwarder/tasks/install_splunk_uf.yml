@@ -6,7 +6,7 @@
 - name: Install Splunk_UF MSI
   win_package:
     path: C:\splunkuf.msi
-    arguments: 'WINEVENTLOG_SEC_ENABLE=1 WINEVENTLOG_SYS_ENABLE=1 WINEVENTLOG_APP_ENABLE=1 SPLUNKPASSWORD=changeme RECEIVING_INDEXER="{{ splunk_uf_server_ip }}:9997" AGREETOLICENSE=YES /quiet'
+    arguments: 'WINEVENTLOG_SEC_ENABLE=1 WINEVENTLOG_SYS_ENABLE=1 WINEVENTLOG_APP_ENABLE=1 SPLUNKPASSWORD=changeme RECEIVING_INDEXER="{{ splunk_uf_indexer_ip }}:9997" AGREETOLICENSE=YES /quiet'
 
 - name: Start Splunk 
   win_service:

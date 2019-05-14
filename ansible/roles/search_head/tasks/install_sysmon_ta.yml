@@ -1,0 +1,28 @@
+- name: Check we have downloaded splunk sysmon ta
+  stat:
+    path: /tmp/sysmon_ta.tgz
+  register: sysmon_ta
+
+- name: Download sysmon ta
+  get_url:
+    url: "{{ splunk_sysmon_ta }}" 
+    dest: /tmp/sysmon_ta.tgz
+    owner: splunk
+    group: splunk
+  notify: restart splunk
+  when: sysmon_ta.stat.exists == False
+
+- name: Install sysmon app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_pass }}"
+    validate_certs: false
+    body: "name=/tmp/sysmon_ta.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: sysmon_ta.stat.exists == False
+  notify: restart splunk

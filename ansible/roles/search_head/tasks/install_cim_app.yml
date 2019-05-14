@@ -1,0 +1,22 @@
+- name: Check we have downloaded splunk cim app
+  stat:
+    path: /tmp/cim_app.tgz
+  register: cim_app
+
+- name: Download cim app
+  get_url:
+    url: "{{ splunk_cim_app }}" 
+    dest: /tmp/cim_app.tgz
+    owner: splunk
+    group: splunk
+  when: cim_app.stat.exists == False
+
+- name: install cim app
+  unarchive:
+    src: /tmp/cim_app.tgz
+    dest: /opt/splunk/etc/apps
+    remote_src: yes
+  notify: restart splunk
+  become: yes
+  become_user: splunk
+  when: cim_app.stat.exists == False

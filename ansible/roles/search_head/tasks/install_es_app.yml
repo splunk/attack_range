@@ -1,0 +1,34 @@
+- name: Check we have downloaded splunk es app
+  stat:
+    path: /tmp/es_app.tgz
+  register: es_app
+
+- name: Download es app
+  get_url:
+    url: "{{ splunk_es_app }}" 
+    dest: /tmp/es_app.tgz
+    owner: splunk
+    group: splunk
+  notify: restart splunk
+  when: es_app.stat.exists == False
+
+- name: Install es app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_pass }}"
+    validate_certs: false
+    body: "name=/tmp/es_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: es_app.stat.exists == False
+  notify: restart splunk
+
+- name: Run es post-install setup
+  command: "/opt/splunk/bin/splunk search '| essinstall' -auth admin:{{ splunk_pass }}"
+  become: yes
+  become_user: splunk
+  when: es_app.stat.exists == False

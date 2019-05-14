@@ -1,0 +1,28 @@
+- name: Check we have downloaded splunk stream app
+  stat:
+    path: /tmp/stream_app.tgz
+  register: stream_app
+
+- name: Download stream app
+  get_url:
+    url: "{{ splunk_stream_app }}" 
+    dest: /tmp/stream_app.tgz
+    owner: splunk
+    group: splunk
+  notify: restart splunk
+  when: stream_app.stat.exists == False
+
+- name: Install stream app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_pass }}"
+    validate_certs: false
+    body: "name=/tmp/stream_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 300
+  when: stream_app.stat.exists == False
+  notify: restart splunk
