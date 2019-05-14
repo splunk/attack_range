@@ -3,3 +3,4 @@
   when: sysmon is defined
 - include: install_splunk_stream.yml
   when: stream is defined
+- include: install_windows_ta.yml
