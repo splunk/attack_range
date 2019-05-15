@@ -1,7 +1,7 @@
-VM_NAME= "EXAMPLE-HOST-NAME"
+VM_NAME= "win10-workstation"
 Vagrant.configure("2") do |config|
   config.vm.define "win10" do |config|
-    config.vm.box = "../boxes/windows_10_virtualbox.box"
+    config.vm.box = "d1vious/windows10"
     config.vm.hostname = "#{VM_NAME}"
     config.vm.boot_timeout = 600
     config.vm.communicator = "winrm"
@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
  
     config.vm.provision "ansible" do |ansible|
         ansible.playbook = "../ansible/playbooks/windows_workstation.yml"
-        ansible.config_file = "../ansible/ansible.config"
+        ansible.config_file = "../ansible/ansible.cfg"
         ansible.compatibility_mode = "2.0"
     end
 

@@ -27,15 +27,26 @@ phantom_pass: !vault |
           6131313934333664380a323632303061353535383936323464323239643936356239313931376161
           30633836383138653765623235393864633738653635393234636136323437653761
 
-## Variables for Splunk Universal Forwarders
-splunk_uf_server_ip: $SPLUNK_INDEXER_IP
-splunk_uf_msi: http://www.splunkresearch.com/splunkforwarder-7.2.5-088f49762779-x64-release.msi
-
 # Apps
 sysmon: True
 stream: True
+enterprise_security: True
+
+# Apps binaries
+splunk_stream_app: http://www.splunkresearch.com/splunk-stream_713.tgz
+splunk_escu_app: http://www.splunkresearch.com/splunk-es-content-update_1037.tgz
+splunk_es_app: http://www.splunkresearch.com/splunk-enterprise-security_530.spl
+
+## Variables for Splunk Universal Forwarders
+splunk_uf_indexer_ip: 10.0.0.10
+splunk_uf_msi: http://www.splunkresearch.com/splunkforwarder-7.2.5-088f49762779-x64-release.msi
+
+# Universal Forwarder deploy binaries
 splunk_sysmon_ta: http://www.splunkresearch.com/add-on-for-microsoft-sysmon_800.tgz
 splunk_stream_zip: http://www.splunkresearch.com/Splunk_TA_stream.zip
+splunk_windows_ta: http://www.splunkresearch.com/splunk-add-on-for-microsoft-windows_600.tgz
+
+#Variables for Firedrill 
 
 #Variables for Firedrill 
 install: False

@@ -17,8 +17,8 @@ This lab has been designed with reproducability in mind. Its primary purpose is 
 ## Running hosts
 
 1. `cd windows_workstation` jump into the host folder 
-2.  `vagrant up` bring up machine per Vagrantfile settings 
-3. `vagrant provision` provision machine per [ansible](ansible/playbooks) playbook 
+2.  `vagrant up` bring up machine and provision per Vagrantfile settings and Ansible playbook
+3. `vagrant provision` (optionally) provision machine per [ansible](ansible/playbooks) playbook 
 
 
 ## Docs

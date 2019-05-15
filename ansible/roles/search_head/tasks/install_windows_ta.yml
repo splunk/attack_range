@@ -1,0 +1,28 @@
+- name: Check we have downloaded splunk windows ta
+  stat:
+    path: /tmp/windows_ta.tgz
+  register: windows_ta
+
+- name: Download windows ta
+  get_url:
+    url: "{{ splunk_windows_ta }}" 
+    dest: /tmp/windows_ta.tgz
+    owner: splunk
+    group: splunk
+  notify: restart splunk
+  when: windows_ta.stat.exists == False
+
+- name: Install windows app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_pass }}"
+    validate_certs: false
+    body: "name=/tmp/windows_ta.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: windows_ta.stat.exists == False
+  notify: restart splunk
