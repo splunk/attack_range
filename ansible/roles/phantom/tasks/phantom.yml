@@ -17,7 +17,7 @@
 
 - name: install phantom packages
   # we need to pipe my.phantom.us creds into the install script to do yum authentication
-  # expect this to take 10-15 minutes to install phantom and all apps
+  # expect this to take about 5 minutes to install phantom (even without any apps)
   shell: printf '{{phantom_community_user}}\n{{phantom_community_pass}}' | /opt/phantom/bin/phantom_setup.sh install --no-prompt --without-apps
   args:
     creates: /var/log/phantom/initialize_log
