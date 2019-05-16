@@ -1,4 +1,4 @@
-VM_NAME= "win10-workstation"
+VM_NAME= "win10-workstation-#{SecureRandom.hex(2)}"
 Vagrant.configure("2") do |config|
   config.vm.define "win10" do |config|
     config.vm.box = "d1vious/windows10"

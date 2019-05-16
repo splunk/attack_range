@@ -1,4 +1,4 @@
-VM_NAME= "splunk-server"
+VM_NAME= "splunk-server-#{SecureRandom.hex(2)}"
 Vagrant.configure("2") do |config|
   config.vm.define "splunk-server" do |config|
     config.vm.box = "generic/ubuntu1804"

@@ -1,0 +1,11 @@
+---
+# tasks file for ansible-windows-domain-controller
+
+- name: Managing Domain Controller Membership
+  win_domain_controller:
+    dns_domain_name: "{{ windows_domain_controller_info['dns_domain_name'] }}"
+    domain_admin_user: "{{ windows_domain_controller_info['domain_admin_user'] }}"
+    domain_admin_password: "{{ windows_domain_controller_info['domain_admin_password'] }}"
+    safe_mode_password: "{{ windows_domain_controller_info['safe_mode_password'] }}"
+    state: "{{ windows_domain_controller_info['state'] }}"
+  register: _windows_domain_controller

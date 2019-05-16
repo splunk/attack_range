@@ -49,3 +49,11 @@ win_eventlog_maxsize: 315801600
 win_eventlog_retention: 0
 win_sysmon_eventlog_channels:
   - Microsoft-Windows-Sysmon/Operational
+
+# Domain Controller
+windows_domain_controller_info:
+  dns_domain_name: vagrant.local
+  domain_admin_password: vagrant
+  domain_admin_user: administrator@vagrant.local
+  safe_mode_password: Vagrant@123!
+  state: domain_controller
