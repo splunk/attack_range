@@ -14,7 +14,7 @@ splunk_escu_app: http://www.splunkresearch.com/splunk-es-content-update_1037.tgz
 splunk_es_app: http://www.splunkresearch.com/splunk-enterprise-security_530.spl
 
 ## Variables for Splunk Universal Forwarders
-splunk_uf_indexer_ip: 10.0.0.10
+splunk_uf_indexer_ip: 18.237.216.212
 splunk_uf_msi: http://www.splunkresearch.com/splunkforwarder-7.2.5-088f49762779-x64-release.msi
 
 # Universal Forwarder deploy binaries
@@ -25,7 +25,7 @@ splunk_windows_ta: http://www.splunkresearch.com/splunk-add-on-for-microsoft-win
 #Variables for Firedrill 
 
 #Variables for Firedrill 
-install: False
+install: True
 firedrill_msi: http://www.splunkresearch.com/FiredrillAgent-installer-2.2.363.exe
 firedrill_dst_location: C:\fd.exe
 
