@@ -23,7 +23,7 @@ splunk_stream_zip: http://www.splunkresearch.com/Splunk_TA_stream.zip
 splunk_windows_ta: http://www.splunkresearch.com/splunk-add-on-for-microsoft-windows_600.tgz
 
 ## Variables for Phantom
-phantom_repo_url: https://repo.phantom.us/phantom/4.2/base/6/x86_64/phantom_repo-4.2.7532-1.x86_64.rpm
+phantom_repo_url: https://repo.phantom.us/phantom/4.5/base/6/x86_64/phantom_repo-4.5.15370-1.x86_64.rpm
 # additional Phantom variables are in ~/.attack_range.yml
 
 #Variables for Firedrill 
