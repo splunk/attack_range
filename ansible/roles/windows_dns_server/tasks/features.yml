@@ -1,0 +1,8 @@
+---
+- name: features | Installing Windows DNS Server
+  win_feature:
+    name: DNS
+    state: present
+    include_management_tools: yes
+    include_sub_features: yes
+  register: _windows_dns_server

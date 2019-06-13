@@ -1,4 +1,4 @@
-- hosts: win10
+- hosts: win*
   gather_facts: True
 #  tasks:
 #    - debug:

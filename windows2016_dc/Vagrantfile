@@ -1,0 +1,33 @@
+VM_NAME= "windows-2016-dc-#{SecureRandom.hex(2)}"
+Vagrant.configure("2") do |config|
+  config.vm.define "dc" do |config|
+    config.vm.box = "d1vious/windows2016"
+    config.vm.hostname = "#{VM_NAME}"
+    config.vm.boot_timeout = 600
+    config.winrm.transport = :plaintext
+    config.vm.communicator = "winrm"
+    config.winrm.basic_auth_only = true
+    config.winrm.timeout = 300
+    config.winrm.retry_limit = 20
+    config.vm.network "forwarded_port", guest: 5985, host: 5985
+    config.vm.network :private_network, ip: "10.0.0.5", gateway: "10.0.0.1"
+
+    config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "../ansible/playbooks/windows_dc.yml"
+        ansible.config_file = "../ansible/ansible.cfg"
+        ansible.compatibility_mode = "2.0"
+    end
+
+
+    config.vm.provider "virtualbox" do |vb, override|
+      vb.gui = true
+      vb.name = "#{VM_NAME}"
+      vb.default_nic_type = "82545EM"
+      vb.customize ["modifyvm", :id, "--memory", 3072]
+      vb.customize ["modifyvm", :id, "--cpus", 2]
+      vb.customize ["modifyvm", :id, "--vram", "32"]
+      vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+      vb.customize ["setextradata", "global", "GUI/SuppressMessages", "all" ]
+    end
+  end
+end

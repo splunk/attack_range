@@ -1,7 +1,7 @@
-VM_NAME= "win10-workstation"
+VM_NAME= "win7-workstation-#{SecureRandom.hex(2)}"
 Vagrant.configure("2") do |config|
-  config.vm.define "win10" do |config|
-    config.vm.box = "d1vious/windows10"
+  config.vm.define "win7" do |config|
+    config.vm.box = "d1vious/windows_7"
     config.vm.hostname = "#{VM_NAME}"
     config.vm.boot_timeout = 600
     config.vm.communicator = "winrm"
@@ -9,8 +9,8 @@ Vagrant.configure("2") do |config|
     config.winrm.timeout = 300
     config.winrm.retry_limit = 20
     config.vm.network "forwarded_port", guest: 5985, host: 5985
-    config.vm.network :private_network, ip: "10.0.0.50"
- 
+    config.vm.network "forwarded_port", guest: 3389, host: 3389
+    config.vm.network :private_network, ip: "10.0.0.51"
     config.vm.provision "ansible" do |ansible|
         ansible.playbook = "../ansible/playbooks/windows_workstation.yml"
         ansible.config_file = "../ansible/ansible.cfg"

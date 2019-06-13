@@ -1,0 +1,41 @@
+---
+# tasks file for ansible-windows-domain-controller
+#
+
+
+- name: set local admin password
+  win_user:
+    name: Administrator
+    password: "{{ windows_domain_controller_info['domain_admin_password'] }}"
+    state: present
+
+- name: features | Installing RSAT AD Admin Center
+  win_feature:
+    name: RSAT-AD-AdminCenter
+    state: present
+
+- name: features | Installing AD Domain Services
+  win_feature: 
+    name: AD-Domain-Services
+    include_management_tools: yes
+    include_sub_features: yes
+    state: present
+
+- name: Creating a windows domain
+  win_domain:
+    dns_domain_name: "{{ windows_domain_controller_info['dns_domain_name'] }}"
+    safe_mode_password: "{{ windows_domain_controller_info['safe_mode_password'] }}"
+
+- name: Setting DNS Servers
+  win_dns_client:
+    adapter_names: "*"
+    ipv4_addresses: "10.0.0.5"
+
+- name: Managing Domain Controller Membership
+  win_domain_controller:
+    dns_domain_name: "{{ windows_domain_controller_info['dns_domain_name'] }}"
+    domain_admin_user: "{{ windows_domain_controller_info['domain_admin_user'] }}"
+    domain_admin_password: "{{ windows_domain_controller_info['domain_admin_password'] }}"
+    safe_mode_password: "{{ windows_domain_controller_info['safe_mode_password'] }}"
+    state: "{{ windows_domain_controller_info['state'] }}"
+  register: _windows_domain_controller

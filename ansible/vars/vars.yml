@@ -4,9 +4,9 @@ splunk_binary: splunk-7.2.6-c0bf0f679ce9-Linux-x86_64.tgz
 splunk_pass: changeme
 
 # Apps
-sysmon: True
-stream: True
-enterprise_security: True
+sysmon: true
+stream: true
+enterprise_security: true
 
 # Apps binaries
 splunk_stream_app: http://www.splunkresearch.com/splunk-stream_713.tgz
@@ -23,9 +23,7 @@ splunk_stream_zip: http://www.splunkresearch.com/Splunk_TA_stream.zip
 splunk_windows_ta: http://www.splunkresearch.com/splunk-add-on-for-microsoft-windows_600.tgz
 
 #Variables for Firedrill 
-
-#Variables for Firedrill 
-install: False
+install: true
 firedrill_msi: http://www.splunkresearch.com/FiredrillAgent-installer-2.2.363.exe
 firedrill_dst_location: C:\fd.exe
 
@@ -49,3 +47,11 @@ win_eventlog_maxsize: 315801600
 win_eventlog_retention: 0
 win_sysmon_eventlog_channels:
   - Microsoft-Windows-Sysmon/Operational
+
+# Domain Controller
+windows_domain_controller_info:
+  dns_domain_name: splunkresearch.local
+  domain_admin_password: a31557c9-4d4f 
+  domain_admin_user: administrator@splunkresearch.local
+  safe_mode_password: a31557c9-4d4f
+  state: domain_controller

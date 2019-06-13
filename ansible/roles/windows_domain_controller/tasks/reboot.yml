@@ -1,0 +1,8 @@
+---
+- name: reboot | Rebooting Server
+  win_reboot:
+    reboot_timeout_sec: 3600
+    shutdown_timeout_sec: 3600
+  when: >
+        _windows_domain_controller['reboot_required'] is defined and
+        _windows_domain_controller['reboot_required']

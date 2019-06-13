@@ -1,0 +1,22 @@
+- name: Download windows TA
+  win_get_url:
+    url: "{{ splunk_windows_ta }}" 
+    dest: C:\windows-ta.tgz
+
+- name: Add powershell module PSCX required by Ansible's win_unzip 
+  win_psmodule:
+    name: Pscx
+    state: present
+    allow_clobber: True
+
+- name: untar windows TA
+  win_unzip:
+    src: C:\windows-ta.tgz
+    dest: C:\Program Files\SplunkUniversalForwarder\etc\apps\
+
+- name: Install windows TA
+  win_unzip:
+    src: C:\Program Files\SplunkUniversalForwarder\etc\apps\windows-ta.tar
+    dest: C:\Program Files\SplunkUniversalForwarder\etc\apps\
+    delete_archive: yes
+  notify: restart machine
