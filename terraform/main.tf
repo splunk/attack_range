@@ -3,14 +3,11 @@ provider "aws" {
   region     = var.aws_region
 }
 
-resource "random_pet" "server" {
-}
-
 resource "aws_instance" "splunk-server" {
   ami           = var.splunk_ami
   instance_type = "t2.xlarge"
   tags = {
-    Name = "splunk-server-${random_pet.server.id}"
+    Name = "attack-range_splunk-server"
   }
 }
 
