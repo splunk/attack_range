@@ -1,7 +1,9 @@
+# Note that there is no working provisioning for this image 
+
 VM_NAME= "windows-2008-#{SecureRandom.hex(2)}"
 Vagrant.configure("2") do |config|
   config.vm.define "windows2008" do |config|
-    config.vm.box = "../boxes/windows2008.box"
+    config.vm.box = "d1vious/windows2008_x86"
     config.vm.hostname = "#{VM_NAME}"
     config.vm.boot_timeout = 600
     config.winrm.transport = :plaintext
