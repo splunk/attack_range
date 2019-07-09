@@ -1,0 +1,23 @@
+VM_NAME= "phantom"
+Vagrant.configure("2") do |config|
+  config.vm.define "phantom" do |config|
+    config.vm.box = "centos/7"
+    config.vm.hostname = "#{VM_NAME}"
+    config.vm.boot_timeout = 600
+    #config.vm.network "forwarded_port", guest: 443, host: 8443, protocol: "tcp"
+    config.vm.network :private_network, ip: "10.0.0.11"
+
+    config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "../ansible/playbooks/phantom.yml"
+        ansible.config_file = "../ansible/ansible.cfg"
+        ansible.compatibility_mode = "2.0"
+    end
+
+    config.vm.provider "virtualbox" do |vb, override|
+      vb.gui = true
+      vb.name = "#{VM_NAME}"
+      vb.customize ["modifyvm", :id, "--memory", 4096]
+      vb.customize ["modifyvm", :id, "--cpus", 2]
+    end
+  end
+end
