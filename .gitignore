@@ -1,3 +1,9 @@
+
+# ignore appbinaries directory we don't want this uploaded
+appbinaries/*
+ansible/roles/*/files/splunk*.tgz
+ansible/roles/*/files/splunk*.msi
+
 ## Terraform ignores 
 # Local .terraform directories
 **/.terraform/*
