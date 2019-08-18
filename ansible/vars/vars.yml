@@ -1,6 +1,5 @@
 ## Variables for Splunk Search Head
-splunk_binary_url: http://www.splunkresearch.com/splunk-7.2.6-c0bf0f679ce9-Linux-x86_64.tgz
-splunk_binary: splunk-7.2.6-c0bf0f679ce9-Linux-x86_64.tgz
+splunk_binary: splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
 splunk_pass: changeme
 
 # Apps
@@ -15,7 +14,8 @@ splunk_es_app: http://www.splunkresearch.com/splunk-enterprise-security_530.spl
 
 ## Variables for Splunk Universal Forwarders
 splunk_uf_indexer_ip: ec2-18-237-216-212.us-west-2.compute.amazonaws.com
-splunk_uf_msi: http://www.splunkresearch.com/splunkforwarder-7.3.0-657388c7a488-x64-release.msi
+splunk_uf_msi: splunkforwarder-7.3.0-657388c7a488-x64-release.msi
+
 
 # Universal Forwarder deploy binaries
 splunk_sysmon_ta: http://www.splunkresearch.com/add-on-for-microsoft-sysmon_800.tgz
@@ -55,3 +55,5 @@ windows_domain_controller_info:
   domain_admin_user: administrator@splunkresearch.local
   safe_mode_password: a31557c9-4d4f
   state: domain_controller
+
+sb_token: 

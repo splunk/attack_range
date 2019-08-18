@@ -28,6 +28,17 @@ def grab_splunk_ta(bin_dir):
     shutil.copy2(output, ansible_role_path_dst)
 #    os.symlink(output, splunk)
 
+def write_sb_token(sb_token):
+    varfile = "ansible/vars/vars.yml"
+    with open (varfile, 'r' ) as f:
+        content = f.read()
+        content_new = re.sub('sb_token:', 'sb_token: ' + sb_token, content, flags = re.M)
+
+        f.close()
+    with open (varfile, 'w' ) as f:
+        f.write(content_new)
+        f.close()
+
 def grab_splunkbase_token(splunkbase_username, splunkbase_password):
     api_url = 'https://splunkbase.splunk.com/api/account:login/'
     payload = 'username={0}&password={1}'.format(splunkbase_username, splunkbase_password)
@@ -93,6 +104,8 @@ starting program loaded for mode - B1 battle droid
         grab_splunk_ta(bin_dir)
 
     sb_token = grab_splunkbase_token(splunkbase_username, splunkbase_password)
+    write_sb_token(sb_token)
+
     if mode == "vagrant":
         print ("[mode] > vagrant")
         if state == "up":
