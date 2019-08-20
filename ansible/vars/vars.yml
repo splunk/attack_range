@@ -1,31 +1,31 @@
 ## Variables for Splunk Search Head
+splunk_binary_path: ../../../../appbinaries/splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
 splunk_binary: splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
 splunk_pass: changeme
 
 # Apps
 sysmon: true
 stream: true
-enterprise_security: true
-
-# Apps binaries
-splunk_stream_app: http://www.splunkresearch.com/splunk-stream_713.tgz
-splunk_escu_app: http://www.splunkresearch.com/splunk-es-content-update_1037.tgz
-splunk_es_app: http://www.splunkresearch.com/splunk-enterprise-security_530.spl
 
 ## Variables for Splunk Universal Forwarders
 splunk_uf_indexer_ip: ec2-18-237-216-212.us-west-2.compute.amazonaws.com
-splunk_uf_msi: splunkforwarder-7.3.0-657388c7a488-x64-release.msi
+splunk_uf_win: splunkforwarder-7.3.0-657388c7a488-x64-release.msi
+splunk_uf_win_binary_path: ../../../../appbinaries/splunkforwarder-7.3.0-657388c7a488-x64-release.msi
 
-
-# Universal Forwarder deploy binaries
-splunk_sysmon_ta: http://www.splunkresearch.com/add-on-for-microsoft-sysmon_800.tgz
-splunk_stream_zip: http://www.splunkresearch.com/Splunk_TA_stream.zip
-splunk_windows_ta: http://www.splunkresearch.com/splunk-add-on-for-microsoft-windows_600.tgz
+# Apps and TAs
+splunk_windows_ta_path: ../../../../appbinaries/splunk-add-on-for-microsoft-windows_600.tgz
+splunk_sysmon_ta_path: ../../../../appbinaries/add-on-for-microsoft-sysmon_800.tgz
+splunk_stream_ta_path: ../../../../appbinaries/Splunk_TA_stream.zip
+splunk_stream_app_path: ../../../../appbinaries/splunk-stream_713.tgz
+splunk_cim_app_path: ../../../../appbinaries/splunk-common-information-model-cim_4130.tgz
+splunk_escu_app_path: ../../../../appbinaries/DA-ESS-ContentUpdate-v1.0.41.tar.gz
+splunk_es_app_path: ../../../../appbinaries/splunk-enterprise-security_530.spl
 
 #Variables for Firedrill 
 install: true
-firedrill_msi: http://www.splunkresearch.com/FiredrillAgent-installer-2.2.363.exe
 firedrill_dst_location: C:\fd.exe
+firedrill_binary_path: ../../../../appbinaries/add-on-for-microsoft-sysmon_800.tgz
+
 
 #Variables for Sysmon
 win_temp_dir: 'c:\Program Files\ansible'
@@ -56,4 +56,4 @@ windows_domain_controller_info:
   safe_mode_password: a31557c9-4d4f
   state: domain_controller
 
-sb_token: 
+sb_token: yd62uq1dov96koc3bvoyctkxw2xyw6bm 

@@ -15,59 +15,67 @@ def grab_splunk(bin_dir):
     url = 'https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=linux&version=7.3.1&product=splunk&filename=splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz&wget=true'
     output = bin_dir + '/splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz'
     wget.download(url,output)
-    ansible_role_path_dst = 'ansible/roles/search_head/files/' + 'splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz'
-    shutil.copy2(output, ansible_role_path_dst)
-#    os.symlink(output, splunk)
 
-def grab_splunk_ta(bin_dir):
+def grab_splunk_uf_win(bin_dir):
     print("\ngrabbing splunk forwarder for windows\n")
     url = 'https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=windows&version=7.3.0&product=universalforwarder&filename=splunkforwarder-7.3.0-657388c7a488-x64-release.msi&wget=true'
     output = bin_dir + '/splunkforwarder-7.3.0-657388c7a488-x64-release.msi'
     wget.download(url,output)
-    ansible_role_path_dst = 'ansible/roles/universal_forwarder/files' + '/splunkforwarder-7.3.0-657388c7a488-x64-release.msi'
-    shutil.copy2(output, ansible_role_path_dst)
-#    os.symlink(output, splunk)
 
-def write_sb_token(sb_token):
-    varfile = "ansible/vars/vars.yml"
-    with open (varfile, 'r' ) as f:
-        content = f.read()
-        content_new = re.sub('sb_token:', 'sb_token: ' + sb_token, content, flags = re.M)
+def grab_splunk_ta_win(bin_dir):
+    print("\ngrabbing splunk add-on for windows\n")
+    url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/splunk-add-on-for-microsoft-windows_600.tgz'
+    output = bin_dir + '/splunk-add-on-for-microsoft-windows_600.tgz'
+    wget.download(url,output)
 
-        f.close()
-    with open (varfile, 'w' ) as f:
-        f.write(content_new)
-        f.close()
+def grab_splunk_ta_sysmon(bin_dir):
+    print("\ngrabbing splunk add-on for sysmon\n")
+    url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/add-on-for-microsoft-sysmon_800.tgz'
+    output = bin_dir + '/add-on-for-microsoft-sysmon_800.tgz'
+    wget.download(url,output)
 
-def grab_splunkbase_token(splunkbase_username, splunkbase_password):
-    api_url = 'https://splunkbase.splunk.com/api/account:login/'
-    payload = 'username={0}&password={1}'.format(splunkbase_username, splunkbase_password)
-    headers = {"Content-Type":"application/x-www-form-urlencoded", "Accept":"*/*"}
-    response = requests.post(api_url, headers=headers, data=payload)
-    if response.status_code != 200:
-        raise Exception("Invalid Splunkbase credentials - will not download apps from Splunkbase")
-    output = response.text
-    splunkbase_token = re.search("<id>(.*)</id>", output, re.IGNORECASE)
-    sb_token = splunkbase_token.group(1) if splunkbase_token else None
-    return sb_token
+def grab_splunk_cim_app(bin_dir):
+    print("\ngrabbing splunk (CIM) common information model app\n")
+    url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/splunk-common-information-model-cim_4130.tgz'
+    output = bin_dir + '/splunk-common-information-model-cim_4130.tgz'
+    wget.download(url,output)
+
+def grab_streams(bin_dir):
+    print("\ngrabbing splunk stream app\n")
+    url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/splunk-stream_713.tgz'
+    output = bin_dir + '/splunk-stream_713.tgz'
+    wget.download(url,output)
+    print("\ngrabbing splunk stream TA\n")
+    url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/Splunk_TA_stream.zip'
+    output = bin_dir + '/Splunk_TA_stream.zip'
+    wget.download(url,output)
+
+def grab_firedrill(bin_dir):
+    print("\ngrabbing firedrill agent\n")
+    url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/FiredrillAgent-installer-2.2.389.exe'
+    output = bin_dir + '/FiredrillAgent-installer-2.2.389.exe'
+    wget.download(url,output)
+
+def grab_escu_latest(bin_dir):
+    print("\ngrabbing splunk ESCU app\n")
+    url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/DA-ESS-ContentUpdate-v1.0.41.tar.gz'
+    output = bin_dir + '/DA-ESS-ContentUpdate-v1.0.41.tar.gz'
+    wget.download(url,output)
+
 
 
 if __name__ == "__main__":
     # grab arguments
     parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk") 
     parser.add_argument("-b", "--appbin", required=False, default="appbinaries", help="directory to store binaries in")
-    parser.add_argument("-m", "--mode", required=False, default="terraform", help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
-    parser.add_argument("-s", "--state", required=False, default="up", help="state of the range, defaults to \"up\", up/down allowed")
-    parser.add_argument("-sbu", "--splunkbase_username", required=True, default="", help="splunkbase username, used to download apps")
-    parser.add_argument("-sbp", "--splunkbase_password", required=True, default="", help="splunkbase password, used to download apps")
+    parser.add_argument("-m", "--mode", required=True, default="terraform", help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
+    parser.add_argument("-s", "--state", required=True, default="up", help="state of the range, defaults to \"up\", up/down allowed")
     parser.add_argument("-v", "--version", required=False, help="shows current attack_range version")
 
     # parse them
     args = parser.parse_args()
     ARG_VERSION = args.version
     bin_dir = args.appbin
-    splunkbase_username = args.splunkbase_username
-    splunkbase_password = args.splunkbase_password
     mode = args.mode
     state = args.state
 
@@ -101,10 +109,13 @@ starting program loaded for mode - B1 battle droid
         print ("seems this is our first run, creating a directory for binaries at {0}".format(bin_dir))
         os.makedirs(bin_dir)
         grab_splunk(bin_dir)
-        grab_splunk_ta(bin_dir)
-
-    sb_token = grab_splunkbase_token(splunkbase_username, splunkbase_password)
-    write_sb_token(sb_token)
+        grab_splunk_uf_win(bin_dir)
+        grab_splunk_ta_win(bin_dir)
+        grab_splunk_ta_sysmon(bin_dir)
+        grab_splunk_cim_app(bin_dir)
+        grab_streams(bin_dir)
+        grab_firedrill(bin_dir)
+        grab_escu_latest(bin_dir)
 
     if mode == "vagrant":
         print ("[mode] > vagrant")
@@ -113,7 +124,7 @@ starting program loaded for mode - B1 battle droid
             vagrantfile = 'vagrant/splunk_server/'
             v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
             #v1.destroy()
-            v1.up()
+            v1.up(provision=True)
         elif state == "down":
             print ("[state] > down")
             vagrantfile = 'vagrant/splunk_server/'

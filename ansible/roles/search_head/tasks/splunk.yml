@@ -30,7 +30,7 @@
 
 - name: copy splunk binary
   copy:
-    src: '{{splunk_binary}}'
+    src: '{{splunk_binary_path}}'
     dest: /opt/
     mode: '0644'
     local_follow: yes
