@@ -1,4 +1,5 @@
 import os
+import sys
 import argparse
 import wget
 import requests
@@ -71,6 +72,8 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--mode", required=True, default="terraform", help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
     parser.add_argument("-s", "--state", required=True, default="up", help="state of the range, defaults to \"up\", up/down allowed")
     parser.add_argument("-v", "--version", required=False, help="shows current attack_range version")
+    parser.add_argument("-vbox", "--vagrant_box", required=False, default="", help="select which vagrant box to stand up or destroy individually")
+    parser.add_argument("-vls", "--vagrant_list", required=False, default=False, action="store_true", help="prints out all avaiable vagrant boxes")
 
     # parse them
     args = parser.parse_args()
@@ -78,6 +81,8 @@ if __name__ == "__main__":
     bin_dir = args.appbin
     mode = args.mode
     state = args.state
+    vagrant_box = args.vagrant_box
+    vagrant_list = args.vagrant_list
 
     print("INIT - Attack Range v" + str(VERSION))
     print("""
@@ -101,7 +106,7 @@ starting program loaded for mode - B1 battle droid
 
     if ARG_VERSION:
         print ("version: {0}".format(VERSION))
-        sys.exit()
+        sys.exit(1)
 
     if os.path.exists(bin_dir):
         print ("this is not our first run binary directory exists, skipping setup")
@@ -117,11 +122,22 @@ starting program loaded for mode - B1 battle droid
         grab_firedrill(bin_dir)
         grab_escu_latest(bin_dir)
 
+    if vagrant_list:
+        print("available VAGRANT BOX:\n")
+        for f in os.listdir("vagrant"):
+            print("* " + f)
+        sys.exit(1)
+
     if mode == "vagrant":
         print ("[mode] > vagrant")
+        if vagrant_box:
+            vagrantfile = 'vagrant/' + vagrant_box
+            print("operating on vagrant box: " + vagrantfile)
+        else:
+            vagrantfile = 'vagrant/' 
+            print("operating on all range boxes WARNING MAKE SURE YOU HAVE 16GB OF RAM otherwise you will have a bad time")
         if state == "up":
             print ("[state] > up")
-            vagrantfile = 'vagrant/splunk_server/'
             v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
             #v1.destroy()
             v1.up(provision=True)

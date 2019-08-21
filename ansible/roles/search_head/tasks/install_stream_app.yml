@@ -3,7 +3,7 @@
     path: /opt/splunk/etc/apps/Splunk_TA_stream
   register: stream_app
 
-- name: copy escu app
+- name: copy streams app
   copy:
     src: "{{ splunk_stream_app_path }}"
     dest: /tmp/stream_app.tgz

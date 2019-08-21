@@ -1,4 +1,4 @@
-## Variables for Splunk Search Head
+## Variables for Splunk Search HeadGGG
 splunk_binary_path: ../../../../appbinaries/splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
 splunk_binary: splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
 splunk_pass: changeme
@@ -55,5 +55,3 @@ windows_domain_controller_info:
   domain_admin_user: administrator@splunkresearch.local
   safe_mode_password: a31557c9-4d4f
   state: domain_controller
-
-sb_token: yd62uq1dov96koc3bvoyctkxw2xyw6bm 
