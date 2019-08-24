@@ -24,8 +24,7 @@ splunk_es_app_path: ../../../../appbinaries/splunk-enterprise-security_530.spl
 #Variables for Firedrill 
 install: true
 firedrill_dst_location: C:\fd.exe
-firedrill_binary_path: ../../../../appbinaries/add-on-for-microsoft-sysmon_800.tgz
-
+firedrill_binary_path: ../../../../appbinaries/FiredrillAgent-installer-2.2.389.exe
 
 #Variables for Sysmon
 win_temp_dir: 'c:\Program Files\ansible'

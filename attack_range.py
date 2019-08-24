@@ -7,7 +7,11 @@ import urllib.parse
 import re
 import vagrant
 import shutil
+from python_terraform import *
 
+# need to set this ENV var due to a OSX High Sierra forking bug
+# see this discussion for more details: https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
+os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
 
 VERSION = 1
 
@@ -62,7 +66,6 @@ def grab_escu_latest(bin_dir):
     url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/DA-ESS-ContentUpdate-v1.0.41.tar.gz'
     output = bin_dir + '/DA-ESS-ContentUpdate-v1.0.41.tar.gz'
     wget.download(url,output)
-
 
 
 if __name__ == "__main__":
@@ -124,7 +127,11 @@ starting program loaded for mode - B1 battle droid
 
     if vagrant_list:
         print("available VAGRANT BOX:\n")
-        for f in os.listdir("vagrant"):
+        d = 'vagrant'
+        subdirs = os.listdir(d)
+        for f in subdirs:
+            if f == ".vagrant" or f == "Vagrantfile":
+                continue
             print("* " + f)
         sys.exit(1)
 
@@ -143,7 +150,6 @@ starting program loaded for mode - B1 battle droid
             v1.up(provision=True)
         elif state == "down":
             print ("[state] > down")
-            vagrantfile = 'vagrant/splunk_server/'
             v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
             v1.destroy()
         else:
@@ -152,7 +158,18 @@ starting program loaded for mode - B1 battle droid
     # lets process modes
     elif mode == "terraform":
         print("[mode] > terraform ")
-        print("not yet implemented")
+        if state == "up":
+            print ("[state] > up")
+            t = Terraform(working_dir='terraform')
+            return_code, stdout, stderr = t.apply(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
+            print("TERRAFORM COMPLETED WITH RETURN CODE {0}".format(return_code))
+        elif state == "down":
+            print ("[state] > down")
+            t = Terraform(working_dir='terraform')
+            return_code, stdout, stderr = t.destroy(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
+            print("TERRAFORM COMPLETED WITH RETURN CODE {0}".format(return_code))
+        else:
+            print("incorrect state, please set flag --state to \"up\" or \"download\"")
     else:
         print("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")
 
