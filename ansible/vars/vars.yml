@@ -50,7 +50,7 @@ win_sysmon_eventlog_channels:
 # Domain Controller
 windows_domain_controller_info:
   dns_domain_name: splunkresearch.local
-  domain_admin_password: a31557c9-4d4f 
-  domain_admin_user: administrator@splunkresearch.local
-  safe_mode_password: a31557c9-4d4f
+  domain_admin_password: myTempPassword123
+  domain_admin_user: Administrator@splunkresearch.local
+  safe_mode_password: myTempPassword123
   state: domain_controller

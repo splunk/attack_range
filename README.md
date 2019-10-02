@@ -31,19 +31,25 @@ optional arguments:
 ```
 ## Running
 
-1. `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt` create virtualenv and install requirements: 
-2. `python attack_range.py --state up --mode vagrant`
+1. `git clone https://github.com/splunk/attack_range && cd attack_range` clone project and cd into the project dir
+2. `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt` create virtualenv and install requirements
+3. . `python attack_range.py --state up --mode vagrant` start up a range locally using vagrant
 
-See [Usage](#usage) for more options, make sure that you [configure](#configure) your mode first
+See [Usage](#usage) for more options, **make sure that you [configure](#configure) the mode first**
 
+if you are on OSX you will have to install sshpass `brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb`
 ## Configure 
 #### For Terraform
-1. `brew install terraform` install terraform CLI _on osx** [other platforms](https://www.terraform.io/downloads.html)
-2. `brew install awscli`  install aws CLI _on osx_ otherwise see: [guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
-2. Get AWS API token `aws configure` 
+1. `brew install terraform` install terraform CLI on OSX [other platforms](https://www.terraform.io/downloads.html)
+2. `brew install awscli`  install aws CLI on OSX otherwise see: [guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
+3. Get AWS API token `aws configure` 
+4. Set terraform variables under [terraform/terraform.tfvars](https://github.com/splunk/attack_range/blob/develop/terraform/terraform.tfvars)
 
 #### For Vagrant
-1. `brew install vagrant` install vagrant CLI _on osx_ otherwise see: [guide](https://www.vagrantup.com/downloads.html)
+1. `brew install vagrant` install vagrant CLI on OSX otherwise see: [guide](https://www.vagrantup.com/downloads.html)
+
+#### Range Settings
+To configure general range settings like your Splunk Server default username, sysmon template to deploy, or Active Directory admin creds edit: [ansible/vars/vars.yml](https://github.com/splunk/attack_range/blob/develop/ansible/vars/vars.yml)
 
 ## Developing 
 * For proper installation you will need access to AttackIQ Community Git Lab. Request access via slack in the #security-content channel
