@@ -9,7 +9,7 @@ This lab has been designed with reproducability in mind. Its primary purpose is 
 ## Usage
 ```
 usage: attack_range.py [-h] [-b APPBIN] -m MODE -s STATE [-v VERSION]
-                       [-vbox VAGRANT_BOX] [-vls]
+                       [-vbox VAGRANT_BOX] [-vls] [-se SIMULATION_ENGINE]
 
 starts a attack range ready to collect attack data into splunk
 
@@ -28,12 +28,15 @@ optional arguments:
                         select which vagrant box to stand up or destroy
                         individually
   -vls, --vagrant_list  prints out all avaiable vagrant boxes
+  -se SIMULATION_ENGINE, --simulation_engine SIMULATION_ENGINE
+                        please select a simulation engine, defaults to
+                        "atomic_red_team"
 ```
 ## Running
 
 1. `git clone https://github.com/splunk/attack_range && cd attack_range` clone project and cd into the project dir
 2. `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt` create virtualenv and install requirements
-3. . `python attack_range.py --state up --mode vagrant` start up a range locally using vagrant
+3. . `python attack_range.py --state up --mode vagrant` start up a range locally using vagrant or `python attack_range.py --state up --mode terraform` to deploy it to "the cloud"
 
 See [Usage](#usage) for more options, **make sure that you [configure](#configure) the mode first**
 
@@ -43,13 +46,13 @@ if you are on OSX you will have to install sshpass `brew install https://raw.git
 1. `brew install terraform` install terraform CLI on OSX [other platforms](https://www.terraform.io/downloads.html)
 2. `brew install awscli`  install aws CLI on OSX otherwise see: [guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
 3. Get AWS API token `aws configure` 
-4. Set terraform variables under [terraform/terraform.tfvars](https://github.com/splunk/attack_range/blob/develop/terraform/terraform.tfvars)
+4. Set terraform variables under [terraform/terraform.tfvars](https://github.com/splunk/attack_range/blob/develop/terraform/terraform.tfvars.example)
 
 #### For Vagrant
 1. `brew install vagrant` install vagrant CLI on OSX otherwise see: [guide](https://www.vagrantup.com/downloads.html)
 
 #### Range Settings
-To configure general range settings like your Splunk Server default username, sysmon template to deploy, or Active Directory admin creds edit: [ansible/vars/vars.yml](https://github.com/splunk/attack_range/blob/develop/ansible/vars/vars.yml)
+To configure general range settings like your Splunk Server default username, sysmon template to deploy, or Active Directory admin creds edit: [ansible/vars/vars.yml](https://github.com/splunk/attack_range/blob/develop/ansible/vars/vars.yml.default)
 
 ## Developing 
 * For proper installation you will need access to AttackIQ Community Git Lab. Request access via slack in the #security-content channel
