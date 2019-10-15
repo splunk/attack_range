@@ -52,7 +52,7 @@ resource "aws_security_group" "default" {
 # standup splunk server
  resource "aws_instance" "splunk-server" {
   ami           = var.splunk_ami
-  instance_type = "t2.xlarge"
+  instance_type = "t2.2xlarge"
   key_name = var.key_name
   subnet_id = "${aws_subnet.default.1.id}"
   vpc_security_group_ids = ["${aws_security_group.default.id}"]
@@ -73,7 +73,7 @@ resource "aws_eip" "ip" {
 # standup windows 2016 domain controller
 resource "aws_instance" "windows_2016_dc" {
   ami           = var.windows_2016_dc_ami
-  instance_type = "t2.large"
+  instance_type = "t2.2xlarge"
   key_name = var.key_name
   subnet_id = "${aws_subnet.default.0.id}"
   vpc_security_group_ids = ["${aws_security_group.default.id}"]

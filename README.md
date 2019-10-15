@@ -55,6 +55,8 @@ To configure general range settings like your Splunk Server default username, sy
 * For proper installation you will need access to AttackIQ Community Git Lab. Request access via slack in the #security-content channel
 
 1. create virtualenv and install requirements: `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt`
-
 2. install pre-commit hooks `pre-commit install`
-3. install ansible  _on osx_ `brew install ansible`
+3. install ansible on osx `brew install ansible`
+
+## TODO 
+* create a cloud attack example using ansible to launch AWS cli commands, use terraform to spin up the attacking host see [here](https://docs.google.com/document/d/1ZLAQ7VQSF1i-Pzq5fw9TFwWnPlaSsj-8GTG0FCVyMe0/edit)

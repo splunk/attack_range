@@ -67,6 +67,35 @@ def grab_escu_latest(bin_dir):
     output = bin_dir + '/DA-ESS-ContentUpdate-v1.0.41.tar.gz'
     wget.download(url,output)
 
+def prep_ansible():
+    # prep ansible for configuration
+    # lets configure the passwords for ansible before we run any operations
+    try:
+        f = open("terraform/terraform.tfvars", "r")
+        contents = f.read()
+
+        win_password = re.findall(r'^win_password = \"(.+)\"', contents, re.MULTILINE)
+        win_username = re.findall(r'^win_username = \"(.+)\"', contents, re.MULTILINE)
+
+        # Read in the ansible vars file
+        with open('ansible/vars/vars.yml.default', 'r') as file:
+            ansiblevars = file.read()
+
+        # Replace the username and password
+        ansiblevars = ansiblevars.replace('USERNAME', win_username[0])
+        ansiblevars = ansiblevars.replace('PASSWORD', win_password[0])
+
+        # Write the file out again
+        with open('ansible/vars/vars.yml', 'w') as file:
+            file.write(ansiblevars)
+
+        print("setting windows username: {0} from terraform/terraform.tfvars file".format(win_username))
+        print("setting windows password: {0} from terraform/terraform.tfvars file".format(win_password))
+    except e:
+        print("make sure that ansible/host.default contains the windows username and password.\n" +
+              "We were not able to set it automatically")
+
+    sys.exit(1)
 
 if __name__ == "__main__":
     # grab arguments
@@ -77,6 +106,8 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--version", required=False, help="shows current attack_range version")
     parser.add_argument("-vbox", "--vagrant_box", required=False, default="", help="select which vagrant box to stand up or destroy individually")
     parser.add_argument("-vls", "--vagrant_list", required=False, default=False, action="store_true", help="prints out all avaiable vagrant boxes")
+    parser.add_argument("-se", "--simulation_engine", required=False, default="atomic_red_team", help="please select a simulation engine, defaults to \"atomic_red_team\"")
+    #parser.add_argument("-vls", "--vagrant_list", required=False, default=False, action="store_true", help="prints out all avaiable vagrant boxes")
 
     # parse them
     args = parser.parse_args()
@@ -124,6 +155,9 @@ starting program loaded for mode - B1 battle droid
         grab_streams(bin_dir)
         grab_firedrill(bin_dir)
         grab_escu_latest(bin_dir)
+
+    # prepare Ansible before execution
+    prep_ansible()
 
     if vagrant_list:
         print("available VAGRANT BOX:\n")
