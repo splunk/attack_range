@@ -4,7 +4,8 @@
 
 ## Purpose
 
-This framework allows the security analyst to replicate and generate data as close to ground truth as possible, in a format that allows the creation of detections, investigations, knowledge objects, and defense playbooks in Splunk. This data includes things such as logs, network captures and endpoint events derived from either known attack-simulation engines (Atomic Red Team/AttackIQ) or recent exploit code from local (Vagrant) or cloud enviroments (Terraform) 
+This framework allows the security analyst to replicate and generate data as close to ground truth as possible, in a format that allows the creation of detections, investigations, knowledge objects, and defense playbooks in Splunk. This data includes things such as logs, network captures and endpoint events derived from either known attack-simulation engines (Atomic Red Team/AttackIQ) or recent exploit code from local (Vagrant) or cloud enviroments (Terraform).
+Inspired by [DetectionLab](https://github.com/clong/DetectionLab). 
 
 ## Architecture
 ![Logical Diagram](docs/architecture.png)
@@ -39,7 +40,7 @@ optional arguments:
 
 1. `git clone https://github.com/splunk/attack_range && cd attack_range` clone project and cd into the project dir
 2. `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt` create virtualenv and install requirements
-3. . `python attack_range.py --state up --mode vagrant` start up a range locally using vagrant or `python attack_range.py --state up --mode terraform` to deploy it to "the cloud"
+3. `python attack_range.py --state up --mode vagrant` start up a range locally using vagrant or `python attack_range.py --state up --mode terraform` to deploy it to "the cloud"
 
 See [Usage](#usage) for more options, **make sure that you [configure](#configure) the mode first**
 
