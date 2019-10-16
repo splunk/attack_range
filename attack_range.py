@@ -95,8 +95,6 @@ def prep_ansible():
         print("make sure that ansible/host.default contains the windows username and password.\n" +
               "We were not able to set it automatically")
 
-    sys.exit(1)
-
 if __name__ == "__main__":
     # grab arguments
     parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk") 
@@ -178,12 +176,12 @@ starting program loaded for mode - B1 battle droid
             vagrantfile = 'vagrant/' 
             print("operating on all range boxes WARNING MAKE SURE YOU HAVE 16GB OF RAM otherwise you will have a bad time")
         if state == "up":
-            print ("[state] > up")
+            print ("[state] > up\n")
             v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
             #v1.destroy()
             v1.up(provision=True)
         elif state == "down":
-            print ("[state] > down")
+            print ("[state] > down\n")
             v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
             v1.destroy()
         else:
@@ -193,13 +191,13 @@ starting program loaded for mode - B1 battle droid
     elif mode == "terraform":
         print("[mode] > terraform ")
         if state == "up":
-            print ("[state] > up")
+            print ("[state] > up\n")
             t = Terraform(working_dir='terraform')
             return_code, stdout, stderr = t.apply(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
-            
+
             print("TERRAFORM COMPLETED WITH RETURN CODE {0}".format(return_code))
         elif state == "down":
-            print ("[state] > down")
+            print ("[state] > down\n")
             t = Terraform(working_dir='terraform')
             return_code, stdout, stderr = t.destroy(capture_output='yes', no_color=IsNotFlagged)
             print("TERRAFORM COMPLETED WITH RETURN CODE {0}".format(return_code))
