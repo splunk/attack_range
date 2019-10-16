@@ -1,6 +1,6 @@
 - name: Download Splunk UF
-  win_get_url:
-    url: "{{ splunk_uf_msi }}"
+  win_copy:
+    src: "{{ splunk_uf_win_binary_path }}"
     dest: C:\splunkuf.msi
 
 - name: Install Splunk_UF MSI

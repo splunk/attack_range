@@ -1,6 +1,6 @@
 - name: Download windows TA
-  win_get_url:
-    url: "{{ splunk_windows_ta }}" 
+  win_copy:
+    src: "{{ splunk_windows_ta_path }}" 
     dest: C:\windows-ta.tgz
 
 - name: Add powershell module PSCX required by Ansible's win_unzip 

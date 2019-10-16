@@ -1,15 +1,14 @@
-- name: Check we have downloaded splunk escu app
+- name: Check if ESCU App exists
   stat:
-    path: /tmp/escu_app.tgz
+    path: /opt/splunk/etc/apps/DA-ESS-ContentUpdate
   register: escu_app
 
-- name: Download escu app
-  get_url:
-    url: "{{ splunk_escu_app }}" 
+- name: copy escu app
+  copy:
+    src: "{{ splunk_escu_app_path }}" 
     dest: /tmp/escu_app.tgz
-    owner: splunk
-    group: splunk
-  notify: restart splunk
+    mode: 0644
+    local_follow: yes
   when: escu_app.stat.exists == False
 
 - name: Install escu app via REST

@@ -1,8 +1,8 @@
 --- 
 
-- name: Download FireDrill
-  win_get_url:
-    url: "{{ firedrill_msi }}"
+- name: Copy FireDrill
+  win_copy:
+    src: "{{ firedrill_binary_path }}"
     dest: "{{ firedrill_dst_location }}"
     when: install
 

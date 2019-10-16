@@ -29,7 +29,12 @@
 - name: Setting DNS Servers
   win_dns_client:
     adapter_names: "*"
-    ipv4_addresses: "10.0.0.5"
+    ipv4_addresses: "127.0.0.1"
+
+- name: reboot | Rebooting Server
+  win_reboot:
+    reboot_timeout_sec: 300
+    shutdown_timeout: 300
 
 - name: Managing Domain Controller Membership
   win_domain_controller:

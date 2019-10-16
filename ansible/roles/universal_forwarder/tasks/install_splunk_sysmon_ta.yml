@@ -1,6 +1,6 @@
 - name: Download Sysmon TA
-  win_get_url:
-    url: "{{ splunk_sysmon_ta }}" 
+  win_copy:
+    src: "{{ splunk_sysmon_ta_path }}" 
     dest: C:\sysmon-ta.tgz
 
 - name: Add powershell module PSCX required by Ansible's win_unzip 

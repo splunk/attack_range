@@ -1,0 +1,56 @@
+## Variables for Splunk Search HeadGGG
+splunk_binary_path: ../../../../appbinaries/splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
+splunk_binary: splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
+splunk_pass: changeme
+
+# Apps
+sysmon: true
+stream: true
+
+## Variables for Splunk Universal Forwarders
+splunk_uf_indexer_ip: ec2-18-237-216-212.us-west-2.compute.amazonaws.com
+splunk_uf_win: splunkforwarder-7.3.0-657388c7a488-x64-release.msi
+splunk_uf_win_binary_path: ../../../../appbinaries/splunkforwarder-7.3.0-657388c7a488-x64-release.msi
+
+# Apps and TAs
+splunk_windows_ta_path: ../../../../appbinaries/splunk-add-on-for-microsoft-windows_600.tgz
+splunk_sysmon_ta_path: ../../../../appbinaries/add-on-for-microsoft-sysmon_800.tgz
+splunk_stream_ta_path: ../../../../appbinaries/Splunk_TA_stream.zip
+splunk_stream_app_path: ../../../../appbinaries/splunk-stream_713.tgz
+splunk_cim_app_path: ../../../../appbinaries/splunk-common-information-model-cim_4130.tgz
+splunk_escu_app_path: ../../../../appbinaries/DA-ESS-ContentUpdate-v1.0.41.tar.gz
+splunk_es_app_path: ../../../../appbinaries/splunk-enterprise-security_530.spl
+
+#Variables for Firedrill 
+install: true
+firedrill_dst_location: C:\fd.exe
+firedrill_binary_path: ../../../../appbinaries/FiredrillAgent-installer-2.2.389.exe
+
+#Variables for Sysmon
+win_temp_dir: 'c:\Program Files\ansible'
+win_log_dir: 'c:\ProgramData\ansible\log'
+
+win_sysmon: true
+## as sysmon link is updated and hash change, chocolatey install can fails
+## ansible win_get_url currently does not support checksum option
+win_sysmon_direct: true
+win_sysmon_url: 'https://download.sysinternals.com/files/Sysmon.zip'
+win_sysmon_sha256: '848c3323324e8fa849024f87a2764f8575513463f339690056664861f99e4c5f'
+## note: file should be in current or template directory with .j2 extension
+#win_sysmon_template: SysmonConfig-Neo23x0-workstations.xml
+#win_sysmon_template: SysmonConfig-moti.xml
+#win_sysmon_template: SysmonConfig-TSwift.xml
+win_sysmon_template: SysmonConfig-Verbose.xml
+
+win_eventlog_maxsize: 315801600
+win_eventlog_retention: 0
+win_sysmon_eventlog_channels:
+  - Microsoft-Windows-Sysmon/Operational
+
+# Domain Controller
+windows_domain_controller_info:
+  dns_domain_name: splunkresearch.local
+  domain_admin_password: PASSWORD
+  domain_admin_user: USERNAME@splunkresearch.local
+  safe_mode_password: PASSWORD
+  state: domain_controller

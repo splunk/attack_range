@@ -4,8 +4,8 @@
   register: stream_zip
 
 - name: Download Splunk Stream
-  win_get_url:
-    url: "{{ splunk_stream_zip }}"
+  win_copy:
+    src: "{{ splunk_stream_ta_path }}"
     dest: C:\splunk-stream.zip
   when: stream_zip.stat.exists == False
 
