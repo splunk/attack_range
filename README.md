@@ -60,13 +60,23 @@ if you are on OSX you will have to install sshpass `brew install https://raw.git
 To configure general range settings like your Splunk Server default username, sysmon template to deploy, or Active Directory admin creds edit: [ansible/vars/vars.yml](https://github.com/splunk/attack_range/blob/develop/ansible/vars/vars.yml.default)
 
 ## Developing 
-* For proper installation you will need access to AttackIQ Community Git Lab. Request access via slack in the #security-content channel
 
 1. create virtualenv and install requirements: `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt`
 2. install pre-commit hooks `pre-commit install`
 3. install ansible on osx `brew install ansible`
 
-## TO DO
+## Support
+You can get help with setting up your own range in the [Splunk Community Slack](http://splk.it/slack). Under the `#security-research` channel.
+
+## Author
+* [Jose Hernandez](https://twitter.com/d1vious)
+
+## Contributors
+* [Rod Soto](https://twitter.com/rodsoto)
+* [Bhavin Patel](https://twitter.com/hackpsy)
+* Russ Nolen
+
+## To Do's
 * implement Atomic Red Team simulation engine execution
 * implement Attack IQ simulation engine execution
 * create global conf file
