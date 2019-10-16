@@ -4,7 +4,7 @@
   
 ## Purpose
 
-This lab has been designed with reproducability in mind. Its primary purpose is to allow the user to quickly build various systems (Workstations, Domain Controllers, *nix machines,etc) in a quick and reproducable manner
+This framework allows the security analyst to replicate and generate data as close to ground truth as possible, in a format that allows the creation of detections, investigations, knowledge objects, and defense playbooks in Splunk. This data includes things such as logs, network captures and endpoint events derived from either known attack-simulation engines (Atomic Red Team/AttackIQ) or recent exploit code from local (Vagrant) or cloud enviroments (Terraform) 
 
 ## Usage
 ```
@@ -41,7 +41,9 @@ optional arguments:
 See [Usage](#usage) for more options, **make sure that you [configure](#configure) the mode first**
 
 if you are on OSX you will have to install sshpass `brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb`
+
 ## Configure 
+
 #### For Terraform
 1. `brew install terraform` install terraform CLI on OSX [other platforms](https://www.terraform.io/downloads.html)
 2. `brew install awscli`  install aws CLI on OSX otherwise see: [guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
@@ -60,6 +62,3 @@ To configure general range settings like your Splunk Server default username, sy
 1. create virtualenv and install requirements: `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt`
 2. install pre-commit hooks `pre-commit install`
 3. install ansible on osx `brew install ansible`
-
-## TODO 
-* create a cloud attack example using ansible to launch AWS cli commands, use terraform to spin up the attacking host see [here](https://docs.google.com/document/d/1ZLAQ7VQSF1i-Pzq5fw9TFwWnPlaSsj-8GTG0FCVyMe0/edit)
