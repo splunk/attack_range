@@ -62,3 +62,8 @@ To configure general range settings like your Splunk Server default username, sy
 1. create virtualenv and install requirements: `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt`
 2. install pre-commit hooks `pre-commit install`
 3. install ansible on osx `brew install ansible`
+
+## TO DO
+* implement Atomic Red Team simulation engine execution
+* implement Attack IQ simulation engine execution
+* create global conf file
