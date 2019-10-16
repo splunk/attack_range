@@ -196,6 +196,7 @@ starting program loaded for mode - B1 battle droid
             print ("[state] > up")
             t = Terraform(working_dir='terraform')
             return_code, stdout, stderr = t.apply(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
+            
             print("TERRAFORM COMPLETED WITH RETURN CODE {0}".format(return_code))
         elif state == "down":
             print ("[state] > down")

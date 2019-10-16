@@ -1,10 +1,13 @@
 
 ![](docs/range.jpg)
 # Splunk Attack Range
-  
+
 ## Purpose
 
 This framework allows the security analyst to replicate and generate data as close to ground truth as possible, in a format that allows the creation of detections, investigations, knowledge objects, and defense playbooks in Splunk. This data includes things such as logs, network captures and endpoint events derived from either known attack-simulation engines (Atomic Red Team/AttackIQ) or recent exploit code from local (Vagrant) or cloud enviroments (Terraform) 
+
+## Architecture
+![Logical Diagram](docs/architecture.png)
 
 ## Usage
 ```
