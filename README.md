@@ -55,7 +55,8 @@ if you are on OSX you will have to install sshpass `brew install https://raw.git
 4. Set terraform variables under [terraform/terraform.tfvars](https://github.com/splunk/attack_range/blob/develop/terraform/terraform.tfvars.example)
 
 #### For Vagrant
-1. `brew install vagrant` install vagrant CLI on OSX otherwise see: [guide](https://www.vagrantup.com/downloads.html)
+1. 	`brew cask install virtualbox` if you don't already have virtual box installed on OSX otherwise see their [installation instructions](https://www.virtualbox.org/wiki/Downloads).
+2. `brew cask install vagrant` install vagrant CLI on OSX otherwise see: [guide](https://www.vagrantup.com/downloads.html)
 
 #### Range Settings
 To configure general range settings like your Splunk Server default username, sysmon template to deploy, or Active Directory admin creds edit: [ansible/vars/vars.yml](https://github.com/splunk/attack_range/blob/develop/ansible/vars/vars.yml.default)
