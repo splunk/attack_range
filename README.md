@@ -77,6 +77,7 @@ You can get help with setting up your own range in the [Splunk Community Slack](
 * [Rod Soto](https://twitter.com/rodsoto)
 * [Bhavin Patel](https://twitter.com/hackpsy)
 * Russ Nolen
+* Phil Royer
 
 ## To Do's
 * implement Atomic Red Team simulation engine execution
