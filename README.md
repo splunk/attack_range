@@ -3,9 +3,9 @@
 # Splunk Attack Range
 
 ## Purpose
-This framework allows the security analyst to quickly and repeatedly replicate and generate data as close to ground truth as possible, in a format that allows the creation of detections, investigations, knowledge objects, and playbooks in Splunk.
+This framework allows the security analyst to quickly and repeatedly replicate and generate data as close to "ground truth" as possible, in a format that allows the creation of detections, investigations, knowledge objects, and playbooks in Splunk.
 
-The data includes things such as logs, network captures and endpoint events derived from either known attack-simulation engines (Atomic Red Team/AttackIQ) or recent exploit code on local (Vagrant) or cloud enviroments (Terraform).
+The data includes logs, network captures, endpoint events, and so on, derived from either known attack-simulation engines (Atomic Red Team/AttackIQ) or recent exploit code on local (Vagrant) or cloud enviroments (Terraform).
 Inspired by [DetectionLab](https://github.com/clong/DetectionLab). 
 
 ## Architecture
@@ -16,7 +16,7 @@ Inspired by [DetectionLab](https://github.com/clong/DetectionLab).
 usage: attack_range.py [-h] [-b APPBIN] -m MODE -s STATE [-v VERSION]
                        [-vbox VAGRANT_BOX] [-vls] [-se SIMULATION_ENGINE]
 
-starts a attack range ready to collect attack data into splunk
+starts a attack range ready to collect attack data into Splunk
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -45,31 +45,31 @@ optional arguments:
 
 See [Usage](#usage) for more options, **make sure that you [configure](#configure) the mode first**
 
-if you are on OSX you will have to install sshpass `brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb`
+If you are on OSX, you will have to install sshpass `brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb`
 
 ## Configure 
 
 #### For Terraform
-1. `brew install terraform` install terraform CLI on OSX [other platforms](https://www.terraform.io/downloads.html)
-2. `brew install awscli`  install aws CLI on OSX otherwise see: [guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
+1. `brew install terraform` install Terraform CLI on OSX [other platforms](https://www.terraform.io/downloads.html)
+2. `brew install awscli`  install AWS CLI on OSX otherwise see: [guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
 3. Get AWS API token `aws configure` 
-4. Set terraform variables under [terraform/terraform.tfvars](https://github.com/splunk/attack_range/blob/develop/terraform/terraform.tfvars.example)
+4. Set Terraform variables under [terraform/terraform.tfvars](https://github.com/splunk/attack_range/blob/develop/terraform/terraform.tfvars.example)
 
 #### For Vagrant
-1. 	`brew cask install virtualbox` if you don't already have virtual box installed on OSX otherwise see their [installation instructions](https://www.virtualbox.org/wiki/Downloads).
-2. `brew cask install vagrant` install vagrant CLI on OSX otherwise see: [guide](https://www.vagrantup.com/downloads.html)
+1. 	`brew cask install virtualbox` if you don't already have virtual box installed on OSX, otherwise see their [installation instructions](https://www.virtualbox.org/wiki/Downloads).
+2. `brew cask install vagrant` install Vagrant CLI on OSX, otherwise see: [guide](https://www.vagrantup.com/downloads.html)
 
 #### Range Settings
-To configure general range settings like your Splunk Server default username, sysmon template to deploy, or Active Directory admin creds edit: [ansible/vars/vars.yml](https://github.com/splunk/attack_range/blob/develop/ansible/vars/vars.yml.default)
+To configure general range settings like your Splunk server default username, sysmon template to deploy, or Active Directory admin creds, edit: [ansible/vars/vars.yml](https://github.com/splunk/attack_range/blob/develop/ansible/vars/vars.yml.default)
 
 ## Developing 
 
-1. create virtualenv and install requirements: `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt`
-2. install pre-commit hooks `pre-commit install`
-3. install ansible on osx `brew install ansible`
+1. Create virtualenv and install requirements: `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt`
+2. Install pre-commit hooks `pre-commit install`
+3. Install Ansible on OSX `brew install ansible`
 
 ## Support
-You can get help with setting up your own range in the [Splunk Community Slack](http://splk.it/slack). Under the `#security-research` channel.
+You can get help with setting up your own attack range in the [Splunk Community Slack](http://splk.it/slack) under the `#security-research` channel.
 
 ## Author
 * [Jose Hernandez](https://twitter.com/d1vious)
@@ -79,7 +79,7 @@ You can get help with setting up your own range in the [Splunk Community Slack](
 * [Bhavin Patel](https://twitter.com/hackpsy)
 * Russ Nolen
 
-## To Do's
-* implement Atomic Red Team simulation engine execution
-* implement Attack IQ simulation engine execution
-* create global conf file
+## To Dos
+* Implement Atomic Red Team simulation engine execution
+* Implement Attack IQ simulation engine execution
+* Create global .conf file
