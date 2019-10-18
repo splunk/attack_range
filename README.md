@@ -3,8 +3,9 @@
 # Splunk Attack Range
 
 ## Purpose
+This framework allows the security analyst to quickly and repeatedly replicate and generate data as close to ground truth as possible, in a format that allows the creation of detections, investigations, knowledge objects, and playbooks in Splunk.
 
-This framework allows the security analyst to replicate and generate data as close to ground truth as possible, in a format that allows the creation of detections, investigations, knowledge objects, and defense playbooks in Splunk. This data includes things such as logs, network captures and endpoint events derived from either known attack-simulation engines (Atomic Red Team/AttackIQ) or recent exploit code on local (Vagrant) or cloud enviroments (Terraform).
+The data includes things such as logs, network captures and endpoint events derived from either known attack-simulation engines (Atomic Red Team/AttackIQ) or recent exploit code on local (Vagrant) or cloud enviroments (Terraform).
 Inspired by [DetectionLab](https://github.com/clong/DetectionLab). 
 
 ## Architecture
