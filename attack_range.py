@@ -154,9 +154,6 @@ starting program loaded for mode - B1 battle droid
         grab_firedrill(bin_dir)
         grab_escu_latest(bin_dir)
 
-    # prepare Ansible before execution
-    prep_ansible()
-
     if vagrant_list:
         print("available VAGRANT BOX:\n")
         d = 'vagrant'
@@ -189,6 +186,7 @@ starting program loaded for mode - B1 battle droid
 
     # lets process modes
     elif mode == "terraform":
+        prep_ansible()
         print("[mode] > terraform ")
         if state == "up":
             print ("[state] > up\n")
