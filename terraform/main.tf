@@ -62,11 +62,11 @@ resource "aws_security_group" "default" {
 
  provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "sleep 30; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server.public_ip},' playbooks/splunk_server.yml"
+    command = "sleep 60; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server.public_ip},' playbooks/splunk_server.yml"
   }
 }
 
-resource "aws_eip" "ip" {
+resource "aws_eip" "splunk_ip" {
   instance = aws_instance.splunk-server.id
 }
 
@@ -90,6 +90,23 @@ EOF
 
  provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "sleep 120;cp hosts.default hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' hosts;ansible-playbook -i hosts playbooks/windows_dc.yml"
+    command = "sleep 180;cp hosts.default hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' hosts;ansible-playbook -i hosts playbooks/windows_dc.yml"
   }
 }
+
+output "splunk_server" {
+  value = "http://${aws_eip.splunk_ip.public_ip}:8000"
+}
+
+output "windows_dc_ip" {
+  value = "${aws_instance.windows_2016_dc.public_ip}"
+}
+
+output "windows_dc_user" {
+  value = "${var.win_username}"
+}
+
+output "windows_dc_password" {
+  value = "${var.win_password}"
+}
+
