@@ -55,12 +55,6 @@ def grab_streams(bin_dir):
     output = bin_dir + '/Splunk_TA_stream.zip'
     wget.download(url,output)
 
-def grab_firedrill(bin_dir):
-    print("\ngrabbing firedrill agent\n")
-    url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/FiredrillAgent-installer-2.2.389.exe'
-    output = bin_dir + '/FiredrillAgent-installer-2.2.389.exe'
-    wget.download(url,output)
-
 def grab_escu_latest(bin_dir):
     print("\ngrabbing splunk ESCU app\n")
     url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/DA-ESS-ContentUpdate-v1.0.41.tar.gz'
@@ -94,6 +88,57 @@ def prep_ansible():
     except e:
         print("make sure that ansible/host.default contains the windows username and password.\n" +
               "We were not able to set it automatically")
+
+def check_state(state):
+    if state == "up":
+        pass
+    elif state == "down":
+        pass
+    else:
+        print("incorrect state, please set flag --state to \"up\" or \"download\"")
+        sys.exit(1)
+
+
+def vagrant_mode(vbox, vagrant, state):
+    if vbox:
+        vagrantfile = 'vagrant/' + vbox
+        print("operating on vagrant box: " + vagrantfile)
+    else:
+        vagrantfile = 'vagrant/'
+        print("operating on all range boxes WARNING MAKE SURE YOU HAVE 16GB OF RAM otherwise you will have a bad time")
+    if state == "up":
+        print ("[state] > up\n")
+        v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
+        v1.up(provision=True)
+        print("attack_range has been built using vagrant successfully")
+    elif state == "down":
+        print ("[state] > down\n")
+        v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
+        v1.destroy()
+        print("attack_range has been destroy using vagrant successfully")
+
+def terraform_mode(Terraform, state):
+    if state == "up":
+        print ("[state] > up\n")
+        t = Terraform(working_dir='terraform')
+        return_code, stdout, stderr = t.apply(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
+        print("attack_range has been built using terraform successfully")
+
+    if state == "down":
+        print ("[state] > down\n")
+        t = Terraform(working_dir='terraform')
+        return_code, stdout, stderr = t.destroy(capture_output='yes', no_color=IsNotFlagged)
+        print("attack_range has been destroy using terraform successfully")
+
+def list_vagrant_boxes():
+    print("available VAGRANT BOX:\n")
+    d = 'vagrant'
+    subdirs = os.listdir(d)
+    for f in subdirs:
+        if f == ".vagrant" or f == "Vagrantfile":
+            continue
+        print("* " + f)
+    sys.exit(1)
 
 if __name__ == "__main__":
     # grab arguments
@@ -151,58 +196,27 @@ starting program loaded for mode - B1 battle droid
         grab_splunk_ta_sysmon(bin_dir)
         grab_splunk_cim_app(bin_dir)
         grab_streams(bin_dir)
-        grab_firedrill(bin_dir)
         grab_escu_latest(bin_dir)
 
-    if vagrant_list:
-        print("available VAGRANT BOX:\n")
-        d = 'vagrant'
-        subdirs = os.listdir(d)
-        for f in subdirs:
-            if f == ".vagrant" or f == "Vagrantfile":
-                continue
-            print("* " + f)
-        sys.exit(1)
+    check_state(state)
 
-    if mode == "vagrant":
-        print ("[mode] > vagrant")
-        if vagrant_box:
-            vagrantfile = 'vagrant/' + vagrant_box
-            print("operating on vagrant box: " + vagrantfile)
-        else:
-            vagrantfile = 'vagrant/' 
-            print("operating on all range boxes WARNING MAKE SURE YOU HAVE 16GB OF RAM otherwise you will have a bad time")
-        if state == "up":
-            print ("[state] > up\n")
-            v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
-            #v1.destroy()
-            v1.up(provision=True)
-        elif state == "down":
-            print ("[state] > down\n")
-            v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
-            v1.destroy()
-        else:
-            print("incorrect state, please set flag --state to \"up\" or \"download\"")
+    if vagrant_list:
+        list_vagrant_boxes()
 
     # lets process modes
+    if mode == "vagrant":
+        prep_ansible()
+        print ("[mode] > vagrant")
+        vagrant_mode(vagrant_box, vagrant, state)
+
     elif mode == "terraform":
         prep_ansible()
         print("[mode] > terraform ")
-        if state == "up":
-            print ("[state] > up\n")
-            t = Terraform(working_dir='terraform')
-            return_code, stdout, stderr = t.apply(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
+        terraform_mode(Terraform, state)
 
-            print("TERRAFORM COMPLETED WITH RETURN CODE {0}".format(return_code))
-        elif state == "down":
-            print ("[state] > down\n")
-            t = Terraform(working_dir='terraform')
-            return_code, stdout, stderr = t.destroy(capture_output='yes', no_color=IsNotFlagged)
-            print("TERRAFORM COMPLETED WITH RETURN CODE {0}".format(return_code))
-        else:
-            print("incorrect state, please set flag --state to \"up\" or \"download\"")
     else:
         print("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")
+        sys.exit(1)
 
 
 

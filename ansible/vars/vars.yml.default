@@ -22,7 +22,7 @@ splunk_escu_app_path: ../../../../appbinaries/DA-ESS-ContentUpdate-v1.0.41.tar.g
 splunk_es_app_path: ../../../../appbinaries/splunk-enterprise-security_530.spl
 
 #Variables for Firedrill 
-install: true
+install: false
 firedrill_dst_location: C:\fd.exe
 firedrill_binary_path: ../../../../appbinaries/FiredrillAgent-installer-2.2.389.exe
 
