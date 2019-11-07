@@ -6,7 +6,8 @@
   roles:
     - common
     - universal_forwarder
-    - firedrill
     - sysmon
+    - firedrill
+    - atomic_red_team
   vars_files:
     - ../vars/vars.yml 

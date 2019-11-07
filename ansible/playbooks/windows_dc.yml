@@ -9,6 +9,7 @@
     - windows_domain_controller
     - universal_forwarder
     - firedrill
+    - atomic_red_team
     - sysmon
   vars_files:
     - ../vars/vars.yml 

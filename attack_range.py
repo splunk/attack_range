@@ -31,19 +31,19 @@ def grab_splunk_ta_win(bin_dir):
     print("\ngrabbing splunk add-on for windows\n")
     url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/splunk-add-on-for-microsoft-windows_600.tgz'
     output = bin_dir + '/splunk-add-on-for-microsoft-windows_600.tgz'
-    wget.download(url,output)
+    wget.download(url, output)
 
 def grab_splunk_ta_sysmon(bin_dir):
     print("\ngrabbing splunk add-on for sysmon\n")
     url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/add-on-for-microsoft-sysmon_800.tgz'
     output = bin_dir + '/add-on-for-microsoft-sysmon_800.tgz'
-    wget.download(url,output)
+    wget.download(url, output)
 
 def grab_splunk_cim_app(bin_dir):
     print("\ngrabbing splunk (CIM) common information model app\n")
     url = 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/splunk-common-information-model-cim_4130.tgz'
     output = bin_dir + '/splunk-common-information-model-cim_4130.tgz'
-    wget.download(url,output)
+    wget.download(url, output)
 
 def grab_streams(bin_dir):
     print("\ngrabbing splunk stream app\n")
@@ -164,7 +164,6 @@ if __name__ == "__main__":
     print("INIT - Attack Range v" + str(VERSION))
     print("""
 starting program loaded for mode - B1 battle droid
-
   ||/__'`.
   |//()'-.:
   |-.||

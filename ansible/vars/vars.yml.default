@@ -22,9 +22,19 @@ splunk_escu_app_path: ../../../../appbinaries/DA-ESS-ContentUpdate-v1.0.41.tar.g
 splunk_es_app_path: ../../../../appbinaries/splunk-enterprise-security_530.spl
 
 #Variables for Firedrill 
-install: false
+install_firedrill: false
 firedrill_dst_location: C:\fd.exe
 firedrill_binary_path: ../../../../appbinaries/FiredrillAgent-installer-2.2.389.exe
+
+#Variables for Atomic Red Team 
+install_art: true
+art_module_dst_location: C:\Install-AtomicRedTeam.ps1
+art_module_path: Install-AtomicRedTeam.ps1
+art_run_all_test: true
+# array of techniques to run
+#art_run_technique: ["T1117","T1118"]
+
+#Variables for Sysmon
 
 #Variables for Sysmon
 win_temp_dir: 'c:\Program Files\ansible'
