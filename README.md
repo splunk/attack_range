@@ -47,7 +47,7 @@ optional arguments:
 
 1. `git clone https://github.com/splunk/attack_range && cd attack_range` clone project and cd into the project dir
 2. `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt` create virtualenv and install requirements
-3. `python attack_range.py --state up --mode vagrant` start up a range locally using vagrant or `python attack_range.py --state up --mode terraform` to deploy it to "the cloud"
+3. `python attack_range.py --state up --mode vagrant` start up a range locally using vagrant or `python attack_range.py --state up --mode terraform` to build one in the cloud (AWS)
 
 See [Usage](#usage) for more options, **make sure that you [configure](#configure) the mode first**
 
@@ -67,6 +67,16 @@ If you are on OSX, you will have to install sshpass `brew install https://raw.gi
 
 #### Range Settings
 To configure general range settings like your Splunk server default username, sysmon template to deploy, or Active Directory admin creds, edit: [ansible/vars/vars.yml](https://github.com/splunk/attack_range/blob/develop/ansible/vars/vars.yml.default)
+
+## Examples
+* Run ALL [atomic red team techniques](https://github.com/redcanaryco/atomic-red-team/tree/master/atomics) on windows10 locally:
+`python attack_range.py -s up -m vagrant -vbox windows10 -si`
+
+* List all the boxes available locally to test on
+`python attack_range.py -s down -m vagrant -vlist`
+
+* Run technique ID T1117 execution through Regsvr32 on windows 2016 Domain Controller in the cloud (AWS)
+`python attack_range.py -s up -m terraform -si -st T1117`
 
 ## Developing 
 

@@ -161,7 +161,7 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--state", required=True, default="up",
                         help="state of the range, defaults to \"up\", up/down allowed")
     parser.add_argument("-vls", "--vagrant_list", required=False, default=False, action="store_true",
-                        help="prints out all avaiable vagrant boxes")
+                        help="prints out all available vagrant boxes")
     parser.add_argument("-vbox", "--vagrant_box", required=False, default="",
                         help="select which vagrant box to stand up or destroy individually")
     parser.add_argument("-si", "--simulation", action='store_true', required=False,
