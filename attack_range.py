@@ -61,33 +61,46 @@ def grab_escu_latest(bin_dir):
     output = bin_dir + '/DA-ESS-ContentUpdate-v1.0.41.tar.gz'
     wget.download(url,output)
 
-def prep_ansible():
+def prep_ansible(simulation, simulation_engine, simulation_technique):
     # prep ansible for configuration
-    # lets configure the passwords for ansible before we run any operations
-    try:
-        f = open("terraform/terraform.tfvars", "r")
-        contents = f.read()
 
-        win_password = re.findall(r'^win_password = \"(.+)\"', contents, re.MULTILINE)
-        win_username = re.findall(r'^win_username = \"(.+)\"', contents, re.MULTILINE)
+    #first we read from TF the win_username and password
+    f = open("terraform/terraform.tfvars", "r")
+    contents = f.read()
 
-        # Read in the ansible vars file
-        with open('ansible/vars/vars.yml.default', 'r') as file:
-            ansiblevars = file.read()
+    win_password = re.findall(r'^win_password = \"(.+)\"', contents, re.MULTILINE)
+    win_username = re.findall(r'^win_username = \"(.+)\"', contents, re.MULTILINE)
 
-        # Replace the username and password
-        ansiblevars = ansiblevars.replace('USERNAME', win_username[0])
-        ansiblevars = ansiblevars.replace('PASSWORD', win_password[0])
+    # Read in the ansible vars file
+    with open('ansible/vars/vars.yml.default', 'r') as file:
+        ansiblevars = file.read()
 
-        # Write the file out again
-        with open('ansible/vars/vars.yml', 'w') as file:
-            file.write(ansiblevars)
+    # Replace the username and password
+    ansiblevars = ansiblevars.replace('USERNAME', win_username[0])
+    ansiblevars = ansiblevars.replace('PASSWORD', win_password[0])
 
-        print("setting windows username: {0} from terraform/terraform.tfvars file".format(win_username))
-        print("setting windows password: {0} from terraform/terraform.tfvars file".format(win_password))
-    except e:
-        print("make sure that ansible/host.default contains the windows username and password.\n" +
-              "We were not able to set it automatically")
+    if simulation:
+        # now set the simulation engine and mitre techniques to run
+        if simulation_engine == "atomic_red_team":
+            ansiblevars = ansiblevars.replace('install_art: false', 'install_art: true')
+            print("execution simulation using engine: {0}".format(simulation_engine))
+
+        if simulation_technique[0] != '' or len(simulation_technique) > 1:
+            techniques = 'art_run_technique: ' + str(simulation_technique)
+            ansiblevars = ansiblevars.replace('art_run_technique:', techniques)
+            print("executing specific ATT&CK technique ID: {0}".format(simulation_technique))
+        else:
+            ansiblevars = ansiblevars.replace('art_run_all_test: false', 'art_run_all_test: true')
+            print("executing ALL Atomic Red Team ATT&CK techniques see: https://github.com/redcanaryco/atomic-red-team/tree/master/atomics".format(simulation_technique))
+
+    # Write the file out again
+    with open('ansible/vars/vars.yml', 'w') as file:
+        file.write(ansiblevars)
+
+    print("setting windows username: {0} from terraform/terraform.tfvars file".format(win_username))
+    print("setting windows password: {0} from terraform/terraform.tfvars file".format(win_password))
+
+
 
 def check_state(state):
     if state == "up":
@@ -149,8 +162,10 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--version", required=False, help="shows current attack_range version")
     parser.add_argument("-vbox", "--vagrant_box", required=False, default="", help="select which vagrant box to stand up or destroy individually")
     parser.add_argument("-vls", "--vagrant_list", required=False, default=False, action="store_true", help="prints out all avaiable vagrant boxes")
+    parser.add_argument("-si", "--simulation", action='store_true', required=False, help="execute an attack simulation once the range is built")
     parser.add_argument("-se", "--simulation_engine", required=False, default="atomic_red_team", help="please select a simulation engine, defaults to \"atomic_red_team\"")
-    #parser.add_argument("-vls", "--vagrant_list", required=False, default=False, action="store_true", help="prints out all avaiable vagrant boxes")
+    parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
+                        help="comma delimited list of MITRE ATT&CK technique ID to simulate in the attack_range, example: T1117, T1118, requires --simulation flag")
 
     # parse them
     args = parser.parse_args()
@@ -160,6 +175,10 @@ if __name__ == "__main__":
     state = args.state
     vagrant_box = args.vagrant_box
     vagrant_list = args.vagrant_list
+    simulation_engine = args.simulation_engine
+    simulation_technique = [str(item) for item in args.simulation_technique.split(',')]
+    simulation = args.simulation
+
 
     print("INIT - Attack Range v" + str(VERSION))
     print("""
@@ -181,13 +200,13 @@ starting program loaded for mode - B1 battle droid
     """)
 
     if ARG_VERSION:
-        print ("version: {0}".format(VERSION))
+        print("version: {0}".format(VERSION))
         sys.exit(1)
 
     if os.path.exists(bin_dir):
-        print ("this is not our first run binary directory exists, skipping setup")
+        print("this is not our first run binary directory exists, skipping setup")
     else:
-        print ("seems this is our first run, creating a directory for binaries at {0}".format(bin_dir))
+        print("seems this is our first run, creating a directory for binaries at {0}".format(bin_dir))
         os.makedirs(bin_dir)
         grab_splunk(bin_dir)
         grab_splunk_uf_win(bin_dir)
@@ -202,20 +221,22 @@ starting program loaded for mode - B1 battle droid
     if vagrant_list:
         list_vagrant_boxes()
 
+    prep_ansible(simulation, simulation_engine, simulation_technique)
+
     # lets process modes
     if mode == "vagrant":
-        prep_ansible()
-        print ("[mode] > vagrant")
+        print("[mode] > vagrant")
         vagrant_mode(vagrant_box, vagrant, state)
 
     elif mode == "terraform":
-        prep_ansible()
         print("[mode] > terraform ")
         terraform_mode(Terraform, state)
 
     else:
         print("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")
         sys.exit(1)
+
+
 
 
 

@@ -27,12 +27,12 @@ firedrill_dst_location: C:\fd.exe
 firedrill_binary_path: ../../../../appbinaries/FiredrillAgent-installer-2.2.389.exe
 
 #Variables for Atomic Red Team 
-install_art: true
+install_art: false
 art_module_dst_location: C:\Install-AtomicRedTeam.ps1
 art_module_path: Install-AtomicRedTeam.ps1
-art_run_all_test: true
+art_run_all_test: false
 # array of techniques to run
-#art_run_technique: ["T1117","T1118"]
+art_run_technique: 
 
 #Variables for Sysmon
 
