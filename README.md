@@ -22,7 +22,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -b APPBIN, --appbin APPBIN
                         directory to store binaries in
-  -m MODE, --mode MODE  mode of operation, terraform/vagrant, please see
+  -m MODE, --mode MODE  mode of operation, Terraform/Vagrant, please see
                         configuration for each at:
                         https://github.com/splunk/attack_range
   -s STATE, --state STATE
@@ -30,11 +30,10 @@ optional arguments:
   -v VERSION, --version VERSION
                         shows current attack_range version
   -vbox VAGRANT_BOX, --vagrant_box VAGRANT_BOX
-                        select which vagrant box to stand up or destroy
-                        individually
+                        select the individual Vagrant box to stand up or destroy
   -vls, --vagrant_list  prints out all avaiable vagrant boxes
   -se SIMULATION_ENGINE, --simulation_engine SIMULATION_ENGINE
-                        please select a simulation engine, defaults to
+                        please select a simulation engine; defaults to
                         "atomic_red_team"
 ```
 ## Running
