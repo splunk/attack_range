@@ -78,6 +78,9 @@ To configure general range settings like your Splunk server default username, sy
 * Run technique ID T1117 execution through Regsvr32 on windows 2016 Domain Controller in the cloud (AWS)
 `python attack_range.py -s up -m terraform -si -st T1117`
 
+* Run technique ID T1117 execution through Regsvr32 on windows 10 machine locally 
+`python attack_range.py -s up -m vagrant -vbox windows10 -si -st T1117`
+
 ## Developing 
 
 1. Create virtualenv and install requirements: `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt`
