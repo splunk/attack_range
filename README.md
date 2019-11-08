@@ -14,9 +14,10 @@ Inspired by [DetectionLab](https://github.com/clong/DetectionLab).
 ## Usage
 ```
 usage: attack_range.py [-h] [-b APPBIN] -m MODE -s STATE [-v VERSION]
-                       [-vbox VAGRANT_BOX] [-vls] [-se SIMULATION_ENGINE]
+                       [-vbox VAGRANT_BOX] [-vls] [-si]
+                       [-se SIMULATION_ENGINE] [-st SIMULATION_TECHNIQUE]
 
-starts a attack range ready to collect attack data into Splunk
+starts a attack range ready to collect attack data into splunk
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -33,9 +34,14 @@ optional arguments:
                         select which vagrant box to stand up or destroy
                         individually
   -vls, --vagrant_list  prints out all avaiable vagrant boxes
+  -si, --simulation     execute an attack simulation once the range is built
   -se SIMULATION_ENGINE, --simulation_engine SIMULATION_ENGINE
                         please select a simulation engine, defaults to
                         "atomic_red_team"
+  -st SIMULATION_TECHNIQUE, --simulation_technique SIMULATION_TECHNIQUE
+                        comma delimited list of MITRE ATT&CK technique ID to
+                        simulate in the attack_range, example: T1117, T1118,
+                        requires --simulation flag
 ```
 ## Running
 

@@ -155,17 +155,23 @@ def list_vagrant_boxes():
 
 if __name__ == "__main__":
     # grab arguments
-    parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk") 
-    parser.add_argument("-b", "--appbin", required=False, default="appbinaries", help="directory to store binaries in")
-    parser.add_argument("-m", "--mode", required=True, default="terraform", help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
-    parser.add_argument("-s", "--state", required=True, default="up", help="state of the range, defaults to \"up\", up/down allowed")
-    parser.add_argument("-v", "--version", required=False, help="shows current attack_range version")
-    parser.add_argument("-vbox", "--vagrant_box", required=False, default="", help="select which vagrant box to stand up or destroy individually")
-    parser.add_argument("-vls", "--vagrant_list", required=False, default=False, action="store_true", help="prints out all avaiable vagrant boxes")
-    parser.add_argument("-si", "--simulation", action='store_true', required=False, help="execute an attack simulation once the range is built")
-    parser.add_argument("-se", "--simulation_engine", required=False, default="atomic_red_team", help="please select a simulation engine, defaults to \"atomic_red_team\"")
+    parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
+    parser.add_argument("-m", "--mode", required=True, default="terraform",
+                        help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
+    parser.add_argument("-s", "--state", required=True, default="up",
+                        help="state of the range, defaults to \"up\", up/down allowed")
+    parser.add_argument("-vls", "--vagrant_list", required=False, default=False, action="store_true",
+                        help="prints out all avaiable vagrant boxes")
+    parser.add_argument("-vbox", "--vagrant_box", required=False, default="",
+                        help="select which vagrant box to stand up or destroy individually")
+    parser.add_argument("-si", "--simulation", action='store_true', required=False,
+                        help="execute an attack simulation once the range is built")
+    parser.add_argument("-se", "--simulation_engine", required=False, default="atomic_red_team",
+                        help="please select a simulation engine, defaults to \"atomic_red_team\"")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                         help="comma delimited list of MITRE ATT&CK technique ID to simulate in the attack_range, example: T1117, T1118, requires --simulation flag")
+    parser.add_argument("-b", "--appbin", required=False, default="appbinaries", help="directory to store binaries in")
+    parser.add_argument("-v", "--version", required=False, help="shows current attack_range version")
 
     # parse them
     args = parser.parse_args()
