@@ -1,15 +1,3 @@
-variable "public_key_path" {
-  description = <<DESCRIPTION
-Path to the SSH public key to be used for authentication.
-Ensure this keypair is added to your local SSH agent so provisioners can
-connect.
-
-Example: ~/.ssh/terraform.pub
-Defaults to: ~/.ssh/id_rsa.pub
-DESCRIPTION
-  default = "~/.ssh/id_rsa.pub"
-}
-
 variable "private_key_path" {
   description = <<DESCRIPTION
 Path to the SSH private key to be used for authentication.

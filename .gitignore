@@ -4,8 +4,6 @@ appbinaries/*
 ansible/roles/*/files/splunk*.tgz
 ansible/roles/*/files/splunk*.msi
 ansible/hosts
-terraform/terraform.tfvars
-ansible/vars/vars.yml
 
 ## Terraform ignores 
 # Local .terraform directories
