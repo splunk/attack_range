@@ -4,8 +4,6 @@
 #    - debug:
 #        msg: "{{ hostvars[inventory_hostname] }}"
   roles:
-    - common
-    - universal_forwarder
-    - sysmon
+    - atomic_red_team
   vars_files:
     - ../vars/vars.yml 

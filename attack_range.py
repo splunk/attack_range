@@ -61,15 +61,8 @@ def grab_escu_latest(bin_dir):
     output = bin_dir + '/DA-ESS-ContentUpdate-v1.0.41.tar.gz'
     wget.download(url,output)
 
-def prep_ansible(simulation, simulation_engine, simulation_technique):
-    # prep ansible for configuration
 
-    #first we read from TF the win_username and password
-    f = open("terraform/terraform.tfvars", "r")
-    contents = f.read()
-
-    win_password = re.findall(r'^win_password = \"(.+)\"', contents, re.MULTILINE)
-    win_username = re.findall(r'^win_username = \"(.+)\"', contents, re.MULTILINE)
+def config_simulation(simulation, simulation_engine, simulation_technique):
 
     # Read in the ansible vars file
     with open('ansible/vars/vars.yml.default', 'r') as file:
@@ -91,7 +84,32 @@ def prep_ansible(simulation, simulation_engine, simulation_technique):
             print("executing specific ATT&CK technique ID: {0}".format(simulation_technique))
         else:
             ansiblevars = ansiblevars.replace('art_run_all_test: false', 'art_run_all_test: true')
-            print("executing ALL Atomic Red Team ATT&CK techniques see: https://github.com/redcanaryco/atomic-red-team/tree/master/atomics".format(simulation_technique))
+            print(
+            "executing ALL Atomic Red Team ATT&CK techniques see: https://github.com/redcanaryco/atomic-red-team/tree/master/atomics".format(
+                simulation_technique))
+
+    # Write the file out again
+    with open('ansible/vars/vars.yml', 'w') as file:
+        file.write(ansiblevars)
+
+    # need to run playbook for simulation here
+
+def prep_ansible():
+    # prep ansible for configuration
+    #first we read from TF the win_username and password
+    f = open("terraform/terraform.tfvars", "r")
+    contents = f.read()
+
+    win_password = re.findall(r'^win_password = \"(.+)\"', contents, re.MULTILINE)
+    win_username = re.findall(r'^win_username = \"(.+)\"', contents, re.MULTILINE)
+
+    # Read in the ansible vars file
+    with open('ansible/vars/vars.yml.default', 'r') as file:
+        ansiblevars = file.read()
+
+    # Replace the username and password
+    ansiblevars = ansiblevars.replace('USERNAME', win_username[0])
+    ansiblevars = ansiblevars.replace('PASSWORD', win_password[0])
 
     # Write the file out again
     with open('ansible/vars/vars.yml', 'w') as file:
@@ -101,47 +119,60 @@ def prep_ansible(simulation, simulation_engine, simulation_technique):
     print("setting windows password: {0} from terraform/terraform.tfvars file".format(win_password))
 
 
-
-def check_state(state):
-    if state == "up":
+def check_action(action):
+    if action == "build":
         pass
-    elif state == "down":
+    elif action == "destroy":
+        pass
+    elif action == "simulate":
         pass
     else:
-        print("incorrect state, please set flag --state to \"up\" or \"download\"")
+        print("incorrect action, please set flag --action to \"build\", \"destroy\", or \"simulate\"")
         sys.exit(1)
 
 
-def vagrant_mode(vbox, vagrant, state):
+def vagrant_mode(vbox, vagrant, action, simulation_engine, simulation_technique):
+    # are we operating on a box or the entire range?
     if vbox:
         vagrantfile = 'vagrant/' + vbox
         print("operating on vagrant box: " + vagrantfile)
     else:
         vagrantfile = 'vagrant/'
-        print("operating on all range boxes WARNING MAKE SURE YOU HAVE 16GB OF RAM otherwise you will have a bad time")
-    if state == "up":
-        print ("[state] > up\n")
+        print("building splunk-server and windows10 workstation boxes WARNING MAKE SURE YOU HAVE 8GB OF RAM free otherwise you will have a bad time")
+
+    if action == "build":
+        print ("[action] > build\n")
         v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
         v1.up(provision=True)
         print("attack_range has been built using vagrant successfully")
-    elif state == "down":
-        print ("[state] > down\n")
+
+    if action == "destroy":
+        print ("[action] > destroy\n")
         v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
         v1.destroy()
         print("attack_range has been destroy using vagrant successfully")
 
-def terraform_mode(Terraform, state):
-    if state == "up":
-        print ("[state] > up\n")
+    if action == "simulate":
+        config_simulation(simulation_engine, simulation_technique)
+
+
+
+def terraform_mode(Terraform, action):
+    if action == "build":
+        print ("[action] > build\n")
         t = Terraform(working_dir='terraform')
         return_code, stdout, stderr = t.apply(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
         print("attack_range has been built using terraform successfully")
 
-    if state == "down":
-        print ("[state] > down\n")
+    if action == "destroy":
+        print ("[action] > destroy\n")
         t = Terraform(working_dir='terraform')
         return_code, stdout, stderr = t.destroy(capture_output='yes', no_color=IsNotFlagged)
         print("attack_range has been destroy using terraform successfully")
+
+    if action == "simulate":
+        config_simulation(simulation_engine, simulation_technique)
+
 
 def list_vagrant_boxes():
     print("available VAGRANT BOX:\n")
@@ -153,19 +184,18 @@ def list_vagrant_boxes():
         print("* " + f)
     sys.exit(1)
 
+
 if __name__ == "__main__":
     # grab arguments
     parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
     parser.add_argument("-m", "--mode", required=True, default="terraform",
                         help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
-    parser.add_argument("-s", "--state", required=True, default="up",
-                        help="state of the range, defaults to \"up\", up/down allowed")
+    parser.add_argument("-a", "--action", required=True, default="build",
+                        help="action to take on the range, defaults to \"build\", build/destroy/simulate allowed")
     parser.add_argument("-vls", "--vagrant_list", required=False, default=False, action="store_true",
                         help="prints out all available vagrant boxes")
     parser.add_argument("-vbox", "--vagrant_box", required=False, default="",
                         help="select which vagrant box to stand up or destroy individually")
-    parser.add_argument("-si", "--simulation", action='store_true', required=False,
-                        help="execute an attack simulation once the range is built")
     parser.add_argument("-se", "--simulation_engine", required=False, default="atomic_red_team",
                         help="please select a simulation engine, defaults to \"atomic_red_team\"")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
@@ -178,12 +208,11 @@ if __name__ == "__main__":
     ARG_VERSION = args.version
     bin_dir = args.appbin
     mode = args.mode
-    state = args.state
+    action = args.action
     vagrant_box = args.vagrant_box
     vagrant_list = args.vagrant_list
     simulation_engine = args.simulation_engine
     simulation_technique = [str(item) for item in args.simulation_technique.split(',')]
-    simulation = args.simulation
 
 
     print("INIT - Attack Range v" + str(VERSION))
@@ -222,28 +251,22 @@ starting program loaded for mode - B1 battle droid
         grab_streams(bin_dir)
         grab_escu_latest(bin_dir)
 
-    check_state(state)
+    check_action(action, vagrant_box)
 
     if vagrant_list:
         list_vagrant_boxes()
 
-    prep_ansible(simulation, simulation_engine, simulation_technique)
+    prep_ansible()
 
     # lets process modes
     if mode == "vagrant":
         print("[mode] > vagrant")
-        vagrant_mode(vagrant_box, vagrant, state)
+        vagrant_mode(vagrant_box, vagrant, action, simulation_engine, simulation_technique)
 
     elif mode == "terraform":
         print("[mode] > terraform ")
-        terraform_mode(Terraform, state)
+        terraform_mode(Terraform, action, simulation_engine, simulation_technique)
 
     else:
         print("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")
         sys.exit(1)
-
-
-
-
-
-

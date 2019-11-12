@@ -24,3 +24,5 @@ urllib3==1.25.3
 wcwidth==0.1.7
 wget==3.2
 zipp==0.5.2
+ansible==2.7.10
+pywinrm==0.3.0

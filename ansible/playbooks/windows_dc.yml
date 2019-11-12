@@ -1,5 +1,5 @@
 - hosts: all
-  gather_facts: True
+  gather_facts: False
 #  tasks:
 #    - debug:
 #        msg: "{{ hostvars[inventory_hostname] }}"
@@ -8,8 +8,6 @@
     - windows_dns_server
     - windows_domain_controller
     - universal_forwarder
-    - firedrill
-    - atomic_red_team
     - sysmon
   vars_files:
     - ../vars/vars.yml 

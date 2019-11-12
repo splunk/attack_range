@@ -9,16 +9,16 @@
     dest: C:\splunk-stream.zip
   when: stream_zip.stat.exists == False
 
-- name: Check we have unzip streams
+- name: Check we have unzip streams TA
   win_stat:
-    path: "C:\\Program Files\\SplunkUniversalForwarder\\etc\\apps\\splunk_app_stream"
-  register: stream_app
+    path: "C:\\Program Files\\SplunkUniversalForwarder\\etc\\apps\\Splunk_TA_stream"
+  register: stream_ta
 
 - name: Unzip Stream App
   win_unzip: 
     src: C:\splunk-stream.zip
     dest: "C:\\Program Files\\SplunkUniversalForwarder\\etc\\apps\\"
-    when: stream_app.stat.exists == False
+    when: stream_app.stat.exists == False || stream_ta.stat.exists == False
 
 - name: Copy Stream Config File
   win_template:
