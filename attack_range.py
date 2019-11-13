@@ -71,7 +71,7 @@ def config_simulation(simulation_engine, simulation_technique):
 
     if simulation_technique[0] != '' or len(simulation_technique) > 1:
         techniques = 'art_run_technique: ' + str(simulation_technique)
-        ansiblevars = ansiblevars.replace('art_run_technique:', techniques)
+        ansiblevars = ansiblevars.replace('art_run_technique: ['']', techniques)
         print("executing specific ATT&CK technique ID: {0}".format(simulation_technique))
     else:
         ansiblevars = ansiblevars.replace('art_run_all_test: false', 'art_run_all_test: true')
