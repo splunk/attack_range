@@ -1,6 +1,6 @@
 ## Variables for Splunk Search Head
 splunk_binary_path: ../../../../appbinaries/splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
-splunk_binary: splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
+splunk_binary: splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz
 splunk_pass: changeme
 
 # Apps
@@ -21,12 +21,12 @@ splunk_cim_app_path: ../../../../appbinaries/splunk-common-information-model-cim
 splunk_escu_app_path: ../../../../appbinaries/DA-ESS-ContentUpdate-v1.0.41.tar.gz
 splunk_es_app_path: ../../../../appbinaries/splunk-enterprise-security_530.spl
 
-#Variables for Firedrill 
+#Variables for Firedrill
 install_firedrill: false
 firedrill_dst_location: C:\fd.exe
 firedrill_binary_path: ../../../../appbinaries/FiredrillAgent-installer-2.2.389.exe
 
-#Variables for Atomic Red Team 
+#Variables for Atomic Red Team
 install_art: false
 art_module_dst_location: C:\Install-AtomicRedTeam.ps1
 art_module_path: Install-AtomicRedTeam.ps1

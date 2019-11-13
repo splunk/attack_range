@@ -3,46 +3,47 @@
 # Splunk Attack Range
 
 ## Purpose
-This framework allows the security analyst to quickly and repeatedly replicate and generate data as close to "ground truth" as possible, in a format that allows the creation of detections, investigations, knowledge objects, and playbooks in Splunk.
+The Attack Range solves two main challenges in development of detections. First, it allows the user to quickly build a small lab infrastructure as close as possible to your production environment. This lab infrastructure contains a Windows Domain Controller, Windows Workstation and Linux server, which comes pre-configured with multiple security tools and logging configuration. The infrastructure comes with a Splunk server collecting multiple log sources from the servers and normalizing them according to the [Common Information Model](https://docs.splunk.com/Documentation/CIM/4.14.0/User/Overview).  
 
-The data includes logs, network captures, endpoint events, and so on, derived from either known attack-simulation engines (Atomic Red Team/AttackIQ) or recent exploit code on local (Vagrant) or cloud enviroments (Terraform).
-Inspired by [DetectionLab](https://github.com/clong/DetectionLab). 
+Second, this framework allows the user to perform attack simulation using different engines. Therefore, the user can repeatedly replicate and generate data as close to "ground truth" as possible, in a format that allows the creation of detections, investigations, knowledge objects, and playbooks in Splunk.
+
+The Attack Range can be used either locally using Vagrant and Virtualbox or as a full-blown cloud infrastructure in AWS using Terraform.
+
+This project is inspired by [DetectionLab](https://github.com/clong/DetectionLab).
+
 
 ## Architecture
+Attack Range can be executed using two different operations modes:
+- local using vagrant and virtualbox
+- in the cloud using terraform and AWS
+
+In order to make Attack Range work on almost every laptop, the local version using Vagrant and Virtualbox consists of a subset of the full-blown cloud infrastructure in AWS using Terraform. The local version consists of a Splunk single instance and a Windows 10 workstation pre-configured with best practice logging configuration according to Splunk.
+(diagram here)
+
+The cloud infrastructure in AWS using Terraform consists of a Windows 10 workstation, a Windows 2016 server and a Splunk server.
+(diagram here)
+
+
 ![Logical Diagram](docs/architecture.png)
 
-## Usage
-```
-usage: attack_range.py [-h] [-b APPBIN] -m MODE -s STATE [-v VERSION]
-                       [-vbox VAGRANT_BOX] [-vls] [-si]
-                       [-se SIMULATION_ENGINE] [-st SIMULATION_TECHNIQUE]
 
-starts a attack range ready to collect attack data into splunk
+## Configuration
+- local using vagrant and virtualbox -> link to wiki page
+- cloud using terraform and AWS -> link to wiki page
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -b APPBIN, --appbin APPBIN
-                        directory to store binaries in
-  -m MODE, --mode MODE  mode of operation, terraform/vagrant, please see
-                        configuration for each at:
-                        https://github.com/splunk/attack_range
-  -s STATE, --state STATE
-                        state of the range, defaults to "up", up/down allowed
-  -v VERSION, --version VERSION
-                        shows current attack_range version
-  -vbox VAGRANT_BOX, --vagrant_box VAGRANT_BOX
-                        select which vagrant box to stand up or destroy
-                        individually
-  -vls, --vagrant_list  prints out all avaiable vagrant boxes
-  -si, --simulation     execute an attack simulation once the range is built
-  -se SIMULATION_ENGINE, --simulation_engine SIMULATION_ENGINE
-                        please select a simulation engine, defaults to
-                        "atomic_red_team"
-  -st SIMULATION_TECHNIQUE, --simulation_technique SIMULATION_TECHNIQUE
-                        comma delimited list of MITRE ATT&CK technique ID to
-                        simulate in the attack_range, example: T1117, T1118,
-                        requires --simulation flag
-```
+
+## Running
+In order to use Attack Range, two steps needs to be performed:
+1. Build Attack Range
+2. Perform Attack Simulation
+
+
+### Build Attack Range
+
+
+### Perform Attack Simulation
+
+
 ## Running
 
 1. `git clone https://github.com/splunk/attack_range && cd attack_range` clone project and cd into the project dir
@@ -53,12 +54,12 @@ See [Usage](#usage) for more options, **make sure that you [configure](#configur
 
 If you are on OSX, you will have to install sshpass `brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb`
 
-## Configure 
+## Configure
 
 #### For Terraform
 1. `brew install terraform` install Terraform CLI on OSX [other platforms](https://www.terraform.io/downloads.html)
 2. `brew install awscli`  install AWS CLI on OSX otherwise see: [guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
-3. Get AWS API token `aws configure` 
+3. Get AWS API token `aws configure`
 4. Set Terraform variables under [terraform/terraform.tfvars](https://github.com/splunk/attack_range/blob/develop/terraform/terraform.tfvars.example)
 
 #### For Vagrant
@@ -78,10 +79,10 @@ To configure general range settings like your Splunk server default username, sy
 * Run technique ID T1117 execution through Regsvr32 on windows 2016 Domain Controller in the cloud (AWS)
 `python attack_range.py -s up -m terraform -si -st T1117`
 
-* Run technique ID T1117 execution through Regsvr32 on windows 10 machine locally 
+* Run technique ID T1117 execution through Regsvr32 on windows 10 machine locally
 `python attack_range.py -s up -m vagrant -vbox windows10 -si -st T1117`
 
-## Developing 
+## Developing
 
 1. Create virtualenv and install requirements: `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt`
 2. Install pre-commit hooks `pre-commit install`
