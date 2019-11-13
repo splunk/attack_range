@@ -1,4 +1,4 @@
-## Variables for Splunk Search HeadGGG
+## Variables for Splunk Search Head
 splunk_binary_path: ../../../../appbinaries/splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
 splunk_binary: splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
 splunk_pass: changeme
@@ -32,7 +32,7 @@ art_module_dst_location: C:\Install-AtomicRedTeam.ps1
 art_module_path: Install-AtomicRedTeam.ps1
 art_run_all_test: false
 # array of techniques to run
-art_run_technique: 
+art_run_technique: ['']
 
 #Variables for Sysmon
 
@@ -60,7 +60,7 @@ win_sysmon_eventlog_channels:
 # Domain Controller
 windows_domain_controller_info:
   dns_domain_name: splunkresearch.local
-  domain_admin_password: PASSWORD
-  domain_admin_user: USERNAME@splunkresearch.local
-  safe_mode_password: PASSWORD
+  domain_admin_password: myTempPassword123
+  domain_admin_user: Administrator@splunkresearch.local
+  safe_mode_password: myTempPassword123
   state: domain_controller

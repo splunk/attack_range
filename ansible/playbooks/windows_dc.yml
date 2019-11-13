@@ -4,7 +4,7 @@
 #    - debug:
 #        msg: "{{ hostvars[inventory_hostname] }}"
   roles:
-    - common
+    - windows_common
     - windows_dns_server
     - windows_domain_controller
     - universal_forwarder

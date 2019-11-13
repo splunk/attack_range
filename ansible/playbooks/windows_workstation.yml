@@ -4,7 +4,7 @@
 #    - debug:
 #        msg: "{{ hostvars[inventory_hostname] }}"
   roles:
-    - common
+    - windows_common
     - universal_forwarder
     - sysmon
   vars_files:

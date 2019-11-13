@@ -1,12 +1,8 @@
-import os
-import sys
 import argparse
 import wget
-import requests
-import urllib.parse
 import re
 import vagrant
-import shutil
+import ansible_runner
 from python_terraform import *
 
 # need to set this ENV var due to a OSX High Sierra forking bug
@@ -62,30 +58,24 @@ def grab_escu_latest(bin_dir):
     wget.download(url,output)
 
 
-def config_simulation(simulation, simulation_engine, simulation_technique):
+def config_simulation(simulation_engine, simulation_technique):
 
     # Read in the ansible vars file
-    with open('ansible/vars/vars.yml.default', 'r') as file:
+    with open('ansible/vars/vars.yml', 'r') as file:
         ansiblevars = file.read()
 
-    # Replace the username and password
-    ansiblevars = ansiblevars.replace('USERNAME', win_username[0])
-    ansiblevars = ansiblevars.replace('PASSWORD', win_password[0])
+    # now set the simulation engine and mitre techniques to run
+    if simulation_engine == "atomic_red_team":
+        ansiblevars = ansiblevars.replace('install_art: false', 'install_art: true')
+        print("execution simulation using engine: {0}".format(simulation_engine))
 
-    if simulation:
-        # now set the simulation engine and mitre techniques to run
-        if simulation_engine == "atomic_red_team":
-            ansiblevars = ansiblevars.replace('install_art: false', 'install_art: true')
-            print("execution simulation using engine: {0}".format(simulation_engine))
-
-        if simulation_technique[0] != '' or len(simulation_technique) > 1:
-            techniques = 'art_run_technique: ' + str(simulation_technique)
-            ansiblevars = ansiblevars.replace('art_run_technique:', techniques)
-            print("executing specific ATT&CK technique ID: {0}".format(simulation_technique))
-        else:
-            ansiblevars = ansiblevars.replace('art_run_all_test: false', 'art_run_all_test: true')
-            print(
-            "executing ALL Atomic Red Team ATT&CK techniques see: https://github.com/redcanaryco/atomic-red-team/tree/master/atomics".format(
+    if simulation_technique[0] != '' or len(simulation_technique) > 1:
+        techniques = 'art_run_technique: ' + str(simulation_technique)
+        ansiblevars = ansiblevars.replace('art_run_technique:', techniques)
+        print("executing specific ATT&CK technique ID: {0}".format(simulation_technique))
+    else:
+        ansiblevars = ansiblevars.replace('art_run_all_test: false', 'art_run_all_test: true')
+        print("executing ALL Atomic Red Team ATT&CK techniques see: https://github.com/redcanaryco/atomic-red-team/tree/master/atomics".format(
                 simulation_technique))
 
     # Write the file out again
@@ -93,10 +83,19 @@ def config_simulation(simulation, simulation_engine, simulation_technique):
         file.write(ansiblevars)
 
     # need to run playbook for simulation here
+    r = ansible_runner.run(private_data_dir='.attack_range/tmp/',
+                           inventory='/Users/jhernandez/splunk/attack_range/ansible/inventory', roles_path="roles",
+                           playbook='/Users/jhernandez/splunk/attack_range/ansible/playbooks/atomic_red_team.yml')
+    print("{}: {}".format(r.status, r.rc))
+    # successful: 0
+    for each_host_event in r.events:
+        print(each_host_event['event'])
+    print("Final status:")
+    print(r.stats)
 
 def prep_ansible():
     # prep ansible for configuration
-    #first we read from TF the win_username and password
+    # first we read from TF the win_username and password
     f = open("terraform/terraform.tfvars", "r")
     contents = f.read()
 
@@ -104,7 +103,7 @@ def prep_ansible():
     win_username = re.findall(r'^win_username = \"(.+)\"', contents, re.MULTILINE)
 
     # Read in the ansible vars file
-    with open('ansible/vars/vars.yml.default', 'r') as file:
+    with open('ansible/vars/vars.yml', 'r') as file:
         ansiblevars = file.read()
 
     # Replace the username and password
@@ -117,18 +116,6 @@ def prep_ansible():
 
     print("setting windows username: {0} from terraform/terraform.tfvars file".format(win_username))
     print("setting windows password: {0} from terraform/terraform.tfvars file".format(win_password))
-
-
-def check_action(action):
-    if action == "build":
-        pass
-    elif action == "destroy":
-        pass
-    elif action == "simulate":
-        pass
-    else:
-        print("incorrect action, please set flag --action to \"build\", \"destroy\", or \"simulate\"")
-        sys.exit(1)
 
 
 def vagrant_mode(vbox, vagrant, action, simulation_engine, simulation_technique):
@@ -188,15 +175,15 @@ def list_vagrant_boxes():
 if __name__ == "__main__":
     # grab arguments
     parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
-    parser.add_argument("-m", "--mode", required=True, default="terraform",
+    parser.add_argument("-m", "--mode", required=True, default="terraform", choices=['vagrant', 'terraform'],
                         help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
-    parser.add_argument("-a", "--action", required=True, default="build",
+    parser.add_argument("-a", "--action", required=True, default="build", choices=['build', 'destroy', 'simulate'],
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate allowed")
     parser.add_argument("-vls", "--vagrant_list", required=False, default=False, action="store_true",
                         help="prints out all available vagrant boxes")
     parser.add_argument("-vbox", "--vagrant_box", required=False, default="",
                         help="select which vagrant box to stand up or destroy individually")
-    parser.add_argument("-se", "--simulation_engine", required=False, default="atomic_red_team",
+    parser.add_argument("-se", "--simulation_engine", required=False, choices=['atomic_red_team'], default="atomic_red_team",
                         help="please select a simulation engine, defaults to \"atomic_red_team\"")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                         help="comma delimited list of MITRE ATT&CK technique ID to simulate in the attack_range, example: T1117, T1118, requires --simulation flag")
@@ -251,12 +238,8 @@ starting program loaded for mode - B1 battle droid
         grab_streams(bin_dir)
         grab_escu_latest(bin_dir)
 
-    check_action(action, vagrant_box)
-
     if vagrant_list:
         list_vagrant_boxes()
-
-    prep_ansible()
 
     # lets process modes
     if mode == "vagrant":
