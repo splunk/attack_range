@@ -93,20 +93,16 @@ resource "aws_instance" "windows_2016_dc" {
   }
   user_data = "${file("prepare_ansible.ps")}"
 
-
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "sleep 60; cp -f inventory/hosts.default inventory/hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' hosts;ansible-playbook -vvv -i hosts playbooks/windows_dc.yml"
+    command = "sleep 180; cp -f inventory/hosts.default inventory/hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' hosts;ansible-playbook -vvv -i inventory/hosts playbooks/windows_dc.yml"
   }
 }
+
 
 #output "splunk_server" {
 #  value = "http://${aws_eip.splunk_ip.public_ip}:8000"
 #}
-
-output "windows_dc_ip" {
-  value = "${aws_instance.windows_2016_dc.public_ip}"
-}
 
 output "windows_dc_user" {
   value = "${var.win_username}"
