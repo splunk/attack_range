@@ -17,20 +17,14 @@ Attack Range can be executed using two different operations modes:
 - local using vagrant and virtualbox
 - in the cloud using terraform and AWS
 
-In order to make Attack Range work on almost every laptop, the local version using Vagrant and Virtualbox consists of a subset of the full-blown cloud infrastructure in AWS using Terraform. The local version consists of a Splunk single instance and a Windows 10 workstation pre-configured with best practice logging configuration according to Splunk.
-(diagram here)
-
-The cloud infrastructure in AWS using Terraform consists of a Windows 10 workstation, a Windows 2016 server and a Splunk server.
-(diagram here)
-
+In order to make Attack Range work on almost every laptop, the local version using Vagrant and Virtualbox consists of a subset of the full-blown cloud infrastructure in AWS using Terraform. The local version consists of a Splunk single instance and a Windows 10 workstation pre-configured with best practice logging configuration according to Splunk. The cloud infrastructure in AWS using Terraform consists of a Windows 10 workstation, a Windows 2016 server and a Splunk server.
 
 ![Logical Diagram](docs/architecture.png)
 
 
 ## Configuration
-- local using vagrant and virtualbox -> link to wiki page
-- cloud using terraform and AWS -> link to wiki page
-
+- [vagrant and virtualbox](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Vagrant)
+- [terraform and AWS](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Terraform)
 
 ## Running
 In order to use Attack Range, two steps needs to be performed:
@@ -41,7 +35,10 @@ In order to use Attack Range, two steps needs to be performed:
 ### Build Attack Range
 
 
+
 ### Perform Attack Simulation
+
+
 
 
 ## Running

@@ -1,5 +1,5 @@
 ## Variables for Splunk Search Head
-splunk_binary_path: ../../../../appbinaries/splunk-7.3.1-bd63e13aa157-Linux-x86_64.tgz
+splunk_url: https://www.splunk.com/page/download_track?file=7.3.2/linux/splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz&ac=&wget=true&name=wget&platform=Linux&architecture=x86_64&version=7.3.2&product=splunk&typed=release
 splunk_binary: splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz
 splunk_pass: changeme
 
@@ -13,13 +13,13 @@ splunk_uf_win: splunkforwarder-7.3.0-657388c7a488-x64-release.msi
 splunk_uf_win_binary_path: ../../../../appbinaries/splunkforwarder-7.3.0-657388c7a488-x64-release.msi
 
 # Apps and TAs
-splunk_windows_ta_path: ../../../../appbinaries/splunk-add-on-for-microsoft-windows_600.tgz
-splunk_sysmon_ta_path: ../../../../appbinaries/add-on-for-microsoft-sysmon_800.tgz
-splunk_stream_ta_path: ../../../../appbinaries/Splunk_TA_stream.zip
-splunk_stream_app_path: ../../../../appbinaries/splunk-stream_713.tgz
-splunk_cim_app_path: ../../../../appbinaries/splunk-common-information-model-cim_4130.tgz
-splunk_escu_app_path: ../../../../appbinaries/DA-ESS-ContentUpdate-v1.0.41.tar.gz
-splunk_es_app_path: ../../../../appbinaries/splunk-enterprise-security_530.spl
+splunk_windows_ta: splunk-add-on-for-microsoft-windows_600.tgz
+splunk_sysmon_ta: add-on-for-microsoft-sysmon_800.tgz
+splunk_stream_ta: Splunk_TA_stream.zip
+splunk_stream_app: splunk-stream_713.tgz
+splunk_cim_app: splunk-common-information-model-cim_4130.tgz
+splunk_escu_app: DA-ESS-ContentUpdate-v1.0.41.tar.gz
+#splunk_es_app_path: ../../../../appbinaries/splunk-enterprise-security_530.spl
 
 #Variables for Firedrill
 install_firedrill: false

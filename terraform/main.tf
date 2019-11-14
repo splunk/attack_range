@@ -71,28 +71,28 @@ resource "aws_eip" "splunk_ip" {
 }
 
 # standup windows 2016 domain controller
-resource "aws_instance" "windows_2016_dc" {
-  ami           = var.windows_2016_dc_ami
-  instance_type = "t2.2xlarge"
-  key_name = var.key_name
-  subnet_id = "${aws_subnet.default.0.id}"
-  vpc_security_group_ids = ["${aws_security_group.default.id}"]
-  tags = {
-    Name = "attack-range_windows_2016_dc"
-  }
-  user_data = <<EOF
-<powershell>
-$admin = [adsi]("WinNT://./${var.win_username}, user")
-$admin.PSBase.Invoke("SetPassword", "${var.win_password}")
-Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1'))
-</powershell>
-EOF
-
- provisioner "local-exec" {
-    working_dir = "../ansible/inventory"
-    command = "sleep 180;cp hosts.default hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' hosts;ansible-playbook -i hosts playbooks/windows_dc.yml"
-  }
-}
+#resource "aws_instance" "windows_2016_dc" {
+#  ami           = var.windows_2016_dc_ami
+#  instance_type = "t2.2xlarge"
+#  key_name = var.key_name
+#  subnet_id = "${aws_subnet.default.0.id}"
+#  vpc_security_group_ids = ["${aws_security_group.default.id}"]
+#  tags = {
+#    Name = "attack-range_windows_2016_dc"
+#  }
+#  user_data = <<EOF
+#<powershell>
+#$admin = [adsi]("WinNT://./${var.win_username}, user")
+#$admin.PSBase.Invoke("SetPassword", "${var.win_password}")
+#Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1'))
+#</powershell>
+#EOF
+#
+# provisioner "local-exec" {
+#    working_dir = "../ansible/inventory"
+#    command = "sleep 180;cp hosts.default hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' hosts;ansible-playbook -i hosts playbooks/windows_dc.yml"
+#  }
+#}
 
 output "splunk_server" {
   value = "http://${aws_eip.splunk_ip.public_ip}:8000"
@@ -109,4 +109,3 @@ output "windows_dc_user" {
 output "windows_dc_password" {
   value = "${var.win_password}"
 }
-

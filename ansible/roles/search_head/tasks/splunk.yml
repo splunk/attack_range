@@ -28,21 +28,12 @@
   debug: msg='splunk is already installed under /opt/splunk'
   when: splunk_path.stat.exists
 
-# discuss with Jose
-- name: download splunk enterprise
+- name: download splunk
   tags: install
   get_url:
-    url: https://www.splunk.com/page/download_track?file=7.3.2/linux/splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz&ac=&wget=true&name=wget&platform=Linux&architecture=x86_64&version=7.3.2&product=splunk&typed=release
-    dest: /opt/splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz
+    url: {{ splunk_url }}
+    dest: /opt/
   when: splunk_path.stat.exists == false
-
-# - name: copy splunk binary
-#   copy:
-#     src: '{{splunk_binary_path}}'
-#     dest: /opt/
-#     mode: '0644'
-#     local_follow: yes
-#   when: splunk_path.stat.exists == false
 
 - name: install splunk binary
   tags:
