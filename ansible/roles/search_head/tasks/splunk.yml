@@ -31,7 +31,7 @@
 - name: download splunk
   tags: install
   get_url:
-    url: {{ splunk_url }}
+    url: '{{ splunk_url }}'
     dest: /opt/
   when: splunk_path.stat.exists == false
 

@@ -7,17 +7,13 @@ The Attack Range solves two main challenges in development of detections. First,
 
 Second, this framework allows the user to perform attack simulation using different engines. Therefore, the user can repeatedly replicate and generate data as close to "ground truth" as possible, in a format that allows the creation of detections, investigations, knowledge objects, and playbooks in Splunk.
 
-The Attack Range can be used either locally using Vagrant and Virtualbox or as a full-blown cloud infrastructure in AWS using Terraform.
-
-This project is inspired by [DetectionLab](https://github.com/clong/DetectionLab).
-
 
 ## Architecture
-Attack Range can be executed using two different operations modes:
+Attack Range can be used in two different ways:
 - local using vagrant and virtualbox
 - in the cloud using terraform and AWS
 
-In order to make Attack Range work on almost every laptop, the local version using Vagrant and Virtualbox consists of a subset of the full-blown cloud infrastructure in AWS using Terraform. The local version consists of a Splunk single instance and a Windows 10 workstation pre-configured with best practice logging configuration according to Splunk. The cloud infrastructure in AWS using Terraform consists of a Windows 10 workstation, a Windows 2016 server and a Splunk server.
+In order to make Attack Range work on almost every laptop, the local version using Vagrant and Virtualbox consists of a subset of the full-blown cloud infrastructure in AWS using Terraform. The local version consists of a Splunk single instance and a Windows 10 workstation pre-configured with best practice logging configuration according to Splunk. The cloud infrastructure in AWS using Terraform consists of a Windows 10 workstation, a Windows 2016 server and a Splunk server. More information can be found in the wiki
 
 ![Logical Diagram](docs/architecture.png)
 
@@ -94,7 +90,11 @@ You can get help with setting up your own attack range in the [Splunk Community 
 ## Contributors
 * [Rod Soto](https://twitter.com/rodsoto)
 * [Bhavin Patel](https://twitter.com/hackpsy)
+# [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 * Russ Nolen
+
+## Acknowledgements
+- [DetectionLab](https://github.com/clong/DetectionLab)
 
 ## To Dos
 * Implement Atomic Red Team simulation engine execution

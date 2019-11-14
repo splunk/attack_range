@@ -3,12 +3,10 @@
     path: /opt/splunk/etc/apps/TA-microsoft-sysmon
   register: sysmon_ta
 
-- name: copy sysmon ta
-  copy:
-    src: "{{ splunk_sysmon_ta_path }}"
+- name: download Sysmon TA from S3 bucket
+  get_url:
+    url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/{{ splunk_sysmon_ta }}'
     dest: /tmp/sysmon_ta.tgz
-    mode: 0644
-    local_follow: yes
   when: sysmon_ta.stat.exists == False
 
 - name: Install sysmon ta app via REST

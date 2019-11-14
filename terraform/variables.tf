@@ -79,6 +79,5 @@ variable "splunk_ami" {
 # See https://aws.amazon.com/marketplace/server/configuration?productId=13c2dbc9-57fc-4958-922e-a1ba7e223b0d for details
 variable "windows_2016_dc_ami" {
   type    = string
-  default = "ami-09380bd107b455fe7"
+  default = "ami-0df99cdd65bce4245"
 }
-

@@ -3,20 +3,11 @@
     path: /opt/splunk/etc/apps/DA-ESS-ContentUpdate
   register: escu_app
 
-# - name: copy escu app
-#   copy:
-#     src: "{{ splunk_escu_app_path }}"
-#     dest: /tmp/escu_app.tgz
-#     mode: 0644
-#     local_follow: yes
-#   when: escu_app.stat.exists == False
-
-- name: GET ESCU app from S3 bucket
-  s3:
-    bucket: attack-range-appbinaries
-    object: {{ splunk_escu_app }}
+- name: download ESCU app from S3 bucket
+  get_url:
+    url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/{{ splunk_escu_app }}'
     dest: /tmp/escu_app.tgz
-    mode: get
+  when: escu_app.stat.exists == False
 
 - name: Install escu app via REST
   uri:

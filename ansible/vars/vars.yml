@@ -7,6 +7,7 @@ splunk_pass: changeme
 sysmon: true
 stream: true
 
+
 ## Variables for Splunk Universal Forwarders
 splunk_uf_indexer_ip: ec2-18-237-216-212.us-west-2.compute.amazonaws.com
 splunk_uf_win: splunkforwarder-7.3.0-657388c7a488-x64-release.msi

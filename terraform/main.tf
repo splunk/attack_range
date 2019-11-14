@@ -50,53 +50,59 @@ resource "aws_security_group" "default" {
 }
 
 # standup splunk server
- resource "aws_instance" "splunk-server" {
-  ami           = var.splunk_ami
-  instance_type = "t2.2xlarge"
-  key_name = var.key_name
-  subnet_id = "${aws_subnet.default.1.id}"
-  vpc_security_group_ids = ["${aws_security_group.default.id}"]
-  tags = {
-    Name = "attack-range_splunk-server"
-  }
-
- provisioner "local-exec" {
-    working_dir = "../ansible"
-    command = "sleep 60; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server.public_ip},' playbooks/splunk_server.yml"
-  }
-}
-
-resource "aws_eip" "splunk_ip" {
-  instance = aws_instance.splunk-server.id
-}
-
-# standup windows 2016 domain controller
-#resource "aws_instance" "windows_2016_dc" {
-#  ami           = var.windows_2016_dc_ami
+# resource "aws_instance" "splunk-server" {
+#  ami           = var.splunk_ami
 #  instance_type = "t2.2xlarge"
 #  key_name = var.key_name
-#  subnet_id = "${aws_subnet.default.0.id}"
+#  subnet_id = "${aws_subnet.default.1.id}"
 #  vpc_security_group_ids = ["${aws_security_group.default.id}"]
 #  tags = {
-#    Name = "attack-range_windows_2016_dc"
+#    Name = "attack-range_splunk-server"
 #  }
-#  user_data = <<EOF
-#<powershell>
-#$admin = [adsi]("WinNT://./${var.win_username}, user")
-#$admin.PSBase.Invoke("SetPassword", "${var.win_password}")
-#Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1'))
-#</powershell>
-#EOF
 #
-# provisioner "local-exec" {
-#    working_dir = "../ansible/inventory"
-#    command = "sleep 180;cp hosts.default hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' hosts;ansible-playbook -i hosts playbooks/windows_dc.yml"
+#  provisioner "remote-exec" {
+#    inline = ["echo booted"]
+#
+#    connection {
+#      type        = "ssh"
+#      user        = "ubuntu"
+#      host        = "${aws_instance.splunk-server.public_ip}"
+#      private_key = "${file(var.private_key_path)}"
+#    }
+#  }
+#
+#  provisioner "local-exec" {
+#    working_dir = "../ansible"
+#    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server.public_ip},' playbooks/splunk_server.yml"
 #  }
 #}
 
-output "splunk_server" {
-  value = "http://${aws_eip.splunk_ip.public_ip}:8000"
+#resource "aws_eip" "splunk_ip" {
+#  instance = aws_instance.splunk-server.id
+#}
+
+# standup windows 2016 domain controller
+resource "aws_instance" "windows_2016_dc" {
+  ami           = var.windows_2016_dc_ami
+  instance_type = "t2.2xlarge"
+  key_name = var.key_name
+  subnet_id = "${aws_subnet.default.0.id}"
+  vpc_security_group_ids = ["${aws_security_group.default.id}"]
+  tags = {
+    Name = "attack-range_windows_2016_dc"
+  }
+  user_data = "${file("prepare_ansible.ps")}"
+
+
+  provisioner "local-exec" {
+    working_dir = "../ansible"
+    command = "sleep 60; cp -f inventory/hosts.default inventory/hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' hosts;ansible-playbook -vvv -i hosts playbooks/windows_dc.yml"
+  }
 }
+
+#output "splunk_server" {
+#  value = "http://${aws_eip.splunk_ip.public_ip}:8000"
+#}
 
 output "windows_dc_ip" {
   value = "${aws_instance.windows_2016_dc.public_ip}"

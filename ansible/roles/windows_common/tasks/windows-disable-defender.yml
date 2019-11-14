@@ -1,6 +1,7 @@
 ---
 
 - name: Disable Windows Defender
+  ignore_errors: yes
   win_regedit:
     key: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection"
     value: DisableRealTimeMonitoring
