@@ -89,8 +89,8 @@ Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('https://raw
 EOF
 
  provisioner "local-exec" {
-    working_dir = "../ansible/inventory"
-    command = "sleep 180;cp hosts.default hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' hosts;ansible-playbook -i hosts playbooks/windows_dc.yml"
+    working_dir = "../ansible"
+    command = "sleep 180;cp inventory/hosts.default inventory/hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' inventory/hosts;ansible-playbook -i inventory/hosts playbooks/windows_dc.yml"
   }
 }
 

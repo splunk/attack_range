@@ -84,12 +84,12 @@ def config_simulation(simulation_engine, simulation_technique):
 
     # need to run playbook for simulation here
     r = ansible_runner.run(private_data_dir='.attack_range/tmp/',
-                           inventory='/Users/jhernandez/splunk/attack_range/ansible/inventory', roles_path="roles",
+                           inventory='/Users/jhernandez/splunk/attack_range/ansible/inventory/hosts', roles_path="../roles",
                            playbook='/Users/jhernandez/splunk/attack_range/ansible/playbooks/atomic_red_team.yml')
     print("{}: {}".format(r.status, r.rc))
     # successful: 0
-    for each_host_event in r.events:
-        print(each_host_event['event'])
+    #for each_host_event in r.events:
+    #    print(each_host_event['event'])
     print("Final status:")
     print(r.stats)
 
@@ -240,6 +240,9 @@ starting program loaded for mode - B1 battle droid
 
     if vagrant_list:
         list_vagrant_boxes()
+
+    if action != "simulate" and simulation_technique != "":
+        print("you must specify action simulate if using a simulation technique")
 
     # lets process modes
     if mode == "vagrant":
