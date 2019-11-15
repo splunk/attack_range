@@ -1,13 +1,13 @@
-- name: Check we have downloaded stream 
+- name: Check we have downloaded stream
   win_stat:
     path: C:\splunk-stream.zip
   register: stream_zip
 
-- name: Download Splunk Stream
-  win_copy:
-    src: "{{ splunk_stream_ta_path }}"
-    dest: C:\splunk-stream.zip
+- name: Download Stream TA from S3 bucket
   when: stream_zip.stat.exists == False
+  win_shell: |
+    [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
+    (New-Object System.Net.WebClient).DownloadFile("https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/{{ splunk_stream_ta }}", "C:\splunk-stream.zip")
 
 - name: Check we have unzip streams TA
   win_stat:
@@ -15,7 +15,7 @@
   register: stream_ta
 
 - name: Unzip Stream App
-  win_unzip: 
+  win_unzip:
     src: C:\splunk-stream.zip
     dest: "C:\\Program Files\\SplunkUniversalForwarder\\etc\\apps\\"
     when: stream_app.stat.exists == False || stream_ta.stat.exists == False

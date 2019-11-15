@@ -1,4 +1,4 @@
-aws-win-host ansible_ssh_host=PUBLICIP
+aws-win-host ansible_ssh_host=54.149.109.115
 
 [win]
 aws-win-host

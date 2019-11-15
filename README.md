@@ -95,6 +95,9 @@ You can get help with setting up your own attack range in the [Splunk Community 
 
 ## Acknowledgements
 - [DetectionLab](https://github.com/clong/DetectionLab)
+- Atomic Red team
+- Sysmon configuration
+
 
 ## To Dos
 * Implement Atomic Red Team simulation engine execution
