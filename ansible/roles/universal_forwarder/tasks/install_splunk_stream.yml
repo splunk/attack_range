@@ -18,7 +18,7 @@
   win_unzip: 
     src: C:\splunk-stream.zip
     dest: "C:\\Program Files\\SplunkUniversalForwarder\\etc\\apps\\"
-    when: stream_ta.stat.exists == False
+  when: stream_ta.stat.exists == False
 
 - name: Copy Stream Config File
   win_template:
