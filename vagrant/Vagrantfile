@@ -1,36 +1,7 @@
 Vagrant.configure("2") do |config|
-  config.vm.define "win10" do |config|
-	VM_NAME= "win10-workstation-#{SecureRandom.hex(2)}"
-    config.vm.box = "d1vious/windows10"
-    config.vm.hostname = "#{VM_NAME}"
-    config.vm.boot_timeout = 600
-    config.vm.communicator = "winrm"
-    config.winrm.basic_auth_only = true
-    config.winrm.timeout = 300
-    config.winrm.retry_limit = 20
-    config.vm.network "forwarded_port", guest: 5985, host: 5985
-    config.vm.network :private_network, ip: "10.0.0.50"
- 
-    config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../ansible/playbooks/windows_workstation.yml"
-        ansible.config_file = "../ansible/ansible.cfg"
-        ansible.compatibility_mode = "2.0"
-    end
-
-    config.vm.provider "virtualbox" do |vb, override|
-      vb.gui = true
-      vb.name = "#{VM_NAME}" 
-      vb.default_nic_type = "82545EM"
-      vb.customize ["modifyvm", :id, "--memory", 2048]
-      vb.customize ["modifyvm", :id, "--cpus", 1]
-      vb.customize ["modifyvm", :id, "--vram", "32"]
-      vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
-      vb.customize ["setextradata", "global", "GUI/SuppressMessages", "all" ]
-    end
-  end
 
   config.vm.define "splunk-server" do |config|
-  	VM_NAME= "splunk-server-#{SecureRandom.hex(2)}"
+    VM_NAME= "splunk-server-#{SecureRandom.hex(2)}"
     config.vm.box = "generic/ubuntu1804"
     config.vm.hostname = "#{VM_NAME}"
     config.vm.boot_timeout = 600
@@ -38,8 +9,8 @@ Vagrant.configure("2") do |config|
     config.vm.network :private_network, ip: "10.0.0.10"
 
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../../ansible/playbooks/splunk_server.yml"
-        ansible.config_file = "../../ansible/ansible.cfg"
+        ansible.playbook = "../ansible/playbooks/splunk_server.yml"
+        ansible.config_file = "../ansible/ansible.cfg"
         ansible.compatibility_mode = "2.0"
     end
 
@@ -48,6 +19,40 @@ Vagrant.configure("2") do |config|
       vb.name = "#{VM_NAME}"
       vb.customize ["modifyvm", :id, "--memory", 6000]
       vb.customize ["modifyvm", :id, "--cpus", 4]
+    end
+  end
+
+
+  config.vm.define "win10" do |config|
+	  VM_NAME_DC= "win10-workstation-#{SecureRandom.hex(2)}"
+    config.vm.box = "d1vious/windows10"
+    config.vm.hostname = "#{VM_NAME_DC}"
+    config.vm.boot_timeout = 600
+    config.vm.communicator = "winrm"
+    config.winrm.basic_auth_only = true
+    config.winrm.timeout = 300
+    config.winrm.retry_limit = 20
+    config.vm.network "forwarded_port", guest: 5985, host: 5985
+    config.vm.network :private_network, ip: "10.0.0.50"
+
+    config.vm.provision "ansible" do |ansible|
+        ansible.extra_vars = {
+          splunk_indexer_ip: "10.0.0.10"
+        }
+        ansible.playbook = "../ansible/playbooks/windows_workstation.yml"
+        ansible.config_file = "../ansible/ansible.cfg"
+        ansible.compatibility_mode = "2.0"
+    end
+
+    config.vm.provider "virtualbox" do |vb, override|
+      vb.gui = true
+      vb.name = "#{VM_NAME_DC}"
+      vb.default_nic_type = "82545EM"
+      vb.customize ["modifyvm", :id, "--memory", 2048]
+      vb.customize ["modifyvm", :id, "--cpus", 1]
+      vb.customize ["modifyvm", :id, "--vram", "32"]
+      vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+      vb.customize ["setextradata", "global", "GUI/SuppressMessages", "all" ]
     end
   end
 

@@ -1,5 +1,5 @@
 - hosts: all
-  gather_facts: False
+  gather_facts: True
 #  tasks:
 #    - debug:
 #        msg: "{{ hostvars[inventory_hostname] }}"
@@ -8,4 +8,4 @@
     - universal_forwarder
     - sysmon
   vars_files:
-    - ../vars/vars.yml 
+    - ../vars/vars.yml
