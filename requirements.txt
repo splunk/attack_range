@@ -14,7 +14,7 @@ path.py==12.0.1
 pluggy==0.12.0
 py==1.8.0
 pyparsing==2.4.2
-pytest==5.0.1
+pytest==5.2.3
 python-terraform==0.10.1
 python-vagrant==0.5.15
 requests==2.22.0
