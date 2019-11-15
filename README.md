@@ -51,50 +51,6 @@ python attack_range.py -m terraform -a destroy
 python attack_range.py -m vagrant -a destroy
 ```
 
-## Running
-
-1. `git clone https://github.com/splunk/attack_range && cd attack_range` clone project and cd into the project dir
-2. `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt` create virtualenv and install requirements
-3. `python attack_range.py --state up --mode vagrant` start up a range locally using vagrant or `python attack_range.py --state up --mode terraform` to build one in the cloud (AWS)
-
-See [Usage](#usage) for more options, **make sure that you [configure](#configure) the mode first**
-
-If you are on OSX, you will have to install sshpass `brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb`
-
-## Configure
-
-#### For Terraform
-1. `brew install terraform` install Terraform CLI on OSX [other platforms](https://www.terraform.io/downloads.html)
-2. `brew install awscli`  install AWS CLI on OSX otherwise see: [guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
-3. Get AWS API token `aws configure`
-4. Set Terraform variables under [terraform/terraform.tfvars](https://github.com/splunk/attack_range/blob/develop/terraform/terraform.tfvars.example)
-
-#### For Vagrant
-1. 	`brew cask install virtualbox` if you don't already have virtual box installed on OSX, otherwise see their [installation instructions](https://www.virtualbox.org/wiki/Downloads).
-2. `brew cask install vagrant` install Vagrant CLI on OSX, otherwise see: [guide](https://www.vagrantup.com/downloads.html)
-
-#### Range Settings
-To configure general range settings like your Splunk server default username, sysmon template to deploy, or Active Directory admin creds, edit: [ansible/vars/vars.yml](https://github.com/splunk/attack_range/blob/develop/ansible/vars/vars.yml.default)
-
-## Examples
-* Run ALL [atomic red team techniques](https://github.com/redcanaryco/atomic-red-team/tree/master/atomics) on windows10 locally:
-`python attack_range.py -s up -m vagrant -vbox windows10 -si`
-
-* List all the boxes available locally to test on
-`python attack_range.py -s down -m vagrant -vlist`
-
-* Run technique ID T1117 execution through Regsvr32 on windows 2016 Domain Controller in the cloud (AWS)
-`python attack_range.py -s up -m terraform -si -st T1117`
-
-* Run technique ID T1117 execution through Regsvr32 on windows 10 machine locally
-`python attack_range.py -s up -m vagrant -vbox windows10 -si -st T1117`
-
-## Developing
-
-1. Create virtualenv and install requirements: `virtualenv -p python3 venv && source venv/bin/activate && pip install -r requirements.txt`
-2. Install pre-commit hooks `pre-commit install`
-3. Install Ansible on OSX `brew install ansible`
-
 ## Support
 You can get help with setting up your own attack range in the [Splunk Community Slack](http://splk.it/slack) under the `#security-research` channel.
 
@@ -104,7 +60,7 @@ You can get help with setting up your own attack range in the [Splunk Community 
 ## Contributors
 * [Rod Soto](https://twitter.com/rodsoto)
 * [Bhavin Patel](https://twitter.com/hackpsy)
-# [Patrick Bareiß](https://twitter.com/bareiss_patrick)
+* [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 * Russ Nolen
 
 ## Acknowledgements
@@ -112,8 +68,3 @@ You can get help with setting up your own attack range in the [Splunk Community 
 - Atomic Red team
 - Sysmon configuration
 
-
-## To Dos
-* Implement Atomic Red Team simulation engine execution
-* Implement Attack IQ simulation engine execution
-* Create global .conf file
