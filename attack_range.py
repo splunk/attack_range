@@ -180,7 +180,7 @@ def vagrant_mode(vbox, vagrant, action, simulation_engine, simulation_technique)
             run_simulation('vagrant', simulation_engine, h)
 
 
-def terraform_mode(Terraform, action):
+def terraform_mode(Terraform, action, simulation_engine, simulation_technique):
     if action == "build":
         print ("[action] > build\n")
         t = Terraform(working_dir='terraform')
