@@ -26,16 +26,30 @@ In order to make Attack Range work on almost every laptop, the local version usi
 In order to use Attack Range, two steps needs to be performed:
 1. Build Attack Range
 2. Perform Attack Simulation
-
+3. Destroy Attack Range
 
 ### Build Attack Range
-
-
+- Build Attack Range using **Terraform**
+```
+python attack_range.py -m terraform -a build
+```
+- Build Attack Range using **Vagrant**
+```
+python attack_range.py -m vagrant -a build
+```
 
 ### Perform Attack Simulation
 
 
-
+### Destroy Attack Range
+- Destroy Attack Range using **Terraform**
+```
+python attack_range.py -m terraform -a destroy
+```
+- Destroy Attack Range using **Vagrant**
+```
+python attack_range.py -m vagrant -a destroy
+```
 
 ## Running
 
