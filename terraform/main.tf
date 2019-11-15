@@ -111,7 +111,6 @@ Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('https://raw
 </powershell>
 EOF
 
-<<<<<<< HEAD
   provisioner "remote-exec" {
     inline = ["echo booted"]
 
@@ -124,11 +123,6 @@ EOF
       insecure = true
       https    = true
     }
-=======
- provisioner "local-exec" {
-    working_dir = "../ansible"
-    command = "sleep 180;cp inventory/hosts.default inventory/hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' inventory/hosts;ansible-playbook -i inventory/hosts playbooks/windows_dc.yml"
->>>>>>> atomic_red_team
   }
 
   provisioner "local-exec" {
