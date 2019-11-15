@@ -28,11 +28,7 @@ install_firedrill: false
 firedrill_dst_location: C:\fd.exe
 firedrill_binary_path: ../../../../appbinaries/FiredrillAgent-installer-2.2.389.exe
 
-<<<<<<< HEAD
 #Variables for Atomic Red Team
-=======
-#Variables for Atomic Red Team 
->>>>>>> 58ab0957508bb304e6c07b7f355e90a5b56d0925
 install_art: true
 art_module_dst_location: C:\Install-AtomicRedTeam.ps1
 art_module_path: Install-AtomicRedTeam.ps1
