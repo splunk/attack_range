@@ -66,15 +66,16 @@ def config_simulation(simulation_engine, simulation_technique):
 
     # now set the simulation engine and mitre techniques to run
     if simulation_engine == "atomic_red_team":
-        ansiblevars = ansiblevars.replace('install_art: false', 'install_art: true')
+        ansiblevars = re.sub(r'install_art: \w+', 'install_art: true', ansiblevars, re.M)
         print("execution simulation using engine: {0}".format(simulation_engine))
 
     if simulation_technique[0] != '' or len(simulation_technique) > 1:
-        techniques = 'art_run_technique: ' + str(simulation_technique)
-        ansiblevars = ansiblevars.replace('art_run_technique: ['']', techniques)
+        technique = "art_run_technique: " + str(simulation_technique)
+        ansiblevars = re.sub(r'art_run_technique: .+', technique, ansiblevars, re.M)
+        ansiblevars = re.sub(r'art_run_all_test: \w+', 'art_run_all_test: false', ansiblevars, re.M)
         print("executing specific ATT&CK technique ID: {0}".format(simulation_technique))
     else:
-        ansiblevars = ansiblevars.replace('art_run_all_test: false', 'art_run_all_test: true')
+        ansiblevars = re.sub(r'art_run_all_test: \w+', 'art_run_all_test: true', ansiblevars, re.M)
         print("executing ALL Atomic Red Team ATT&CK techniques see: https://github.com/redcanaryco/atomic-red-team/tree/master/atomics".format(
                 simulation_technique))
 
@@ -82,16 +83,34 @@ def config_simulation(simulation_engine, simulation_technique):
     with open('ansible/vars/vars.yml', 'w') as file:
         file.write(ansiblevars)
 
-    # need to run playbook for simulation here
-    r = ansible_runner.run(private_data_dir='.attack_range/tmp/',
-                           inventory='/Users/jhernandez/splunk/attack_range/ansible/inventory', roles_path="roles",
-                           playbook='/Users/jhernandez/splunk/attack_range/ansible/playbooks/atomic_red_team.yml')
-    print("{}: {}".format(r.status, r.rc))
-    # successful: 0
-    for each_host_event in r.events:
-        print(each_host_event['event'])
-    print("Final status:")
-    print(r.stats)
+
+def run_simulation(mode, simulation_engine, host_ip):
+
+    # read host file and replace the parameters
+    with open('ansible/inventory/hosts.default', 'r') as file:
+        hosts_file = file.read()
+
+    # we need to change the port for ssh if we are running locally
+    if mode == 'vagrant':
+        hosts_file = hosts_file.replace('ansible_ssh_port=5986', 'ansible_ssh_port=5985')
+        hosts_file = hosts_file.replace('ansible_ssh_user=Administrator', 'ansible_ssh_user = vagrant')
+        hosts_file = hosts_file.replace('ansible_ssh_pass=myTempPassword123', 'ansible_ssh_pass = vagrant')
+    hosts_file = hosts_file.replace('PUBLICIP', host_ip)
+
+    # write hosts file to run from
+    with open('ansible/inventory/hosts', 'w') as file:
+        file.write(hosts_file)
+
+    # execute atomic red team simulation
+    if simulation_engine == "atomic_red_team":
+        r = ansible_runner.run(private_data_dir='.attack_range/',
+                               inventory=os.path.dirname(os.path.realpath(__file__)) + '/ansible/inventory/hosts',
+                               roles_path="../roles",
+                               playbook=os.path.dirname(os.path.realpath(__file__)) + '/ansible/playbooks/atomic_red_team.yml')
+        print("{}: {}".format(r.status, r.rc))
+        print("Final status:")
+        print(r.stats)
+
 
 def prep_ansible():
     # prep ansible for configuration
@@ -128,7 +147,7 @@ def vagrant_mode(vbox, vagrant, action, simulation_engine, simulation_technique)
         print("building splunk-server and windows10 workstation boxes WARNING MAKE SURE YOU HAVE 8GB OF RAM free otherwise you will have a bad time")
 
     if action == "build":
-        print ("[action] > build\n")
+        print("[action] > build\n")
         v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
         v1.up(provision=True)
         print("attack_range has been built using vagrant successfully")
@@ -140,8 +159,25 @@ def vagrant_mode(vbox, vagrant, action, simulation_engine, simulation_technique)
         print("attack_range has been destroy using vagrant successfully")
 
     if action == "simulate":
+        hosts = []
+        # lets get the host we have to run our simulations against
+        # read in the vagrant file and grab out each IP from the hosts
+        vagrantdata = list(open(vagrantfile + '/Vagrantfile', 'r').read().split('\n'))
+        regex = r'(?:[0-9]{1,3}\.){3}[0-9]{1,3}'
+        for line in vagrantdata:
+            matches = re.search(regex, line)
+            if matches:
+                hosts.append(matches.group())
+
+        # lets configurate the simulation engine in ansible
         config_simulation(simulation_engine, simulation_technique)
 
+        for h in hosts:
+            if vagrantfile == 'vagrant/':
+                print("running simulation against {0} operating on IP {1}".format('ALL machines', h))
+            else:
+                print("running simulation against {0} operating on IP IP {1}".format(vagrantfile, h))
+            run_simulation('vagrant', simulation_engine, h)
 
 
 def terraform_mode(Terraform, action):
@@ -202,6 +238,7 @@ if __name__ == "__main__":
     simulation_technique = [str(item) for item in args.simulation_technique.split(',')]
 
 
+
     print("INIT - Attack Range v" + str(VERSION))
     print("""
 starting program loaded for mode - B1 battle droid
@@ -240,6 +277,11 @@ starting program loaded for mode - B1 battle droid
 
     if vagrant_list:
         list_vagrant_boxes()
+
+    if action != "simulate" and simulation_technique[0] != "":
+        print("you must specify action simulate if using a simulation technique")
+        parser.print_help()
+        sys.exit(1)
 
     # lets process modes
     if mode == "vagrant":
