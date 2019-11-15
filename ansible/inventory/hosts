@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-aws-win-host ansible_ssh_host=54.149.109.115
-=======
 aws-win-host ansible_ssh_host=10.0.0.50
->>>>>>> atomic_red_team
 
 [win]
 aws-win-host
