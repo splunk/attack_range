@@ -229,7 +229,7 @@ if __name__ == "__main__":
     # parse them
     args = parser.parse_args()
     ARG_VERSION = args.version
-    bin_dir = args.appbin
+    #bin_dir = args.appbin
     mode = args.mode
     action = args.action
     vagrant_box = args.vagrant_box
