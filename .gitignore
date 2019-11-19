@@ -5,14 +5,14 @@ ansible/roles/*/files/splunk*.tgz
 ansible/roles/*/files/splunk*.msi
 ansible/hosts
 ansible/vars/vars.yml
-terraform/terraform.tfvars
+#terraform/terraform.tfvars
 
 # Anisble Runner
 artifacts/
 
 ## Terraform ignores
 # Local .terraform directories
-**/.terraform/*
+#/.terraform/*
 
 # .tfstate files
 *.tfstate
