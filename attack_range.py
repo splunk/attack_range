@@ -70,9 +70,9 @@ def run_simulation(mode, simulation_engine, target):
                                    __file__)) + '/ansible/inventory/hosts',
                                roles_path="../roles",
                                playbook=os.path.dirname(os.path.realpath(__file__)) + '/ansible/playbooks/atomic_red_team.yml')
-        print("{}: {}".format(r.status, r.rc))
-        print("Final status:")
-        print(r.stats)
+        #print("{}: {}".format(r.status, r.rc))
+        #print("Final status:")
+        #print(r.stats)
 
 
 def prep_ansible():
@@ -105,15 +105,6 @@ def prep_ansible():
     #        log.error("make sure that ansible/host.default contains the windows username and password.\n" +
     #              "We were not able to set it automatically")
 
-
-def check_state(state):
-    if state == "up":
-        pass
-    elif state == "down":
-        pass
-    else:
-        #        log.error("incorrect state, please set flag --state to \"up\" or \"download\"")
-        sys.exit(1)
 
 
 def vagrant_mode(action):
@@ -148,24 +139,41 @@ def attack_simulation(mode, target, simulation_engine, simulation_techniques):
         config_simulation(simulation_engine, simulation_techniques)
         run_simulation('terraform', simulation_engine, target_IP)
 
-
+# @Jose the beginning part of the function needs to be changed to the common configuration file
 def check_targets_running_terraform(target):
+    with open('terraform/terraform.tfvars', 'r') as file:
+        terraformvars = file.read()
+
+    pattern = 'key_name = \"([^\"]*)'
+    a = re.search(pattern, terraformvars)
+
     client = boto3.client('ec2')
     response = client.describe_instances(
         Filters=[
             {
                 'Name': "tag:Name",
                 'Values': [target]
+            },
+            {
+                'Name': "key-name",
+                'Values': [a.group(1)]
             }
         ]
     )
+
     if len(response['Reservations']) == 0:
         sys.exit('ERROR: ' + target + ' not found as AWS EC2 instance.')
 
-    if response['Reservations'][0]['Instances'][0]['State']['Name'] != 'running' :
-        sys.exit('ERROR: ' + target + ' not running.')
+    # iterate through reservations and instances
+    found_running_instance = False
+    for reservation in response['Reservations']:
+        for instance in reservation['Instances']:
+            if instance['State']['Name'] == 'running':
+                found_running_instance = True
+                return instance['NetworkInterfaces'][0]['Association']['PublicIp']
 
-    return response['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['Association']['PublicIp']
+    if not found_running_instance:
+        sys.exit('ERROR: ' + target + ' not running.')
 
 
 def check_targets_running_vagrant(target):
