@@ -1,15 +1,3 @@
-variable "public_key_path" {
-  description = <<DESCRIPTION
-Path to the SSH public key to be used for authentication.
-Ensure this keypair is added to your local SSH agent so provisioners can
-connect.
-
-Example: ~/.ssh/terraform.pub
-Defaults to: ~/.ssh/id_rsa.pub
-DESCRIPTION
-  default = "~/.ssh/id_rsa.pub"
-}
-
 variable "private_key_path" {
   description = <<DESCRIPTION
 Path to the SSH private key to be used for authentication.
@@ -91,6 +79,5 @@ variable "splunk_ami" {
 # See https://aws.amazon.com/marketplace/server/configuration?productId=13c2dbc9-57fc-4958-922e-a1ba7e223b0d for details
 variable "windows_2016_dc_ami" {
   type    = string
-  default = "ami-09380bd107b455fe7"
+  default = "ami-0df99cdd65bce4245"
 }
-
