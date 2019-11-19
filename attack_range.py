@@ -65,7 +65,7 @@ def run_simulation(mode, simulation_engine, target):
 
     # execute atomic red team simulation
     if simulation_engine == "atomic_red_team":
-        r = ansible_runner.run(private_data_dir='../attack_range/',
+        r = ansible_runner.run(private_data_dir='.attack_range/',
                                inventory=os.path.dirname(os.path.realpath(
                                    __file__)) + '/ansible/inventory/hosts',
                                roles_path="../roles",
