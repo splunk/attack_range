@@ -3,10 +3,12 @@
     path: /opt/splunk/etc/apps/Splunk_TA_cim
   register: cim_app
 
-- name: download CIM app from S3 bucket
-  get_url:
-    url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/{{ splunk_cim_app }}'
+- name: copy escu app
+  copy:
+    src: "{{ splunk_cim_app_path }}"
     dest: /tmp/cim_app.tgz
+    mode: 0644
+    local_follow: yes
   when: cim_app.stat.exists == False
 
 - name: Install cim app via REST

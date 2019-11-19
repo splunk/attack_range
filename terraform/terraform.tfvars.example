@@ -1,0 +1,5 @@
+aws_region = "us-west-2"
+key_name = "zeroc00l ssh keys"
+ip_whitelist = ["127.0.0.1/32", "8.8.8.8/32"]
+win_username = "Administrator"
+win_password = "myTempPassword123"

@@ -4,8 +4,8 @@
   win_copy:
     src: "{{ firedrill_binary_path }}"
     dest: "{{ firedrill_dst_location }}"
-  when: install_firedrill
+    when: install
 
 - name: Install FireDrill
   win_command: "{{ firedrill_dst_location }} /S"
-  when: install_firedrill
+  when: install
