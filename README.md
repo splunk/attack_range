@@ -39,7 +39,14 @@ python attack_range.py -m vagrant -a build
 ```
 
 ### Perform Attack Simulation
-
+- Perform Attack Simulation using **Terraform**
+```
+python attack_range.py -m terraform -a simulate -se atomic_red_team -st T1117,T1003 -t attack-range_windows_2016_dc
+```
+- Perform Attack Simulation using **Vagrant**
+```
+python attack_range.py -m vagrant -a simulate -se atomic_red_team -st T1117,T1003 -t win10
+```
 
 ### Destroy Attack Range
 - Destroy Attack Range using **Terraform**
