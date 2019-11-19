@@ -13,6 +13,7 @@ os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
 VERSION = 1
 
 
+# could be improved by directly use extra-vars
 def config_simulation(simulation_engine, simulation_technique):
 
     # Read in the ansible vars file
@@ -47,6 +48,7 @@ def run_simulation(mode, simulation_engine, target):
 
     # we need to change the port for ssh if we are running locally
     if mode == 'vagrant':
+        # can be changed with the output of vagrant winrm-config [machine]
         hosts_file = hosts_file.replace('ansible_ssh_port=5986', 'ansible_ssh_port=5985')
         hosts_file = hosts_file.replace(
             'ansible_ssh_user=Administrator', 'ansible_ssh_user = vagrant')
@@ -129,16 +131,16 @@ def vagrant_mode(action):
         print("attack_range has been destroy using vagrant successfully")
 
 
-def vagrant_attack_simulation(target, simulation_engine, simulation_technique):
-    v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
-    status = v1.status()
+def attack_simulation(mode, target, simulation_engine, simulation_techniques):
+    if mode == 'vagrant':
+        v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
+        status = v1.status()
 
-    # Check if target exist and if it is running
-    check_target_running(target)
+        # Check if target exist and if it is running
+        check_targets_running(target)
 
-    config_simulation(simulation_engine, simulation_technique)
-
-    run_simulation('vagrant', simulation_engine, target)
+        config_simulation(simulation_engine, simulation_techniques)
+        run_simulation('vagrant', simulation_engine, target)
 
 
 def check_targets_running(target):
@@ -193,7 +195,7 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--action", required=True, default="build", choices=['build', 'destroy', 'simulate'],
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate allowed")
     parser.add_argument("-t", "--target", required=False,
-                        help="list of targets for attack simulation")
+                        help="target for attack simulation")
     parser.add_argument("-se", "--simulation_engine", required=False, choices=['atomic_red_team'], default="atomic_red_team",
                         help="please select a simulation engine, defaults to \"atomic_red_team\"")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
@@ -245,7 +247,7 @@ if __name__ == "__main__":
         if action == "build" or action == "destroy":
             vagrant_mode(action)
         else:
-            vagrant_attack_simulation(targets, simulation_engine, simulation_techniques)
+            attack_simulation('vagrant', target, simulation_engine, simulation_techniques)
 
     elif mode == "terraform":
         prep_ansible()

@@ -1,7 +1,7 @@
 Vagrant.configure("2") do |config|
 
   config.vm.define "splunk-server" do |config|
-    VM_NAME= "splunk-server-#{SecureRandom.hex(2)}"
+    VM_NAME= "splunk-server"
     config.vm.box = "generic/ubuntu1804"
     config.vm.hostname = "#{VM_NAME}"
     config.vm.boot_timeout = 600
@@ -24,9 +24,9 @@ Vagrant.configure("2") do |config|
 
 
   config.vm.define "win10" do |config|
-	  VM_NAME_DC= "win10-workstation-#{SecureRandom.hex(2)}"
+	  VM_NAME_WIN= "win10"
     config.vm.box = "d1vious/windows10"
-    config.vm.hostname = "#{VM_NAME_DC}"
+    config.vm.hostname = "#{VM_NAME_WIN}"
     config.vm.boot_timeout = 600
     config.vm.communicator = "winrm"
     config.winrm.basic_auth_only = true
@@ -46,7 +46,7 @@ Vagrant.configure("2") do |config|
 
     config.vm.provider "virtualbox" do |vb, override|
       vb.gui = true
-      vb.name = "#{VM_NAME_DC}"
+      vb.name = "#{VM_NAME_WIN}"
       vb.default_nic_type = "82545EM"
       vb.customize ["modifyvm", :id, "--memory", 2048]
       vb.customize ["modifyvm", :id, "--cpus", 1]
