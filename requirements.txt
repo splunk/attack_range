@@ -12,7 +12,7 @@ chardet==3.0.4
 contextlib2==0.5.5
 cryptography==2.8
 docutils==0.15.2
-execnet==1.7.0
+execnet==1.7.1
 idna==2.8
 importlib-metadata==0.19
 Jinja2==2.10.3
