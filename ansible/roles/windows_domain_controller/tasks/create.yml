@@ -33,6 +33,8 @@
 
 - name: reboot | Rebooting Server
   win_reboot:
+    reboot_timeout_sec: 300
+    shutdown_timeout: 300
 
 - name: Managing Domain Controller Membership
   win_domain_controller:

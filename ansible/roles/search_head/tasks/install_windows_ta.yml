@@ -3,10 +3,12 @@
     path: /opt/splunk/etc/apps/Splunk_TA_windows
   register: windows_ta
 
-- name: download Windows TA from S3 bucket
-  get_url:
-    url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/{{ splunk_windows_ta }}'
+- name: copy windows ta
+  copy:
+    src: "{{ splunk_windows_ta_path }}"
     dest: /tmp/windows_ta.tgz
+    mode: 0644
+    local_follow: yes
   when: windows_ta.stat.exists == False
 
 - name: Install windows TA app via REST

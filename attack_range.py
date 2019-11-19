@@ -1,10 +1,10 @@
 import argparse
-import wget
 import re
 import vagrant
 import ansible_runner
 import subprocess
 from python_terraform import *
+from lib import logger
 
 # need to set this ENV var due to a OSX High Sierra forking bug
 # see this discussion for more details: https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
@@ -72,27 +72,43 @@ def run_simulation(mode, simulation_engine, target):
 
 def prep_ansible():
     # prep ansible for configuration
-    # first we read from TF the win_username and password
-    f = open("terraform/terraform.tfvars", "r")
-    contents = f.read()
+    # lets configure the passwords for ansible before we run any operations
+    try:
+        f = open("terraform/terraform.tfvars", "r")
+        contents = f.read()
 
-    win_password = re.findall(r'^win_password = \"(.+)\"', contents, re.MULTILINE)
-    win_username = re.findall(r'^win_username = \"(.+)\"', contents, re.MULTILINE)
+        win_password = re.findall(r'^win_password = \"(.+)\"', contents, re.MULTILINE)
+        win_username = re.findall(r'^win_username = \"(.+)\"', contents, re.MULTILINE)
 
-    # Read in the ansible vars file
-    with open('ansible/vars/vars.yml', 'r') as file:
-        ansiblevars = file.read()
+        # Read in the ansible vars file
+        with open('ansible/vars/vars.yml.default', 'r') as file:
+            ansiblevars = file.read()
 
-    # Replace the username and password
-    ansiblevars = ansiblevars.replace('USERNAME', win_username[0])
-    ansiblevars = ansiblevars.replace('PASSWORD', win_password[0])
+        # Replace the username and password
+        ansiblevars = ansiblevars.replace('USERNAME', win_username[0])
+        ansiblevars = ansiblevars.replace('PASSWORD', win_password[0])
 
-    # Write the file out again
-    with open('ansible/vars/vars.yml', 'w') as file:
-        file.write(ansiblevars)
+        # Write the file out again
+        with open('ansible/vars/vars.yml', 'w') as file:
+            file.write(ansiblevars)
 
-    print("setting windows username: {0} from terraform/terraform.tfvars file".format(win_username))
-    print("setting windows password: {0} from terraform/terraform.tfvars file".format(win_password))
+        log.info(
+            "setting windows username: {0} from terraform/terraform.tfvars file".format(win_username))
+        log.info(
+            "setting windows password: {0} from terraform/terraform.tfvars file".format(win_password))
+    except e:
+        log.error("make sure that ansible/host.default contains the windows username and password.\n" +
+                  "We were not able to set it automatically")
+
+
+def check_state(state):
+    if state == "up":
+        pass
+    elif state == "down":
+        pass
+    else:
+        log.error("incorrect state, please set flag --state to \"up\" or \"download\"")
+        sys.exit(1)
 
 
 def vagrant_mode(action):
@@ -196,25 +212,29 @@ if __name__ == "__main__":
 
     print("INIT - Attack Range v" + str(VERSION))
     print("""
-starting program loaded for mode - B1 battle droid
-  ||/__'`.
-  |//()'-.:
-  |-.||
-  |o(o)
-  |||\\\  .==._
-  |||(o)==::'
-   `|T  ""
-    ()
-    |\\
-    ||\\
-    ()()
-    ||//
-    |//
-   .'=`=.
-    """)
+    starting program loaded for mode - B1 battle droid
+
+      ||/__'`.
+      |//()'-.:
+      |-.||
+      |o(o)
+      |||\\\  .==._
+      |||(o)==::'
+       `|T  ""
+        ()
+        |\\
+        ||\\
+        ()()
+        ||//
+        |//
+       .'=`=.
+        """)
+
+    log = logger.setup_logging(args.output, "INFO")
+    log.info("INIT - Attack Range v" + str(VERSION))
 
     if ARG_VERSION:
-        print("version: {0}".format(VERSION))
+        log.info("version: {0}".format(VERSION))
         sys.exit(1)
 
     # to do: define which arguments are needed for build and which for simulate
@@ -228,9 +248,10 @@ starting program loaded for mode - B1 battle droid
             vagrant_attack_simulation(targets, simulation_engine, simulation_techniques)
 
     elif mode == "terraform":
-        print("[mode] > terraform ")
-        terraform_mode(Terraform, action, simulation_engine, simulation_technique)
+        prep_ansible()
+        log.info("[mode] > terraform ")
+        terraform_mode(Terraform, action)
 
     else:
-        print("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")
+        log.error("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")
         sys.exit(1)

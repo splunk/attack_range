@@ -4,8 +4,9 @@
 #    - debug:
 #        msg: "{{ hostvars[inventory_hostname] }}"
   roles:
-    - windows_common
+    - common
     - universal_forwarder
+    - firedrill
     - sysmon
   vars_files:
-    - ../vars/vars.yml
+    - ../vars/vars.yml 

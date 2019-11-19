@@ -1,10 +1,14 @@
 - hosts: all
   gather_facts: True
+#  tasks:
+#    - debug:
+#        msg: "{{ hostvars[inventory_hostname] }}"
   roles:
-    - windows_common
+    - common
     - windows_dns_server
     - windows_domain_controller
     - universal_forwarder
+    - firedrill
     - sysmon
   vars_files:
-    - ../vars/vars.yml
+    - ../vars/vars.yml 

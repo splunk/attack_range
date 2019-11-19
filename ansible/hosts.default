@@ -1,0 +1,12 @@
+aws-win-host ansible_ssh_host=PUBLICIP
+
+[win]
+aws-win-host
+
+[win:vars]
+ansible_connection=winrm
+ansible_ssh_port=5986
+ansible_ssh_user=Administrator
+ansible_ssh_pass=myTempPassword123
+ansible_winrm_transport=basic
+ansible_winrm_server_cert_validation=ignore
