@@ -1,9 +1,0 @@
-
-PLAY [all] *********************************************************************
-
-TASK [atomic_red_team : copy Atomic Red Team PS module] ************************
-[1;31mfatal: [aws-win-host]: UNREACHABLE! => {"changed": false, "msg": "basic: HTTPSConnectionPool(host='win10', port=5986): Max retries exceeded with url: /wsman (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x110415290>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known'))", "unreachable": true}[0m
-
-PLAY RECAP *********************************************************************
-[0;31maws-win-host[0m               : ok=0    changed=0    [1;31munreachable=1   [0m failed=0   
-
