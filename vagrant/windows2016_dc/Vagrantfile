@@ -16,6 +16,11 @@ Vagrant.configure("2") do |config|
         ansible.playbook = "../../ansible/playbooks/windows_dc.yml"
         ansible.config_file = "../../ansible/ansible.cfg"
         ansible.compatibility_mode = "2.0"
+        ansible.groups = {
+  				"win" => ["10.0.0.5"],
+  				"win:vars" => {"ansible_winrm_read_timeout_sec" => "600",
+            	"ansible_connection" => "winrm"}
+			}
     end
 
 
