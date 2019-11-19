@@ -7,7 +7,6 @@
     - setup: # aka gather_facts
   become: true
   roles:
-    - common
     - search_head
   vars_files:
     - ../vars/vars.yml 
