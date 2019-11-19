@@ -7,7 +7,10 @@ ansible/hosts
 ansible/vars/vars.yml
 terraform/terraform.tfvars
 
-## Terraform ignores 
+# Anisble Runner
+artifacts/
+
+## Terraform ignores
 # Local .terraform directories
 **/.terraform/*
 
