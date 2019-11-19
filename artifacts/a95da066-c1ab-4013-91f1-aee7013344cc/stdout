@@ -1,0 +1,18 @@
+
+PLAY [all] *********************************************************************
+
+TASK [atomic_red_team : copy Atomic Red Team PS module] ************************
+[0;33mchanged: [aws-win-host][0m
+
+TASK [atomic_red_team : Install Atomic Red Team PS Module] *********************
+[0;33mchanged: [aws-win-host][0m
+
+TASK [atomic_red_team : Run all Atomic Red Team Tests] *************************
+[0;36mskipping: [aws-win-host][0m
+
+TASK [atomic_red_team : Run specified Atomic Red Team Technique] ***************
+[0;33mchanged: [aws-win-host] => (item=T1117)[0m
+
+PLAY RECAP *********************************************************************
+[0;33maws-win-host[0m               : [0;32mok=3   [0m [0;33mchanged=3   [0m unreachable=0    failed=0   
+
