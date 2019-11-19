@@ -3,6 +3,7 @@ import re
 import vagrant
 import ansible_runner
 import subprocess
+import boto3
 from python_terraform import *
 # from lib import logger
 
@@ -55,6 +56,8 @@ def run_simulation(mode, simulation_engine, target):
         hosts_file = hosts_file.replace(
             'ansible_ssh_pass=myTempPassword123', 'ansible_ssh_pass = vagrant')
         hosts_file = hosts_file.replace('PUBLICIP', '127.0.0.1')
+    if mode == 'terraform':
+        hosts_file = hosts_file.replace('PUBLICIP', target)
 
     # write hosts file to run from
     with open('ansible/inventory/hosts', 'w') as file:
@@ -135,15 +138,37 @@ def attack_simulation(mode, target, simulation_engine, simulation_techniques):
     if mode == 'vagrant':
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         status = v1.status()
-
         # Check if target exist and if it is running
-        check_targets_running(target)
-
+        check_targets_running_vagrant(target)
         config_simulation(simulation_engine, simulation_techniques)
         run_simulation('vagrant', simulation_engine, target)
 
+    if mode == 'terraform':
+        target_IP = check_targets_running_terraform(target)
+        config_simulation(simulation_engine, simulation_techniques)
+        run_simulation('terraform', simulation_engine, target_IP)
 
-def check_targets_running(target):
+
+def check_targets_running_terraform(target):
+    client = boto3.client('ec2')
+    response = client.describe_instances(
+        Filters=[
+            {
+                'Name': "tag:Name",
+                'Values': [target]
+            }
+        ]
+    )
+    if len(response['Reservations']) == 0:
+        sys.exit('ERROR: ' + target + ' not found as AWS EC2 instance.')
+
+    if response['Reservations'][0]['Instances'][0]['State']['Name'] != 'running' :
+        sys.exit('ERROR: ' + target + ' not running.')
+
+    return response['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['Association']['PublicIp']
+
+
+def check_targets_running_vagrant(target):
     v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
     status = v1.status()
 
@@ -152,10 +177,10 @@ def check_targets_running(target):
         if stat.name == target:
             found_box = True
             if not (stat.state == 'running'):
-                sys.exit(target + ' not running.')
+                sys.exit('ERROR: ' + target + ' not running.')
             break
     if not found_box:
-        sys.exit(target + ' not found as vagrant box.')
+        sys.exit('ERROR: ' + target + ' not found as vagrant box.')
 
 
 # def get_target_ips_vagrant(targets):
@@ -168,7 +193,7 @@ def check_targets_running(target):
 #         print(result)
 
 
-def terraform_mode(Terraform, action, simulation_engine, simulation_technique):
+def terraform_mode(Terraform, action):
     if action == "build":
         print("[action] > build\n")
         t = Terraform(working_dir='terraform')
@@ -182,8 +207,6 @@ def terraform_mode(Terraform, action, simulation_engine, simulation_technique):
         return_code, stdout, stderr = t.destroy(capture_output='yes', no_color=IsNotFlagged)
         print("attack_range has been destroy using terraform successfully")
 
-    if action == "simulate":
-        config_simulation(simulation_engine, simulation_technique)
 
 
 if __name__ == "__main__":
@@ -195,7 +218,7 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--action", required=True, default="build", choices=['build', 'destroy', 'simulate'],
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate allowed")
     parser.add_argument("-t", "--target", required=False,
-                        help="target for attack simulation")
+                        help="target for attack simulation. For mode vagrant use name of the vbox. For mode terraform use the name of the aws EC2 name")
     parser.add_argument("-se", "--simulation_engine", required=False, choices=['atomic_red_team'], default="atomic_red_team",
                         help="please select a simulation engine, defaults to \"atomic_red_team\"")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
@@ -252,7 +275,10 @@ if __name__ == "__main__":
     elif mode == "terraform":
         prep_ansible()
         # log.info("[mode] > terraform ")
-        terraform_mode(Terraform, action)
+        if action == "build" or action == "destroy":
+            terraform_mode(Terraform, action)
+        else:
+            attack_simulation('terraform', target, simulation_engine, simulation_techniques)
 
     else:
         # log.error("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")
