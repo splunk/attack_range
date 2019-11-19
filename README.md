@@ -67,4 +67,3 @@ You can get help with setting up your own attack range in the [Splunk Community 
 - [DetectionLab](https://github.com/clong/DetectionLab)
 - Atomic Red team
 - Sysmon configuration
-
