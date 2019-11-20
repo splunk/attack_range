@@ -234,10 +234,10 @@ def terraform_mode(action, log):
 
     if action == "stop" or action == "resume":
         instances, key_name = find_terraform_instances()
-        change_terraform_state(instances, action, key_name)
+        change_terraform_state(instances, action, key_name, log)
 
 
-def change_terraform_state(instances, action, key_name):
+def change_terraform_state(instances, action, key_name, log):
     client = boto3.client('ec2')
     # iterate through reservations and instances
     found_running_instance = False
@@ -248,7 +248,7 @@ def change_terraform_state(instances, action, key_name):
                 response = client.stop_instances(
                     InstanceIds=[instance['InstanceId']]
                 )
-                print('Successfully shut down instance with ID ' +
+                log.info('Successfully stopped instance with ID ' +
                       instance['InstanceId'] + ' .')
         else:
             if instance['State']['Name'] == 'stopped':
@@ -256,7 +256,7 @@ def change_terraform_state(instances, action, key_name):
                 response = client.start_instances(
                     InstanceIds=[instance['InstanceId']]
                 )
-                print('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
+                log.info('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
 
     if not found_running_instance:
         sys.exit('ERROR: No AWS EC2 instances with the key_name ' + key_name + ' are running.')
@@ -347,7 +347,7 @@ if __name__ == "__main__":
     # lets process modes
     if mode == "vagrant":
         log.info("[mode] > vagrant")
-        if action == "build" or action == "destroy":
+        if action == "build" or action == "destroy" or action == "stop" or action == "resume":
             vagrant_mode(action, log)
         else:
             attack_simulation('vagrant', target, simulation_engine, simulation_techniques, log)
@@ -355,7 +355,7 @@ if __name__ == "__main__":
     elif mode == "terraform":
         prep_ansible()
         log.info("[mode] > terraform ")
-        if action == "build" or action == "destroy":
+        if action == "build" or action == "destroy" or action == "stop" or action == "resume":
             terraform_mode(action, log)
         else:
             attack_simulation('terraform', target, simulation_engine, simulation_techniques, log)
