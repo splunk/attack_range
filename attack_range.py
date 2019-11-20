@@ -5,7 +5,7 @@ import ansible_runner
 import subprocess
 import boto3
 from python_terraform import *
-from lib import logger
+from modules import logger
 
 # need to set this ENV var due to a OSX High Sierra forking bug
 # see this discussion for more details: https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
