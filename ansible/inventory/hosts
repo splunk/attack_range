@@ -1,4 +1,4 @@
-aws-win-host ansible_ssh_host=PUBLICIP
+aws-win-host ansible_ssh_host=35.165.209.85
 
 [win]
 aws-win-host
@@ -10,3 +10,4 @@ ansible_ssh_user=Administrator
 ansible_ssh_pass=myTempPassword123
 ansible_winrm_transport=basic
 ansible_winrm_server_cert_validation=ignore
+ansible_winrm_read_timeout_sec=600

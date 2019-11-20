@@ -34,7 +34,7 @@ art_module_dst_location: C:\Install-AtomicRedTeam.ps1
 art_module_path: Install-AtomicRedTeam.ps1
 art_run_all_test: false
 # array of techniques to run
-art_run_technique: ['T1003', 'T1004']
+art_run_technique: ['T1117']
 
 #Variables for Sysmon
 

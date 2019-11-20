@@ -8,6 +8,7 @@
       win_get_url:
         url: "{{ win_sysmon_url }}"
         dest: "{{ win_temp_dir }}\\{{ win_sysmon_url | basename }}"
+        timeout: 60
       when: not sysmondl.stat.exists
     - name: unzip sysmon
       win_unzip:
