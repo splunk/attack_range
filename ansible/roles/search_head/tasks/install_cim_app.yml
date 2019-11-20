@@ -5,7 +5,7 @@
 
 - name: download CIM app from S3 bucket
   get_url:
-    url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/{{ splunk_cim_app }}'
+    url: '{{ s3_bucket_url }}/{{ splunk_cim_app }}'
     dest: /tmp/cim_app.tgz
   when: cim_app.stat.exists == False
 

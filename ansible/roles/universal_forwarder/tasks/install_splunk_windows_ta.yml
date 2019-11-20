@@ -1,7 +1,7 @@
 
 - name: download Windows TA from S3 bucket
   win_get_url:
-    url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/{{ splunk_windows_ta }}'
+    url: '{{s3_bucket_url}}/{{ splunk_windows_ta }}'
     dest: C:\windows-ta.tgz
 
 - name: Add powershell module PSCX required by Ansible's win_unzip

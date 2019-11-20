@@ -5,7 +5,8 @@ import ansible_runner
 import subprocess
 import boto3
 from python_terraform import *
-from modules import logger
+from modules import logger, parseconfig
+from pathlib import Path
 
 # need to set this ENV var due to a OSX High Sierra forking bug
 # see this discussion for more details: https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
@@ -78,37 +79,57 @@ def run_simulation(mode, simulation_engine, simulation_techniques, target, log):
             log.error("failed to executed technique ID {0} against target: {1}".format(simulation_techniques, target))
             sys.exit(1)
 
-def prep_ansible():
+def prep_ansible(settings):
     # prep ansible for configuration
-    # lets configure the passwords for ansible before we run any operations
-    #    try:
-    f = open("terraform/terraform.tfvars", "r")
-    contents = f.read()
-
-    win_password = re.findall(r'^win_password = \"(.+)\"', contents, re.MULTILINE)
-    win_username = re.findall(r'^win_username = \"(.+)\"', contents, re.MULTILINE)
-
     # Read in the ansible vars file
-    with open('ansible/vars/vars.yml.default', 'r') as file:
+    with open('ansible/vars/vars.yml', 'r') as file:
         ansiblevars = file.read()
 
-    # Replace the username and password
-    ansiblevars = ansiblevars.replace('USERNAME', win_username[0])
-    ansiblevars = ansiblevars.replace('PASSWORD', win_password[0])
-
+    # Replace the ansible variables
+    ansiblevars = re.sub(r'domain_admin_user: .+', 'domain_admin_user: ' + str(settings['WIN_USERNAME']) + '@splunkresearch.local',
+                         ansiblevars, re.M)
+    ansiblevars = re.sub(r'domain_admin_password: .+', 'domain_admin_password: ' + str(settings['WIN_PASSWORD']),
+                         ansiblevars, re.M)
+    ansiblevars = re.sub(r'splunk_pass: .+', 'splunk_pass: ' + str(settings['SPLUNK_ADMIN_PASSWORD']),
+                         ansiblevars, re.M)
+    ansiblevars = re.sub(r's3_bucket_url: .+', 's3_bucket_url: ' + str(settings['S3_BUCKET']),
+                         ansiblevars, re.M)
+    ansiblevars = re.sub(r'splunk_windows_ta: .+', 'splunk_windows_ta: ' + str(settings['SPLUNK_WINDOWS_TA']),
+                         ansiblevars, re.M)
+    ansiblevars = re.sub(r'splunk_sysmon_ta: .+', 'splunk_sysmon_ta: ' + str(settings['SPLUNK_SYSMON_TA']),
+                         ansiblevars, re.M)
+    ansiblevars = re.sub(r'splunk_stream_ta: .+', 'splunk_stream_ta: ' + str(settings['SPLUNK_STREAM_TA']),
+                         ansiblevars, re.M)
+    ansiblevars = re.sub(r'splunk_stream_app: .+', 'splunk_stream_app: ' + str(settings['SPLUNK_STREAM_APP']),
+                         ansiblevars, re.M)
+    ansiblevars = re.sub(r'splunk_cim_app: .+', 'splunk_cim_app: ' + str(settings['SPLUNK_CIM_APP']),
+                         ansiblevars, re.M)
+    ansiblevars = re.sub(r'splunk_escu_app: .+', 'splunk_escu_app: ' + str(settings['SPLUNK_ESCU_APP']),
+                         ansiblevars, re.M)
     # Write the file out again
     with open('ansible/vars/vars.yml', 'w') as file:
         file.write(ansiblevars)
 
-#        log.info(
-#            "setting windows username: {0} from terraform/terraform.tfvars file".format(win_username))
-#        log.info(
-#            "setting windows password: {0} from terraform/terraform.tfvars file".format(win_password))
-#    except e:
-    #        log.error("make sure that ansible/host.default contains the windows username and password.\n" +
-    #              "We were not able to set it automatically")
+def prep_terraform(settings):
+    # prep terraform for configuration
+    # Read in the ansible vars file
+    with open('terraform/terraform.tfvars', 'r') as file:
+        terraformvars = file.read()
 
-
+    # Replace the ansible variables
+    terraformvars = re.sub(r'key_name = .+', 'key_name = "' + str(settings['KEY_NAME']) + '"', terraformvars, re.M)
+    terraformvars = re.sub(r'aws_region = .+', 'aws_region = "' + str(settings['AWS_REGION']) + '"', terraformvars, re.M)
+    terraformvars = re.sub(r'ip_whitelist = .+', 'ip_whitelist = ' + str(settings['IP_WHITELIST']),
+                         terraformvars, re.M)
+    terraformvars = re.sub(r'win_username = .+', 'win_username = "' + str(settings['WIN_USERNAME']) + '"',
+                         terraformvars, re.M)
+    terraformvars = re.sub(r'win_password = .+', 'win_password = "' + str(settings['WIN_PASSWORD']) + '"',
+                         terraformvars, re.M)
+    terraformvars = re.sub(r'private_key_path = .+', 'private_key_path = "' + str(settings['PRIVATE_KEY_PATH']) + '"',
+                         terraformvars, re.M)
+    # Write the file out again
+    with open('terraform/terraform.tfvars', 'w') as file:
+        file.write(terraformvars)
 
 def vagrant_mode(action, log):
 
@@ -298,12 +319,10 @@ if __name__ == "__main__":
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume allowed")
     parser.add_argument("-t", "--target", required=False,
                         help="target for attack simulation. For mode vagrant use name of the vbox. For mode terraform use the name of the aws EC2 name")
-    parser.add_argument("-se", "--simulation_engine", required=False, choices=['atomic_red_team'], default="atomic_red_team",
-                        help="please select a simulation engine, defaults to \"atomic_red_team\"")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                         help="comma delimited list of MITRE ATT&CK technique ID to simulate in the attack_range, example: T1117, T1118, requires --simulation flag")
-    parser.add_argument("-o", "--output", required=False, default="attack_range.log",
-                        help="path to log file from the output of the range execution")
+    parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
+                        help="path to the configuration file of the attack range")
     parser.add_argument("-v", "--version", required=False,
                         help="shows current attack_range version")
 
@@ -313,30 +332,52 @@ if __name__ == "__main__":
     mode = args.mode
     action = args.action
     target = args.target
-    simulation_engine = args.simulation_engine
+    config = args.config
     simulation_techniques = [str(item) for item in args.simulation_technique.split(',')]
 
     print("""
-    starting program loaded for mode - B1 battle droid
+starting program loaded for B1 battle droid
+          ||/__'`.
+          |//()'-.:
+          |-.||
+          |o(o)
+          |||\\\  .==._
+          |||(o)==::'
+           `|T  ""
+            ()
+            |\\
+            ||\\
+            ()()
+            ||//
+            |//
+           .'=`=.
+    """)
 
-      ||/__'`.
-      |//()'-.:
-      |-.||
-      |o(o)
-      |||\\\  .==._
-      |||(o)==::'
-       `|T  ""
-        ()
-        |\\
-        ||\\
-        ()()
-        ||//
-        |//
-       .'=`=.
-        """)
+    # parse config
+    attack_range_config = Path(config)
+    if attack_range_config.is_file():
+        print("attack_range is using config at path {0}".format(attack_range_config))
+        configpath = str(attack_range_config)
+    else:
+        print("attack_range failed to find a config file at {0} or {1}..exiting".format(attack_range_config))
+        sys.exit(1)
 
-    log = logger.setup_logging(args.output, "INFO")
+    # Parse config
+    parse = parseconfig.parser()
+    settings = parse.load_conf(configpath)
+
+    # lets give CLI priority over config file for pre-configured techniques
+    if simulation_techniques[0] != '' or len(simulation_techniques) > 1:
+        pass
+    else:
+        simulation_techniques = settings['SIMULATION_TECHNIQUE']
+
+    log = logger.setup_logging(settings['LOG_PATH'], settings['LOG_LEVEL'])
     log.info("INIT - Attack Range v" + str(VERSION))
+
+    # lets prep our config files base on provided settings
+    prep_ansible(settings)
+    prep_terraform(settings)
 
     if ARG_VERSION:
         # log.info("version: {0}".format(VERSION))
@@ -350,15 +391,14 @@ if __name__ == "__main__":
         if action == "build" or action == "destroy" or action == "stop" or action == "resume":
             vagrant_mode(action, log)
         else:
-            attack_simulation('vagrant', target, simulation_engine, simulation_techniques, log)
+            attack_simulation('vagrant', target, settings['SIMULATION_ENGINE'], simulation_techniques, log)
 
     elif mode == "terraform":
-        prep_ansible()
         log.info("[mode] > terraform ")
         if action == "build" or action == "destroy" or action == "stop" or action == "resume":
             terraform_mode(action, log)
         else:
-            attack_simulation('terraform', target, simulation_engine, simulation_techniques, log)
+            attack_simulation('terraform', target, settings['SIMULATION_ENGINE'], simulation_techniques, log)
 
     else:
         log.error("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")

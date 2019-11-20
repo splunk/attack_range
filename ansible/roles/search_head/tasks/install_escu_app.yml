@@ -5,7 +5,7 @@
 
 - name: download ESCU app from S3 bucket
   get_url:
-    url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/{{ splunk_escu_app }}'
+    url: '{{ s3_bucket_url }}/{{ splunk_escu_app }}'
     dest: /tmp/escu_app.tgz
   when: escu_app.stat.exists == False
 

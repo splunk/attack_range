@@ -1,5 +1,5 @@
 # AWS Keypair name is REQUIRED
-key_name = "attack-range-key-pair"
+key_name = "jose's ssh"
 aws_region = "us-west-2"
 ip_whitelist = ["0.0.0.0/0"]
 win_username = "Administrator"

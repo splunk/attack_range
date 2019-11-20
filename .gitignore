@@ -1,14 +1,12 @@
 
 # ignore appbinaries directory we don't want this uploaded
-appbinaries/*
 ansible/roles/*/files/splunk*.tgz
 ansible/roles/*/files/splunk*.msi
-ansible/hosts
-#ansible/vars/vars.yml
-#terraform/terraform.tfvars
+ansible/inventory/hosts
 
-# Anisble Runner
-artifacts/
+# log file
+attack_range.log
+.attack_range/artifacts
 
 ## Terraform ignores
 # Local .terraform directories
