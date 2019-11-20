@@ -208,7 +208,7 @@ def check_targets_running_vagrant(target, log):
 #         print(result)
 
 
-def terraform_mode(Terraform, action, log):
+def terraform_mode(action, log):
     if action == "build":
         log.info("[action] > build\n")
         t = Terraform(working_dir='terraform')
@@ -284,7 +284,7 @@ if __name__ == "__main__":
     if mode == "vagrant":
         log.info("[mode] > vagrant")
         if action == "build" or action == "destroy":
-            vagrant_mode(action)
+            vagrant_mode(action, log)
         else:
             attack_simulation('vagrant', target, simulation_engine, simulation_techniques, log)
 
@@ -292,7 +292,7 @@ if __name__ == "__main__":
         prep_ansible()
         log.info("[mode] > terraform ")
         if action == "build" or action == "destroy":
-            terraform_mode(Terraform, action, log)
+            terraform_mode(action, log)
         else:
             attack_simulation('terraform', target, simulation_engine, simulation_techniques, log)
 
