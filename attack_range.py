@@ -127,6 +127,16 @@ def vagrant_mode(action, log):
         v1.destroy()
         log.info("attack_range has been destroy using vagrant successfully")
 
+    if action == "stop":
+        print("[action] > stop\n")
+        v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
+        v1.halt()
+
+    if action == "resume":
+        print("[action] > resume\n")
+        v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
+        v1.up()
+
 
 def attack_simulation(mode, target, simulation_engine, simulation_techniques, log):
     if mode == 'vagrant':
@@ -222,6 +232,60 @@ def terraform_mode(action, log):
         return_code, stdout, stderr = t.destroy(capture_output='yes', no_color=IsNotFlagged)
         log.info("attack_range has been destroy using terraform successfully")
 
+    if action == "stop" or action == "resume":
+        instances, key_name = find_terraform_instances()
+        change_terraform_state(instances, action, key_name, log)
+
+
+def change_terraform_state(instances, action, key_name, log):
+    client = boto3.client('ec2')
+    # iterate through reservations and instances
+    found_running_instance = False
+    for instance in instances:
+        if action == 'stop':
+            if instance['State']['Name'] == 'running':
+                found_running_instance = True
+                response = client.stop_instances(
+                    InstanceIds=[instance['InstanceId']]
+                )
+                log.info('Successfully stopped instance with ID ' +
+                      instance['InstanceId'] + ' .')
+        else:
+            if instance['State']['Name'] == 'stopped':
+                found_running_instance = True
+                response = client.start_instances(
+                    InstanceIds=[instance['InstanceId']]
+                )
+                log.info('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
+
+    if not found_running_instance:
+        sys.exit('ERROR: No AWS EC2 instances with the key_name ' + key_name + ' are running.')
+
+
+def find_terraform_instances():
+    with open('terraform/terraform.tfvars', 'r') as file:
+        terraformvars = file.read()
+
+    pattern = 'key_name = \"([^\"]*)'
+    a = re.search(pattern, terraformvars)
+
+    client = boto3.client('ec2')
+    response = client.describe_instances(
+        Filters=[
+            {
+                'Name': "key-name",
+                'Values': [a.group(1)]
+            }
+        ]
+    )
+    instances = []
+    for reservation in response['Reservations']:
+        for instance in reservation['Instances']:
+            str = instance['Tags'][0]['Value']
+            if str.startswith('attack-range'):
+                instances.append(instance)
+
+    return instances, a.group(1)
 
 
 if __name__ == "__main__":
@@ -230,8 +294,8 @@ if __name__ == "__main__":
         description="starts a attack range ready to collect attack data into splunk")
     parser.add_argument("-m", "--mode", required=True, default="terraform", choices=['vagrant', 'terraform'],
                         help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
-    parser.add_argument("-a", "--action", required=True, default="build", choices=['build', 'destroy', 'simulate'],
-                        help="action to take on the range, defaults to \"build\", build/destroy/simulate allowed")
+    parser.add_argument("-a", "--action", required=True, default="build", choices=['build', 'destroy', 'simulate', 'stop', 'resume'],
+                        help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume allowed")
     parser.add_argument("-t", "--target", required=False,
                         help="target for attack simulation. For mode vagrant use name of the vbox. For mode terraform use the name of the aws EC2 name")
     parser.add_argument("-se", "--simulation_engine", required=False, choices=['atomic_red_team'], default="atomic_red_team",
@@ -283,7 +347,7 @@ if __name__ == "__main__":
     # lets process modes
     if mode == "vagrant":
         log.info("[mode] > vagrant")
-        if action == "build" or action == "destroy":
+        if action == "build" or action == "destroy" or action == "stop" or action == "resume":
             vagrant_mode(action, log)
         else:
             attack_simulation('vagrant', target, simulation_engine, simulation_techniques, log)
@@ -291,7 +355,7 @@ if __name__ == "__main__":
     elif mode == "terraform":
         prep_ansible()
         log.info("[mode] > terraform ")
-        if action == "build" or action == "destroy":
+        if action == "build" or action == "destroy" or action == "stop" or action == "resume":
             terraform_mode(action, log)
         else:
             attack_simulation('terraform', target, simulation_engine, simulation_techniques, log)

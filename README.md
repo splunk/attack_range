@@ -23,10 +23,12 @@ In order to make Attack Range work on almost every laptop, the local version usi
 - [terraform and AWS](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Terraform)
 
 ## Running
-In order to use Attack Range, two steps needs to be performed:
-1. Build Attack Range
-2. Perform Attack Simulation
-3. Destroy Attack Range
+Attack Range supports different actions:
+- Build Attack Range
+- Perform Attack Simulation
+- Destroy Attack Range
+- Stop Attack Range
+- Resume Attack Range
 
 ### Build Attack Range
 - Build Attack Range using **Terraform**
@@ -58,6 +60,26 @@ python attack_range.py -m terraform -a destroy
 python attack_range.py -m vagrant -a destroy
 ```
 
+### Stop Attack Range
+- Stop Attack Range using **Terraform**
+```
+python attack_range.py -m terraform -a stop
+```
+- Stop Attack Range using **Vagrant**
+```
+python attack_range.py -m vagrant -a stop
+```
+
+### Resume Attack Range
+- Resume Attack Range using **Terraform**
+```
+python attack_range.py -m terraform -a resume
+```
+- Resume Attack Range using **Vagrant**
+```
+python attack_range.py -m vagrant -a resume
+```
+
 ## Support
 Please use the [GitHub issue tracker](https://github.com/splunk/attack_range/issues) to submit bugs or request features.
 
@@ -79,7 +101,7 @@ If you have questions or need support, you can:
 * Phil Royer
 
 ## Contributing
-We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved. 
+We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved.
 
 ## Acknowledgements
 - [DetectionLab](https://github.com/clong/DetectionLab)
