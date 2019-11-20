@@ -5,7 +5,7 @@ import ansible_runner
 import subprocess
 import boto3
 from python_terraform import *
-# from lib import logger
+from modules import logger
 
 # need to set this ENV var due to a OSX High Sierra forking bug
 # see this discussion for more details: https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
@@ -15,7 +15,7 @@ VERSION = 1
 
 
 # could be improved by directly use extra-vars
-def config_simulation(simulation_engine, simulation_technique):
+def config_simulation(simulation_engine, simulation_technique, log):
 
     # Read in the ansible vars file
     with open('ansible/vars/vars.yml', 'r') as file:
@@ -24,16 +24,16 @@ def config_simulation(simulation_engine, simulation_technique):
     # now set the simulation engine and mitre techniques to run
     if simulation_engine == "atomic_red_team":
         ansiblevars = re.sub(r'install_art: \w+', 'install_art: true', ansiblevars, re.M)
-        print("execution simulation using engine: {0}".format(simulation_engine))
+        log.info("execution simulation using engine: {0}".format(simulation_engine))
 
     if simulation_technique[0] != '' or len(simulation_technique) > 1:
         technique = "art_run_technique: " + str(simulation_technique)
         ansiblevars = re.sub(r'art_run_technique: .+', technique, ansiblevars, re.M)
         ansiblevars = re.sub(r'art_run_all_test: \w+', 'art_run_all_test: false', ansiblevars, re.M)
-        print("executing specific ATT&CK technique ID: {0}".format(simulation_technique))
+        log.info("executing specific ATT&CK technique ID: {0}".format(simulation_technique))
     else:
         ansiblevars = re.sub(r'art_run_all_test: \w+', 'art_run_all_test: true', ansiblevars, re.M)
-        print("executing ALL Atomic Red Team ATT&CK techniques see: https://github.com/redcanaryco/atomic-red-team/tree/master/atomics".format(
+        log.info("executing ALL Atomic Red Team ATT&CK techniques see: https://github.com/redcanaryco/atomic-red-team/tree/master/atomics".format(
             simulation_technique))
 
     # Write the file out again
@@ -41,7 +41,7 @@ def config_simulation(simulation_engine, simulation_technique):
         file.write(ansiblevars)
 
 
-def run_simulation(mode, simulation_engine, target):
+def run_simulation(mode, simulation_engine, simulation_techniques, target, log):
 
     # read host file and replace the parameters
     with open('ansible/inventory/hosts.default', 'r') as file:
@@ -69,11 +69,14 @@ def run_simulation(mode, simulation_engine, target):
                                inventory=os.path.dirname(os.path.realpath(
                                    __file__)) + '/ansible/inventory/hosts',
                                roles_path="../roles",
-                               playbook=os.path.dirname(os.path.realpath(__file__)) + '/ansible/playbooks/atomic_red_team.yml')
-        #print("{}: {}".format(r.status, r.rc))
-        #print("Final status:")
-        # print(r.stats)
+                               playbook=os.path.dirname(os.path.realpath(__file__)) + '/ansible/playbooks/atomic_red_team.yml',
+                               verbosity=0)
 
+        if r.status == "successful":
+            log.info("successfully executed technique ID {0} against target: {1}".format(simulation_techniques, target))
+        else:
+            log.error("failed to executed technique ID {0} against target: {1}".format(simulation_techniques, target))
+            sys.exit(1)
 
 def prep_ansible():
     # prep ansible for configuration
@@ -106,22 +109,23 @@ def prep_ansible():
     #              "We were not able to set it automatically")
 
 
-def vagrant_mode(action):
+
+def vagrant_mode(action, log):
 
     vagrantfile = 'vagrant/'
 
     if action == "build":
-        print("building splunk-server and windows10 workstation boxes WARNING MAKE SURE YOU HAVE 8GB OF RAM free otherwise you will have a bad time")
-        print("[action] > build\n")
+        log.info("building splunk-server and windows10 workstation boxes WARNING MAKE SURE YOU HAVE 8GB OF RAM free otherwise you will have a bad time")
+        log.info("[action] > build\n")
         v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
         v1.up(provision=True)
-        print("attack_range has been built using vagrant successfully")
+        log.info("attack_range has been built using vagrant successfully")
 
     if action == "destroy":
-        print("[action] > destroy\n")
+        log.info("[action] > destroy\n")
         v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
         v1.destroy()
-        print("attack_range has been destroy using vagrant successfully")
+        log.info("attack_range has been destroy using vagrant successfully")
 
     if action == "stop":
         print("[action] > stop\n")
@@ -134,30 +138,27 @@ def vagrant_mode(action):
         v1.up()
 
 
-def attack_simulation(mode, target, simulation_engine, simulation_techniques):
+def attack_simulation(mode, target, simulation_engine, simulation_techniques, log):
     if mode == 'vagrant':
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         status = v1.status()
         # Check if target exist and if it is running
-        check_targets_running_vagrant(target)
-        config_simulation(simulation_engine, simulation_techniques)
-        run_simulation('vagrant', simulation_engine, target)
+        check_targets_running_vagrant(target, log)
+        config_simulation(simulation_engine, simulation_techniques, log)
+        run_simulation('vagrant', simulation_engine, simulation_techniques, target, log)
 
     if mode == 'terraform':
-        target_IP = check_targets_running_terraform(target)
-        config_simulation(simulation_engine, simulation_techniques)
-        run_simulation('terraform', simulation_engine, target_IP)
+        target_IP = check_targets_running_terraform(target, log)
+        config_simulation(simulation_engine, simulation_techniques, log)
+        run_simulation('terraform', simulation_engine, simulation_techniques, target_IP, log)
 
 # @Jose the beginning part of the function needs to be changed to the common configuration file
-
-
-def check_targets_running_terraform(target):
+def check_targets_running_terraform(target, log):
     with open('terraform/terraform.tfvars', 'r') as file:
         terraformvars = file.read()
 
     pattern = 'key_name = \"([^\"]*)'
     a = re.search(pattern, terraformvars)
-
     client = boto3.client('ec2')
     response = client.describe_instances(
         Filters=[
@@ -173,21 +174,24 @@ def check_targets_running_terraform(target):
     )
 
     if len(response['Reservations']) == 0:
-        sys.exit('ERROR: ' + target + ' not found as AWS EC2 instance.')
+        log.error(target + ' not found as AWS EC2 instance.')
+        sys.exit(1)
 
     # iterate through reservations and instances
     found_running_instance = False
     for reservation in response['Reservations']:
+
         for instance in reservation['Instances']:
             if instance['State']['Name'] == 'running':
                 found_running_instance = True
                 return instance['NetworkInterfaces'][0]['Association']['PublicIp']
 
     if not found_running_instance:
-        sys.exit('ERROR: ' + target + ' not running.')
+        log.error(target + ' not running.')
+        sys.exit(1)
 
 
-def check_targets_running_vagrant(target):
+def check_targets_running_vagrant(target, log):
     v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
     status = v1.status()
 
@@ -196,10 +200,12 @@ def check_targets_running_vagrant(target):
         if stat.name == target:
             found_box = True
             if not (stat.state == 'running'):
-                sys.exit('ERROR: ' + target + ' not running.')
+                log.error(target + ' not running.')
+                sys.exit(1)
             break
     if not found_box:
-        sys.exit('ERROR: ' + target + ' not found as vagrant box.')
+        log.error(target + ' not found as vagrant box.')
+        sys.exit(1)
 
 
 # def get_target_ips_vagrant(targets):
@@ -212,19 +218,19 @@ def check_targets_running_vagrant(target):
 #         print(result)
 
 
-def terraform_mode(Terraform, action):
+def terraform_mode(action, log):
     if action == "build":
-        print("[action] > build\n")
+        log.info("[action] > build\n")
         t = Terraform(working_dir='terraform')
         return_code, stdout, stderr = t.apply(
             capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
-        print("attack_range has been built using terraform successfully")
+        log.info("attack_range has been built using terraform successfully")
 
     if action == "destroy":
-        print("[action] > destroy\n")
+        log.info("[action] > destroy\n")
         t = Terraform(working_dir='terraform')
         return_code, stdout, stderr = t.destroy(capture_output='yes', no_color=IsNotFlagged)
-        print("attack_range has been destroy using terraform successfully")
+        log.info("attack_range has been destroy using terraform successfully")
 
     if action == "stop" or action == "resume":
         instances, key_name = find_terraform_instances()
@@ -296,6 +302,8 @@ if __name__ == "__main__":
                         help="please select a simulation engine, defaults to \"atomic_red_team\"")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                         help="comma delimited list of MITRE ATT&CK technique ID to simulate in the attack_range, example: T1117, T1118, requires --simulation flag")
+    parser.add_argument("-o", "--output", required=False, default="attack_range.log",
+                        help="path to log file from the output of the range execution")
     parser.add_argument("-v", "--version", required=False,
                         help="shows current attack_range version")
 
@@ -308,7 +316,6 @@ if __name__ == "__main__":
     simulation_engine = args.simulation_engine
     simulation_techniques = [str(item) for item in args.simulation_technique.split(',')]
 
-    print("INIT - Attack Range v" + str(VERSION))
     print("""
     starting program loaded for mode - B1 battle droid
 
@@ -328,8 +335,8 @@ if __name__ == "__main__":
        .'=`=.
         """)
 
-    # log = logger.setup_logging(args.output, "INFO")
-    # log.info("INIT - Attack Range v" + str(VERSION))
+    log = logger.setup_logging(args.output, "INFO")
+    log.info("INIT - Attack Range v" + str(VERSION))
 
     if ARG_VERSION:
         # log.info("version: {0}".format(VERSION))
@@ -339,20 +346,20 @@ if __name__ == "__main__":
 
     # lets process modes
     if mode == "vagrant":
-        print("[mode] > vagrant")
-        if action == "build" or action == "destroy" or action == "stop" or action == "resume":
-            vagrant_mode(action)
+        log.info("[mode] > vagrant")
+        if action == "build" or action == "destroy":
+            vagrant_mode(action, log)
         else:
-            attack_simulation('vagrant', target, simulation_engine, simulation_techniques)
+            attack_simulation('vagrant', target, simulation_engine, simulation_techniques, log)
 
     elif mode == "terraform":
         prep_ansible()
-        # log.info("[mode] > terraform ")
-        if action == "build" or action == "destroy" or action == "stop" or action == "resume":
-            terraform_mode(Terraform, action)
+        log.info("[mode] > terraform ")
+        if action == "build" or action == "destroy":
+            terraform_mode(action, log)
         else:
-            attack_simulation('terraform', target, simulation_engine, simulation_techniques)
+            attack_simulation('terraform', target, simulation_engine, simulation_techniques, log)
 
     else:
-        # log.error("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")
+        log.error("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")
         sys.exit(1)
