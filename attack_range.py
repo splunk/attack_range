@@ -72,7 +72,7 @@ def run_simulation(mode, simulation_engine, target):
                                playbook=os.path.dirname(os.path.realpath(__file__)) + '/ansible/playbooks/atomic_red_team.yml')
         #print("{}: {}".format(r.status, r.rc))
         #print("Final status:")
-        #print(r.stats)
+        # print(r.stats)
 
 
 def prep_ansible():
@@ -106,7 +106,6 @@ def prep_ansible():
     #              "We were not able to set it automatically")
 
 
-
 def vagrant_mode(action):
 
     vagrantfile = 'vagrant/'
@@ -124,6 +123,15 @@ def vagrant_mode(action):
         v1.destroy()
         print("attack_range has been destroy using vagrant successfully")
 
+    if action == "stop":
+        print("[action] > stop\n")
+        v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
+        v1.halt()
+
+    if action == "resume":
+        print("[action] > resume\n")
+        v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
+        v1.up()
 
 
 def attack_simulation(mode, target, simulation_engine, simulation_techniques):
@@ -141,6 +149,8 @@ def attack_simulation(mode, target, simulation_engine, simulation_techniques):
         run_simulation('terraform', simulation_engine, target_IP)
 
 # @Jose the beginning part of the function needs to be changed to the common configuration file
+
+
 def check_targets_running_terraform(target):
     with open('terraform/terraform.tfvars', 'r') as file:
         terraformvars = file.read()
@@ -233,7 +243,8 @@ def change_terraform_state(response, action, key_name):
                     response = client.stop_instances(
                         InstanceIds=[instance['InstanceId']]
                     )
-                    print('Successfully shut down instance with ID ' + instance['InstanceId'] + ' .')
+                    print('Successfully shut down instance with ID ' +
+                          instance['InstanceId'] + ' .')
             else:
                 if instance['State']['Name'] == 'stopped':
                     found_running_instance = True
@@ -324,7 +335,7 @@ if __name__ == "__main__":
     # lets process modes
     if mode == "vagrant":
         print("[mode] > vagrant")
-        if action == "build" or action == "destroy":
+        if action == "build" or action == "destroy" or action == "stop" or action == "resume":
             vagrant_mode(action)
         else:
             attack_simulation('vagrant', target, simulation_engine, simulation_techniques)
