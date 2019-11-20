@@ -59,7 +59,14 @@ python attack_range.py -m vagrant -a destroy
 ```
 
 ## Support
-You can get help with setting up your own attack range in the [Splunk Community Slack](http://splk.it/slack) under the `#security-research` channel.
+Please use the [GitHub issue tracker](https://github.com/splunk/attack_range/issues) to submit bugs or request features.
+
+If you have questions or need support, you can:
+
+* Post a question to [Splunk Answers](http://answers.splunk.com)
+* Join the [#security-research](https://splunk-usergroups.slack.com/messages/C1RH09ERM/) room in the [Splunk Slack channel](http://splunk-usergroups.slack.com)
+* If you are a Splunk Enterprise customer with a valid support entitlement contract and have a Splunk-related question, you can also open a support case on the https://www.splunk.com/ support portal
+
 
 ## Author
 * [Jose Hernandez](https://twitter.com/d1vious)
@@ -69,6 +76,10 @@ You can get help with setting up your own attack range in the [Splunk Community 
 * [Bhavin Patel](https://twitter.com/hackpsy)
 * [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 * Russ Nolen
+* Phil Royer
+
+## Contributing
+We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved. 
 
 ## Acknowledgements
 - [DetectionLab](https://github.com/clong/DetectionLab)
