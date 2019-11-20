@@ -1,4 +1,4 @@
-aws-win-host ansible_ssh_host=35.165.209.85
+aws-win-host ansible_ssh_host=54.202.158.11
 
 [win]
 aws-win-host
