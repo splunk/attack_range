@@ -227,31 +227,30 @@ def terraform_mode(Terraform, action):
         print("attack_range has been destroy using terraform successfully")
 
     if action == "stop" or action == "resume":
-        response, key_name = find_terraform_instances()
-        change_terraform_state(response, action, key_name)
+        instances, key_name = find_terraform_instances()
+        change_terraform_state(instances, action, key_name)
 
 
-def change_terraform_state(response, action, key_name):
+def change_terraform_state(instances, action, key_name):
     client = boto3.client('ec2')
     # iterate through reservations and instances
     found_running_instance = False
-    for reservation in response['Reservations']:
-        for instance in reservation['Instances']:
-            if action == 'stop':
-                if instance['State']['Name'] == 'running':
-                    found_running_instance = True
-                    response = client.stop_instances(
-                        InstanceIds=[instance['InstanceId']]
-                    )
-                    print('Successfully shut down instance with ID ' +
-                          instance['InstanceId'] + ' .')
-            else:
-                if instance['State']['Name'] == 'stopped':
-                    found_running_instance = True
-                    response = client.start_instances(
-                        InstanceIds=[instance['InstanceId']]
-                    )
-                    print('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
+    for instance in instances:
+        if action == 'stop':
+            if instance['State']['Name'] == 'running':
+                found_running_instance = True
+                response = client.stop_instances(
+                    InstanceIds=[instance['InstanceId']]
+                )
+                print('Successfully shut down instance with ID ' +
+                      instance['InstanceId'] + ' .')
+        else:
+            if instance['State']['Name'] == 'stopped':
+                found_running_instance = True
+                response = client.start_instances(
+                    InstanceIds=[instance['InstanceId']]
+                )
+                print('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
 
     if not found_running_instance:
         sys.exit('ERROR: No AWS EC2 instances with the key_name ' + key_name + ' are running.')
@@ -273,8 +272,14 @@ def find_terraform_instances():
             }
         ]
     )
+    instances = []
+    for reservation in response['Reservations']:
+        for instance in reservation['Instances']:
+            str = instance['Tags'][0]['Value']
+            if str.startswith('attack-range'):
+                instances.append(instance)
 
-    return response, a.group(1)
+    return instances, a.group(1)
 
 
 if __name__ == "__main__":
