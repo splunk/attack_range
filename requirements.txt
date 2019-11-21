@@ -9,6 +9,7 @@ botocore==1.13.20
 certifi==2019.6.16
 cffi==1.13.2
 chardet==3.0.4
+configparser==4.0.2
 contextlib2==0.5.5
 cryptography==2.8
 docutils==0.15.2

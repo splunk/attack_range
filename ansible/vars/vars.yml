@@ -7,7 +7,6 @@ splunk_pass: changeme
 sysmon: true
 stream: true
 
-
 ## Variables for Splunk Universal Forwarders
 #splunk_uf_indexer_ip: ec2-18-237-216-212.us-west-2.compute.amazonaws.com
 #splunk_uf_win: splunkforwarder-7.3.0-657388c7a488-x64-release.msi
@@ -15,6 +14,7 @@ stream: true
 splunk_uf_win_url: https://www.splunk.com/page/download_track?file=7.3.2/windows/splunkforwarder-7.3.2-c60db69f8e32-x64-release.msi&ac=&wget=true&name=wget&platform=Windows&architecture=x86_64&version=7.3.2&product=universalforwarder&typed=release
 
 # Apps and TAs
+s3_bucket_url: https://attack-range-appbinaries.s3-us-west-2.amazonaws.com
 splunk_windows_ta: splunk-add-on-for-microsoft-windows_600.tgz
 splunk_sysmon_ta: add-on-for-microsoft-sysmon_800.tgz
 splunk_stream_ta: Splunk_TA_stream.zip
@@ -34,9 +34,7 @@ art_module_dst_location: C:\Install-AtomicRedTeam.ps1
 art_module_path: Install-AtomicRedTeam.ps1
 art_run_all_test: false
 # array of techniques to run
-art_run_technique: ['T1003', 'T1004']
-
-#Variables for Sysmon
+art_run_technique: ['T1117']
 
 #Variables for Sysmon
 win_temp_dir: 'c:\Program Files\ansible'

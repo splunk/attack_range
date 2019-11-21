@@ -5,7 +5,7 @@
 
 - name: download Sysmon TA from S3 bucket
   get_url:
-    url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/{{ splunk_sysmon_ta }}'
+    url: '{{ s3_bucket_url }}/{{ splunk_sysmon_ta }}'
     dest: /tmp/sysmon_ta.tgz
   when: sysmon_ta.stat.exists == False
 

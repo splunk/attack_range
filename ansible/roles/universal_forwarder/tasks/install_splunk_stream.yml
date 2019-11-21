@@ -7,7 +7,7 @@
   when: stream_zip.stat.exists == False
   win_shell: |
     [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
-    (New-Object System.Net.WebClient).DownloadFile("https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/{{ splunk_stream_ta }}", "C:\splunk-stream.zip")
+    (New-Object System.Net.WebClient).DownloadFile("{{ s3_bucket_url }}/{{ splunk_stream_ta }}", "C:\splunk-stream.zip")
 
 - name: Check we have unzip streams TA
   win_stat:
