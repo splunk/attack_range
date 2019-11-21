@@ -19,7 +19,7 @@ VERSION = 1
 def config_simulation(simulation_engine, simulation_technique, log):
 
     # Read in the ansible vars file
-    with open('ansible/vars/vars.yml.deafult', 'r') as file:
+    with open('ansible/vars/vars.yml.default', 'r') as file:
         ansiblevars = file.read()
 
     # now set the simulation engine and mitre techniques to run
