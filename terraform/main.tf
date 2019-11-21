@@ -127,7 +127,7 @@ EOF
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "cp inventory/hosts.default inventory/hosts; sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' inventory/hosts;ansible-playbook -i inventory/hosts playbooks/windows_dc.yml --extra-vars 'splunk_indexer_ip=${aws_instance.splunk-server.private_ip}'"
+    command = "sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' inventory/hosts;ansible-playbook -i inventory/hosts playbooks/windows_dc.yml --extra-vars 'splunk_indexer_ip=${aws_instance.splunk-server.private_ip}'"
   }
 
 }

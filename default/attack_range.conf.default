@@ -1,3 +1,5 @@
+# DO NOT CHANGE THIS FILE
+
 [global]
 log_path = attack_range.log
 log_level = INFO
@@ -9,12 +11,13 @@ win_password = myTempPassword123
 private_key_path = ~/.ssh/id_rsa
 
 [splunk_settings]
-splunk_admin_password = changeme
 splunk_url = https://www.splunk.com/page/download_track?file=7.3.2/linux/splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz&ac=&wget=true&name=wget&platform=Linux&architecture=x86_64&version=7.3.2&product=splunk&typed=release
 splunk_binary = splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz
+splunk_pass = changeme
 
 # s3 bucket where the Splunk TA's are located
 s3_bucket_url = https://attack-range-appbinaries.s3-us-west-2.amazonaws.com
+splunk_admin_password = changeme
 splunk_windows_ta = splunk-add-on-for-microsoft-windows_600.tgz
 splunk_sysmon_ta = add-on-for-microsoft-sysmon_800.tgz
 splunk_stream_ta = Splunk_TA_stream.zip
