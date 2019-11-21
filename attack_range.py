@@ -138,7 +138,6 @@ def prep_terraform(settings):
 
     # Replace the ansible variables
     terraformvars = re.sub(r'key_name = .+', 'key_name = "' + str(settings['key_name']) + '"', terraformvars, re.M)
-    terraformvars = re.sub(r'aws_region = .+', 'aws_region = "' + str(settings['aws_region']) + '"', terraformvars, re.M)
     terraformvars = re.sub(r'ip_whitelist = .+', 'ip_whitelist = ' + str(settings['ip_whitelist']),
                          terraformvars, re.M)
     terraformvars = re.sub(r'win_password = .+', 'win_password = "' + str(settings['win_password']) + '"',

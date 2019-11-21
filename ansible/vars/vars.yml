@@ -1,6 +1,6 @@
 ## Variables for Splunk Search Head
-splunk_url: https://www.splunk.com/page/download_track?file=7.3.2/linux/splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz&ac=&wget=true&name=wget&platform=Linux&architecture=x86_64&version=7.3.2&product=splunk&typed=release
-splunk_binary: splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz
+splunk_url: {}
+splunk_binary: {}
 splunk_pass: changeme
 
 # Apps
