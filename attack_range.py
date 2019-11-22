@@ -339,6 +339,7 @@ def list_all_machines(mode):
             print(tabulate(response, headers=['Name','Status']))
         else:
             print("ERROR: Can't find configured EC2 Attack Range Instances in AWS.")
+            sys.exit(1)
         print()
 
 
@@ -346,7 +347,7 @@ if __name__ == "__main__":
     # grab arguments
     parser = argparse.ArgumentParser(
         description="starts a attack range ready to collect attack data into splunk")
-    parser.add_argument("-m", "--mode", required=True, default="terraform", choices=['vagrant', 'terraform'],
+    parser.add_argument("-m", "--mode", required=False, choices=['vagrant', 'terraform'],
                         help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
     parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume'],
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume allowed")
@@ -357,7 +358,7 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
                         help="path to the configuration file of the attack range")
     parser.add_argument("-ls", "--list_machines", required=False, default=False, action="store_true", help="prints out all avaiable machines")
-    parser.add_argument("-v", "--version", required=False,
+    parser.add_argument("-v", "--version", default=False, action="store_true", required=False,
                         help="shows current attack_range version")
 
     # parse them
@@ -405,6 +406,10 @@ starting program loaded for B1 battle droid
 
     if ARG_VERSION:
         log.info("version: {0}".format(VERSION))
+        sys.exit(0)
+
+    if not args.mode:
+        log.info('ERROR: Specify Attack Range Mode with -m ')
         sys.exit(1)
 
     if args.mode and not action and not list_machines:
@@ -417,7 +422,7 @@ starting program loaded for B1 battle droid
 
     if list_machines:
         list_all_machines(mode)
-        sys.exit(1)
+        sys.exit(0)
 
     log.info("INIT - Attack Range v" + str(VERSION))
 
