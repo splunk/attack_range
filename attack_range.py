@@ -7,6 +7,7 @@ import boto3
 from python_terraform import *
 from modules import logger, parseconfig
 from pathlib import Path
+from tabulate import tabulate
 
 # need to set this ENV var due to a OSX High Sierra forking bug
 # see this discussion for more details: https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
@@ -318,13 +319,36 @@ def find_terraform_instances():
     return instances, a.group(1)
 
 
+def list_all_machines(mode):
+    if mode == 'vagrant':
+        print()
+        print('Vagrant Status\n')
+        v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
+        response = v1.status()
+        print(tabulate(response, headers=['Name','Status','Provider']))
+        print()
+
+    if mode == 'terraform':
+        instances, key_name = find_terraform_instances()
+        response = []
+        for instance in instances:
+            response.append([instance['Tags'][0]['Value'], instance['State']['Name']])
+        print()
+        print('Terraform Status\n')
+        if len(response) > 0:
+            print(tabulate(response, headers=['Name','Status']))
+        else:
+            print("ERROR: Can't find configured EC2 Attack Range Instances in AWS.")
+        print()
+
+
 if __name__ == "__main__":
     # grab arguments
     parser = argparse.ArgumentParser(
         description="starts a attack range ready to collect attack data into splunk")
     parser.add_argument("-m", "--mode", required=True, default="terraform", choices=['vagrant', 'terraform'],
                         help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
-    parser.add_argument("-a", "--action", required=True, default="build", choices=['build', 'destroy', 'simulate', 'stop', 'resume'],
+    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume'],
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume allowed")
     parser.add_argument("-t", "--target", required=False,
                         help="target for attack simulation. For mode vagrant use name of the vbox. For mode terraform use the name of the aws EC2 name")
@@ -332,6 +356,7 @@ if __name__ == "__main__":
                         help="comma delimited list of MITRE ATT&CK technique ID to simulate in the attack_range, example: T1117, T1118, requires --simulation flag")
     parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
                         help="path to the configuration file of the attack range")
+    parser.add_argument("-ls", "--list_machines", required=False, default=False, action="store_true", help="prints out all avaiable machines")
     parser.add_argument("-v", "--version", required=False,
                         help="shows current attack_range version")
 
@@ -343,6 +368,7 @@ if __name__ == "__main__":
     target = args.target
     config = args.config
     simulation_techniques = [str(item) for item in args.simulation_technique.split(',')]
+    list_machines = args.list_machines
 
     print("""
 starting program loaded for B1 battle droid
@@ -376,12 +402,24 @@ starting program loaded for B1 battle droid
     settings = parse.load_conf(configpath)
 
     log = logger.setup_logging(settings['log_path'], settings['log_level'])
-    log.info("INIT - Attack Range v" + str(VERSION))
 
     if ARG_VERSION:
         log.info("version: {0}".format(VERSION))
         sys.exit(1)
 
+    if args.mode and not action and not list_machines:
+        log.info('ERROR: Use -a to perform an action or -ls to list avaiable machines')
+        sys.exit(1)
+
+    if args.mode and action == 'simulate' and not target:
+        log.info('ERROR: Specify target for attack simulation')
+        sys.exit(1)
+
+    if list_machines:
+        list_all_machines(mode)
+        sys.exit(1)
+
+    log.info("INIT - Attack Range v" + str(VERSION))
 
     # lets give CLI priority over config file for pre-configured techniques
     if simulation_techniques[0] != '' or len(simulation_techniques) > 1:
