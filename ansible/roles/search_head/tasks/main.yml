@@ -2,7 +2,8 @@
 # This playbook contains common tasks in this role
 
 - include: splunk.yml
-- include: inputs.yml
+- include: configure_inputs.yml
+- include: configure_indexes.yml
 - include: install_escu_app.yml
 - include: install_windows_ta.yml
 - include: install_cim_app.yml
