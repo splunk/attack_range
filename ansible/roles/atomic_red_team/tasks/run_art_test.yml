@@ -1,19 +1,16 @@
---- 
+---
 
 - name: Run all Atomic Red Team Tests
   win_shell: |
     Import-Module c:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam.psm1
     cd c:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\
-    Invoke-AtomicTest All -Force
+    Invoke-AtomicTest All -Force -PathToAtomicsFolder C:\AtomicRedTeam\atomic-red-team-master\atomics
   when: art_run_all_test
 
 - name: Run specified Atomic Red Team Technique
   win_shell: |
     Import-Module c:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam.psm1
     cd c:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\
-    Invoke-AtomicTest "{{ item }}"
+    Invoke-AtomicTest "{{ item }}" -PathToAtomicsFolder C:\AtomicRedTeam\atomic-red-team-master\atomics
   with_items: "{{ art_run_technique }}"
   when: art_run_technique is defined and (art_run_technique|length>0)
-
-
-
