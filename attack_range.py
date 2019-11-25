@@ -403,6 +403,7 @@ starting program loaded for B1 battle droid
     settings = parse.load_conf(configpath)
 
     log = logger.setup_logging(settings['log_path'], settings['log_level'])
+    log.info("INIT - attack_range v" + str(VERSION))
 
     if ARG_VERSION:
         log.info("version: {0}".format(VERSION))
