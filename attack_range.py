@@ -427,8 +427,6 @@ starting program loaded for B1 battle droid
         list_all_machines(mode)
         sys.exit(0)
 
-    log.info("INIT - Attack Range v" + str(VERSION))
-
     # lets give CLI priority over config file for pre-configured techniques
     if simulation_techniques[0] != '' or len(simulation_techniques) > 1:
         pass
