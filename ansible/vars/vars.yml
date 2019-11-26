@@ -8,9 +8,6 @@ sysmon: true
 stream: true
 
 ## Variables for Splunk Universal Forwarders
-#splunk_uf_indexer_ip: ec2-18-237-216-212.us-west-2.compute.amazonaws.com
-#splunk_uf_win: splunkforwarder-7.3.0-657388c7a488-x64-release.msi
-#splunk_uf_win_binary_path: ../../../../appbinaries/splunkforwarder-7.3.0-657388c7a488-x64-release.msi
 splunk_uf_win_url: https://www.splunk.com/page/download_track?file=7.3.2/windows/splunkforwarder-7.3.2-c60db69f8e32-x64-release.msi&ac=&wget=true&name=wget&platform=Windows&architecture=x86_64&version=7.3.2&product=universalforwarder&typed=release
 
 # Apps and TAs
@@ -21,12 +18,12 @@ splunk_stream_ta: Splunk_TA_stream.zip
 splunk_stream_app: splunk-stream_713.tgz
 splunk_cim_app: splunk-common-information-model-cim_4130.tgz
 splunk_escu_app: DA-ESS-ContentUpdate-v1.0.41.tar.gz
-#splunk_es_app_path: ../../../../appbinaries/splunk-enterprise-security_530.spl
+splunk_asx_app: Splunk_Analytic_Story_Execution-latest.tar.gz
 
 #Variables for Firedrill
-install_firedrill: false
-firedrill_dst_location: C:\fd.exe
-firedrill_binary_path: ../../../../appbinaries/FiredrillAgent-installer-2.2.389.exe
+#install_firedrill: false
+#firedrill_dst_location: C:\fd.exe
+#firedrill_binary_path: ../../../../appbinaries/FiredrillAgent-installer-2.2.389.exe
 
 #Variables for Atomic Red Team
 install_art: true

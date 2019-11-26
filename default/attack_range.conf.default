@@ -24,6 +24,7 @@ splunk_stream_ta = Splunk_TA_stream.zip
 splunk_stream_app = splunk-stream_713.tgz
 splunk_cim_app = splunk-common-information-model-cim_4130.tgz
 splunk_escu_app = DA-ESS-ContentUpdate-v1.0.41.tar.gz
+splunk_asx_app = Splunk_Analytic_Story_Execution-latest.tar.gz
 
 
 [simulation]

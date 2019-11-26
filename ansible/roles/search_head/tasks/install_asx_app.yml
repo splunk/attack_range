@@ -1,0 +1,25 @@
+# - name: Check if ESCU App exists
+#   stat:
+#     path: /opt/splunk/etc/apps/DA-ESS-ContentUpdate
+#   register: escu_app
+
+- name: download ASX app from S3 bucket
+  get_url:
+    url: '{{ s3_bucket_url }}/{{ splunk_asx_app }}'
+    dest: /tmp/asx_app.tgz
+#  when: escu_app.stat.exists == False
+
+- name: Install asx app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_pass }}"
+    validate_certs: false
+    body: "name=/tmp/asx_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  notify: restart splunk
+#  when: escu_app.stat.exists == False
