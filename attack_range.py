@@ -93,6 +93,8 @@ def prep_ansible(settings):
                          ansiblevars, re.M)
     ansiblevars = re.sub(r'splunk_escu_app: .+', 'splunk_escu_app: ' + str(settings['splunk_escu_app']),
                          ansiblevars, re.M)
+    ansiblevars = re.sub(r'splunk_asx_app:: .+', 'splunk_asx_app: ' + str(settings['splunk_asx_app']),
+                         ansiblevars, re.M)
     ansiblevars = re.sub(r'splunk_url: .+', 'splunk_url: ' + str(settings['splunk_url']),
                              ansiblevars, re.M)
     ansiblevars = re.sub(r'splunk_binary: .+', 'splunk_binary: ' + str(settings['splunk_binary']),
