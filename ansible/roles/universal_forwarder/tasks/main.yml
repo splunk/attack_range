@@ -1,0 +1,12 @@
+
+- include: install_splunk_uf.yml
+- include: collect_windows_event_logs.yml
+- include: collect_powershell_logs.yml
+- include: collect_attack_simulation_logs.yml
+- include: collect_sysmon_logs.yml
+  when: sysmon is defined
+# - include: install_splunk_windows_ta.yml
+# - include: install_splunk_sysmon_ta.yml
+#   when: sysmon is defined
+# - include: install_splunk_stream.yml
+#   when: stream is defined

@@ -22,4 +22,23 @@
     status_code: [ 200, 201 ]
     timeout: 30
   when: cim_app.stat.exists == False
+
+- name: Create folder directory for local in CIM
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/Splunk_SA_CIM/local/
+  when: cim_app.stat.exists == False
+
+- name: copy datamodels.conf to splunk server
+  copy:
+    src: datamodels.conf
+    dest: /opt/splunk/etc/apps/Splunk_SA_CIM/local/datamodels.conf
+    owner: splunk
+    group: splunk
+  when: cim_app.stat.exists == False
   notify: restart splunk

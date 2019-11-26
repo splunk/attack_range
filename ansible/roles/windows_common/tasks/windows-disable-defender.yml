@@ -20,7 +20,7 @@
     data: 1
   when: ansible_distribution == "Microsoft Windows 10 Enterprise Evaluation"
 
-- name: Disbale Windows Defeneder in Windows Server windows_2016_dc
+- name: Disbale Windows Defender in Windows Server windows_2016_dc
   win_shell: 'Uninstall-WindowsFeature -Name Windows-Defender'
   when: ansible_distribution == "Microsoft Windows Server 2016 Datacenter"
 
