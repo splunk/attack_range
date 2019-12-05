@@ -4,7 +4,7 @@ ansible/roles/*/files/splunk*.tgz
 ansible/roles/*/files/splunk*.msi
 ansible/inventory/hosts
 ansible/vars/vars.yml
-
+attack_range.conf
 # log file
 attack_range.log
 .attack_range/artifacts
