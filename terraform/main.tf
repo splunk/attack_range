@@ -137,6 +137,18 @@ output "splunk_server" {
   value = "http://${aws_eip.splunk_ip.public_ip}:8000"
 }
 
+output "splunk_username" {
+  value = "admin"
+}
+
+output "splunk_password" {
+  value = "please use password configured under attack_range.conf -> splunk_admin_password"
+}
+
+output "windows_dc_ip" {
+  value = "connect using an RDP client to ${aws_instance.windows_2016_dc.public_ip} on 3389"
+}
+
 output "windows_dc_user" {
   value = "${var.win_username}"
 }

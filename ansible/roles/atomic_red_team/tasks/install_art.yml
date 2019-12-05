@@ -1,12 +1,17 @@
 --- 
 
-- name: copy Atomic Red Team PS module
+- name: Check we have installed Atomic Red Team
+  win_stat:
+    path: "{{ art_module_dst_location }}"
+  register: atr_folder
+
+- name: Copy Atomic Red Team PS module
   win_copy:
     src: "{{ art_module_path }}"
     dest: "{{ art_module_dst_location }}"
-    when: install_art
+    when: install_art and atr_folder.stat.exists == False
 
 - name: Install Atomic Red Team PS Module
   win_shell: "{{art_module_dst_location}} -Verbose"
-  when: install_art
+  when: install_art and atr_folder.stat.exists == False
 
