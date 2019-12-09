@@ -1,0 +1,17 @@
+---
+# This playbook install the apps required in a server
+
+- name: install basic utilities debian
+  tags:
+   - configuration
+  apt: name={{ item }} state=present
+  with_items:
+   - vim
+   - screen
+   - iotop
+   - htop
+   - ioping
+   - ntp
+   - jq
+  when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"
+

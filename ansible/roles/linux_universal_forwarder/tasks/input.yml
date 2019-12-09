@@ -1,0 +1,10 @@
+---
+# playbook copies over inputs.conf for the uf
+
+- name: copy inputs.conf 
+  tags:
+   - install
+   - security
+  copy: src=opt/splunkforwarder/etc/system/local/inputs.conf dest=/opt/splunkforwarder/etc/system/local owner=splunk group=splunk mode=755
+notify: restart splunk
+

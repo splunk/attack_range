@@ -1,0 +1,59 @@
+---
+# This playbook install the apps required in a server
+
+- name: add splunk group
+  tags:
+   - install
+   - security
+  group: name=splunk state=present
+
+- name: add splunk user
+  tags:
+   - install
+   - security
+  user: name=splunk comment="Splunk service user" shell=/usr/sbin/nologin groups=splunk,sudo createhome=no 
+
+- name: make /opt writetable by splunk
+  tags:
+   - install
+  file: path=/opt mode=777
+
+- name: checking if splunk is install
+  tags: install
+  stat: path=/opt/splunkforwarder
+  register: splunk_path
+
+- name: splunk is install 
+  tags: install
+  debug: msg='splunk is already installed under /opt/splunkforwarder'
+  when: splunk_path.stat.exists
+
+- name: install splunk binary
+  tags:
+   - install
+  unarchive: src=splunk_binaries/{{splunk_uf_nix_binary}} dest=/opt/ owner=splunk group=splunk creates=yes 
+  sudo: yes
+  sudo_user: splunk
+  when: splunk_path.stat.exists == false
+
+- name: accept license and start splunk
+  tags:
+   - install
+  shell: /opt/splunkforwarder/bin/splunk start --accept-license
+  sudo: yes
+  sudo_user: splunk
+  when: splunk_path.stat.exists == false
+
+- name: enable boot-start
+  tags:
+   - install
+  shell: /opt/splunkforwarder/bin/splunk enable boot-start
+  when: splunk_path.stat.exists == false
+  sudo: yes
+  sudo_user: splunk
+
+- name: make /etc/init.d/splunk executable
+  tags:
+   - install
+  file: path=/etc/init.d/splunk mode=755
+

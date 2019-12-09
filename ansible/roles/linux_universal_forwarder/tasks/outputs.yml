@@ -1,0 +1,9 @@
+---
+# playbook copies over outputs.yml for the uf
+
+- name: copy outputs.conf
+  tags:
+   - install
+   - security
+  copy: src=opt/splunkforwarder/etc/system/local/outputs.yml dest=/opt/splunkforwarder/etc/system/local owner=splunk group=splunk mode=755
+notify: restart splunk

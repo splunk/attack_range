@@ -1,0 +1,22 @@
+---
+# This playbook install the basic files required in a server
+# bring in varibles for the specifc host (ntp servers)
+- name: Gather OS Specific Variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "../vars/{{ ansible_distribution }}.yml"
+
+- name: set time to UTC
+  tags:
+   - configuration
+   - time
+  shell: ln -Ss /usr/share/zoneinfo/UTC /etc/localtime
+
+- name: copy ntp config
+  tags:
+   - configuration
+   - time
+  template: src=etc/ntp.conf dest=/etc/ntp.conf owner=root group=root mode=644
+  notify: restart ntp
+
+

@@ -1,0 +1,7 @@
+- name: restart ssh
+  service: name=ssh state=restarted
+  when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu" 
+
+- name: restart ntp
+  service: name=ntp state=restarted
+  when: ansible_distribution == "Debian" or ansible_distribution == "Ubuntu"

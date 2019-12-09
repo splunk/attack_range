@@ -1,0 +1,22 @@
+#
+# This file MUST be edited with the 'visudo' command as root.
+#
+# Please consider adding local content in /etc/sudoers.d/ instead of
+# directly modifying this file.
+#
+# See the man page for details on how to write a sudoers file.
+#
+Defaults	env_reset
+Defaults	secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# Cmnd alias specification
+Cmnd_Alias SPLUNK_CMDS = /opt/splunk/bin/splunk, /etc/init.d/splunk
+
+# User privilege specification
+root	ALL=(ALL:ALL) ALL
+splunk-admin	ALL=(ALL:ALL) ALL
+
+#Splunk group to command mappings
+# ansible play splunk creates a splunk user and group. this gives the group sudo privs for splunk
+%splunk ALL=(splunk) SPLUNK_CMDS
+

@@ -1,0 +1,12 @@
+---
+- name: copy .bash_profile for root
+  tags:
+   - configuration
+  copy: src=root/.bash_profile dest=/root/.bash_profile owner=root group=root mode=644
+
+- name: copy .vimrc for root
+  tags:
+   - configuration
+  copy: src=root/.vimrc dest=/root/.vimrc owner=root group=root mode=644
+
+
