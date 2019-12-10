@@ -28,7 +28,7 @@ paramiko==2.6.0
 path.py==12.4.0
 pexpect==4.7.0
 pluggy==0.13.1
-psutil==5.6.5
+psutil==5.6.7
 ptyprocess==0.6.0
 py==1.8.0
 pycparser==2.19
