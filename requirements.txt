@@ -39,7 +39,7 @@ python-daemon==2.2.4
 python-dateutil==2.8.1
 python-terraform==0.10.1
 python-vagrant==0.5.15
-pywinrm==0.3.0
+pywinrm==0.4.1
 PyYAML==5.1.2
 requests==2.22.0
 requests-ntlm==1.1.0
