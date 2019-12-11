@@ -1,4 +1,4 @@
---- 
+---
 
 - name: Check we have installed Atomic Red Team
   win_stat:
@@ -14,4 +14,3 @@
 - name: Install Atomic Red Team PS Module
   win_shell: "{{art_module_dst_location}} -Verbose"
   when: install_art and atr_folder.stat.exists == False
-

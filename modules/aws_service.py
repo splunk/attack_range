@@ -28,7 +28,7 @@ def get_all_instances():
     for reservation in response['Reservations']:
         for instance in reservation['Instances']:
             str = instance['Tags'][0]['Value']
-            if str.startswith('attack-range'):
+            if str.startswith('attack-range') and instance['State']['Name']!='terminated':
                 instances.append(instance)
 
     return instances

@@ -4,6 +4,7 @@
 - include: splunk.yml
 - include: configure_inputs.yml
 - include: configure_indexes.yml
+- include: configure_server_conf.yml
 - include: install_escu_app.yml
 - include: install_asx_app.yml
 - include: install_windows_ta.yml

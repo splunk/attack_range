@@ -7,6 +7,8 @@ import splunklib.results as results
 
 def search(splunk_host, splunk_password, search_name, log):
 
+    print('\nexecute savedsearch: ' + search_name + '\n')
+
     service = client.connect(
         host=splunk_host,
         port=8089,
@@ -16,6 +18,13 @@ def search(splunk_host, splunk_password, search_name, log):
 
     # Retrieve the new search
     mysavedsearch = service.saved_searches[search_name]
+
+    kwargs = {"disabled": False,
+            "dispatch.earliest_time": "-30m",
+            "dispatch.latest_time": "now"}
+
+    # Enable savedsearch and adapt the scheduling time
+    mysavedsearch.update(**kwargs).refresh()
 
     # Run the saved search
     job = mysavedsearch.dispatch()
@@ -45,6 +54,9 @@ def search(splunk_host, splunk_password, search_name, log):
         print()
         print(result)
 
+    # disable the savedsearch
+    kwargs = {"disabled": True}
+    mysavedsearch.update(**kwargs).refresh()
 
 
 def list_searches(splunk_host, splunk_password):
