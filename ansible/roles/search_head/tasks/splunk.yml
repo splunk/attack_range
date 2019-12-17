@@ -46,7 +46,7 @@
 - name: accept license and start splunk
   tags:
    - install
-  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{splunk_pass}}
+  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{splunk_admin_password}}
   become: yes
   become_user: splunk
   when: splunk_path.stat.exists == false

@@ -78,7 +78,7 @@ def prep_ansible(settings):
     # Replace the ansible variables
     ansiblevars = re.sub(r'domain_admin_password: .+', 'domain_admin_password: ' + str(settings['win_password']),
                          ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_pass: .+', 'splunk_pass: ' + str(settings['splunk_admin_password']),
+    ansiblevars = re.sub(r'splunk_admin_password: .+', 'splunk_admin_password: ' + str(settings['splunk_admin_password']),
                          ansiblevars, re.M)
     ansiblevars = re.sub(r's3_bucket_url: .+', 's3_bucket_url: ' + str(settings['s3_bucket_url']),
                          ansiblevars, re.M)

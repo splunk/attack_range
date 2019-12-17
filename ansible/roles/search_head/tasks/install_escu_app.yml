@@ -14,7 +14,7 @@
     url: "https://127.0.0.1:8089/services/apps/local"
     method: POST
     user: "admin"
-    password: "{{ splunk_pass }}"
+    password: "{{ splunk_admin_password }}"
     validate_certs: false
     body: "name=/tmp/escu_app.tgz&update=true&filename=true"
     headers:

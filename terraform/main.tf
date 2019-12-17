@@ -78,7 +78,7 @@ resource "aws_security_group" "default" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server.public_ip},' playbooks/splunk_server.yml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server.public_ip},' playbooks/splunk_server.yml -e 'ansible_python_interpreter=/usr/bin/python3'"
   }
 }
 
@@ -86,10 +86,10 @@ resource "aws_eip" "splunk_ip" {
   instance = aws_instance.splunk-server.id
 }
 
+
 resource "aws_ebs_volume" "win2016_volume" {
   availability_zone = "us-west-2a"
   size              = 50
-
 }
 
 
@@ -130,6 +130,10 @@ EOF
     command = "sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc.public_ip}/g' inventory/hosts;ansible-playbook -i inventory/hosts playbooks/windows_dc.yml --extra-vars 'splunk_indexer_ip=${aws_instance.splunk-server.private_ip}'"
   }
 
+}
+
+resource "aws_eip" "windows_server_ip" {
+  instance = aws_instance.windows_2016_dc.id
 }
 
 
