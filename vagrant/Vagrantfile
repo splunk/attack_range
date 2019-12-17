@@ -12,6 +12,9 @@ Vagrant.configure("2") do |config|
         ansible.playbook = "../ansible/playbooks/splunk_server.yml"
         ansible.config_file = "../ansible/ansible.cfg"
         ansible.compatibility_mode = "2.0"
+        ansible.extra_vars = {
+          ansible_python_interpreter: "/usr/bin/python3"
+        }
     end
 
     config.vm.provider "virtualbox" do |vb, override|

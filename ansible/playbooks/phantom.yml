@@ -12,4 +12,3 @@
   vars_files:
     - ../vars/vars.yml
     - ~/.attack_range.yml
-
