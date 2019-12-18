@@ -257,7 +257,6 @@ def list_all_machines(mode):
         print('Vagrant Status\n')
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         response = v1.status()
-        print(response)
         print(tabulate(response, headers=['Name','Status','Provider']))
         print()
 
@@ -298,6 +297,18 @@ def list_all_searches(mode, settings, log):
                 print(tabulate(objects, headers=['Name']))
                 print()
 
+    if mode == 'vagrant':
+        check_targets_running_vagrant("splunk-server", log)
+        response = splunk_sdk.list_searches('localhost',str(settings['splunk_admin_password']))
+        if len(response) > 0:
+            objects = []
+            for object in response:
+                objects.append([object.name])
+            print()
+            print('Available savedsearches in Splunk\n')
+            print(tabulate(objects, headers=['Name']))
+            print()
+            
 
 if __name__ == "__main__":
     # grab arguments
