@@ -74,6 +74,10 @@ def run_search(mode, settings, search_name, log):
         if instance['State']['Name'] == 'running':
             splunk_sdk.search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(settings['splunk_admin_password']), search_name, log)
 
+    if mode == 'vagrant':
+        check_targets_running_vagrant("splunk-server", log)
+        splunk_sdk.search('localhost',str(settings['splunk_admin_password']), search_name, log)
+
 
 def prep_ansible(settings):
     # prep ansible for configuration
@@ -293,6 +297,18 @@ def list_all_searches(mode, settings, log):
                 print(tabulate(objects, headers=['Name']))
                 print()
 
+    if mode == 'vagrant':
+        check_targets_running_vagrant("splunk-server", log)
+        response = splunk_sdk.list_searches('localhost',str(settings['splunk_admin_password']))
+        if len(response) > 0:
+            objects = []
+            for object in response:
+                objects.append([object.name])
+            print()
+            print('Available savedsearches in Splunk\n')
+            print(tabulate(objects, headers=['Name']))
+            print()
+            
 
 if __name__ == "__main__":
     # grab arguments
@@ -407,7 +423,7 @@ starting program loaded for B1 battle droid
         elif action == "simulate":
             attack_simulation('vagrant', target, settings['simulation_engine'], simulation_techniques, log)
         elif action == "search":
-            run_search()
+            run_search('vagrant', settings, search_name, log)
 
     elif mode == "terraform":
         log.info("[mode] > terraform ")
