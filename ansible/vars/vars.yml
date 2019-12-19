@@ -1,7 +1,7 @@
 ## Variables for Splunk Search Head
 splunk_url: https://www.splunk.com/page/download_track?file=7.3.2/linux/splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz&ac=&wget=true&name=wget&platform=Linux&architecture=x86_64&version=7.3.2&product=splunk&typed=release
 splunk_binary: splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz
-splunk_admin_password: changeme
+splunk_admin_password: I-l1ke-Attack-Range!
 
 # Apps
 sysmon: true
@@ -57,7 +57,7 @@ win_sysmon_eventlog_channels:
 # Domain Controller
 windows_domain_controller_info:
   dns_domain_name: splunkresearch.local
-  domain_admin_password: myTempPassword123
+  domain_admin_password: I-l1ke-Attack-Range!
   domain_admin_user: Administrator@splunkresearch.local
   safe_mode_password: myTempPassword123
   state: domain_controller
