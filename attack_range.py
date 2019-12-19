@@ -308,7 +308,7 @@ def list_all_searches(mode, settings, log):
             print('Available savedsearches in Splunk\n')
             print(tabulate(objects, headers=['Name']))
             print()
-            
+
 
 if __name__ == "__main__":
     # grab arguments
@@ -381,16 +381,20 @@ starting program loaded for B1 battle droid
         log.info("version: {0}".format(VERSION))
         sys.exit(0)
 
-    if not args.mode:
+    if not mode:
         log.info('ERROR: Specify Attack Range Mode with -m ')
         sys.exit(1)
 
-    if args.mode and not action and not list_machines and not list_searches:
+    if mode and not action and not list_machines and not list_searches:
         log.info('ERROR: Use -a to perform an action or -ls to list avaiable machines')
         sys.exit(1)
 
-    if args.mode and action == 'simulate' and not target:
+    if mode and action == 'simulate' and not target:
         log.info('ERROR: Specify target for attack simulation')
+        sys.exit(1)
+
+    if mode and action == 'search' and not search_name:
+        log.info('ERROR: Specify search name to execute.')
         sys.exit(1)
 
     if list_machines:
