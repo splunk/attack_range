@@ -257,9 +257,7 @@ def list_all_machines(mode):
         print('Vagrant Status\n')
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         response = v1.status()
-
         status = []
-
         for stat in response:
             if stat.name == "attack-range-win10":
                 status.append = [stat.name, stat.status, "10.0.0.50"]
