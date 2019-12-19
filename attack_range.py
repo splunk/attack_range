@@ -73,6 +73,9 @@ def run_search(mode, settings, search_name, log):
         instance = aws_service.get_instance_by_name("attack-range_splunk-server",log)
         if instance['State']['Name'] == 'running':
             splunk_sdk.search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(settings['splunk_admin_password']), search_name, log)
+        else:
+            log.error('ERROR: Splunk server is not running.')
+
 
     if mode == 'vagrant':
         check_targets_running_vagrant("splunk-server", log)
@@ -303,6 +306,8 @@ def list_all_searches(mode, settings, log):
                 print('Available savedsearches in Splunk\n')
                 print(tabulate(objects, headers=['Name']))
                 print()
+        else:
+            log.error('ERROR: Splunk server is not running.')
 
     if mode == 'vagrant':
         check_targets_running_vagrant("splunk-server", log)
