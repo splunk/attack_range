@@ -20,7 +20,7 @@ def search(splunk_host, splunk_password, search_name, log):
     mysavedsearch = service.saved_searches[search_name]
 
     kwargs = {"disabled": False,
-            "dispatch.earliest_time": "-30m",
+            "dispatch.earliest_time": "-60m",
             "dispatch.latest_time": "now"}
 
     # Enable savedsearch and adapt the scheduling time
