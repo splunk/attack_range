@@ -78,7 +78,7 @@ def run_search(mode, settings, search_name, log):
 
 
     if mode == 'vagrant':
-        check_targets_running_vagrant("splunk-server", log)
+        check_targets_running_vagrant("attack-range-splunk-server", log)
         splunk_sdk.search('localhost',str(settings['splunk_admin_password']), search_name, log)
 
 
@@ -263,9 +263,9 @@ def list_all_machines(mode):
         status = []
         for stat in response:
             if stat.name == "attack-range-win10":
-                status.append = [stat.name, stat.status, "10.0.0.50"]
+                status.append([stat.name, stat.state, "10.0.0.50"])
             else:
-                status.append = [stat.name, stat.status, "10.0.0.10"]
+                status.append([stat.name, stat.state, "10.0.0.10"])
 
         print(tabulate(status, headers=['Name','Status','IP Address']))
         print()
@@ -310,7 +310,7 @@ def list_all_searches(mode, settings, log):
             log.error('ERROR: Splunk server is not running.')
 
     if mode == 'vagrant':
-        check_targets_running_vagrant("splunk-server", log)
+        check_targets_running_vagrant("attack-range-splunk-server", log)
         response = splunk_sdk.list_searches('localhost',str(settings['splunk_admin_password']))
         if len(response) > 0:
             objects = []
