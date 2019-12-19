@@ -257,7 +257,16 @@ def list_all_machines(mode):
         print('Vagrant Status\n')
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         response = v1.status()
-        print(tabulate(response, headers=['Name','Status','Provider']))
+
+        status = []
+
+        for stat in response:
+            if stat.name == "attack-range-win10":
+                status.append = [stat.name, stat.status, "10.0.0.50"]
+            else:
+                status.append = [stat.name, stat.status, "10.0.0.10"]
+
+        print(tabulate(status, headers=['Name','Status','IP Address']))
         print()
 
     if mode == 'terraform':
@@ -274,7 +283,7 @@ def list_all_machines(mode):
         print('Terraform Status\n')
         if len(response) > 0:
             if instances_running:
-                print(tabulate(response, headers=['Name','Status', 'Public IP']))
+                print(tabulate(response, headers=['Name','Status', 'IP Address']))
             else:
                 print(tabulate(response, headers=['Name','Status']))
         else:
