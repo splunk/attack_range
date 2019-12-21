@@ -29,9 +29,11 @@ splunk_asx_app: Splunk_Analytic_Story_Execution-latest.tar.gz
 install_art: true
 art_module_dst_location: C:\Install-AtomicRedTeam.ps1
 art_module_path: Install-AtomicRedTeam.ps1
+art_execution_path: C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\execution
+art_log_path: C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicTest-ExecutionLog.csv
 art_run_all_test: false
 # array of techniques to run
-art_run_technique: ['T1117']
+art_run_technique: ['T1003']
 
 #Variables for Sysmon
 win_temp_dir: 'c:\Program Files\ansible'

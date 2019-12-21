@@ -1,16 +1,33 @@
 ---
 
+- name: Make Atomic Red Team Execution Directory
+  win_file:
+    path: "{{ art_execution_path}}"
+    state: directory
+
 - name: Run all Atomic Red Team Tests
   win_shell: |
     Import-Module c:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam.psm1
     cd c:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\
-    Invoke-AtomicTest All -Force -PathToAtomicsFolder C:\AtomicRedTeam\atomic-red-team-master\atomics
+    Invoke-AtomicTest All -Force -PathToAtomicsFolder C:\AtomicRedTeam\atomic-red-team-master\atomics 
   when: art_run_all_test
 
 - name: Run specified Atomic Red Team Technique
   win_shell: |
     Import-Module c:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam.psm1
-    cd c:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\
-    Invoke-AtomicTest "{{ item }}" -PathToAtomicsFolder C:\AtomicRedTeam\atomic-red-team-master\atomics
+    cd c:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\execution
+    Invoke-AtomicTest "{{ item }}" -Force -PathToAtomicsFolder C:\AtomicRedTeam\atomic-red-team-master\atomics -Confirm:$false
   with_items: "{{ art_run_technique }}"
   when: art_run_technique is defined and (art_run_technique|length>0)
+
+- name: Save Log File
+  win_copy: 
+    src: "{{ art_execution_path }}\\Invoke-AtomicTest-ExecutionLog.csv"
+    dest: "{{ art_log_path }}"
+    force: yes
+    remote_src: yes
+
+- name: Clean up after execution
+  win_file: 
+    path: "{{ art_execution_path }}"
+    state: absent
