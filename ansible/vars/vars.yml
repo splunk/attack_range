@@ -33,7 +33,7 @@ art_execution_path: C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks
 art_log_path: C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicTest-ExecutionLog.csv
 art_run_all_test: false
 # array of techniques to run
-art_run_technique: ['T1003']
+art_run_technique: ['T1117']
 
 #Variables for Sysmon
 win_temp_dir: 'c:\Program Files\ansible'
