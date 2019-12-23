@@ -16,3 +16,11 @@
     owner: splunk
     group: splunk
   notify: restart splunk
+
+- name: copy authorize.conf for default searchable indexes_app
+  copy:
+    src: authorize.conf
+    dest: /opt/splunk/etc/system/local/authorize.conf
+    owner: splunk
+    group: splunk
+  notify: restart splunk

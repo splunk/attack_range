@@ -1,7 +1,7 @@
 ## Variables for Splunk Search Head
 splunk_url: https://www.splunk.com/page/download_track?file=7.3.2/linux/splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz&ac=&wget=true&name=wget&platform=Linux&architecture=x86_64&version=7.3.2&product=splunk&typed=release
 splunk_binary: splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz
-splunk_pass: changeme
+splunk_admin_password: I-l1ke-Attack-Range!
 
 # Apps
 sysmon: true
@@ -12,12 +12,12 @@ splunk_uf_win_url: https://www.splunk.com/page/download_track?file=7.3.2/windows
 
 # Apps and TAs
 s3_bucket_url: https://attack-range-appbinaries.s3-us-west-2.amazonaws.com
-splunk_windows_ta: splunk-add-on-for-microsoft-windows_600.tgz
-splunk_sysmon_ta: add-on-for-microsoft-sysmon_800.tgz
+splunk_windows_ta: splunk-add-on-for-microsoft-windows_700.tgz
+splunk_sysmon_ta: add-on-for-microsoft-sysmon_810.tgz
 splunk_stream_ta: Splunk_TA_stream.zip
 splunk_stream_app: splunk-stream_713.tgz
 splunk_cim_app: splunk-common-information-model-cim_4130.tgz
-splunk_escu_app: DA-ESS-ContentUpdate-v1.0.41.tar.gz
+splunk_escu_app: splunk-es-content-update_1046.tgz
 splunk_asx_app: Splunk_Analytic_Story_Execution-latest.tar.gz
 
 #Variables for Firedrill
@@ -59,7 +59,7 @@ win_sysmon_eventlog_channels:
 # Domain Controller
 windows_domain_controller_info:
   dns_domain_name: splunkresearch.local
-  domain_admin_password: myTempPassword123
+  domain_admin_password: I-l1ke-Attack-Range!
   domain_admin_user: Administrator@splunkresearch.local
   safe_mode_password: myTempPassword123
   state: domain_controller

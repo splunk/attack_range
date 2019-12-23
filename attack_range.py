@@ -73,9 +73,12 @@ def run_search(mode, settings, search_name, log):
         instance = aws_service.get_instance_by_name("attack-range_splunk-server",log)
         if instance['State']['Name'] == 'running':
             splunk_sdk.search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(settings['splunk_admin_password']), search_name, log)
+        else:
+            log.error('ERROR: Splunk server is not running.')
+
 
     if mode == 'vagrant':
-        check_targets_running_vagrant("splunk-server", log)
+        check_targets_running_vagrant("attack-range-splunk-server", log)
         splunk_sdk.search('localhost',str(settings['splunk_admin_password']), search_name, log)
 
 
@@ -88,7 +91,7 @@ def prep_ansible(settings):
     # Replace the ansible variables
     ansiblevars = re.sub(r'domain_admin_password: .+', 'domain_admin_password: ' + str(settings['win_password']),
                          ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_pass: .+', 'splunk_pass: ' + str(settings['splunk_admin_password']),
+    ansiblevars = re.sub(r'splunk_admin_password: .+', 'splunk_admin_password: ' + str(settings['splunk_admin_password']),
                          ansiblevars, re.M)
     ansiblevars = re.sub(r's3_bucket_url: .+', 's3_bucket_url: ' + str(settings['s3_bucket_url']),
                          ansiblevars, re.M)
@@ -257,7 +260,14 @@ def list_all_machines(mode):
         print('Vagrant Status\n')
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         response = v1.status()
-        print(tabulate(response, headers=['Name','Status','Provider']))
+        status = []
+        for stat in response:
+            if stat.name == "attack-range-win10":
+                status.append([stat.name, stat.state, "10.0.0.50"])
+            else:
+                status.append([stat.name, stat.state, "10.0.0.10"])
+
+        print(tabulate(status, headers=['Name','Status','IP Address']))
         print()
 
     if mode == 'terraform':
@@ -274,7 +284,7 @@ def list_all_machines(mode):
         print('Terraform Status\n')
         if len(response) > 0:
             if instances_running:
-                print(tabulate(response, headers=['Name','Status', 'Public IP']))
+                print(tabulate(response, headers=['Name','Status', 'IP Address']))
             else:
                 print(tabulate(response, headers=['Name','Status']))
         else:
@@ -296,9 +306,11 @@ def list_all_searches(mode, settings, log):
                 print('Available savedsearches in Splunk\n')
                 print(tabulate(objects, headers=['Name']))
                 print()
+        else:
+            log.error('ERROR: Splunk server is not running.')
 
     if mode == 'vagrant':
-        check_targets_running_vagrant("splunk-server", log)
+        check_targets_running_vagrant("attack-range-splunk-server", log)
         response = splunk_sdk.list_searches('localhost',str(settings['splunk_admin_password']))
         if len(response) > 0:
             objects = []
@@ -308,7 +320,7 @@ def list_all_searches(mode, settings, log):
             print('Available savedsearches in Splunk\n')
             print(tabulate(objects, headers=['Name']))
             print()
-            
+
 
 if __name__ == "__main__":
     # grab arguments
@@ -381,16 +393,20 @@ starting program loaded for B1 battle droid
         log.info("version: {0}".format(VERSION))
         sys.exit(0)
 
-    if not args.mode:
+    if not mode:
         log.info('ERROR: Specify Attack Range Mode with -m ')
         sys.exit(1)
 
-    if args.mode and not action and not list_machines and not list_searches:
+    if mode and not action and not list_machines and not list_searches:
         log.info('ERROR: Use -a to perform an action or -ls to list avaiable machines')
         sys.exit(1)
 
-    if args.mode and action == 'simulate' and not target:
+    if mode and action == 'simulate' and not target:
         log.info('ERROR: Specify target for attack simulation')
+        sys.exit(1)
+
+    if mode and action == 'search' and not search_name:
+        log.info('ERROR: Specify search name to execute.')
         sys.exit(1)
 
     if list_machines:
