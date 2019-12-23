@@ -1,17 +1,21 @@
 Vagrant.configure("2") do |config|
 
-  config.vm.define "splunk-server" do |config|
-    VM_NAME= "splunk-server"
+  config.vm.define "attack-range-splunk-server" do |config|
+    VM_NAME= "attack-range-splunk-server"
     config.vm.box = "generic/ubuntu1804"
     config.vm.hostname = "#{VM_NAME}"
     config.vm.boot_timeout = 600
     config.vm.network "forwarded_port", guest: 8000, host: 8000, protocol: "tcp"
+    config.vm.network "forwarded_port", guest: 8089, host: 8089, protocol: "tcp"
     config.vm.network :private_network, ip: "10.0.0.10"
 
     config.vm.provision "ansible" do |ansible|
         ansible.playbook = "../ansible/playbooks/splunk_server.yml"
         ansible.config_file = "../ansible/ansible.cfg"
         ansible.compatibility_mode = "2.0"
+        ansible.extra_vars = {
+          ansible_python_interpreter: "/usr/bin/python3"
+        }
     end
 
     config.vm.provider "virtualbox" do |vb, override|
@@ -23,8 +27,8 @@ Vagrant.configure("2") do |config|
   end
 
 
-  config.vm.define "win10" do |config|
-	  VM_NAME_WIN= "win10"
+  config.vm.define "attack-range-win10" do |config|
+	  VM_NAME_WIN= "attack-range-win10"
     config.vm.box = "d1vious/windows10"
     config.vm.hostname = "#{VM_NAME_WIN}"
     config.vm.boot_timeout = 600

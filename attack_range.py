@@ -5,7 +5,7 @@ import ansible_runner
 import subprocess
 import boto3
 from python_terraform import *
-from modules import logger, parseconfig
+from modules import logger, parseconfig, splunk_sdk, aws_service
 from pathlib import Path
 from tabulate import tabulate
 
@@ -68,6 +68,19 @@ def run_simulation(mode, simulation_engine, simulation_techniques, target, log):
             log.error("failed to executed technique ID {0} against target: {1}".format(simulation_techniques, target))
             sys.exit(1)
 
+def run_search(mode, settings, search_name, log):
+    if mode == 'terraform':
+        instance = aws_service.get_instance_by_name("attack-range_splunk-server",log)
+        if instance['State']['Name'] == 'running':
+            splunk_sdk.search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(settings['splunk_admin_password']), search_name, log)
+        else:
+            log.error('ERROR: Splunk server is not running.')
+
+
+    if mode == 'vagrant':
+        check_targets_running_vagrant("attack-range-splunk-server", log)
+        splunk_sdk.search('localhost',str(settings['splunk_admin_password']), search_name, log)
+
 
 def prep_ansible(settings):
     # prep ansible for configuration
@@ -78,7 +91,7 @@ def prep_ansible(settings):
     # Replace the ansible variables
     ansiblevars = re.sub(r'domain_admin_password: .+', 'domain_admin_password: ' + str(settings['win_password']),
                          ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_pass: .+', 'splunk_pass: ' + str(settings['splunk_admin_password']),
+    ansiblevars = re.sub(r'splunk_admin_password: .+', 'splunk_admin_password: ' + str(settings['splunk_admin_password']),
                          ansiblevars, re.M)
     ansiblevars = re.sub(r's3_bucket_url: .+', 's3_bucket_url: ' + str(settings['s3_bucket_url']),
                          ansiblevars, re.M)
@@ -190,47 +203,13 @@ def attack_simulation(mode, target, simulation_engine, simulation_techniques, lo
         run_simulation('vagrant', simulation_engine, simulation_techniques, target, log)
 
     if mode == 'terraform':
-        target_IP = check_targets_running_terraform(target, log)
-        config_simulation(simulation_engine, simulation_techniques, log)
-        run_simulation('terraform', simulation_engine, simulation_techniques, target_IP, log)
-
-
-def check_targets_running_terraform(target, log):
-    with open('terraform/terraform.tfvars', 'r') as file:
-        terraformvars = file.read()
-
-    pattern = 'key_name = \"([^\"]*)'
-    a = re.search(pattern, terraformvars)
-    client = boto3.client('ec2')
-    response = client.describe_instances(
-        Filters=[
-            {
-                'Name': "tag:Name",
-                'Values': [target]
-            },
-            {
-                'Name': "key-name",
-                'Values': [a.group(1)]
-            }
-        ]
-    )
-
-    if len(response['Reservations']) == 0:
-        log.error(target + ' not found as AWS EC2 instance.')
-        sys.exit(1)
-
-    # iterate through reservations and instances
-    found_running_instance = False
-    for reservation in response['Reservations']:
-
-        for instance in reservation['Instances']:
-            if instance['State']['Name'] == 'running':
-                found_running_instance = True
-                return instance['NetworkInterfaces'][0]['Association']['PublicIp']
-
-    if not found_running_instance:
-        log.error(target + ' not running.')
-        sys.exit(1)
+        instance = aws_service.get_instance_by_name(target, log)
+        if instance['State']['Name'] == 'running':
+            config_simulation(simulation_engine, simulation_techniques, log)
+            run_simulation('terraform', simulation_engine, simulation_techniques, instance['NetworkInterfaces'][0]['Association']['PublicIp'], log)
+        else:
+            log.error("ERROR: attack target is not running.")
+            sys.exit(1)
 
 
 def check_targets_running_vagrant(target, log):
@@ -265,60 +244,14 @@ def terraform_mode(action, log):
         return_code, stdout, stderr = t.destroy(capture_output='yes', no_color=IsNotFlagged)
         log.info("attack_range has been destroy using terraform successfully")
 
-    if action == "stop" or action == "resume":
-        instances, key_name = find_terraform_instances()
-        change_terraform_state(instances, action, key_name, log)
+    if action == "stop":
+        instances = aws_service.get_all_instances()
+        aws_service.change_ec2_state(instances, 'stopped', log)
 
+    if action == "resume":
+        instances = aws_service.get_all_instances()
+        aws_service.change_ec2_state(instances, 'running', log)
 
-def change_terraform_state(instances, action, key_name, log):
-    client = boto3.client('ec2')
-    # iterate through reservations and instances
-    found_instance = False
-    for instance in instances:
-        if action == 'stop':
-            if instance['State']['Name'] == 'running':
-                found_instance = True
-                response = client.stop_instances(
-                    InstanceIds=[instance['InstanceId']]
-                )
-                log.info('Successfully stopped instance with ID ' +
-                      instance['InstanceId'] + ' .')
-        else:
-            if instance['State']['Name'] == 'stopped':
-                found_instance = True
-                response = client.start_instances(
-                    InstanceIds=[instance['InstanceId']]
-                )
-                log.info('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
-
-    if not found_instance:
-        sys.exit('ERROR: No AWS EC2 instances with the key_name ' + key_name + ' found.')
-
-
-def find_terraform_instances():
-    with open('terraform/terraform.tfvars', 'r') as file:
-        terraformvars = file.read()
-
-    pattern = 'key_name = \"([^\"]*)'
-    a = re.search(pattern, terraformvars)
-
-    client = boto3.client('ec2')
-    response = client.describe_instances(
-        Filters=[
-            {
-                'Name': "key-name",
-                'Values': [a.group(1)]
-            }
-        ]
-    )
-    instances = []
-    for reservation in response['Reservations']:
-        for instance in reservation['Instances']:
-            str = instance['Tags'][0]['Value']
-            if str.startswith('attack-range'):
-                instances.append(instance)
-
-    return instances, a.group(1)
 
 
 def list_all_machines(mode):
@@ -327,22 +260,66 @@ def list_all_machines(mode):
         print('Vagrant Status\n')
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         response = v1.status()
-        print(tabulate(response, headers=['Name','Status','Provider']))
+        status = []
+        for stat in response:
+            if stat.name == "attack-range-win10":
+                status.append([stat.name, stat.state, "10.0.0.50"])
+            else:
+                status.append([stat.name, stat.state, "10.0.0.10"])
+
+        print(tabulate(status, headers=['Name','Status','IP Address']))
         print()
 
     if mode == 'terraform':
-        instances, key_name = find_terraform_instances()
+        instances = aws_service.get_all_instances()
         response = []
+        instances_running = False
         for instance in instances:
-            response.append([instance['Tags'][0]['Value'], instance['State']['Name']])
+            if instance['State']['Name'] == 'running':
+                instances_running = True
+                response.append([instance['Tags'][0]['Value'], instance['State']['Name'], instance['NetworkInterfaces'][0]['Association']['PublicIp']])
+            else:
+                response.append([instance['Tags'][0]['Value'], instance['State']['Name']])
         print()
         print('Terraform Status\n')
         if len(response) > 0:
-            print(tabulate(response, headers=['Name','Status']))
+            if instances_running:
+                print(tabulate(response, headers=['Name','Status', 'IP Address']))
+            else:
+                print(tabulate(response, headers=['Name','Status']))
         else:
             print("ERROR: Can't find configured EC2 Attack Range Instances in AWS.")
             sys.exit(1)
         print()
+
+
+def list_all_searches(mode, settings, log):
+    if mode == 'terraform':
+        instance = aws_service.get_instance_by_name("attack-range_splunk-server",log)
+        if instance['State']['Name'] == 'running':
+            response = splunk_sdk.list_searches(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(settings['splunk_admin_password']))
+            if len(response) > 0:
+                objects = []
+                for object in response:
+                    objects.append([object.name])
+                print()
+                print('Available savedsearches in Splunk\n')
+                print(tabulate(objects, headers=['Name']))
+                print()
+        else:
+            log.error('ERROR: Splunk server is not running.')
+
+    if mode == 'vagrant':
+        check_targets_running_vagrant("attack-range-splunk-server", log)
+        response = splunk_sdk.list_searches('localhost',str(settings['splunk_admin_password']))
+        if len(response) > 0:
+            objects = []
+            for object in response:
+                objects.append([object.name])
+            print()
+            print('Available savedsearches in Splunk\n')
+            print(tabulate(objects, headers=['Name']))
+            print()
 
 
 if __name__ == "__main__":
@@ -351,15 +328,18 @@ if __name__ == "__main__":
         description="starts a attack range ready to collect attack data into splunk")
     parser.add_argument("-m", "--mode", required=False, choices=['vagrant', 'terraform'],
                         help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
-    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume'],
-                        help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume allowed")
+    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'search'],
+                        help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume/search allowed")
     parser.add_argument("-t", "--target", required=False,
                         help="target for attack simulation. For mode vagrant use name of the vbox. For mode terraform use the name of the aws EC2 name")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                         help="comma delimited list of MITRE ATT&CK technique ID to simulate in the attack_range, example: T1117, T1118, requires --simulation flag")
+    parser.add_argument("-sn", "--search_name", required=False, type=str, default="",
+                        help="name of savedsearch, which you want to run")
     parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
                         help="path to the configuration file of the attack range")
-    parser.add_argument("-ls", "--list_machines", required=False, default=False, action="store_true", help="prints out all avaiable machines")
+    parser.add_argument("-lm", "--list_machines", required=False, default=False, action="store_true", help="prints out all avaiable machines")
+    parser.add_argument("-ls", "--list_searches", required=False, default=False, action="store_true", help="prints out all avaiable savedsearches")
     parser.add_argument("-v", "--version", default=False, action="store_true", required=False,
                         help="shows current attack_range version")
 
@@ -372,6 +352,8 @@ if __name__ == "__main__":
     config = args.config
     simulation_techniques = [str(item) for item in args.simulation_technique.split(',')]
     list_machines = args.list_machines
+    list_searches = args.list_searches
+    search_name = args.search_name
 
     print("""
 starting program loaded for B1 battle droid
@@ -411,20 +393,28 @@ starting program loaded for B1 battle droid
         log.info("version: {0}".format(VERSION))
         sys.exit(0)
 
-    if not args.mode:
+    if not mode:
         log.info('ERROR: Specify Attack Range Mode with -m ')
         sys.exit(1)
 
-    if args.mode and not action and not list_machines:
+    if mode and not action and not list_machines and not list_searches:
         log.info('ERROR: Use -a to perform an action or -ls to list avaiable machines')
         sys.exit(1)
 
-    if args.mode and action == 'simulate' and not target:
+    if mode and action == 'simulate' and not target:
         log.info('ERROR: Specify target for attack simulation')
+        sys.exit(1)
+
+    if mode and action == 'search' and not search_name:
+        log.info('ERROR: Specify search name to execute.')
         sys.exit(1)
 
     if list_machines:
         list_all_machines(mode)
+        sys.exit(0)
+
+    if list_searches:
+        list_all_searches(mode, settings, log)
         sys.exit(0)
 
     # lets give CLI priority over config file for pre-configured techniques
@@ -441,22 +431,24 @@ starting program loaded for B1 battle droid
         prep_terraform(settings)
 
 
-    # to do: define which arguments are needed for build and which for simulate
-
     # lets process modes
     if mode == "vagrant":
         log.info("[mode] > vagrant")
         if action == "build" or action == "destroy" or action == "stop" or action == "resume":
             vagrant_mode(action, log)
-        else:
+        elif action == "simulate":
             attack_simulation('vagrant', target, settings['simulation_engine'], simulation_techniques, log)
+        elif action == "search":
+            run_search('vagrant', settings, search_name, log)
 
     elif mode == "terraform":
         log.info("[mode] > terraform ")
         if action == "build" or action == "destroy" or action == "stop" or action == "resume":
             terraform_mode(action, log)
-        else:
+        elif action == "simulate":
             attack_simulation('terraform', target, settings['simulation_engine'], simulation_techniques, log)
+        elif action == "search":
+            run_search('terraform', settings, search_name, log)
 
     else:
         log.error("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")

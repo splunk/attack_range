@@ -1,7 +1,7 @@
 ## Variables for Splunk Search Head
 splunk_url: https://www.splunk.com/page/download_track?file=7.3.2/linux/splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz&ac=&wget=true&name=wget&platform=Linux&architecture=x86_64&version=7.3.2&product=splunk&typed=release
 splunk_binary: splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz
-splunk_pass: changeme
+splunk_admin_password: changeme
 
 # Apps
 sysmon: true
@@ -29,6 +29,8 @@ splunk_asx_app: Splunk_Analytic_Story_Execution-latest.tar.gz
 install_art: true
 art_module_dst_location: C:\Install-AtomicRedTeam.ps1
 art_module_path: Install-AtomicRedTeam.ps1
+art_execution_path: C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\execution
+art_log_path: C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicTest-ExecutionLog.csv
 art_run_all_test: false
 # array of techniques to run
 art_run_technique: ['T1117']

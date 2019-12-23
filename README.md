@@ -26,6 +26,7 @@ In order to make Attack Range work on almost every laptop, the local version usi
 Attack Range supports different actions:
 - Build Attack Range
 - Perform Attack Simulation
+- Search with Attack Range
 - Destroy Attack Range
 - Stop Attack Range
 - Resume Attack Range
@@ -48,6 +49,16 @@ python attack_range.py -m terraform -a simulate -st T1117,T1003 -t attack-range_
 - Perform Attack Simulation using **Vagrant**
 ```
 python attack_range.py -m vagrant -a simulate -st T1117,T1003 -t win10
+```
+
+### Search with Attack Range
+- Run a savedsearch with **Terraform** and return the results:
+```
+python attack_range.py -m terraform -a search -sn search_name
+```
+- Run a savedsearch with **Vagrant** and return the results:
+```
+python attack_range.py -m vagrant -a search -sn search_name
 ```
 
 ### Destroy Attack Range
