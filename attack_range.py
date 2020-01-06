@@ -59,8 +59,7 @@ def run_simulation(mode, simulation_engine, simulation_techniques, target, log):
                                inventory=os.path.dirname(os.path.realpath(
                                    __file__)) + '/ansible/inventory/hosts',
                                roles_path="../roles",
-                               playbook=os.path.dirname(os.path.realpath(__file__)) + '/ansible/playbooks/atomic_red_team.yml',
-                               verbosity=0)
+                               playbook=os.path.dirname(os.path.realpath(__file__)) + '/ansible/playbooks/atomic_red_team.yml')
 
         if r.status == "successful":
             log.info("successfully executed technique ID {0} against target: {1}".format(simulation_techniques, target))
