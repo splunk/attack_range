@@ -1,8 +1,8 @@
 
-provider "aws" {
-  profile    = "{var.aws_profile}"
-  region     = "${var.aws_region}"
-}
+# provider "aws" {
+#   profile    = "{var.aws_profile}"
+#   region     = "${var.aws_region}"
+# }
 
 resource "aws_vpc" "default" {
   cidr_block = "${var.vpc_cidr}"

@@ -26,10 +26,21 @@ variable "key_name" {
   description = "Desired name of AWS key pair"
 }
 
-variable "splunk_private_ip" {
+# uses AWS AMI Windows 2016 Server Base
+# See https://aws.amazon.com/marketplace/server/configuration?productId=13c2dbc9-57fc-4958-922e-a1ba7e223b0d for details
+variable "windows_2016_dc_ami" {
+  type    = string
+  default = "ami-0df99cdd65bce4245"
+}
+
+variable "splunk_server_private_ip" {
   description = "private ip of splunk server"
 }
 
 variable "vpc_security_group_ids" { }
 
 variable "vpc_subnet0_id" { }
+
+variable "windows_2016_dc" {
+  default = "1"
+}

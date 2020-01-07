@@ -5,7 +5,8 @@
   instance_type = "t2.2xlarge"
   key_name = var.key_name
   subnet_id = var.vpc_subnet1_id
-  vpc_security_group_ids = var.vpc_security_group_ids
+  vpc_security_group_ids = [var.vpc_security_group_ids]
+  private_ip = var.splunk_server_private_ip
   root_block_device {
     volume_type = "gp2"
     volume_size = "30"

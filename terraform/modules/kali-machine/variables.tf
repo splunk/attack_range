@@ -17,17 +17,15 @@ variable "key_name" {
 }
 
 
-# uses ubuntu 18.04 at the moment
-variable "splunk_ami" {
+variable "kali_ami" {
   type    = string
-  default = "ami-005bdb005fb00e791"
-}
-
-variable "splunk_server_private_ip" {
-  type    = string
-  default = "10.0.2.10"
+  default = "ami-0efaa1daf599f3b8e"
 }
 
 variable "vpc_security_group_ids" { }
 
-variable "vpc_subnet1_id" { }
+variable "vpc_subnet0_id" { }
+
+variable "kali-machine" {
+  default = "0"
+}

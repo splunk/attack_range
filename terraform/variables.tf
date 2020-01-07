@@ -60,11 +60,6 @@ variable "ip_whitelist" {
   default     = [""]
 }
 
-variable "external_dns_servers" {
-  description = "Configure lab to allow external DNS resolution"
-  type        = list(string)
-  default     = ["8.8.8.8"]
-}
 
 # The default values for us-west-2 have been provied for you
 # You will have to change the default values if you use a different region
@@ -82,7 +77,23 @@ variable "windows_2016_dc_ami" {
   default = "ami-0df99cdd65bce4245"
 }
 
+variable "kali_ami" {
+  type    = string
+  default = "ami-0efaa1daf599f3b8e"
+}
+
+
+variable "splunk_server_private_ip" {
+  type    = string
+  default = "10.0.2.10"
+}
+
 
 #environment variables
-variable "windows_2016_dc" { }
-variable "kali-machine" { }
+variable "windows_2016_dc" {
+  default = "1"
+}
+
+variable "kali-machine" {
+  default = "0"
+}
