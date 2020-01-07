@@ -81,3 +81,8 @@ variable "windows_2016_dc_ami" {
   type    = string
   default = "ami-0df99cdd65bce4245"
 }
+
+
+#environment variables
+variable "windows_2016_dc" { }
+variable "kali-machine" { }

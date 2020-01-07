@@ -5,3 +5,5 @@ ip_whitelist = ["0.0.0.0/0"]
 win_username = "Administrator"
 win_password = "I-l1ke-Attack-Range!"
 private_key_path = "~/.ssh/id_rsa"
+windows_2016_dc = "0"
+kali-machine = "0"

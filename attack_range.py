@@ -70,7 +70,7 @@ def run_simulation(mode, simulation_engine, simulation_techniques, target, log):
 
 def run_search(mode, settings, search_name, log):
     if mode == 'terraform':
-        instance = aws_service.get_instance_by_name("attack-range_splunk-server",log)
+        instance = aws_service.get_instance_by_name("attack-range-splunk-server",log)
         if instance['State']['Name'] == 'running':
             splunk_sdk.search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(settings['splunk_admin_password']), search_name, log)
         else:
@@ -160,6 +160,13 @@ def prep_terraform(settings):
                          terraformvars, re.M)
     terraformvars = re.sub(r'private_key_path = .+', 'private_key_path = "' + str(settings['private_key_path']) + '"',
                          terraformvars, re.M)
+    terraformvars = re.sub(r'splunk-server = .+', 'splunk-server = "' + str(settings['splunk-server']) + '"',
+                         terraformvars, re.M)
+    terraformvars = re.sub(r'windows_2016_dc = .+', 'windows_2016_dc = "' + str(settings['windows_2016_dc']) + '"',
+                         terraformvars, re.M)
+    terraformvars = re.sub(r'kali-machine = .+', 'kali-machine = "' + str(settings['kali-machine']) + '"',
+                         terraformvars, re.M)
+
     # Write the file out again
     with open('terraform/terraform.tfvars', 'w') as file:
         file.write(terraformvars)
@@ -295,7 +302,7 @@ def list_all_machines(mode):
 
 def list_all_searches(mode, settings, log):
     if mode == 'terraform':
-        instance = aws_service.get_instance_by_name("attack-range_splunk-server",log)
+        instance = aws_service.get_instance_by_name("attack-range-splunk-server",log)
         if instance['State']['Name'] == 'running':
             response = splunk_sdk.list_searches(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(settings['splunk_admin_password']))
             if len(response) > 0:
