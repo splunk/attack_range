@@ -33,5 +33,6 @@ simulation_technique = ''
 
 [environment]
 # The splunk server is always built!
-windows_2016_dc = 1    # possible values 0 or 1
-kali-machine = 1     # possible values 0 or 1
+windows_2016_dc = 1
+windows_2016_dc_client = 0
+kali-machine = 0

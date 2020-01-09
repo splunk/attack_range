@@ -15,7 +15,7 @@
     state: present
 
 - name: features | Installing AD Domain Services
-  win_feature: 
+  win_feature:
     name: AD-Domain-Services
     include_management_tools: yes
     include_sub_features: yes
@@ -42,3 +42,6 @@
     safe_mode_password: "{{ windows_domain_controller_info['safe_mode_password'] }}"
     state: "{{ windows_domain_controller_info['state'] }}"
   register: _windows_domain_controller
+
+- debug:
+    var: _windows_domain_controller

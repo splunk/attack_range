@@ -13,6 +13,7 @@ resource "aws_instance" "windows_2016_dc" {
   instance_type = "t2.2xlarge"
   key_name = var.key_name
   subnet_id = "${var.vpc_subnet0_id}"
+  private_ip = var.windows_dc_server_private_ip
   vpc_security_group_ids = [var.vpc_security_group_ids]
   tags = {
     Name = "attack-range-windows-2016-dc"
@@ -41,7 +42,7 @@ EOF
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "sed -i '' 's/PUBLICIP/${aws_instance.windows_2016_dc[count.index].public_ip}/g' inventory/hosts;ansible-playbook -i inventory/hosts playbooks/windows_dc.yml --extra-vars 'splunk_indexer_ip=${var.splunk_server_private_ip}'"
+    command = "sed -i '' 's/PUBLICIP1/${aws_instance.windows_2016_dc[count.index].public_ip}/g' inventory/hosts;ansible-playbook -i inventory/hosts playbooks/windows_dc.yml --extra-vars 'splunk_indexer_ip=${var.splunk_server_private_ip}'"
   }
 
 }

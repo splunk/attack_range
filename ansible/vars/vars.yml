@@ -39,6 +39,7 @@ art_run_technique: ['T1117']
 win_temp_dir: 'c:\Program Files\ansible'
 win_log_dir: 'c:\ProgramData\ansible\log'
 
+
 win_sysmon: true
 ## as sysmon link is updated and hash change, chocolatey install can fails
 ## ansible win_get_url currently does not support checksum option
@@ -61,5 +62,5 @@ windows_domain_controller_info:
   dns_domain_name: splunkresearch.local
   domain_admin_password: I-l1ke-Attack-Range!
   domain_admin_user: Administrator@splunkresearch.local
-  safe_mode_password: myTempPassword123
+  safe_mode_password: I-l1ke-Attack-Range!
   state: domain_controller

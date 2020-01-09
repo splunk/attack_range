@@ -37,10 +37,12 @@ variable "splunk_server_private_ip" {
   description = "private ip of splunk server"
 }
 
+variable "windows_2016_dc_instance" { }
+
 variable "vpc_security_group_ids" { }
 
 variable "vpc_subnet0_id" { }
 
-variable "windows_2016_dc" {
-  default = "1"
+variable "windows_2016_dc_client" {
+  default = "0"
 }

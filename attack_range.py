@@ -164,6 +164,8 @@ def prep_terraform(settings):
                          terraformvars, re.M)
     terraformvars = re.sub(r'windows_2016_dc = .+', 'windows_2016_dc = "' + str(settings['windows_2016_dc']) + '"',
                          terraformvars, re.M)
+    terraformvars = re.sub(r'windows_2016_dc_client = .+', 'windows_2016_dc_client = "' + str(settings['windows_2016_dc_client']) + '"',
+                         terraformvars, re.M)
     terraformvars = re.sub(r'kali-machine = .+', 'kali-machine = "' + str(settings['kali-machine']) + '"',
                          terraformvars, re.M)
 

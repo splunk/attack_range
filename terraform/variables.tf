@@ -88,10 +88,19 @@ variable "splunk_server_private_ip" {
   default = "10.0.2.10"
 }
 
+variable "windows_dc_server_private_ip" {
+  type    = string
+  default = "10.0.1.5"
+}
+
 
 #environment variables
 variable "windows_2016_dc" {
   default = "1"
+}
+
+variable "windows_2016_dc_client" {
+  default = "0"
 }
 
 variable "kali-machine" {
