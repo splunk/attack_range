@@ -17,11 +17,12 @@ VERSION = 1
 
 
 # could be improved by directly use extra-vars
-def config_simulation(simulation_engine, simulation_technique, log):
+def config_simulation(simulation_engine, simulation_technique, log, settings):
 
     # Read in the ansible vars file
     with open('ansible/vars/vars.yml.default', 'r') as file:
         ansiblevars = file.read()
+
 
     # now set the simulation engine and mitre techniques to run
     if simulation_engine == "atomic_red_team":
@@ -43,14 +44,26 @@ def config_simulation(simulation_engine, simulation_technique, log):
         file.write(ansiblevars)
 
 
-def run_simulation(mode, simulation_engine, simulation_techniques, target, log):
+def run_simulation(mode, simulation_engine, simulation_techniques, target, target_host, log):
 
     if mode == "terraform":
         with open('ansible/inventory/hosts', 'r') as file:
             hosts_file = file.read()
-        hosts_file = hosts_file.replace('PUBLICIP', target)
+        with open('ansible/playbooks/atomic_red_team.yml.default', 'r') as file:
+            atomic_red_team_playbook = file.read()
+
+        if target_host == "attack-range-windows-2016-dc":
+            hosts_file = hosts_file.replace('PUBLICIP1', target)
+            atomic_red_team_playbook = atomic_red_team_playbook.replace('all', 'win_dc')
+        if target_host == "attack-range-windows-2016-dc-client":
+            hosts_file = hosts_file.replace('PUBLICIP2', target)
+            atomic_red_team_playbook = atomic_red_team_playbook.replace('all', 'win_dc_client')
+
         with open('ansible/inventory/hosts', 'w') as file:
             file.write(hosts_file)
+
+        with open('ansible/playbooks/atomic_red_team.yml', 'w') as file:
+            file.write(atomic_red_team_playbook)
 
 
     # execute atomic red team simulation
@@ -82,7 +95,7 @@ def run_search(mode, settings, search_name, log):
         splunk_sdk.search('localhost',str(settings['splunk_admin_password']), search_name, log)
 
 
-def prep_ansible(settings):
+def prep_ansible(settings, mode):
     # prep ansible for configuration
     # Read in the ansible vars file
     with open('ansible/vars/vars.yml.default', 'r') as file:
@@ -202,20 +215,20 @@ def vagrant_mode(action, log):
         v1.up()
 
 
-def attack_simulation(mode, target, simulation_engine, simulation_techniques, log):
+def attack_simulation(mode, target, simulation_engine, simulation_techniques, log, settings):
     if mode == 'vagrant':
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         status = v1.status()
         # Check if target exist and if it is running
         check_targets_running_vagrant(target, log)
-        config_simulation(simulation_engine, simulation_techniques, log)
-        run_simulation('vagrant', simulation_engine, simulation_techniques, target, log)
+        config_simulation(simulation_engine, simulation_techniques, log, settings)
+        run_simulation('vagrant', simulation_engine, simulation_techniques, target, target, log)
 
     if mode == 'terraform':
         instance = aws_service.get_instance_by_name(target, log)
         if instance['State']['Name'] == 'running':
-            config_simulation(simulation_engine, simulation_techniques, log)
-            run_simulation('terraform', simulation_engine, simulation_techniques, instance['NetworkInterfaces'][0]['Association']['PublicIp'], log)
+            config_simulation(simulation_engine, simulation_techniques, log, settings)
+            run_simulation('terraform', simulation_engine, simulation_techniques, instance['NetworkInterfaces'][0]['Association']['PublicIp'], target, log)
         else:
             log.error("ERROR: attack target is not running.")
             sys.exit(1)
@@ -434,7 +447,7 @@ starting program loaded for B1 battle droid
 
 
     # lets prep our config files base on provided settings
-    prep_ansible(settings)
+    prep_ansible(settings, mode)
 
     if mode == "terraform":
         prep_terraform(settings)
@@ -446,7 +459,7 @@ starting program loaded for B1 battle droid
         if action == "build" or action == "destroy" or action == "stop" or action == "resume":
             vagrant_mode(action, log)
         elif action == "simulate":
-            attack_simulation('vagrant', target, settings['simulation_engine'], simulation_techniques, log)
+            attack_simulation('vagrant', target, settings['simulation_engine'], simulation_techniques, log, settings)
         elif action == "search":
             run_search('vagrant', settings, search_name, log)
 
@@ -455,7 +468,7 @@ starting program loaded for B1 battle droid
         if action == "build" or action == "destroy" or action == "stop" or action == "resume":
             terraform_mode(action, log)
         elif action == "simulate":
-            attack_simulation('terraform', target, settings['simulation_engine'], simulation_techniques, log)
+            attack_simulation('terraform', target, settings['simulation_engine'], simulation_techniques, log, settings)
         elif action == "search":
             run_search('terraform', settings, search_name, log)
 

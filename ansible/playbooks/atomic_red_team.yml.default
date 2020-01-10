@@ -1,4 +1,4 @@
-- hosts: win_dc_client
+- hosts: all
   gather_facts: False
   roles:
     - atomic_red_team

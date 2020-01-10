@@ -3,7 +3,7 @@
   roles:
     - windows_common
     - windows_domain_client
-    - universal_forwarder
+    - windows_universal_forwarder
     - sysmon
   vars_files:
     - ../vars/vars.yml
