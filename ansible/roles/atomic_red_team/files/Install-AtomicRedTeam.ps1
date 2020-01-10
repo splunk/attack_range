@@ -91,7 +91,7 @@ if(!(Test-Path -Path $InstallPath )){
 	set-executionpolicy Unrestricted
 
 	write-verbose "Setting variables for remote URL and download Path"
-	$url = "https://github.com/redcanaryco/atomic-red-team/archive/master.zip"
+	$url = "https://github.com/splunk/atomic-red-team/archive/master.zip"
 	$path = "$DownloadPath\master.zip"
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 	$webClient = new-object System.Net.WebClient
