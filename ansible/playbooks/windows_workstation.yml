@@ -5,7 +5,7 @@
 #        msg: "{{ hostvars[inventory_hostname] }}"
   roles:
     - windows_common
-    - universal_forwarder
+    - windows_universal_forwarder
     - sysmon
   vars_files:
     - ../vars/vars.yml
