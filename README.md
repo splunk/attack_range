@@ -15,7 +15,7 @@ Attack Range can be used in two different ways:
 
 In order to make Attack Range work on almost every laptop, the local version using Vagrant and Virtualbox consists of a subset of the full-blown cloud infrastructure in AWS using Terraform. The local version consists of a Splunk single instance and a Windows 10 workstation pre-configured with best practice logging configuration according to Splunk. The cloud infrastructure in AWS using Terraform consists of a Windows 10 workstation, a Windows 2016 server and a Splunk server. More information can be found in the wiki
 
-![Logical Diagram](docs/architecture.png)
+![Logical Diagram](docs/attack_range_architecture.jpeg)
 
 
 ## Configuration
