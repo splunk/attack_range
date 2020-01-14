@@ -14,15 +14,6 @@
     dest: 'C:\join_domain.ps1'
 
 - name: Run join domain
-  win_shell: "C:\\join_domain.ps1 {{ windows_domain_controller_info['dns_domain_name'] }} {{ windows_domain_controller_info['domain_admin_user'] }} {{ windows_domain_controller_info['domain_admin_password'] }}"
-
-#
-# - win_domain_membership:
-#     dns_domain_name: "{{ windows_domain_controller_info['dns_domain_name'] }}"
-#     domain_admin_user: "{{ windows_domain_controller_info['domain_admin_user'] }}"
-#     domain_admin_password: "{{ windows_domain_controller_info['domain_admin_password'] }}"
-#     domain_ou_path: "OU=Windows,DC=splunkresearch,DC=local"
-#     state: "domain"
-#   register: domain_state
+  win_shell: "C:\\join_domain.ps1 attackrange.local Administrator@attackrange.local {{ win_password }}"
 
 - win_reboot:

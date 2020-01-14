@@ -106,3 +106,22 @@ variable "windows_2016_dc_client" {
 variable "kali-machine" {
   default = "0"
 }
+
+
+#ansible variables
+# ---------------------- #
+# Splunk server
+variable "splunk_admin_password" { }
+variable "splunk_url" { }
+variable "splunk_binary" { }
+variable "s3_bucket_url" { }
+variable "splunk_escu_app" { }
+variable "splunk_asx_app" { }
+variable "splunk_windows_ta" { }
+variable "splunk_cim_app" { }
+variable "splunk_sysmon_ta" { }
+
+# Windows server
+variable "splunk_uf_win_url" { }
+variable "win_sysmon_url" { }
+variable "win_sysmon_template" { }

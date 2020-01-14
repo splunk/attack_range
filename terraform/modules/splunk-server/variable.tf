@@ -31,3 +31,25 @@ variable "splunk_server_private_ip" {
 variable "vpc_security_group_ids" { }
 
 variable "vpc_subnet1_id" { }
+
+
+#ansible variables
+# ---------------------- #
+# Splunk server
+variable "splunk_admin_password" { }
+
+variable "splunk_url" { }
+
+variable "splunk_binary" { }
+
+variable "s3_bucket_url" { }
+
+variable "splunk_escu_app" { }
+
+variable "splunk_asx_app" { }
+
+variable "splunk_windows_ta" { }
+
+variable "splunk_cim_app" { }
+
+variable "splunk_sysmon_ta" { }

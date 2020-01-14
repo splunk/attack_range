@@ -1,9 +1,0 @@
-- hosts: all
-  gather_facts: False
-#  tasks:
-#    - debug:
-#        msg: "{{ hostvars[inventory_hostname] }}"
-  roles:
-    - firedrill
-  vars_files:
-    - ../vars/vars.yml 

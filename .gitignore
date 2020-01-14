@@ -2,7 +2,6 @@
 # ignore appbinaries directory we don't want this uploaded
 ansible/roles/*/files/splunk*.tgz
 ansible/roles/*/files/splunk*.msi
-ansible/inventory/hosts
 ansible/vars/vars.yml
 
 # log file

@@ -1,9 +1,13 @@
-- hosts: win_dc_client
+- hosts: all
   gather_facts: True
+  vars:
+    ansible_connection: winrm
+    ansible_port: 5986
+    ansible_winrm_transport: basic
+    ansible_winrm_server_cert_validation: ignore
+    ansible_winrm_read_timeout_sec: 600
   roles:
     - windows_common
     - windows_domain_client
     - windows_universal_forwarder
     - sysmon
-  vars_files:
-    - ../vars/vars.yml

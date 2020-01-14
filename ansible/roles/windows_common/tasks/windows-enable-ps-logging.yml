@@ -1,8 +1,4 @@
-# - name: Enable Windows Scriptblock Logging
-#   win_shell: |
-#     New-Item -Path "HKLM:\SOFTWARE\Wow6432Node\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Force
-#     Set-ItemProperty -Path "HKLM:\SOFTWARE\Wow6432Node\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Name "EnableScriptBlockLogging" -Value 1 -Force
-# #  when: ansible_distribution == "Microsoft Windows Server 2016 Datacenter"
+---
 
 - name: Enable Windows Scriptblock Logging
   ignore_errors: yes

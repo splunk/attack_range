@@ -2,13 +2,15 @@ import configparser
 import collections
 import sys
 
-class parser:
+class CustomConfigParser:
     def __init__(self):
-        self.settings = collections.defaultdict(dict)
+        #self.settings = collections.defaultdict(dict)
+        self.settings = {}
 
     def load_conf(self,CONFIG_PATH):
         """Provided a config file path and a collections of type dict,
         will return that collections with all the settings in it"""
+
         config = configparser.RawConfigParser()
         config.read('default/attack_range.conf.default')
         config.read(CONFIG_PATH)

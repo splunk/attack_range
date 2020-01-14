@@ -10,6 +10,3 @@
 - include: install_windows_ta.yml
 - include: install_cim_app.yml
 - include: install_sysmon_ta.yml
-  when: sysmon is defined
-- include: install_stream_app.yml
-  when: stream is defined

@@ -46,3 +46,10 @@ variable "vpc_subnet0_id" { }
 variable "windows_2016_dc_client" {
   default = "0"
 }
+
+# Ansible vars
+# Windows server
+variable "splunk_uf_win_url" { }
+variable "win_sysmon_url" { }
+variable "win_sysmon_template" { }
+variable "splunk_admin_password" { }
