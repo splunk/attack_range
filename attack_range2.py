@@ -5,6 +5,7 @@ from modules import logger
 from pathlib import Path
 from modules.CustomConfigParser import CustomConfigParser
 from modules.TerraformController import TerraformController
+from modules.VagrantController import VagrantController
 
 # need to set this ENV var due to a OSX High Sierra forking bug
 # see this discussion for more details: https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
@@ -108,6 +109,8 @@ starting program loaded for B1 battle droid
 
     if mode == 'terraform':
         controller = TerraformController(config, log)
+    elif mode == 'vagrant':
+        controller = VagrantController(config, log)
 
     if list_machines:
         controller.list_machines()
