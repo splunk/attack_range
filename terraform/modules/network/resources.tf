@@ -1,9 +1,4 @@
 
-# provider "aws" {
-#   profile    = "{var.aws_profile}"
-#   region     = "${var.aws_region}"
-# }
-
 resource "aws_vpc" "default" {
   cidr_block = "${var.vpc_cidr}"
 }
@@ -14,13 +9,19 @@ resource "aws_internet_gateway" "default" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
-# Create a subnet to launch our instances into
-resource "aws_subnet" "default" {
-  count                   = "${length(var.subnets)}"
+resource "aws_subnet" "subnet_one" {
   vpc_id                  = "${aws_vpc.default.id}"
-  cidr_block              = "${element(values(var.subnets), count.index)}"
+  cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
-  availability_zone       = "${element(keys(var.subnets), count.index)}"
+  availability_zone       = "${var.availability_zone_one}"
+  depends_on              = ["aws_internet_gateway.default"]
+}
+
+resource "aws_subnet" "subnet_two" {
+  vpc_id                  = "${aws_vpc.default.id}"
+  cidr_block              = "10.0.2.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "${var.availability_zone_two}"
   depends_on              = ["aws_internet_gateway.default"]
 }
 

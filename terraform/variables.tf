@@ -50,9 +50,9 @@ variable "subnets" {
   }
 }
 
-variable "aws_profile" {
-  default = "default"
-}
+# variable "aws_profile" {
+#   default = "default"
+# }
 
 variable "ip_whitelist" {
   description = "A list of CIDRs that will be allowed to access the EC2 instances"
@@ -110,6 +110,11 @@ variable "kali-machine" {
 
 #ansible variables
 # ---------------------- #
+# general
+variable "region" { }
+variable "availability_zone_one" { }
+variable "availability_zone_two" { }
+
 # Splunk server
 variable "splunk_admin_password" { }
 variable "splunk_url" { }

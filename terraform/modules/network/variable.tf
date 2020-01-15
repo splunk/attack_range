@@ -18,9 +18,9 @@ variable "subnets" {
   }
 }
 
-variable "aws_profile" {
-  default = "default"
-}
+# variable "aws_profile" {
+#   default = "default"
+# }
 
 variable "aws_region" {
   description = "AWS region to launch servers. Default to us-west-2"
@@ -32,3 +32,9 @@ variable "ip_whitelist" {
   type        = list(string)
   default     = [""]
 }
+
+#ansible variables
+# ---------------------- #
+# general
+variable "availability_zone_one" { }
+variable "availability_zone_two" { }

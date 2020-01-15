@@ -1,5 +1,3 @@
-# DO NOT CHANGE THIS FILE
-
 [global]
 log_path = attack_range.log
 log_level = INFO
@@ -8,6 +6,9 @@ log_level = INFO
 key_name = attack-range-key-pair
 ip_whitelist = 0.0.0.0/0
 private_key_path = ~/.ssh/id_rsa
+region = us-west-2
+availability_zone_one = us-west-2a
+availability_zone_two = us-west-2b
 
 [splunk_settings]
 splunk_admin_password = I-l1ke-Attack-Range!
@@ -36,3 +37,5 @@ art_run_techniques = T1002
 windows_2016_dc = 1
 windows_2016_dc_client = 0
 kali-machine = 0
+# windows 10 machine only available with vagrant mode
+windows_10 = 0

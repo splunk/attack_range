@@ -1,7 +1,22 @@
 
+data "aws_ami" "latest-windows-server-2016" {
+most_recent = true
+owners = ["801119661308"] # Canonical
+
+  filter {
+      name   = "name"
+      values = ["Windows_Server-2016-English-Core-Base-*"]
+  }
+
+  filter {
+      name   = "virtualization-type"
+      values = ["hvm"]
+  }
+}
+
 resource "aws_ebs_volume" "win2016_volume" {
   count         = var.windows_2016_dc ? 1 : 0
-  availability_zone = "us-west-2a"
+  availability_zone = var.availability_zone_two
   size              = 50
 }
 
@@ -9,7 +24,7 @@ resource "aws_ebs_volume" "win2016_volume" {
 # standup windows 2016 domain controller
 resource "aws_instance" "windows_2016_dc" {
   count         = var.windows_2016_dc ? 1 : 0
-  ami           = var.windows_2016_dc_ami
+  ami           = "${data.aws_ami.latest-windows-server-2016.id}"
   instance_type = "t2.2xlarge"
   key_name = var.key_name
   subnet_id = "${var.vpc_subnet0_id}"

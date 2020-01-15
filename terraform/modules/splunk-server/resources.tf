@@ -1,7 +1,23 @@
 
+
+data "aws_ami" "latest-ubuntu" {
+most_recent = true
+owners = ["679593333241"] # Canonical
+
+  filter {
+      name   = "name"
+      values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+  }
+
+  filter {
+      name   = "virtualization-type"
+      values = ["hvm"]
+  }
+}
+
 # standup splunk server
- resource "aws_instance" "splunk-server" {
-  ami           = var.splunk_ami
+resource "aws_instance" "splunk-server" {
+  ami           = "${data.aws_ami.latest-ubuntu.id}"
   instance_type = "t2.2xlarge"
   key_name = var.key_name
   subnet_id = var.vpc_subnet1_id

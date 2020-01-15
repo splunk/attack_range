@@ -1,7 +1,7 @@
 
 resource "aws_ebs_volume" "win2016_volume_client" {
   count         = var.windows_2016_dc_client ? 1 : 0
-  availability_zone = "us-west-2a"
+  availability_zone = var.availability_zone_two
   size              = 50
 }
 
