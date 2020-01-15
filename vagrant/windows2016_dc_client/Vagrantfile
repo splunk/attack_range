@@ -1,33 +1,37 @@
-config.vm.define "attack-range-win10" do |config|
-  VM_NAME_WIN= "attack-range-win10"
-  config.vm.box = "d1vious/windows10"
-  config.vm.hostname = "#{VM_NAME_WIN}"
+
+
+config.vm.define "attack-range-windows2016-dc-client" do |config|
+  VM_NAME_WIN_DC_CLIENT= "attack-range-windows2016-dc-client"
+  config.vm.box = "d1vious/windows2016"
+  config.vm.hostname = "client"
   config.vm.boot_timeout = 600
   config.vm.communicator = "winrm"
+  config.winrm.transport = :plaintext
   config.winrm.basic_auth_only = true
   config.winrm.timeout = 300
   config.winrm.retry_limit = 20
-  config.vm.network "forwarded_port", guest: 5985, host: 5985
-  config.vm.network :private_network, ip: "10.0.1.4"
+  config.vm.network "forwarded_port", guest: 5985, host: 6001
+  config.vm.network :private_network, ip: "10.0.1.6"
 
   config.vm.provision "ansible" do |ansible|
       ansible.extra_vars = {
-        ansible_port: 5985,
-        splunk_indexer_ip: "10.0.0.10",
+        ansible_port: 6001,
+        ansible_winrm_scheme: 'http',
+        splunk_indexer_ip: "10.0.1.3",
         win_password: '{{ win_password }}',
         splunk_uf_win_url: '{{ splunk_uf_win_url }}',
         win_sysmon_url: '{{ win_sysmon_url }}',
         win_sysmon_template: '{{ win_sysmon_template }}',
         splunk_admin_password: '{{ splunk_admin_password }}'
       }
-      ansible.playbook = "../ansible/playbooks/windows_workstation.yml"
+      ansible.playbook = "../ansible/playbooks/windows_dc_client.yml"
       ansible.config_file = "../ansible/ansible.cfg"
       ansible.compatibility_mode = "2.0"
   end
 
   config.vm.provider "virtualbox" do |vb, override|
     vb.gui = true
-    vb.name = "#{VM_NAME_WIN}"
+    vb.name = "#{VM_NAME_WIN_DC_CLIENT}"
     vb.default_nic_type = "82545EM"
     vb.customize ["modifyvm", :id, "--memory", 2048]
     vb.customize ["modifyvm", :id, "--cpus", 1]

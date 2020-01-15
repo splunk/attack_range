@@ -7,7 +7,7 @@ config.vm.define "attack-range-splunk-server" do |config|
   config.vm.boot_timeout = 600
   config.vm.network "forwarded_port", guest: 8000, host: 8000, protocol: "tcp"
   config.vm.network "forwarded_port", guest: 8089, host: 8089, protocol: "tcp"
-  config.vm.network :private_network, ip: "10.0.0.10"
+  config.vm.network :private_network, ip: "10.0.1.3"
 
   config.vm.provision "ansible" do |ansible|
       ansible.playbook = "../ansible/playbooks/splunk_server.yml"
@@ -30,8 +30,24 @@ config.vm.define "attack-range-splunk-server" do |config|
   config.vm.provider "virtualbox" do |vb, override|
     vb.gui = true
     vb.name = "#{VM_NAME}"
-    vb.customize ["modifyvm", :id, "--memory", 6000]
+    vb.customize ["modifyvm", :id, "--memory", 4096]
     vb.customize ["modifyvm", :id, "--cpus", 4]
+  end
+end
+
+config.vm.define "attack-range-kali-machine" do |config|
+  VM_NAME_KALI= "attack-range-kali-machine"
+  config.vm.box = "kalilinux/rolling"
+  config.vm.box_version = "2019.3.0"
+  config.vm.boot_timeout = 600
+  config.vm.hostname = "#{VM_NAME_KALI}"
+  config.vm.network :private_network, ip: "10.0.1.7"
+
+  config.vm.provider "virtualbox" do |vb, override|
+    vb.gui = true
+    vb.name = "#{VM_NAME_KALI}"
+    vb.customize ["modifyvm", :id, "--memory", 2048]
+    vb.customize ["modifyvm", :id, "--cpus", 2]
   end
 end
 

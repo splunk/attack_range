@@ -46,7 +46,7 @@ class TerraformController(IEnvironmentController):
         if instance['State']['Name'] == 'running':
             splunk_sdk.search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(self.config['splunk_admin_password']), search_name, self.log)
         else:
-            log.error('ERROR: Splunk server is not running.')
+            self.log.error('ERROR: Splunk server is not running.')
 
 
     def simulate(self, target, simulation_techniques):
