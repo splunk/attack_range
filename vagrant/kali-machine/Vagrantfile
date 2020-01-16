@@ -3,7 +3,7 @@ config.vm.define "attack-range-kali_machine" do |config|
   config.vm.box = "kalilinux/rolling"
   config.vm.box_version = "2019.3.0"
   config.vm.boot_timeout = 600
-  config.vm.hostname = "#{VM_NAME_KALI}"
+  config.vm.hostname = "kali"
   config.vm.network :private_network, ip: "{{ kali_machine_private_ip }}"
 
   config.vm.provider "virtualbox" do |vb, override|
