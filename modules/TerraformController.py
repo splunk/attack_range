@@ -22,7 +22,7 @@ class TerraformController(IEnvironmentController):
         self.log.info("[action] > build\n")
         return_code, stdout, stderr = self.terraform.apply(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
         self.log.info("attack_range has been built using terraform successfully")
-
+        self.list_machines()
 
     def destroy(self):
         self.log.info("[action] > destroy\n")
