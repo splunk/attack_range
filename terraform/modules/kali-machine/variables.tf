@@ -16,16 +16,10 @@ variable "key_name" {
   description = "Desired name of AWS key pair"
 }
 
-
-variable "kali_ami" {
-  type    = string
-  default = "ami-0efaa1daf599f3b8e"
-}
-
 variable "vpc_security_group_ids" { }
 
-variable "vpc_subnet0_id" { }
+variable "vpc_subnet_id" { }
 
-variable "kali-machine" {
-  default = "0"
-}
+variable "kali-machine" { }
+
+variable "kali-machine_private_ip" { }

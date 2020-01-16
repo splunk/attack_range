@@ -1,6 +1,6 @@
 
 resource "aws_vpc" "default" {
-  cidr_block = "${var.vpc_cidr}"
+  cidr_block = "${var.subnet_cidr}"
 }
 
 
@@ -9,19 +9,11 @@ resource "aws_internet_gateway" "default" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
-resource "aws_subnet" "subnet_one" {
+resource "aws_subnet" "subnet" {
   vpc_id                  = "${aws_vpc.default.id}"
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = "${var.subnet_cidr}"
   map_public_ip_on_launch = true
-  availability_zone       = "${var.availability_zone_one}"
-  depends_on              = ["aws_internet_gateway.default"]
-}
-
-resource "aws_subnet" "subnet_two" {
-  vpc_id                  = "${aws_vpc.default.id}"
-  cidr_block              = "10.0.2.0/24"
-  map_public_ip_on_launch = true
-  availability_zone       = "${var.availability_zone_two}"
+  availability_zone       = "${var.availability_zone}"
   depends_on              = ["aws_internet_gateway.default"]
 }
 

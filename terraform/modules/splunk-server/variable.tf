@@ -16,22 +16,11 @@ variable "key_name" {
   description = "Desired name of AWS key pair"
 }
 
-
-# uses ubuntu 18.04 at the moment
-variable "splunk_ami" {
-  type    = string
-  default = "ami-005bdb005fb00e791"
-}
-
-variable "splunk_server_private_ip" {
-  type    = string
-  default = "10.0.2.10"
-}
-
 variable "vpc_security_group_ids" { }
 
-variable "vpc_subnet1_id" { }
+variable "vpc_subnet_id" { }
 
+variable "splunk_server_private_ip" { }
 
 #ansible variables
 # ---------------------- #

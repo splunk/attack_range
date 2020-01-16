@@ -26,29 +26,15 @@ variable "key_name" {
   description = "Desired name of AWS key pair"
 }
 
-# uses AWS AMI Windows 2016 Server Base
-# See https://aws.amazon.com/marketplace/server/configuration?productId=13c2dbc9-57fc-4958-922e-a1ba7e223b0d for details
-variable "windows_2016_dc_ami" {
-  type    = string
-  default = "ami-0df99cdd65bce4245"
-}
-
-variable "splunk_server_private_ip" {
-  description = "private ip of splunk server"
-}
-
-variable "windows_dc_server_private_ip" {
-  type    = string
-  default = "10.0.1.5"
-}
-
 variable "vpc_security_group_ids" { }
 
-variable "vpc_subnet0_id" { }
+variable "vpc_subnet_id" { }
+variable "availability_zone" { }
 
-variable "windows_2016_dc" {
-  default = "1"
-}
+variable "windows_2016_dc" { }
+
+variable "splunk_server_private_ip" { }
+variable "windows_2016_dc_private_ip" { }
 
 # Ansible vars
 # Windows server
@@ -56,4 +42,3 @@ variable "splunk_uf_win_url" { }
 variable "win_sysmon_url" { }
 variable "win_sysmon_template" { }
 variable "splunk_admin_password" { }
-variable "availability_zone_two" { }

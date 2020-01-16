@@ -1,6 +1,0 @@
-- hosts: all
-  gather_facts: False
-  roles:
-    - atomic_red_team
-  vars_files:
-    - ../vars/vars.yml

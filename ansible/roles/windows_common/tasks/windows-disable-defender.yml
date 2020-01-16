@@ -1,6 +1,5 @@
 ---
 
-
 - name: Disable Windows Defender
   ignore_errors: yes
   win_regedit:

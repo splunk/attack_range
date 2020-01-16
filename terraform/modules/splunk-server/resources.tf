@@ -20,7 +20,7 @@ resource "aws_instance" "splunk-server" {
   ami           = "${data.aws_ami.latest-ubuntu.id}"
   instance_type = "t2.2xlarge"
   key_name = var.key_name
-  subnet_id = var.vpc_subnet1_id
+  subnet_id = var.vpc_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.splunk_server_private_ip
   root_block_device {

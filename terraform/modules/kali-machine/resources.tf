@@ -1,13 +1,28 @@
 
+data "aws_ami" "latest-kali-linux" {
+most_recent = true
+owners = ["679593333241"] # Canonical
+
+  filter {
+      name   = "name"
+      values = ["Kali Linux 2018.1-*"]
+  }
+
+  filter {
+      name   = "virtualization-type"
+      values = ["hvm"]
+  }
+}
+
 # standup splunk server
 resource "aws_instance" "kali-machine" {
   count         = var.kali-machine ? 1 : 0
-  ami           = var.kali_ami
+  ami           = "${data.aws_ami.latest-kali-linux.id}"
   instance_type = "t2.medium"
   key_name = var.key_name
-  subnet_id = var.vpc_subnet0_id
+  subnet_id = var.vpc_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-
+  private_ip = var.kali-machine_private_ip
   tags = {
     Name = "attack-range-kali-machine"
   }
