@@ -17,17 +17,17 @@ class VagrantController(IEnvironmentController):
         self.vagrantfile = 'Vagrant.configure("2") do |config| \n \n'
         self.vagrantfile += self.read_vagrant_file('splunk_server/Vagrantfile')
         self.vagrantfile += '\n\n'
+        if config['windows_domain_controller'] == '1':
+            self.vagrantfile += self.read_vagrant_file('windows-domain-controller/Vagrantfile')
+            self.vagrantfile += '\n\n'
         if config['windows_client'] == '1':
             self.vagrantfile += self.read_vagrant_file('windows10/Vagrantfile')
             self.vagrantfile += '\n\n'
-        if config['windows_domain_controller'] == '1':
-            self.vagrantfile += self.read_vagrant_file('windows2016_dc/Vagrantfile')
-            self.vagrantfile += '\n\n'
         if config['windows_server'] == '1':
-            self.vagrantfile += self.read_vagrant_file('windows2016_dc_client/Vagrantfile')
+            self.vagrantfile += self.read_vagrant_file('windows-server/Vagrantfile')
             self.vagrantfile += '\n\n'
         if config['kali_machine'] == '1':
-            self.vagrantfile += self.read_vagrant_file('kali_machine/Vagrantfile')
+            self.vagrantfile += self.read_vagrant_file('kali-machine/Vagrantfile')
             self.vagrantfile += '\n\n'
         self.vagrantfile += '\nend'
         with open('vagrant/Vagrantfile', 'w') as file:
@@ -42,11 +42,11 @@ class VagrantController(IEnvironmentController):
 
 
     def build(self):
-        self.log.info("building splunk-server and windows10 workstation boxes WARNING MAKE SURE YOU HAVE 8GB OF RAM free otherwise you will have a bad time")
         self.log.info("[action] > build\n")
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         v1.up(provision=True)
         self.log.info("attack_range has been built using vagrant successfully")
+        self.list_machines()
 
 
     def destroy(self):

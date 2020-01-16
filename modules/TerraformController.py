@@ -11,7 +11,7 @@ class TerraformController(IEnvironmentController):
     def __init__(self, config, log):
         super().__init__(config, log)
         custom_dict = config
-        rem_list = ['log_path', 'log_level', 'windows_client', 'windows_client_os', 'windows_client_private_ip', 'art_run_techniques']
+        rem_list = ['log_path', 'log_level', 'windows_client', 'windows_client_os', 'windows_client_private_ip', 'windows_client_join_domain', 'art_run_techniques']
         [custom_dict.pop(key) for key in rem_list]
         custom_dict['ip_whitelist'] = [custom_dict['ip_whitelist']]
         #custom_dict = {'key_name': config['key_name'], 'ip_whitelist': [config['ip_whitelist']], 'win_password': config['win_password'], 'private_key_path': config['private_key_path']}

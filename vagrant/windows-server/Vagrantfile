@@ -1,9 +1,9 @@
 
 
-config.vm.define "attack-range-windows2016-dc-client" do |config|
-  VM_NAME_WIN_DC_CLIENT= "attack-range-windows2016-dc-client"
+config.vm.define "attack-range-windows-server" do |config|
+  VM_NAME_WIN_DC_CLIENT= "attack-range-windows-server"
   config.vm.box = "d1vious/windows2016"
-  config.vm.hostname = "client"
+  config.vm.hostname = "win_server"
   config.vm.boot_timeout = 600
   config.vm.communicator = "winrm"
   config.winrm.transport = :plaintext
@@ -11,18 +11,20 @@ config.vm.define "attack-range-windows2016-dc-client" do |config|
   config.winrm.timeout = 300
   config.winrm.retry_limit = 20
   config.vm.network "forwarded_port", guest: 5985, host: 6001
-  config.vm.network :private_network, ip: "10.0.1.6"
+  config.vm.network :private_network, ip: "{{ windows_server_private_ip }}"
 
   config.vm.provision "ansible" do |ansible|
       ansible.extra_vars = {
         ansible_port: 6001,
         ansible_winrm_scheme: 'http',
-        splunk_indexer_ip: "10.0.1.3",
+        splunk_indexer_ip: "{{ splunk_server_private_ip }}",
         win_password: '{{ win_password }}',
         splunk_uf_win_url: '{{ splunk_uf_win_url }}',
         win_sysmon_url: '{{ win_sysmon_url }}',
         win_sysmon_template: '{{ win_sysmon_template }}',
-        splunk_admin_password: '{{ splunk_admin_password }}'
+        splunk_admin_password: '{{ splunk_admin_password }}',
+        windows_server_join_domain: '{{ windows_server_join_domain }}',
+        windows_domain_controller_private_ip: '{{ windows_domain_controller_private_ip }}'
       }
       ansible.playbook = "../ansible/playbooks/windows_dc_client.yml"
       ansible.config_file = "../ansible/ansible.cfg"

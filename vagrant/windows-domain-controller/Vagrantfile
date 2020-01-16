@@ -1,6 +1,6 @@
 
-config.vm.define "attack-range-windows2016-dc" do |config|
-  VM_NAME_WIN_DC= "attack-range-windows2016-dc"
+config.vm.define "attack-range-domain-controller" do |config|
+  VM_NAME_WIN_DC= "attack-range-domain-controller"
   config.vm.box = "d1vious/windows2016"
   config.vm.hostname = "dc"
   config.vm.boot_timeout = 600
@@ -10,13 +10,13 @@ config.vm.define "attack-range-windows2016-dc" do |config|
   config.winrm.timeout = 300
   config.winrm.retry_limit = 20
   config.vm.network "forwarded_port", guest: 5985, host: 6000
-  config.vm.network :private_network, ip: "10.0.1.5"
+  config.vm.network :private_network, ip: "{{ windows_domain_controller_private_ip }}"
 
   config.vm.provision "ansible" do |ansible|
       ansible.extra_vars = {
         ansible_port: 6000,
         ansible_winrm_scheme: 'http',
-        splunk_indexer_ip: "10.0.1.3",
+        splunk_indexer_ip: "{{ splunk_server_private_ip }}",
         win_password: '{{ win_password }}',
         splunk_uf_win_url: '{{ splunk_uf_win_url }}',
         win_sysmon_url: '{{ win_sysmon_url }}',
