@@ -27,13 +27,13 @@ module "splunk-server" {
   splunk_server_private_ip = "${var.splunk_server_private_ip}"
 }
 
-module "windows-2016-dc" {
-  source			           = "./modules/windows-2016-dc"
+module "windows-domain-controller" {
+  source			           = "./modules/windows-domain-controller"
  	private_key_path       = "${var.private_key_path}"
 	key_name		           = "${var.key_name}"
   win_username		       = "${var.win_username}"
   win_password		       = "${var.win_password}"
-  windows_2016_dc		      = "${var.windows_2016_dc}"
+  windows_domain_controller		      = "${var.windows_domain_controller}"
 	vpc_security_group_ids = "${module.networkModule.vpc_security_group_ids}"
 	vpc_subnet_id          = "${module.networkModule.vpc_subnet_id}"
   splunk_uf_win_url      = "${var.splunk_uf_win_url}"
@@ -42,36 +42,39 @@ module "windows-2016-dc" {
   splunk_admin_password  = "${var.splunk_admin_password}"
   availability_zone      = "${var.availability_zone}"
   splunk_server_private_ip = "${var.splunk_server_private_ip}"
-  windows_2016_dc_private_ip = "${var.windows_2016_dc_private_ip}"
+  windows_domain_controller_private_ip = "${var.windows_domain_controller_private_ip}"
+  windows_domain_controller_os = "${var.windows_domain_controller_os}"
 }
 
 
-module "windows-2016-dc-client" {
-  source			           = "./modules/windows-2016-dc-client"
+module "windows-server" {
+  source			           = "./modules/windows-server"
  	private_key_path       = "${var.private_key_path}"
 	key_name		           = "${var.key_name}"
   win_username		       = "${var.win_username}"
   win_password		       = "${var.win_password}"
-  windows_2016_dc_client = "${var.windows_2016_dc_client}"
+  windows_server = "${var.windows_server}"
 	vpc_security_group_ids = "${module.networkModule.vpc_security_group_ids}"
 	vpc_subnet_id          = "${module.networkModule.vpc_subnet_id}"
-  windows_2016_dc_instance = "${module.windows-2016-dc.windows_2016_dc_instance}"
+  windows_domain_controller_instance = "${module.windows-domain-controller.windows_domain_controller_instance}"
   splunk_uf_win_url      = "${var.splunk_uf_win_url}"
   win_sysmon_url         = "${var.win_sysmon_url}"
   win_sysmon_template    = "${var.win_sysmon_template}"
   splunk_admin_password  = "${var.splunk_admin_password}"
   availability_zone      = "${var.availability_zone}"
   splunk_server_private_ip = "${var.splunk_server_private_ip}"
-  windows_2016_dc_client_private_ip = "${var.windows_2016_dc_client_private_ip}"
-  windows_2016_dc_private_ip = "${var.windows_2016_dc_private_ip}"
+  windows_server_private_ip = "${var.windows_server_private_ip}"
+  windows_domain_controller_private_ip = "${var.windows_domain_controller_private_ip}"
+  windows_server_os      = "${var.windows_server_os}"
+  windows_server_join_domain = "${var.windows_server_join_domain}"
 }
 
-module "kali-machine" {
-  source			           = "./modules/kali-machine"
+module "kali_machine" {
+  source			           = "./modules/kali_machine"
  	private_key_path       = "${var.private_key_path}"
 	key_name		           = "${var.key_name}"
-  kali-machine           = "${var.kali-machine}"
+  kali_machine           = "${var.kali_machine}"
 	vpc_security_group_ids = "${module.networkModule.vpc_security_group_ids}"
 	vpc_subnet_id          = "${module.networkModule.vpc_subnet_id}"
-  kali-machine_private_ip = "${var.kali-machine_private_ip}"
+  kali_machine_private_ip = "${var.kali_machine_private_ip}"
 }

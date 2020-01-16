@@ -14,7 +14,6 @@ DESCRIPTION
 variable "win_username" {
 	description = "Windows Host default username to use"
 	type = "string"
-	default = "Administrator"
 }
 
 variable "win_password" {
@@ -26,15 +25,20 @@ variable "key_name" {
   description = "Desired name of AWS key pair"
 }
 
+variable "windows_domain_controller_instance" { }
+
 variable "vpc_security_group_ids" { }
 
 variable "vpc_subnet_id" { }
 variable "availability_zone" { }
 
-variable "windows_2016_dc" { }
+variable "windows_server" { }
 
 variable "splunk_server_private_ip" { }
-variable "windows_2016_dc_private_ip" { }
+variable "windows_domain_controller_private_ip" { }
+variable "windows_server_private_ip" { }
+variable "windows_server_os" { }
+variable "windows_server_join_domain" { }
 
 # Ansible vars
 # Windows server

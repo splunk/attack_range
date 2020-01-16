@@ -32,22 +32,25 @@ variable "ip_whitelist" {
 
 
 #environment variables
-variable "windows_2016_dc" {
+variable "windows_domain_controller" {
   default = "1"
 }
 
-variable "windows_2016_dc_client" {
+variable "windows_server" {
   default = "0"
 }
 
-variable "kali-machine" {
+variable "kali_machine" {
   default = "0"
 }
 
 variable "splunk_server_private_ip" { }
-variable "windows_2016_dc_private_ip" { }
-variable "windows_2016_dc_client_private_ip" { }
-variable "kali-machine_private_ip" { }
+variable "windows_domain_controller_private_ip" { }
+variable "windows_domain_controller_os" { }
+variable "windows_server_os" { }
+variable "windows_server_private_ip" { }
+variable "windows_server_join_domain" { }
+variable "kali_machine_private_ip" { }
 
 
 #ansible variables

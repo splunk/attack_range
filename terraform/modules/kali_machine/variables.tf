@@ -20,6 +20,6 @@ variable "vpc_security_group_ids" { }
 
 variable "vpc_subnet_id" { }
 
-variable "kali-machine" { }
+variable "kali_machine" { }
 
-variable "kali-machine_private_ip" { }
+variable "kali_machine_private_ip" { }

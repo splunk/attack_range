@@ -17,17 +17,17 @@ class VagrantController(IEnvironmentController):
         self.vagrantfile = 'Vagrant.configure("2") do |config| \n \n'
         self.vagrantfile += self.read_vagrant_file('splunk_server/Vagrantfile')
         self.vagrantfile += '\n\n'
-        if config['windows_10'] == '1':
+        if config['windows_client'] == '1':
             self.vagrantfile += self.read_vagrant_file('windows10/Vagrantfile')
             self.vagrantfile += '\n\n'
-        if config['windows_2016_dc'] == '1':
+        if config['windows_domain_controller'] == '1':
             self.vagrantfile += self.read_vagrant_file('windows2016_dc/Vagrantfile')
             self.vagrantfile += '\n\n'
-        if config['windows_2016_dc_client'] == '1':
+        if config['windows_server'] == '1':
             self.vagrantfile += self.read_vagrant_file('windows2016_dc_client/Vagrantfile')
             self.vagrantfile += '\n\n'
-        if config['kali-machine'] == '1':
-            self.vagrantfile += self.read_vagrant_file('kali-machine/Vagrantfile')
+        if config['kali_machine'] == '1':
+            self.vagrantfile += self.read_vagrant_file('kali_machine/Vagrantfile')
             self.vagrantfile += '\n\n'
         self.vagrantfile += '\nend'
         with open('vagrant/Vagrantfile', 'w') as file:

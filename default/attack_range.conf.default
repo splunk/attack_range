@@ -36,24 +36,27 @@ art_run_techniques = T1002
 
 
 [environment]
-# The splunk server is always built!
-windows_2016_dc = 1
-windows_2016_dc_client = 0
-kali-machine = 0
-# windows 10 machine only available with vagrant mode
-windows_10 = 0
+windows_domain_controller = 1
+windows_server = 1
+kali_machine = 1
+# windows_client is only available for mode vagrant
+windows_client = 0
 
 [splunk_server]
 splunk_server_private_ip = 10.0.1.5
 
-[windows_2016_dc]
-windows_2016_dc_private_ip = 10.0.1.6
+[windows_domain_controller]
+windows_domain_controller_private_ip = 10.0.1.6
+windows_domain_controller_os = Windows_Server_2016
 
-[windows_2016_dc_client]
-windows_2016_dc_client_private_ip = 10.0.1.7
+[windows_server]
+windows_server_private_ip = 10.0.1.7
+windows_server_os = Windows_Server_2016
+windows_server_join_domain = 1
 
-[kali-machine]
-kali-machine_private_ip = 10.0.1.8
+[kali_machine]
+kali_machine_private_ip = 10.0.1.8
 
-[windows10]
-windows10_private_ip = 10.0.1.9
+[windows_client]
+windows_client_private_ip = 10.0.1.9
+windows_client_os = Windows_10

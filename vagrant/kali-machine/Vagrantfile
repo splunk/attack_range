@@ -1,5 +1,5 @@
-config.vm.define "attack-range-kali-machine" do |config|
-  VM_NAME_KALI= "attack-range-kali-machine"
+config.vm.define "attack-range-kali_machine" do |config|
+  VM_NAME_KALI= "attack-range-kali_machine"
   config.vm.box = "kalilinux/rolling"
   config.vm.box_version = "2019.3.0"
   config.vm.boot_timeout = 600
