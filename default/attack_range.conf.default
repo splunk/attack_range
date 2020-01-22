@@ -1,6 +1,7 @@
 # DO NOT CHANGE THIS FILE
 
 [global]
+hash_value = 7fe6273f24426b45fddf8b09485e90d4
 log_path = attack_range.log
 log_level = INFO
 

@@ -25,6 +25,8 @@ module "splunk-server" {
   splunk_cim_app         = "${var.splunk_cim_app}"
   splunk_sysmon_ta       = "${var.splunk_sysmon_ta}"
   splunk_server_private_ip = "${var.splunk_server_private_ip}"
+  use_packer_amis        = "${var.use_packer_amis}"
+  splunk_packer_ami      = "${var.splunk_packer_ami}"
 }
 
 module "windows-domain-controller" {
@@ -44,6 +46,8 @@ module "windows-domain-controller" {
   splunk_server_private_ip = "${var.splunk_server_private_ip}"
   windows_domain_controller_private_ip = "${var.windows_domain_controller_private_ip}"
   windows_domain_controller_os = "${var.windows_domain_controller_os}"
+  use_packer_amis        = "${var.use_packer_amis}"
+  windows_domain_controller_packer_ami = "${var.windows_domain_controller_packer_ami}"
 }
 
 

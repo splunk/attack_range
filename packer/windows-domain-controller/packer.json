@@ -1,0 +1,65 @@
+{
+  "variables": {
+      "splunk_indexer_ip": "",
+      "win_username": "",
+      "win_password": "",
+      "splunk_uf_win_url": "",
+      "win_sysmon_url": "",
+      "win_sysmon_template": "",
+      "splunk_admin_password": "",
+      "windows_domain_controller_os": "",
+      "key_name": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "force_deregister": "true",
+    "force_delete_snapshot": "true",
+    "source_ami_filter": {
+                "filters": {
+                    "name": "{{user `windows_domain_controller_os`}}",
+                    "root-device-type": "ebs",
+                    "virtualization-type": "hvm"
+                },
+                "most_recent": true,
+                "owners": [
+                    "801119661308"
+                ]
+            },
+    "instance_type": "t2.2xlarge",
+    "communicator": "winrm",
+    "winrm_username": "{{user `win_username`}}",
+    "winrm_password": "{{user `win_password`}}",
+    "user_data_file": "packer/script/userdata.ps1",
+    "winrm_timeout": "10m",
+    "winrm_use_ssl": "true",
+    "winrm_insecure": "true",
+    "ami_name": "packer-windows-domain-controller-{{user `key_name`}}"
+  }],
+  "provisioners":  [
+
+    # run an aws_cli commmand to retrieve the IP address and run local shell with ansible
+    {
+      "type": "shell-local",
+			"command": "run cmd aws_cli to get public IP"
+    },
+    {
+			"type": "file",
+			"source": "packer/script/ip.cmd",
+			"destination": "C:/tmp/ip.cmd"
+		},
+		{
+			"type": "windows-shell",
+			"inline": [
+				"echo [{{ user `ansible_group` }}] > C:/tmp/hosts",
+				"C:/tmp/ip.cmd"
+			]
+		},
+		{
+			"type": "file",
+			"direction": "download",
+			"source": "C:/tmp/hosts",
+			"destination": "ansible/hosts"
+		}
+  ]
+
+}

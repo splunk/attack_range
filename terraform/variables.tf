@@ -52,6 +52,10 @@ variable "windows_server_private_ip" { }
 variable "windows_server_join_domain" { }
 variable "kali_machine_private_ip" { }
 
+variable "use_packer_amis" { }
+variable "splunk_packer_ami" { }
+variable "windows_domain_controller_packer_ami" { }
+
 
 #ansible variables
 # ---------------------- #

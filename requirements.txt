@@ -24,6 +24,7 @@ mock==3.0.5
 more-itertools==8.0.2
 ntlm-auth==1.4.0
 packaging==19.2
+packer.py==0.3.0
 paramiko==2.7.1
 path.py==12.4.0
 pexpect==4.7.0

@@ -37,6 +37,10 @@ variable "splunk_server_private_ip" { }
 variable "windows_domain_controller_private_ip" { }
 variable "windows_domain_controller_os" { }
 
+variable "use_packer_amis" { }
+variable "windows_domain_controller_packer_ami" { }
+
+
 # Ansible vars
 # Windows server
 variable "splunk_uf_win_url" { }

@@ -10,19 +10,22 @@ class TerraformController(IEnvironmentController):
 
     def __init__(self, config, log):
         super().__init__(config, log)
-        custom_dict = config
-        rem_list = ['log_path', 'log_level', 'windows_client', 'windows_client_os', 'windows_client_private_ip', 'windows_client_join_domain', 'art_run_techniques']
+        custom_dict = self.config.copy()
+        rem_list = ['hash_value', 'log_path', 'log_level', 'windows_client', 'windows_client_os', 'windows_client_private_ip', 'windows_client_join_domain', 'art_run_techniques']
         [custom_dict.pop(key) for key in rem_list]
         custom_dict['ip_whitelist'] = [custom_dict['ip_whitelist']]
-        #custom_dict = {'key_name': config['key_name'], 'ip_whitelist': [config['ip_whitelist']], 'win_password': config['win_password'], 'private_key_path': config['private_key_path']}
+        custom_dict['use_packer_amis'] = '0'
+        custom_dict['splunk_packer_ami'] = "packer-splunk-server-" + self.config['key_name']
+        custom_dict['windows_domain_controller_packer_ami'] = "packer-windows-domain-controller-" + self.config['key_name']
         self.terraform = Terraform(working_dir='terraform',variables=custom_dict)
 
 
     def build(self):
         self.log.info("[action] > build\n")
         return_code, stdout, stderr = self.terraform.apply(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
-        self.log.info("attack_range has been built using terraform successfully")
-        self.list_machines()
+        if not return_code:
+            self.log.info("attack_range has been built using terraform successfully")
+            self.list_machines()
 
     def destroy(self):
         self.log.info("[action] > destroy\n")
