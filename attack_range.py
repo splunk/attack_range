@@ -1,13 +1,11 @@
+import os
+import sys
 import argparse
-import re
-import vagrant
-import ansible_runner
-import subprocess
-import boto3
-from python_terraform import *
-from modules import logger, parseconfig, splunk_sdk, aws_service
+from modules import logger
 from pathlib import Path
-from tabulate import tabulate
+from modules.CustomConfigParser import CustomConfigParser
+from modules.TerraformController import TerraformController
+from modules.VagrantController import VagrantController
 
 # need to set this ENV var due to a OSX High Sierra forking bug
 # see this discussion for more details: https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
@@ -16,316 +14,9 @@ os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
 VERSION = 1
 
 
-# could be improved by directly use extra-vars
-def config_simulation(simulation_engine, simulation_technique, log):
-
-    # Read in the ansible vars file
-    with open('ansible/vars/vars.yml.default', 'r') as file:
-        ansiblevars = file.read()
-
-    # now set the simulation engine and mitre techniques to run
-    if simulation_engine == "atomic_red_team":
-        ansiblevars = re.sub(r'install_art: \w+', 'install_art: true', ansiblevars, re.M)
-        log.info("execution simulation using engine: {0}".format(simulation_engine))
-
-    if simulation_technique[0] != '' or len(simulation_technique) > 1:
-        technique = "art_run_technique: " + str(simulation_technique)
-        ansiblevars = re.sub(r'art_run_technique: .+', technique, ansiblevars, re.M)
-        ansiblevars = re.sub(r'art_run_all_test: \w+', 'art_run_all_test: false', ansiblevars, re.M)
-        log.info("executing specific ATT&CK technique ID: {0}".format(simulation_technique))
-    else:
-        ansiblevars = re.sub(r'art_run_all_test: \w+', 'art_run_all_test: true', ansiblevars, re.M)
-        log.info("executing ALL Atomic Red Team ATT&CK techniques see: https://github.com/redcanaryco/atomic-red-team/tree/master/atomics".format(
-            simulation_technique))
-
-    # Write the file out again
-    with open('ansible/vars/vars.yml', 'w') as file:
-        file.write(ansiblevars)
-
-
-def run_simulation(mode, simulation_engine, simulation_techniques, target, log):
-
-    if mode == "terraform":
-        with open('ansible/inventory/hosts', 'r') as file:
-            hosts_file = file.read()
-        hosts_file = hosts_file.replace('PUBLICIP', target)
-        with open('ansible/inventory/hosts', 'w') as file:
-            file.write(hosts_file)
-
-
-    # execute atomic red team simulation
-    if simulation_engine == "atomic_red_team":
-        r = ansible_runner.run(private_data_dir='.attack_range/',
-                               inventory=os.path.dirname(os.path.realpath(
-                                   __file__)) + '/ansible/inventory/hosts',
-                               roles_path="../roles",
-                               playbook=os.path.dirname(os.path.realpath(__file__)) + '/ansible/playbooks/atomic_red_team.yml',
-                               verbosity=0)
-
-        if r.status == "successful":
-            log.info("successfully executed technique ID {0} against target: {1}".format(simulation_techniques, target))
-        else:
-            log.error("failed to executed technique ID {0} against target: {1}".format(simulation_techniques, target))
-            sys.exit(1)
-
-def run_search(mode, settings, search_name, log):
-    if mode == 'terraform':
-        instance = aws_service.get_instance_by_name("attack-range_splunk-server",log)
-        if instance['State']['Name'] == 'running':
-            splunk_sdk.search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(settings['splunk_admin_password']), search_name, log)
-        else:
-            log.error('ERROR: Splunk server is not running.')
-
-
-    if mode == 'vagrant':
-        check_targets_running_vagrant("attack-range-splunk-server", log)
-        splunk_sdk.search('localhost',str(settings['splunk_admin_password']), search_name, log)
-
-
-def prep_ansible(settings):
-    # prep ansible for configuration
-    # Read in the ansible vars file
-    with open('ansible/vars/vars.yml.default', 'r') as file:
-        ansiblevars = file.read()
-
-    # Replace the ansible variables
-    ansiblevars = re.sub(r'domain_admin_password: .+', 'domain_admin_password: ' + str(settings['win_password']),
-                         ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_admin_password: .+', 'splunk_admin_password: ' + str(settings['splunk_admin_password']),
-                         ansiblevars, re.M)
-    ansiblevars = re.sub(r's3_bucket_url: .+', 's3_bucket_url: ' + str(settings['s3_bucket_url']),
-                         ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_windows_ta: .+', 'splunk_windows_ta: ' + str(settings['splunk_windows_ta']),
-                         ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_sysmon_ta: .+', 'splunk_sysmon_ta: ' + str(settings['splunk_sysmon_ta']),
-                         ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_stream_ta: .+', 'splunk_stream_ta: ' + str(settings['splunk_stream_ta']),
-                         ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_stream_app: .+', 'splunk_stream_app: ' + str(settings['splunk_stream_app']),
-                         ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_cim_app: .+', 'splunk_cim_app: ' + str(settings['splunk_cim_app']),
-                         ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_escu_app: .+', 'splunk_escu_app: ' + str(settings['splunk_escu_app']),
-                         ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_asx_app:: .+', 'splunk_asx_app: ' + str(settings['splunk_asx_app']),
-                         ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_url: .+', 'splunk_url: ' + str(settings['splunk_url']),
-                             ansiblevars, re.M)
-    ansiblevars = re.sub(r'splunk_binary: .+', 'splunk_binary: ' + str(settings['splunk_binary']),
-                             ansiblevars, re.M)
-
-    # Write the file out again
-    with open('ansible/vars/vars.yml', 'w') as file:
-        file.write(ansiblevars)
-
-
-    with open('ansible/inventory/hosts.default', 'r') as file:
-        hosts_file = file.read()
-
-
-    if mode == "vagrant":
-        hosts_file = re.sub(r'ansible_ssh_port=.+', 'ansible_ssh_port=5985',
-                                         hosts_file, re.M)
-        hosts_file = re.sub(r'ansible_ssh_user=.+', 'ansible_ssh_user=vagrant',
-                                         hosts_file, re.M)
-        hosts_file = re.sub(r'ansible_ssh_pass=.+', 'ansible_ssh_pass=vagrant',
-                                         hosts_file, re.M)
-        hosts_file = hosts_file.replace('PUBLICIP', '127.0.0.1')
-    else:
-        hosts_file = re.sub(r'ansible_ssh_port=.+', 'ansible_ssh_port=5986',
-                                         hosts_file, re.M)
-        hosts_file = re.sub(r'ansible_ssh_user=.+', 'ansible_ssh_user=Administrator',
-                                         hosts_file, re.M)
-        hosts_file = re.sub(r'ansible_ssh_pass=.+', 'ansible_ssh_pass=' + str(settings['win_password']),
-                                         hosts_file, re.M)
-
-
-    # write hosts file to run from
-    with open('ansible/inventory/hosts', 'w') as file:
-        file.write(hosts_file)
-
-
-
-def prep_terraform(settings):
-    # prep terraform for configuration
-    # Read in the ansible vars file
-    with open('terraform/terraform.tfvars', 'r') as file:
-        terraformvars = file.read()
-
-    # Replace the ansible variables
-    terraformvars = re.sub(r'key_name = .+', 'key_name = "' + str(settings['key_name']) + '"', terraformvars, re.M)
-    terraformvars = re.sub(r'ip_whitelist = .+', 'ip_whitelist = ' + str(settings['ip_whitelist']),
-                         terraformvars, re.M)
-    terraformvars = re.sub(r'win_password = .+', 'win_password = "' + str(settings['win_password']) + '"',
-                         terraformvars, re.M)
-    terraformvars = re.sub(r'private_key_path = .+', 'private_key_path = "' + str(settings['private_key_path']) + '"',
-                         terraformvars, re.M)
-    # Write the file out again
-    with open('terraform/terraform.tfvars', 'w') as file:
-        file.write(terraformvars)
-
-
-def vagrant_mode(action, log):
-
-    vagrantfile = 'vagrant/'
-
-    if action == "build":
-        log.info("building splunk-server and windows10 workstation boxes WARNING MAKE SURE YOU HAVE 8GB OF RAM free otherwise you will have a bad time")
-        log.info("[action] > build\n")
-        v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
-        v1.up(provision=True)
-        log.info("attack_range has been built using vagrant successfully")
-
-    if action == "destroy":
-        log.info("[action] > destroy\n")
-        v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
-        v1.destroy()
-        log.info("attack_range has been destroy using vagrant successfully")
-
-    if action == "stop":
-        print("[action] > stop\n")
-        v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
-        v1.halt()
-
-    if action == "resume":
-        print("[action] > resume\n")
-        v1 = vagrant.Vagrant(vagrantfile, quiet_stdout=False)
-        v1.up()
-
-
-def attack_simulation(mode, target, simulation_engine, simulation_techniques, log):
-    if mode == 'vagrant':
-        v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
-        status = v1.status()
-        # Check if target exist and if it is running
-        check_targets_running_vagrant(target, log)
-        config_simulation(simulation_engine, simulation_techniques, log)
-        run_simulation('vagrant', simulation_engine, simulation_techniques, target, log)
-
-    if mode == 'terraform':
-        instance = aws_service.get_instance_by_name(target, log)
-        if instance['State']['Name'] == 'running':
-            config_simulation(simulation_engine, simulation_techniques, log)
-            run_simulation('terraform', simulation_engine, simulation_techniques, instance['NetworkInterfaces'][0]['Association']['PublicIp'], log)
-        else:
-            log.error("ERROR: attack target is not running.")
-            sys.exit(1)
-
-
-def check_targets_running_vagrant(target, log):
-    v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
-    status = v1.status()
-
-    found_box = False
-    for stat in status:
-        if stat.name == target:
-            found_box = True
-            if not (stat.state == 'running'):
-                log.error(target + ' not running.')
-                sys.exit(1)
-            break
-    if not found_box:
-        log.error(target + ' not found as vagrant box.')
-        sys.exit(1)
-
-
-
-def terraform_mode(action, log):
-    if action == "build":
-        log.info("[action] > build\n")
-        t = Terraform(working_dir='terraform')
-        return_code, stdout, stderr = t.apply(
-            capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
-        log.info("attack_range has been built using terraform successfully")
-
-    if action == "destroy":
-        log.info("[action] > destroy\n")
-        t = Terraform(working_dir='terraform')
-        return_code, stdout, stderr = t.destroy(capture_output='yes', no_color=IsNotFlagged)
-        log.info("attack_range has been destroy using terraform successfully")
-
-    if action == "stop":
-        instances = aws_service.get_all_instances()
-        aws_service.change_ec2_state(instances, 'stopped', log)
-
-    if action == "resume":
-        instances = aws_service.get_all_instances()
-        aws_service.change_ec2_state(instances, 'running', log)
-
-
-
-def list_all_machines(mode):
-    if mode == 'vagrant':
-        print()
-        print('Vagrant Status\n')
-        v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
-        response = v1.status()
-        status = []
-        for stat in response:
-            if stat.name == "attack-range-win10":
-                status.append([stat.name, stat.state, "10.0.0.50"])
-            else:
-                status.append([stat.name, stat.state, "10.0.0.10"])
-
-        print(tabulate(status, headers=['Name','Status','IP Address']))
-        print()
-
-    if mode == 'terraform':
-        instances = aws_service.get_all_instances()
-        response = []
-        instances_running = False
-        for instance in instances:
-            if instance['State']['Name'] == 'running':
-                instances_running = True
-                response.append([instance['Tags'][0]['Value'], instance['State']['Name'], instance['NetworkInterfaces'][0]['Association']['PublicIp']])
-            else:
-                response.append([instance['Tags'][0]['Value'], instance['State']['Name']])
-        print()
-        print('Terraform Status\n')
-        if len(response) > 0:
-            if instances_running:
-                print(tabulate(response, headers=['Name','Status', 'IP Address']))
-            else:
-                print(tabulate(response, headers=['Name','Status']))
-        else:
-            print("ERROR: Can't find configured EC2 Attack Range Instances in AWS.")
-            sys.exit(1)
-        print()
-
-
-def list_all_searches(mode, settings, log):
-    if mode == 'terraform':
-        instance = aws_service.get_instance_by_name("attack-range_splunk-server",log)
-        if instance['State']['Name'] == 'running':
-            response = splunk_sdk.list_searches(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(settings['splunk_admin_password']))
-            if len(response) > 0:
-                objects = []
-                for object in response:
-                    objects.append([object.name])
-                print()
-                print('Available savedsearches in Splunk\n')
-                print(tabulate(objects, headers=['Name']))
-                print()
-        else:
-            log.error('ERROR: Splunk server is not running.')
-
-    if mode == 'vagrant':
-        check_targets_running_vagrant("attack-range-splunk-server", log)
-        response = splunk_sdk.list_searches('localhost',str(settings['splunk_admin_password']))
-        if len(response) > 0:
-            objects = []
-            for object in response:
-                objects.append([object.name])
-            print()
-            print('Available savedsearches in Splunk\n')
-            print(tabulate(objects, headers=['Name']))
-            print()
-
-
 if __name__ == "__main__":
     # grab arguments
-    parser = argparse.ArgumentParser(
-        description="starts a attack range ready to collect attack data into splunk")
+    parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
     parser.add_argument("-m", "--mode", required=False, choices=['vagrant', 'terraform'],
                         help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
     parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'search'],
@@ -350,7 +41,7 @@ if __name__ == "__main__":
     action = args.action
     target = args.target
     config = args.config
-    simulation_techniques = [str(item) for item in args.simulation_technique.split(',')]
+    simulation_techniques = args.simulation_technique
     list_machines = args.list_machines
     list_searches = args.list_searches
     search_name = args.search_name
@@ -379,14 +70,14 @@ starting program loaded for B1 battle droid
         print("attack_range is using config at path {0}".format(attack_range_config))
         configpath = str(attack_range_config)
     else:
-        print("attack_range failed to find a config file at {0} or {1}..exiting".format(attack_range_config))
+        print("ERROR: attack_range failed to find a config file at {0} or {1}..exiting".format(attack_range_config))
         sys.exit(1)
 
     # Parse config
-    parse = parseconfig.parser()
-    settings = parse.load_conf(configpath)
+    parser = CustomConfigParser()
+    config = parser.load_conf(configpath)
 
-    log = logger.setup_logging(settings['log_path'], settings['log_level'])
+    log = logger.setup_logging(config['log_path'], config['log_level'])
     log.info("INIT - attack_range v" + str(VERSION))
 
     if ARG_VERSION:
@@ -394,62 +85,55 @@ starting program loaded for B1 battle droid
         sys.exit(0)
 
     if not mode:
-        log.info('ERROR: Specify Attack Range Mode with -m ')
+        log.error('ERROR: Specify Attack Range Mode with -m ')
         sys.exit(1)
 
     if mode and not action and not list_machines and not list_searches:
-        log.info('ERROR: Use -a to perform an action or -ls to list avaiable machines')
+        log.error('ERROR: Use -a to perform an action or -ls to list avaiable machines')
         sys.exit(1)
 
     if mode and action == 'simulate' and not target:
-        log.info('ERROR: Specify target for attack simulation')
+        log.error('ERROR: Specify target for attack simulation')
         sys.exit(1)
 
     if mode and action == 'search' and not search_name:
-        log.info('ERROR: Specify search name to execute.')
+        log.error('ERROR: Specify search name to execute.')
         sys.exit(1)
 
+    # lets give CLI priority over config file for pre-configured techniques
+    if simulation_techniques:
+        pass
+    else:
+        simulation_techniques = config['art_run_techniques']
+
+
+    if mode == 'terraform':
+        controller = TerraformController(config, log)
+    elif mode == 'vagrant':
+        controller = VagrantController(config, log)
+
     if list_machines:
-        list_all_machines(mode)
+        controller.list_machines()
         sys.exit(0)
 
     if list_searches:
-        list_all_searches(mode, settings, log)
+        controller.list_searches()
         sys.exit(0)
 
-    # lets give CLI priority over config file for pre-configured techniques
-    if simulation_techniques[0] != '' or len(simulation_techniques) > 1:
-        pass
-    else:
-        simulation_techniques = settings['simulation_technique']
+    if action == 'build':
+        controller.build()
 
+    if action == 'destroy':
+        controller.destroy()
 
-    # lets prep our config files base on provided settings
-    prep_ansible(settings)
+    if action == 'stop':
+        controller.stop()
 
-    if mode == "terraform":
-        prep_terraform(settings)
+    if action == 'resume':
+        controller.resume()
 
+    if action == 'simulate':
+        controller.simulate(target, simulation_techniques)
 
-    # lets process modes
-    if mode == "vagrant":
-        log.info("[mode] > vagrant")
-        if action == "build" or action == "destroy" or action == "stop" or action == "resume":
-            vagrant_mode(action, log)
-        elif action == "simulate":
-            attack_simulation('vagrant', target, settings['simulation_engine'], simulation_techniques, log)
-        elif action == "search":
-            run_search('vagrant', settings, search_name, log)
-
-    elif mode == "terraform":
-        log.info("[mode] > terraform ")
-        if action == "build" or action == "destroy" or action == "stop" or action == "resume":
-            terraform_mode(action, log)
-        elif action == "simulate":
-            attack_simulation('terraform', target, settings['simulation_engine'], simulation_techniques, log)
-        elif action == "search":
-            run_search('terraform', settings, search_name, log)
-
-    else:
-        log.error("incorrect mode, please set flag --mode to \"terraform\" or \"vagrant\"")
-        sys.exit(1)
+    if action == 'search':
+        controller.search(search_name)

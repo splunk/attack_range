@@ -44,11 +44,11 @@ python attack_range.py -m vagrant -a build
 ### Perform Attack Simulation
 - Perform Attack Simulation using **Terraform**
 ```
-python attack_range.py -m terraform -a simulate -st T1117,T1003 -t attack-range_windows_2016_dc
+python attack_range.py -m terraform -a simulate -st T1117,T1003 -t attack-range-windows-domain-controller
 ```
 - Perform Attack Simulation using **Vagrant**
 ```
-python attack_range.py -m vagrant -a simulate -st T1117,T1003 -t win10
+python attack_range.py -m vagrant -a simulate -st T1117,T1003 -t attack-range-win10
 ```
 
 ### Search with Attack Range
@@ -105,16 +105,11 @@ If you have questions or need support, you can:
 * [Jose Hernandez](https://twitter.com/d1vious)
 
 ## Contributors
-* [Rod Soto](https://twitter.com/rodsoto)
-* [Bhavin Patel](https://twitter.com/hackpsy)
 * [Patrick Bareiß](https://twitter.com/bareiss_patrick)
+* [Bhavin Patel](https://twitter.com/hackpsy)
+* [Rod Soto](https://twitter.com/rodsoto)
 * Russ Nolen
 * Phil Royer
 
 ## Contributing
 We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved.
-
-## Acknowledgements
-- [DetectionLab](https://github.com/clong/DetectionLab)
-- Atomic Red team
-- Sysmon configuration

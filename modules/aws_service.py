@@ -1,20 +1,23 @@
 import sys
 import re
 import boto3
-from python_terraform import *
 
 
 
-def get_instance_by_name(ec2_name, log):
-    instances = get_all_instances()
+def get_instance_by_name(ec2_name, config):
+    instances = get_all_instances(config)
     for instance in instances:
         str = instance['Tags'][0]['Value']
         if str == ec2_name:
             return instance
 
+def get_single_instance_public_ip(ec2_name, config):
+    instance = get_instance_by_name(ec2_name, config)
+    return instance['NetworkInterfaces'][0]['Association']['PublicIp']
 
-def get_all_instances():
-    key_name = get_key_name()
+
+def get_all_instances(config):
+    key_name = config['key_name']
     client = boto3.client('ec2')
     response = client.describe_instances(
         Filters=[
@@ -27,17 +30,16 @@ def get_all_instances():
     instances = []
     for reservation in response['Reservations']:
         for instance in reservation['Instances']:
-            str = instance['Tags'][0]['Value']
-            if str.startswith('attack-range') and instance['State']['Name']!='terminated':
-                instances.append(instance)
+            if instance['State']['Name']!='terminated':
+                str = instance['Tags'][0]['Value']
+                if str.startswith('attack-range'):
+                    instances.append(instance)
 
     return instances
 
-#instance['NetworkInterfaces'][0]['Association']['PublicIp']
 
-
-def check_ec2_instance_state(ec2_name, state):
-    instance = get_instance_by_name(ec2_name)
+def check_ec2_instance_state(ec2_name, state, config):
+    instance = get_instance_by_name(ec2_name, config)
 
     if not instance:
         log.error(ec2_name + ' not found as AWS EC2 instance.')
@@ -70,13 +72,3 @@ def change_ec2_state(instances, new_state, log):
                     InstanceIds=[instance['InstanceId']]
                 )
                 log.info('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
-
-
-def get_key_name():
-    with open('terraform/terraform.tfvars', 'r') as file:
-        terraformvars = file.read()
-
-    pattern = 'key_name = \"([^\"]*)'
-    a = re.search(pattern, terraformvars)
-
-    return a.group(1)

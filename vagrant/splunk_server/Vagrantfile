@@ -1,23 +1,34 @@
-VM_NAME= "splunk-server-#{SecureRandom.hex(2)}"
-Vagrant.configure("2") do |config|
-  config.vm.define "splunk-server" do |config|
-    config.vm.box = "generic/ubuntu1804"
-    config.vm.hostname = "#{VM_NAME}"
-    config.vm.boot_timeout = 600
-    config.vm.network "forwarded_port", guest: 8000, host: 8000, protocol: "tcp"
-    config.vm.network :private_network, ip: "10.0.0.10"
+config.vm.define "attack-range-splunk-server" do |config|
+  VM_NAME= "attack-range-splunk-server"
+  config.vm.box = "generic/ubuntu1804"
+  config.vm.hostname = "#{VM_NAME}"
+  config.vm.boot_timeout = 600
+  config.vm.network "forwarded_port", guest: 8000, host: 8000, protocol: "tcp"
+  config.vm.network "forwarded_port", guest: 8089, host: 8089, protocol: "tcp"
+  config.vm.network :private_network, ip: "{{ splunk_server_private_ip }}"
 
-    config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../../ansible/playbooks/splunk_server.yml"
-        ansible.config_file = "../../ansible/ansible.cfg"
-        ansible.compatibility_mode = "2.0"
-    end
+  config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "../ansible/playbooks/splunk_server.yml"
+      ansible.config_file = "../ansible/ansible.cfg"
+      ansible.compatibility_mode = "2.0"
+      ansible.extra_vars = {
+        ansible_python_interpreter: "/usr/bin/python3",
+        splunk_admin_password: '{{ splunk_admin_password }}',
+        splunk_url: '{{ splunk_url }}',
+        splunk_binary: '{{ splunk_binary }}',
+        s3_bucket_url: '{{ s3_bucket_url }}',
+        splunk_escu_app: '{{ splunk_escu_app }}',
+        splunk_asx_app: '{{ splunk_asx_app }}',
+        splunk_windows_ta: '{{ splunk_windows_ta }}',
+        splunk_cim_app: '{{ splunk_cim_app }}',
+        splunk_sysmon_ta: '{{ splunk_sysmon_ta }}'
+      }
+  end
 
-    config.vm.provider "virtualbox" do |vb, override|
-      vb.gui = true
-      vb.name = "#{VM_NAME}" 
-      vb.customize ["modifyvm", :id, "--memory", 6000]
-      vb.customize ["modifyvm", :id, "--cpus", 4]
-    end
+  config.vm.provider "virtualbox" do |vb, override|
+    vb.gui = true
+    vb.name = "#{VM_NAME}"
+    vb.customize ["modifyvm", :id, "--memory", 4096]
+    vb.customize ["modifyvm", :id, "--cpus", 4]
   end
 end
