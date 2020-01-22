@@ -36,30 +36,10 @@
     "ami_name": "packer-windows-domain-controller-{{user `key_name`}}"
   }],
   "provisioners":  [
-
-    # run an aws_cli commmand to retrieve the IP address and run local shell with ansible
     {
       "type": "shell-local",
-			"command": "run cmd aws_cli to get public IP"
-    },
-    {
-			"type": "file",
-			"source": "packer/script/ip.cmd",
-			"destination": "C:/tmp/ip.cmd"
-		},
-		{
-			"type": "windows-shell",
-			"inline": [
-				"echo [{{ user `ansible_group` }}] > C:/tmp/hosts",
-				"C:/tmp/ip.cmd"
-			]
-		},
-		{
-			"type": "file",
-			"direction": "download",
-			"source": "C:/tmp/hosts",
-			"destination": "ansible/hosts"
-		}
+			"command": "echo hello >> test.txt"
+    }
   ]
 
 }
