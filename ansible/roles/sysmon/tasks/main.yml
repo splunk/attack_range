@@ -5,8 +5,11 @@
     path: "{{ item }}"
     state: directory
   with_items:
-    - "{{ win_temp_dir }}"
-    - "{{ win_log_dir }}"
+    - 'c:\Program Files\ansible'
+    - 'c:\ProgramData\ansible\log'
 
 - include: windows-sysmon.yml
 - include: windows-logging-registry.yml
+
+- name: 'Reboot server'
+  win_reboot:

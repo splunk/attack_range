@@ -1,12 +1,9 @@
 ---
-# tasks file for ansible-windows-domain-controller
-#
-
 
 - name: set local admin password
   win_user:
     name: Administrator
-    password: "{{ windows_domain_controller_info['domain_admin_password'] }}"
+    password: "{{ win_password }}"
     state: present
 
 - name: features | Installing RSAT AD Admin Center
@@ -15,7 +12,7 @@
     state: present
 
 - name: features | Installing AD Domain Services
-  win_feature: 
+  win_feature:
     name: AD-Domain-Services
     include_management_tools: yes
     include_sub_features: yes
@@ -23,8 +20,8 @@
 
 - name: Creating a windows domain
   win_domain:
-    dns_domain_name: "{{ windows_domain_controller_info['dns_domain_name'] }}"
-    safe_mode_password: "{{ windows_domain_controller_info['safe_mode_password'] }}"
+    dns_domain_name: "attackrange.local"
+    safe_mode_password: "{{ win_password }}"
 
 - name: Setting DNS Servers
   win_dns_client:
@@ -36,9 +33,9 @@
 
 - name: Managing Domain Controller Membership
   win_domain_controller:
-    dns_domain_name: "{{ windows_domain_controller_info['dns_domain_name'] }}"
-    domain_admin_user: "{{ windows_domain_controller_info['domain_admin_user'] }}"
-    domain_admin_password: "{{ windows_domain_controller_info['domain_admin_password'] }}"
-    safe_mode_password: "{{ windows_domain_controller_info['safe_mode_password'] }}"
-    state: "{{ windows_domain_controller_info['state'] }}"
+    dns_domain_name: "attackrange.local"
+    domain_admin_user: "Administrator@attackrange.local"
+    domain_admin_password: "{{ win_password }}"
+    safe_mode_password: "{{ win_password }}"
+    state: "domain_controller"
   register: _windows_domain_controller

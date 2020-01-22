@@ -1,0 +1,15 @@
+config.vm.define "attack-range-kali_machine" do |config|
+  VM_NAME_KALI= "attack-range-kali_machine"
+  config.vm.box = "kalilinux/rolling"
+  config.vm.box_version = "2019.3.0"
+  config.vm.boot_timeout = 600
+  config.vm.hostname = "kali"
+  config.vm.network :private_network, ip: "{{ kali_machine_private_ip }}"
+
+  config.vm.provider "virtualbox" do |vb, override|
+    vb.gui = true
+    vb.name = "#{VM_NAME_KALI}"
+    vb.customize ["modifyvm", :id, "--memory", 2048]
+    vb.customize ["modifyvm", :id, "--cpus", 2]
+  end
+end

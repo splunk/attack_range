@@ -1,5 +1,3 @@
 ---
-# need to wrap an if statement around this one
-# make it windows specific
 - include: windows-disable-defender.yml
 - include: windows-enable-ps-logging.yml
