@@ -108,8 +108,7 @@ if(!(Test-Path -Path $InstallPath )){
 	Install-Module -Name powershell-yaml -Force
 
 	write-verbose "Importing invoke-atomicRedTeam module"
-	Import-Module "C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\Invoke-AtomicRed
-Team.psm1"
+	Import-Module "C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam.psm1"
 
 	write-verbose "Changing current work directory Invoke-AtomicRedTeam"
 	cd "C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\"
