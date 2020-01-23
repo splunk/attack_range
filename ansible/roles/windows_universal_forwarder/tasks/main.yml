@@ -1,6 +1,12 @@
 
 - include: install_splunk_uf.yml
+- include: configure_outputs.yml
 - include: collect_windows_event_logs.yml
 - include: collect_powershell_logs.yml
 - include: collect_attack_simulation_logs.yml
 - include: collect_sysmon_logs.yml
+
+- name: restart splunk
+  win_service:
+    name: SplunkForwarder
+    state: restarted
