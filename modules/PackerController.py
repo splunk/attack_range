@@ -73,6 +73,7 @@ class PackerController(IEnvironmentController):
                     sys.exit(1)
                 self.log.info("successfully generated Packer AMI packer-" + packer_ami + "-" + self.config['key_name'])
 
+        # To Do: check for amis using boto3
         self.build_terraform()
         self.write_hash_value(self.md5_hash)
 

@@ -47,6 +47,10 @@
     {
       "type": "shell-local",
 			"command": "rm -f ansible/hosts"
+    },
+    {
+      "type": "powershell",
+      "script": "packer/script/sysprep.ps1"
     }
   ]
 
