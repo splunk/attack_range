@@ -1,11 +1,11 @@
 
 data "aws_ami" "latest-kali-linux" {
-most_recent = true
-owners = ["679593333241"] # Canonical
+  most_recent = true
+  owners = ["679593333241"] # Kali Linux (https://www.kali.org/about-us/)
 
   filter {
       name   = "name"
-      values = ["Kali Linux 2018.1-*"]
+      values = ["Kali Linux 2019.*"]
   }
 
   filter {
