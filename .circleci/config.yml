@@ -1,0 +1,74 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+
+version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@0.1.19
+
+dependencies:
+  cache_directories:
+    - "~/.apt-cache"
+  pre:
+    - sudo rm -rf /var/cache/apt/archives && sudo ln -s ~/.apt-cache /var/cache/apt/archives && mkdir -p ~/.apt-cache/partial
+
+apt-run: &apt-install
+  name: install system packages
+  command: |
+    sudo apt update -qq
+    sudo apt install -y python-dev python3-dev -qq
+
+executors:
+  content-executor:
+    docker:
+      - image: circleci/python:latest
+    working_directory: ~/repo
+
+jobs:
+  test-build:
+    executor: content-executor
+    steps:
+      - run:
+          name: checkout repo
+          command: |
+            if [[ ! -z "${CIRCLE_PULL_REQUEST}" &&  ! -z "${CIRCLE_PR_NUMBER}" ]]; then
+                git clone https://${GITHUB_TOKEN}@github.com/splunk/attack_range.git
+                cd attack_range
+                git fetch origin pull/${CIRCLE_PR_NUMBER}/head:${CIRCLE_BRANCH}
+                git checkout ${CIRCLE_BRANCH}
+            elif [ "${CIRCLE_BRANCH}" == "" ]; then
+                git clone https://${GITHUB_TOKEN}@github.com/splunk/attack_range.git
+            else
+                git clone --branch ${CIRCLE_BRANCH} https://${GITHUB_TOKEN}@github.com/splunk/attack_range.git
+            fi
+      - restore_cache:
+          key: virtualenv
+      - run: *apt-install
+      - run:
+          name: install python dependencies
+          command: |
+            cd attack_range
+            rm -rf venv
+            virtualenv --python=/usr/bin/python3 --clear venv
+            source venv/bin/activate
+            pip install -q -r requirements.txt
+      - save_cache:
+          key: virtualenv
+          paths:
+            - "/attack_range/venv"
+      - run:
+          name: verify attack_range.py executes 
+          command: |
+            cd attack_range
+            source venv/bin/activate
+            python attack_range.py --version
+workflows:
+  version: 2.1
+    test-build:
+    jobs:
+      - validate-content:
+        # build always
+          filters:
+            tags:
+              only: /.*/
