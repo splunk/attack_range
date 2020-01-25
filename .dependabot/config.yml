@@ -1,7 +1,7 @@
 version: 1
 update_configs:
-  # Keep package.json (& lockfiles) up to date as soon as
-  # new versions are published to the npm registry
+  # Keep python requirements up to date as soon as
+  # new versions are published to pip 
   - package_manager: "python"
     directory: "/requirements.txt"
     update_schedule: "live"
