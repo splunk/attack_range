@@ -57,6 +57,9 @@ What is a "pull request"? It informs the project's core developers about the cha
 
 If you want to learn more, please consult this [tutorial on how pull requests work](https://help.github.com/articles/using-pull-requests/) in the [GitHub Help Center](https://help.github.com/).
 
+###### Pre-commit Hooks
+We leverage [pre-commit hooks](.pre-commit-config.yaml) in our project to have some basic/local validation of common code artifacts before a commit is recorded. If you would like to learn more about pre-commit hooks please visit the projects [site](https://pre-commit.com/). 
+
 Here's an overview of how you can make a pull request against this project:
 
 1. Fork the [analytic\_story\_execution GitHub repository](https://github.com/splunk/attack_range/issues)
