@@ -63,9 +63,8 @@ jobs:
             python attack_range.py --version
 workflows:
   version: 2.1
-    test-build:
     jobs:
-      - validate-content:
+      - test-build:
         # build always
           filters:
             tags:
