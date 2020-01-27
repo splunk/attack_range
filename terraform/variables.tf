@@ -55,6 +55,7 @@ variable "kali_machine_private_ip" { }
 variable "use_packer_amis" { }
 variable "splunk_packer_ami" { }
 variable "windows_domain_controller_packer_ami" { }
+variable "windows_server_packer_ami" { }
 
 
 #ansible variables

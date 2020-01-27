@@ -25,6 +25,7 @@ class PackerController(IEnvironmentController):
         custom_dict['use_packer_amis'] = '1'
         custom_dict['splunk_packer_ami'] = "packer-splunk-server-" + self.config['key_name']
         custom_dict['windows_domain_controller_packer_ami'] = "packer-windows-domain-controller-" + self.config['key_name']
+        custom_dict['windows_server_packer_ami'] = "packer-windows-server-" + self.config['key_name']
         self.terraform = Terraform(working_dir='terraform',variables=custom_dict)
 
 
@@ -59,8 +60,6 @@ class PackerController(IEnvironmentController):
             if self.config['windows_server']=='1':
                 self.read_and_write_userdata_file()
                 packer_amis.append('windows-server')
-            if self.config['kali_machine']=='1':
-                packer_amis.append('kali_machine')
 
             for packer_ami in packer_amis:
                 self.log.info("Generate new Packer AMI packer-" + packer_ami + "-" + self.config['key_name'] + ". This can take some time.")

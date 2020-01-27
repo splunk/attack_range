@@ -40,6 +40,10 @@ python attack_range.py -m terraform -a build
 ```
 python attack_range.py -m vagrant -a build
 ```
+- Build Attack Range using **Packer**
+```
+python attack_range.py -m packer -a build
+```
 
 ### Perform Attack Simulation
 - Perform Attack Simulation using **Terraform**
@@ -49,6 +53,10 @@ python attack_range.py -m terraform -a simulate -st T1117,T1003 -t attack-range-
 - Perform Attack Simulation using **Vagrant**
 ```
 python attack_range.py -m vagrant -a simulate -st T1117,T1003 -t attack-range-win10
+```
+- Perform Attack Simulation using **Packer**
+```
+python attack_range.py -m packer -a simulate -st T1117,T1003 -t attack-range-win10
 ```
 
 ### Search with Attack Range
@@ -60,6 +68,10 @@ python attack_range.py -m terraform -a search -sn search_name
 ```
 python attack_range.py -m vagrant -a search -sn search_name
 ```
+- Run a savedsearch with **Packer** and return the results:
+```
+python attack_range.py -m packer -a search -sn search_name
+```
 
 ### Destroy Attack Range
 - Destroy Attack Range using **Terraform**
@@ -69,6 +81,10 @@ python attack_range.py -m terraform -a destroy
 - Destroy Attack Range using **Vagrant**
 ```
 python attack_range.py -m vagrant -a destroy
+```
+- Destroy Attack Range using **Packer**
+```
+python attack_range.py -m packer -a destroy
 ```
 
 ### Stop Attack Range
@@ -80,6 +96,10 @@ python attack_range.py -m terraform -a stop
 ```
 python attack_range.py -m vagrant -a stop
 ```
+- Stop Attack Range using **Packer**
+```
+python attack_range.py -m packer -a stop
+```
 
 ### Resume Attack Range
 - Resume Attack Range using **Terraform**
@@ -89,6 +109,10 @@ python attack_range.py -m terraform -a resume
 - Resume Attack Range using **Vagrant**
 ```
 python attack_range.py -m vagrant -a resume
+```
+- Resume Attack Range using **Packer**
+```
+python attack_range.py -m packer -a resume
 ```
 
 ## Support

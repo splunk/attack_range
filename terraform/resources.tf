@@ -61,6 +61,7 @@ module "windows-server" {
 	vpc_security_group_ids = "${module.networkModule.vpc_security_group_ids}"
 	vpc_subnet_id          = "${module.networkModule.vpc_subnet_id}"
   windows_domain_controller_instance = "${module.windows-domain-controller.windows_domain_controller_instance}"
+  windows_domain_controller_instance_packer = "${module.windows-domain-controller.windows_domain_controller_instance_packer}"
   splunk_uf_win_url      = "${var.splunk_uf_win_url}"
   win_sysmon_url         = "${var.win_sysmon_url}"
   win_sysmon_template    = "${var.win_sysmon_template}"
@@ -71,6 +72,8 @@ module "windows-server" {
   windows_domain_controller_private_ip = "${var.windows_domain_controller_private_ip}"
   windows_server_os      = "${var.windows_server_os}"
   windows_server_join_domain = "${var.windows_server_join_domain}"
+  use_packer_amis        = "${var.use_packer_amis}"
+  windows_server_packer_ami = "${var.windows_server_packer_ami}"
 }
 
 module "kali_machine" {
