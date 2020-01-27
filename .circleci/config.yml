@@ -63,6 +63,7 @@ jobs:
             python attack_range.py --version
 workflows:
   version: 2.1
+  build-attack-destroy:
     jobs:
       - test-build:
         # build always
