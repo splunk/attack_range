@@ -19,13 +19,14 @@ class PackerController(IEnvironmentController):
         self.p = PackerExecutable("/usr/local/bin/packer")
 
         custom_dict = self.config.copy()
-        rem_list = ['hash_value', 'log_path', 'log_level', 'windows_client', 'windows_client_os', 'windows_client_private_ip', 'windows_client_join_domain', 'art_run_techniques']
+        rem_list = ['hash_value', 'log_path', 'log_level', 'art_run_techniques']
         [custom_dict.pop(key) for key in rem_list]
         custom_dict['ip_whitelist'] = [custom_dict['ip_whitelist']]
         custom_dict['use_packer_amis'] = '1'
         custom_dict['splunk_packer_ami'] = "packer-splunk-server-" + self.config['key_name']
         custom_dict['windows_domain_controller_packer_ami'] = "packer-windows-domain-controller-" + self.config['key_name']
         custom_dict['windows_server_packer_ami'] = "packer-windows-server-" + self.config['key_name']
+        custom_dict['windows_client_packer_ami'] = "packer-windows-client-" + self.config['key_name']
         self.terraform = Terraform(working_dir='terraform',variables=custom_dict)
 
 
@@ -60,7 +61,9 @@ class PackerController(IEnvironmentController):
             if self.config['windows_server']=='1':
                 self.read_and_write_userdata_file()
                 packer_amis.append('windows-server')
-
+            if self.config['windows_client']=='1':
+                self.read_and_write_userdata_file()
+                packer_amis.append('windows-client')
             for packer_ami in packer_amis:
                 self.log.info("Generate new Packer AMI packer-" + packer_ami + "-" + self.config['key_name'] + ". This can take some time.")
                 template = 'packer/' + packer_ami +'/packer.json'
@@ -103,7 +106,15 @@ class PackerController(IEnvironmentController):
 
     def simulate(self, target, simulation_techniques):
         target_public_ip = aws_service.get_single_instance_public_ip(target, self.config)
-        runner = ansible_runner.run(private_data_dir='.attack_range/',
+        if target == 'attack-range-windows-client':
+            runner = ansible_runner.run(private_data_dir='.attack_range/',
+                                   cmdline=str('-i ' + target_public_ip + ', '),
+                                   roles_path="../ansible/roles",
+                                   playbook='../ansible/playbooks/atomic_red_team.yml',
+                                   extravars={'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http'},
+                                   verbosity=0)
+        else:
+            runner = ansible_runner.run(private_data_dir='.attack_range/',
                                cmdline=str('-i ' + target_public_ip + ', '),
                                roles_path="../ansible/roles",
                                playbook='../ansible/playbooks/atomic_red_team.yml',

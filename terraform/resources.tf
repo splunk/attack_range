@@ -76,6 +76,31 @@ module "windows-server" {
   windows_server_packer_ami = "${var.windows_server_packer_ami}"
 }
 
+module "windows-client" {
+  source			           = "./modules/windows-client"
+ 	private_key_path       = "${var.private_key_path}"
+	key_name		           = "${var.key_name}"
+  win_username		       = "${var.win_username}"
+  win_password		       = "${var.win_password}"
+  windows_client         = "${var.windows_client}"
+	vpc_security_group_ids = "${module.networkModule.vpc_security_group_ids}"
+	vpc_subnet_id          = "${module.networkModule.vpc_subnet_id}"
+  windows_domain_controller_instance = "${module.windows-domain-controller.windows_domain_controller_instance}"
+  windows_domain_controller_instance_packer = "${module.windows-domain-controller.windows_domain_controller_instance_packer}"
+  splunk_uf_win_url      = "${var.splunk_uf_win_url}"
+  win_sysmon_url         = "${var.win_sysmon_url}"
+  win_sysmon_template    = "${var.win_sysmon_template}"
+  splunk_admin_password  = "${var.splunk_admin_password}"
+  availability_zone      = "${var.availability_zone}"
+  splunk_server_private_ip = "${var.splunk_server_private_ip}"
+  windows_client_private_ip = "${var.windows_client_private_ip}"
+  windows_domain_controller_private_ip = "${var.windows_domain_controller_private_ip}"
+  windows_client_join_domain = "${var.windows_client_join_domain}"
+  windows_client_os = "${var.windows_client_os}"
+  use_packer_amis        = "${var.use_packer_amis}"
+  windows_client_packer_ami = "${var.windows_client_packer_ami}"
+}
+
 module "kali_machine" {
   source			           = "./modules/kali_machine"
  	private_key_path       = "${var.private_key_path}"
