@@ -1,0 +1,43 @@
+{
+  "variables": {
+      "splunk_admin_password": "",
+      "splunk_url": "",
+      "splunk_binary": "",
+      "s3_bucket_url": "",
+      "splunk_escu_app": "",
+      "splunk_asx_app": "",
+      "splunk_windows_ta": "",
+      "splunk_cim_app": "",
+      "splunk_sysmon_ta": "",
+      "key_name": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "force_deregister": "true",
+    "force_delete_snapshot": "true",
+    "source_ami_filter": {
+                "filters": {
+                    "name": "*ubuntu-bionic-18.04-amd64-server-*",
+                    "root-device-type": "ebs",
+                    "virtualization-type": "hvm"
+                },
+                "most_recent": true,
+                "owners": [
+                    "679593333241"
+                ]
+            },
+    "instance_type": "t2.2xlarge",
+    "ssh_username": "ubuntu",
+    "ssh_keypair_name": "{{user `key_name`}}",
+    "ssh_private_key_file": "{{user `private_key_path`}}",
+    "ami_name": "packer-splunk-server-{{user `key_name`}}"
+  }],
+  "provisioners": [
+    {
+      "type": "ansible",
+      "playbook_file": "ansible/playbooks/splunk_server.yml",
+      "extra_arguments": [ "--extra-vars", "splunk_admin_password={{user `splunk_admin_password`}} splunk_url={{user `splunk_url`}} splunk_binary={{user `splunk_binary`}} s3_bucket_url={{user `s3_bucket_url`}} splunk_escu_app={{user `splunk_escu_app`}} splunk_asx_app={{user `splunk_asx_app`}} splunk_windows_ta={{user `splunk_windows_ta`}} splunk_cim_app={{user `splunk_cim_app`}} splunk_sysmon_ta={{user `splunk_sysmon_ta`}}" ]
+    }
+  ]
+
+}

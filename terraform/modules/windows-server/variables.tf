@@ -26,6 +26,7 @@ variable "key_name" {
 }
 
 variable "windows_domain_controller_instance" { }
+variable "windows_domain_controller_instance_packer" { }
 
 variable "vpc_security_group_ids" { }
 
@@ -39,6 +40,9 @@ variable "windows_domain_controller_private_ip" { }
 variable "windows_server_private_ip" { }
 variable "windows_server_os" { }
 variable "windows_server_join_domain" { }
+
+variable "use_packer_amis" { }
+variable "windows_server_packer_ami" { }
 
 # Ansible vars
 # Windows server
