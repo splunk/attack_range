@@ -1,15 +1,15 @@
-- name: Check if python ta exists
+- name: Check if python app exists
   stat:
     path: /opt/splunk/etc/apps/Splunk_SA_Scientific_Python_linux_x86_64
-  register: python_ta
+  register: python_app
 
-- name: download Sysmon TA from S3 bucket
+- name: download Python app from S3 bucket
   get_url:
     url: '{{ s3_bucket_url }}/{{ splunk_sysmon_ta }}'
     dest: /tmp/python-for-scientific-computing-for-linux-64-bit_14.tgz
-  when: python_ta.stat.exists == False
+  when: python_app.stat.exists == False
 
-- name: Install python ta app via REST
+- name: Install Python app via REST
   uri:
     url: "https://127.0.0.1:8089/services/apps/local"
     method: POST
@@ -21,21 +21,21 @@
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
     timeout: 30
-  when: python_ta.stat.exists == False
+  when: python_app.stat.exists == False
   notify: restart splunk
 
 - name: Check if MLTK ta exists
   stat:
     path: /opt/splunk/etc/apps/Splunk_ML_Toolkit
-  register: mltk_ta
+  register: mltk_app
 
-- name: download MLTK TA from S3 bucket
+- name: download MLTK app from S3 bucket
   get_url:
     url: '{{ s3_bucket_url }}/{{ splunk_sysmon_ta }}'
     dest: /tmp/splunk-machine-learning-toolkit_450.tgz
-  when: mltk_ta.stat.exists == False
+  when: mltk_app.stat.exists == False
 
-- name: Install MLTK ta app via REST
+- name: Install MLTK app via REST
   uri:
     url: "https://127.0.0.1:8089/services/apps/local"
     method: POST
@@ -47,5 +47,5 @@
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
     timeout: 30
-  when: mltk_ta.stat.exists == False
+  when: mltk_app.stat.exists == False
   notify: restart splunk
