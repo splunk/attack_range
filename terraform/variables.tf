@@ -44,6 +44,10 @@ variable "windows_server" {
   default = "0"
 }
 
+variable "windows_client" {
+  default = "0"
+}
+
 variable "kali_machine" {
   default = "0"
 }
@@ -56,6 +60,16 @@ variable "windows_server_os" { }
 variable "windows_server_private_ip" { }
 variable "windows_server_join_domain" { }
 variable "kali_machine_private_ip" { }
+
+variable "use_packer_amis" { }
+variable "splunk_packer_ami" { }
+variable "windows_domain_controller_packer_ami" { }
+variable "windows_server_packer_ami" { }
+
+variable "windows_client_private_ip" { }
+variable "windows_client_join_domain" { }
+variable "windows_client_os" { }
+variable "windows_client_packer_ami" { }
 
 
 #ansible variables

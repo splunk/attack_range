@@ -6,6 +6,8 @@ from pathlib import Path
 from modules.CustomConfigParser import CustomConfigParser
 from modules.TerraformController import TerraformController
 from modules.VagrantController import VagrantController
+from modules.PackerController import PackerController
+
 
 # need to set this ENV var due to a OSX High Sierra forking bug
 # see this discussion for more details: https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
@@ -17,8 +19,8 @@ VERSION = 1
 if __name__ == "__main__":
     # grab arguments
     parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
-    parser.add_argument("-m", "--mode", required=False, choices=['vagrant', 'terraform'],
-                        help="mode of operation, terraform/vagrant, please see configuration for each at: https://github.com/splunk/attack_range")
+    parser.add_argument("-m", "--mode", required=False, choices=['vagrant', 'terraform', 'packer'],
+                        help="mode of operation, terraform/vagrant/packer, please see configuration for each at: https://github.com/splunk/attack_range")
     parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'search'],
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume/search allowed")
     parser.add_argument("-t", "--target", required=False,
@@ -31,6 +33,7 @@ if __name__ == "__main__":
                         help="path to the configuration file of the attack range")
     parser.add_argument("-lm", "--list_machines", required=False, default=False, action="store_true", help="prints out all avaiable machines")
     parser.add_argument("-ls", "--list_searches", required=False, default=False, action="store_true", help="prints out all avaiable savedsearches")
+    parser.add_argument("-f", "--force", required=False, default=False, action="store_true", help="forces a regeneration of amis (mode packer only)")
     parser.add_argument("-v", "--version", default=False, action="store_true", required=False,
                         help="shows current attack_range version")
 
@@ -45,6 +48,7 @@ if __name__ == "__main__":
     list_machines = args.list_machines
     list_searches = args.list_searches
     search_name = args.search_name
+    force = args.force
 
     print("""
 starting program loaded for B1 battle droid
@@ -100,6 +104,10 @@ starting program loaded for B1 battle droid
         log.error('ERROR: Specify search name to execute.')
         sys.exit(1)
 
+    if mode != 'packer' and force:
+        log.error('ERROR: Force can only be used with mode packer.')
+        sys.exit(1)
+
     # lets give CLI priority over config file for pre-configured techniques
     if simulation_techniques:
         pass
@@ -111,6 +119,8 @@ starting program loaded for B1 battle droid
         controller = TerraformController(config, log)
     elif mode == 'vagrant':
         controller = VagrantController(config, log)
+    elif mode == 'packer':
+        controller = PackerController(config, log, force)
 
     if list_machines:
         controller.list_machines()

@@ -1,20 +1,28 @@
 
 from modules.IEnvironmentController import IEnvironmentController
+import hashlib
+import re
+from packerpy import PackerExecutable
 from python_terraform import *
+from jinja2 import Environment, FileSystemLoader
 from modules import aws_service, splunk_sdk
 from tabulate import tabulate
 import ansible_runner
 
 
-class TerraformController(IEnvironmentController):
+class PackerController(IEnvironmentController):
 
-    def __init__(self, config, log):
+
+    def __init__(self, config, log, force):
         super().__init__(config, log)
+        self.force = force
+        self.p = PackerExecutable("/usr/local/bin/packer")
+
         custom_dict = self.config.copy()
         rem_list = ['hash_value', 'log_path', 'log_level', 'art_run_techniques']
         [custom_dict.pop(key) for key in rem_list]
         custom_dict['ip_whitelist'] = [custom_dict['ip_whitelist']]
-        custom_dict['use_packer_amis'] = '0'
+        custom_dict['use_packer_amis'] = '1'
         custom_dict['splunk_packer_ami'] = "packer-splunk-server-" + self.config['key_name']
         custom_dict['windows_domain_controller_packer_ami'] = "packer-windows-domain-controller-" + self.config['key_name']
         custom_dict['windows_server_packer_ami'] = "packer-windows-server-" + self.config['key_name']
@@ -22,12 +30,63 @@ class TerraformController(IEnvironmentController):
         self.terraform = Terraform(working_dir='terraform',variables=custom_dict)
 
 
+    def write_hash_value(self, hash_value):
+        # write new hash value into attack-range.conf
+        with open('default/attack_range.conf.default', 'r') as file:
+            attack_range_conf = file.read()
+
+        attack_range_conf = re.sub(r'hash_value = .+', 'hash_value = ' + str(hash_value), attack_range_conf, re.M)
+
+        with open('default/attack_range.conf.default', 'w') as file:
+            file.write(attack_range_conf)
+
+
+    def read_and_write_userdata_file(self):
+        j2_env = Environment(loader=FileSystemLoader('packer/script'),trim_blocks=True)
+        template = j2_env.get_template('userdata.ps1.j2')
+        userdata_file = template.render(self.config)
+        with open('packer/script/userdata.ps1', 'w') as file:
+            file.write(userdata_file)
+
+
     def build(self):
         self.log.info("[action] > build\n")
+        self.md5_hash = hashlib.md5(open('attack_range.conf','rb').read()).hexdigest()
+        if self.md5_hash != self.config['hash_value'] or self.force:
+            packer_amis = ['splunk-server']
+            #packer_amis = []
+            if self.config['windows_domain_controller']=='1':
+                self.read_and_write_userdata_file()
+                packer_amis.append('windows-domain-controller')
+            if self.config['windows_server']=='1':
+                self.read_and_write_userdata_file()
+                packer_amis.append('windows-server')
+            if self.config['windows_client']=='1':
+                self.read_and_write_userdata_file()
+                packer_amis.append('windows-client')
+            for packer_ami in packer_amis:
+                self.log.info("Generate new Packer AMI packer-" + packer_ami + "-" + self.config['key_name'] + ". This can take some time.")
+                template = 'packer/' + packer_ami +'/packer.json'
+                template_vars = self.config
+                template_vars['splunk_indexer_ip'] = self.config['splunk_server_private_ip']
+                (ret, out, err) = self.p.build(template,var=template_vars)
+                if ret:
+                    self.log.error("ERROR: " + str(out))
+                    sys.exit(1)
+                self.log.info("successfully generated Packer AMI packer-" + packer_ami + "-" + self.config['key_name'])
+
+        # To Do: check for amis using boto3
+        self.build_terraform()
+        self.write_hash_value(self.md5_hash)
+
+
+    def build_terraform(self):
+        self.log.info("build terraform with packer amis")
         return_code, stdout, stderr = self.terraform.apply(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
         if not return_code:
             self.log.info("attack_range has been built using terraform successfully")
             self.list_machines()
+
 
     def destroy(self):
         self.log.info("[action] > destroy\n")
@@ -43,14 +102,6 @@ class TerraformController(IEnvironmentController):
     def resume(self):
         instances = aws_service.get_all_instances(self.config)
         aws_service.change_ec2_state(instances, 'running', self.log)
-
-
-    def search(self, search_name):
-        instance = aws_service.get_instance_by_name("attack-range-splunk-server",self.config)
-        if instance['State']['Name'] == 'running':
-            splunk_sdk.search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(self.config['splunk_admin_password']), search_name, self.log)
-        else:
-            self.log.error('ERROR: Splunk server is not running.')
 
 
     def simulate(self, target, simulation_techniques):
@@ -75,6 +126,14 @@ class TerraformController(IEnvironmentController):
         else:
             self.log.error("failed to executed technique ID {0} against target: {1}".format(simulation_techniques, target))
             sys.exit(1)
+
+
+    def search(self, search_name):
+        instance = aws_service.get_instance_by_name("attack-range-splunk-server",self.config)
+        if instance['State']['Name'] == 'running':
+            splunk_sdk.search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(self.config['splunk_admin_password']), search_name, self.log)
+        else:
+            self.log.error('ERROR: Splunk server is not running.')
 
 
     def list_machines(self):

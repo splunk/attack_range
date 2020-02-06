@@ -1,4 +1,3 @@
-
 variable "private_key_path" {
   description = <<DESCRIPTION
 Path to the SSH private key to be used for authentication.
@@ -14,7 +13,6 @@ DESCRIPTION
 variable "win_username" {
 	description = "Windows Host default username to use"
 	type = "string"
-	default = "Administrator"
 }
 
 variable "win_password" {
@@ -26,20 +24,24 @@ variable "key_name" {
   description = "Desired name of AWS key pair"
 }
 
+variable "windows_domain_controller_instance" { }
+variable "windows_domain_controller_instance_packer" { }
+
 variable "vpc_security_group_ids" { }
 
 variable "vpc_subnet_id" { }
 variable "availability_zone" { }
 
-variable "windows_domain_controller" { }
+variable "windows_client" { }
 
 variable "splunk_server_private_ip" { }
 variable "windows_domain_controller_private_ip" { }
-variable "windows_domain_controller_os" { }
+variable "windows_client_private_ip" { }
+variable "windows_client_os" { }
+variable "windows_client_join_domain" { }
 
 variable "use_packer_amis" { }
-variable "windows_domain_controller_packer_ami" { }
-
+variable "windows_client_packer_ami" { }
 
 # Ansible vars
 # Windows server
