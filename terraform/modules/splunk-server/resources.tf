@@ -2,7 +2,7 @@
 
 data "aws_ami" "latest-ubuntu" {
 most_recent = true
-owners = ["679593333241"] # Canonical
+owners = ["679593333241"] # owned by AWS Marketplace
 
   filter {
       name   = "name"
