@@ -1,0 +1,12 @@
+
+- name: Create folder directory for outputs configuration
+  win_file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - 'C:\Program Files\SplunkUniversalForwarder\etc\apps\win_outputs_app\local'
+
+- name: Copy an outputs.conf using templating
+  win_template:
+    src: outputs.conf.j2
+    dest: C:\Program Files\SplunkUniversalForwarder\etc\apps\win_outputs_app\local\outputs.conf

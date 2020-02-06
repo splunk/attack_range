@@ -22,6 +22,10 @@ variable "vpc_subnet_id" { }
 
 variable "splunk_server_private_ip" { }
 
+variable "use_packer_amis" { }
+variable "splunk_packer_ami" { }
+
+
 #ansible variables
 # ---------------------- #
 # Splunk server

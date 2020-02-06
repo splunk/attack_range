@@ -1,11 +1,13 @@
 ---
 
 - name: Clean up before execution C:\Windows\Temp
+  ignore_errors: yes
   win_file:
     path: 'C:\Windows\Temp'
     state: absent
 
 - name: Recreate C:\Windows\Temp before execution
+  ignore_errors: yes
   win_file:
     path: 'C:\Windows\Temp'
     state: directory
