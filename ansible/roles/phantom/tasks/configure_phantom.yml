@@ -80,6 +80,6 @@
 # template to install more apps
 #- name: install <> app
 #  yum:
-#    name: 
+#    name:
 #    state: present
 
