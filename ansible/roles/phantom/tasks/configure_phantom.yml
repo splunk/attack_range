@@ -23,7 +23,8 @@
   register: api_token
 
 - name: display phantom api token
-  debug: "phantom api token is {{api_token.json.key}}"
+  debug:
+    msg: "phantom api token is {{api_token.json.key}}"
 
 - name: open up api allowed ip list
   uri:
