@@ -73,6 +73,7 @@ variable "windows_client_packer_ami" { }
 variable "region" { }
 variable "availability_zone" { }
 variable "subnet_cidr" { }
+variable "caldera_password" { }
 
 # Splunk server
 variable "splunk_admin_password" { }

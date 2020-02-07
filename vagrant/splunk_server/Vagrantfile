@@ -21,7 +21,8 @@ config.vm.define "attack-range-splunk-server" do |config|
         splunk_asx_app: '{{ splunk_asx_app }}',
         splunk_windows_ta: '{{ splunk_windows_ta }}',
         splunk_cim_app: '{{ splunk_cim_app }}',
-        splunk_sysmon_ta: '{{ splunk_sysmon_ta }}'
+        splunk_sysmon_ta: '{{ splunk_sysmon_ta }}',
+        caldera_password: '{{ caldera_password }}'
       }
   end
 

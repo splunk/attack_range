@@ -1,0 +1,19 @@
+---
+
+host: 0.0.0.0
+port: 8888
+exfil_dir: /tmp
+memory: True
+untrusted_timer: 180
+plugins:
+  - terminal
+  - caltack
+  - ssl
+  - stockpile
+  - sandcat
+  - gui
+  - chain
+debug: False
+api_key: {{ caldera_password }}
+users:
+  admin: {{ caldera_password }}

@@ -112,7 +112,7 @@ EOF
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ansible-playbook -i '${aws_instance.windows_domain_controller_packer[count.index].public_ip},' playbooks/windows_dc_packer2.yml --extra-vars 'splunk_indexer_ip=${var.splunk_server_private_ip} ansible_user=${var.win_username} ansible_password=${var.win_password} win_password=${var.win_password} splunk_uf_win_url=${var.splunk_uf_win_url} win_sysmon_url=${var.win_sysmon_url} win_sysmon_template=${var.win_sysmon_template} splunk_admin_password=${var.splunk_admin_password}'"
+    command = "ansible-playbook -i '${aws_instance.windows_domain_controller_packer[count.index].public_ip},' playbooks/windows_dc_packer_terraform.yml --extra-vars 'splunk_indexer_ip=${var.splunk_server_private_ip} ansible_user=${var.win_username} ansible_password=${var.win_password} win_password=${var.win_password} splunk_uf_win_url=${var.splunk_uf_win_url} win_sysmon_url=${var.win_sysmon_url} win_sysmon_template=${var.win_sysmon_template} splunk_admin_password=${var.splunk_admin_password}'"
   }
 
 }

@@ -3,11 +3,9 @@
   vars:
     ansible_connection: winrm
     ansible_port: 5986
-#    ansible_winrm_transport: basic
     ansible_winrm_server_cert_validation: ignore
-#    ansible_winrm_read_timeout_sec: 600
+    hostname: win-host
   roles:
     - windows_common
-    - windows_dns_server
     - windows_universal_forwarder
     - sysmon

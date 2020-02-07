@@ -27,6 +27,7 @@ module "splunk-server" {
   splunk_server_private_ip = "${var.splunk_server_private_ip}"
   use_packer_amis        = "${var.use_packer_amis}"
   splunk_packer_ami      = "${var.splunk_packer_ami}"
+  caldera_password       = "${var.caldera_password}"
 }
 
 module "windows-domain-controller" {

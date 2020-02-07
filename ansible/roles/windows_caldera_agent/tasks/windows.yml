@@ -1,0 +1,36 @@
+---
+
+- name: Ensure Microsoft Visual C++ Redistributable for Visual Studio 2015 is present
+  win_chocolatey:
+    name: vcredist2015
+    state: present
+  ignore_errors: true
+
+- name: Ensure caldera agent directory exists
+  win_file:
+    path: 'C:\Program Files\cagent'
+    state: directory
+
+- name: Download Caldera agent and dependencies
+  win_get_url:
+    url: "{{ item.u }}"
+    dest: "{{ item.d }}"
+  with_items: "{{ calderaagent_urls }}"
+
+- include: firewall.yml
+- include: registry.yml
+
+- name: retrieve Caldera server config
+  win_get_url:
+    url: 'https://{{ splunk_indexer_ip }}:8888/conf.yml'
+    dest: 'C:\Program Files\cagent\conf.yml'
+
+- name: Setup agent
+  win_shell: cagent.exe --startup auto install
+  args:
+    chdir: 'C:\Program Files\cagent'
+
+- name: Start agent
+  win_shell: cagent.exe start
+  args:
+    chdir: 'C:\Program Files\cagent'
