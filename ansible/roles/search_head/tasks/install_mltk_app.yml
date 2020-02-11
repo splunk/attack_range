@@ -5,7 +5,7 @@
 
 - name: download Python app from S3 bucket
   get_url:
-    url: '{{ s3_bucket_url }}/{{ splunk_sysmon_ta }}'
+    url: '{{ s3_bucket_url }}/{{ splunk_python_app }}'
     dest: /tmp/python-for-scientific-computing-for-linux-64-bit_14.tgz
   when: python_app.stat.exists == False
 
@@ -31,7 +31,7 @@
 
 - name: download MLTK app from S3 bucket
   get_url:
-    url: '{{ s3_bucket_url }}/{{ splunk_sysmon_ta }}'
+    url: '{{ s3_bucket_url }}/{{ splunk_mltk_app }}'
     dest: /tmp/splunk-machine-learning-toolkit_450.tgz
   when: mltk_app.stat.exists == False
 
@@ -47,5 +47,10 @@
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
     timeout: 30
+  register: feedback_mltk
   when: mltk_app.stat.exists == False
   notify: restart splunk
+
+- name: Debug mltk installation
+  debug:
+    var: feedback_mltk
