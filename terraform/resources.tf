@@ -24,6 +24,8 @@ module "splunk-server" {
   splunk_windows_ta      = "${var.splunk_windows_ta}"
   splunk_cim_app         = "${var.splunk_cim_app}"
   splunk_sysmon_ta       = "${var.splunk_sysmon_ta}"
+  splunk_python_app       = "${var.splunk_python_app}"
+  splunk_mltk_app         = "${var.splunk_mltk_app}"
   splunk_server_private_ip = "${var.splunk_server_private_ip}"
   use_packer_amis        = "${var.use_packer_amis}"
   splunk_packer_ami      = "${var.splunk_packer_ami}"

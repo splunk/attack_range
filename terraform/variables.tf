@@ -84,6 +84,10 @@ variable "splunk_asx_app" { }
 variable "splunk_windows_ta" { }
 variable "splunk_cim_app" { }
 variable "splunk_sysmon_ta" { }
+variable "splunk_python_app" { }
+variable "splunk_mltk_app" { }
+
+
 
 # Windows server
 variable "splunk_uf_win_url" { }
