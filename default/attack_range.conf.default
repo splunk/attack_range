@@ -1,7 +1,7 @@
 # DO NOT CHANGE THIS FILE
 
 [global]
-hash_value = 6d2387930d8bd54e63bb11ec5ba64869
+hash_value = 6d2387930d8bd54e63bb11ec5ba648
 
 log_path = attack_range.log
 # Sets the log_path for the logging file

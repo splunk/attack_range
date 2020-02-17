@@ -48,3 +48,7 @@ variable "splunk_cim_app" { }
 variable "splunk_sysmon_ta" { }
 
 variable "caldera_password" { }
+
+variable "splunk_python_app" { }
+
+variable "splunk_mltk_app" { }
