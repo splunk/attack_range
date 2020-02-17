@@ -1,5 +1,5 @@
 
-caldera_version: f693c673533d291484fd92aa86ff8000c352fe6b
+#caldera_version: d0df0a9349197c17e1a8a0a461597b1cd244e742
 caldera_user: caldera
 caldera_home: /var/_caldera
 caldera_rootdir: /var/_caldera/caldera

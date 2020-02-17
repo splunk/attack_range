@@ -31,7 +31,6 @@
   git:
     repo: https://github.com/mitre/caldera.git
     dest: "{{ caldera_rootdir }}"
-    version: "{{ caldera_version }}"
     update: false
     recursive: true
   become: yes
