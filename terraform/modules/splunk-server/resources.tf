@@ -3,7 +3,7 @@
 data "aws_ami" "latest-ubuntu" {
   count = var.use_packer_amis ? 0 : 1
   most_recent = true
-  owners = ["679593333241"] # Canonical
+  owners = ["679593333241"] # owned by AWS Marketplace
 
   filter {
       name   = "name"

@@ -31,6 +31,19 @@ module "splunk-server" {
   splunk_packer_ami      = "${var.splunk_packer_ami}"
 }
 
+module "phantom-server" {
+  source                     = "./modules/phantom-server"
+  phantom_server             = "${var.phantom_server}"
+  private_key_path           = "${var.private_key_path}"
+  key_name                   = "${var.key_name}"
+  vpc_security_group_ids     = "${module.networkModule.vpc_security_group_ids}"
+  vpc_subnet_id              = "${module.networkModule.vpc_subnet_id}"
+  phantom_server_private_ip  = "${var.phantom_server_private_ip}"
+  phantom_admin_password     = "${var.splunk_admin_password}"
+  phantom_community_username = "${var.phantom_community_username}"
+  phantom_community_password = "${var.phantom_community_password}"
+}
+
 module "windows-domain-controller" {
   source			           = "./modules/windows-domain-controller"
  	private_key_path       = "${var.private_key_path}"
