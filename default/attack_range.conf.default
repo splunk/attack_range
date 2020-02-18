@@ -1,5 +1,5 @@
 # DO NOT CHANGE THIS FILE
-
+ 
 [global]
 hash_value = 6d2387930d8bd54e63bb11ec5ba648
 
@@ -70,6 +70,20 @@ splunk_asx_app = Splunk_Analytic_Story_Execution-latest.tar.gz
 # Specify the Splunk ASX App
 
 
+[phantom_settings]
+phantom_community_username = attack-range@splunk.com
+# Specify the username needed to login to my.phantom.us to download Phantom
+# This must be changed to a real username
+
+phantom_community_password = I-l1ke-Attack-Range!
+# Specify the password used to login to my.phantom.us to download Phantom
+# This must be changed to a real password
+
+phantom_admin_password = I-l1ke-Attack-Range!
+# Specify the password that will be used to login to the new Phantom instance as admin
+# It is recommended that you change this value
+
+
 [windows_settings]
 win_username = Administrator
 # Specify the Administrator user in your windows machine
@@ -78,6 +92,7 @@ win_username = Administrator
 win_password = I-l1ke-Attack-Range!
 # Specify the password for the Administrator User in Windows
 # It is recommended to change that value
+# The default windows password policy must be followed (at least three of uppercase letters, lowercase letters, numbers, and special characters)
 
 splunk_uf_win_url = https://www.splunk.com/page/download_track?file=7.3.2/windows/splunkforwarder-7.3.2-c60db69f8e32-x64-release.msi&ac=&wget=true&name=wget&platform=Windows&architecture=x86_64&version=7.3.2&product=universalforwarder&typed=release
 # Specify the download URL of the Splunk windows universal forwarder
@@ -97,13 +112,17 @@ art_run_techniques = T1002
 
 
 [environment]
-# specify your Attack Range environment by enable (1) or disable (0) machines
+# specify your Attack Range environment by enabling (1) or disabling (0) machines
+
+phantom_server = 1
+# enable a phantom server
+# possible values: 1, 0
 
 windows_domain_controller = 1
 # enable a windows domain controller
 # possible values: 1, 0
 
-windows_server = 1
+windows_server = 0
 # enable a windows server
 # possible values: 1, 0
 
@@ -120,15 +139,22 @@ windows_client = 0
 [splunk_server]
 # customize the splunk server
 
-splunk_server_private_ip = 10.0.1.5
-# specify the splunk servers private ip
+splunk_server_private_ip = 10.0.1.1
+# specify the splunk server's private ip
+
+
+[phantom_server]
+# customize the phantom server
+
+phantom_server_private_ip = 10.0.1.2
+# specify the phantom server's private ip
 
 
 [windows_domain_controller]
 # customize the windows domain controller
 
-windows_domain_controller_private_ip = 10.0.1.6
-# specify the windows domain controller private ip
+windows_domain_controller_private_ip = 10.0.1.3
+# specify the windows domain controller's private ip
 
 windows_domain_controller_os = Windows_Server_2016
 # specify the windows domain controller operating System
@@ -138,7 +164,7 @@ windows_domain_controller_os = Windows_Server_2016
 [windows_server]
 # customize the windows server
 
-windows_server_private_ip = 10.0.1.7
+windows_server_private_ip = 10.0.1.4
 # specify the windows server private ip
 
 windows_server_os = Windows_Server_2016
@@ -153,19 +179,21 @@ windows_server_join_domain = 1
 [kali_machine]
 # customize the kali machine
 
-kali_machine_private_ip = 10.0.1.8
+kali_machine_private_ip = 10.0.1.5
 # specify the kali machine private ip
 
 
 [windows_client]
 # customize the windows client
 
-windows_client_private_ip = 10.0.1.9
+windows_client_private_ip = 10.0.1.6
 # specify the windows client private ip
 
-windows_client_os = Windows_10
+windows_client_os = import-ami-0e5a092cc20dbb992
 # specify the windows server operating System
-# Currently only Windows_10 is supported
+# for mode Vagrant use Windows-10
+# for mode terraform specify the ami name
+# instructions to upload your own Windows 10 ami can be found in the wiki
 
 windows_client_join_domain = 1
 # specify if the windows client should join the windows domain
