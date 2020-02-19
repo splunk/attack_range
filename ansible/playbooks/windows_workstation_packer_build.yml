@@ -8,4 +8,5 @@
   roles:
     - windows_common
     - windows_universal_forwarder
+    - windows_caldera_agent
     - sysmon

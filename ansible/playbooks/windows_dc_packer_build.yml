@@ -9,4 +9,5 @@
     - windows_common
     - windows_dns_server
     - windows_universal_forwarder
+    - windows_caldera_agent
     - sysmon
