@@ -18,10 +18,10 @@ data "aws_ami" "latest-windows-server-2016" {
 
 resource "aws_instance" "windows_server" {
   count         = var.windows_server == "1" && var.use_packer_amis=="0" ? 1 : 0
-  ami           = "${data.aws_ami.latest-windows-server-2016[count.index].id}"
+  ami           = data.aws_ami.latest-windows-server-2016[count.index].id
   instance_type = "t2.2xlarge"
   key_name = var.key_name
-  subnet_id = "${var.vpc_subnet_id}"
+  subnet_id = var.vpc_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.windows_server_private_ip
   depends_on = [var.windows_domain_controller_instance]
@@ -41,9 +41,9 @@ EOF
 
     connection {
       type     = "winrm"
-      user     = "${var.win_username}"
-      password = "${var.win_password}"
-      host     = "${aws_instance.windows_server[count.index].public_ip}"
+      user     = var.win_username
+      password = var.win_password
+      host     = aws_instance.windows_server[count.index].public_ip
       port     = 5986
       insecure = true
       https    = true
@@ -80,10 +80,10 @@ data "aws_ami" "windows-server-packer-ami" {
 
 resource "aws_instance" "windows_server_packer" {
   count         = var.windows_server == "1" && var.use_packer_amis=="1" ? 1 : 0
-  ami           = "${data.aws_ami.windows-server-packer-ami[count.index].id}"
+  ami           = data.aws_ami.windows-server-packer-ami[count.index].id
   instance_type = "t2.2xlarge"
   key_name = var.key_name
-  subnet_id = "${var.vpc_subnet_id}"
+  subnet_id = var.vpc_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.windows_server_private_ip
   depends_on = [var.windows_domain_controller_instance_packer]
@@ -103,9 +103,9 @@ EOF
 
     connection {
       type     = "winrm"
-      user     = "${var.win_username}"
-      password = "${var.win_password}"
-      host     = "${aws_instance.windows_server_packer[count.index].public_ip}"
+      user     = var.win_username
+      password = var.win_password
+      host     = aws_instance.windows_server_packer[count.index].public_ip
       port     = 5986
       insecure = true
       https    = true

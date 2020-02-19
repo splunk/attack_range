@@ -18,10 +18,10 @@ data "aws_ami" "latest-windows-server-2016" {
 
 resource "aws_instance" "windows_domain_controller" {
   count         = var.windows_domain_controller == "1" && var.use_packer_amis=="0" ? 1 : 0
-  ami           = "${data.aws_ami.latest-windows-server-2016[count.index].id}"
+  ami           = data.aws_ami.latest-windows-server-2016[count.index].id
   instance_type = "t2.2xlarge"
   key_name = var.key_name
-  subnet_id = "${var.vpc_subnet_id}"
+  subnet_id = var.vpc_subnet_id
   private_ip = var.windows_domain_controller_private_ip
   vpc_security_group_ids = [var.vpc_security_group_ids]
   tags = {
@@ -40,9 +40,9 @@ EOF
 
     connection {
       type     = "winrm"
-      user     = "${var.win_username}"
-      password = "${var.win_password}"
-      host     = "${aws_instance.windows_domain_controller[count.index].public_ip}"
+      user     = var.win_username
+      password = var.win_password
+      host     = aws_instance.windows_domain_controller[count.index].public_ip
       port     = 5986
       insecure = true
       https    = true
@@ -79,10 +79,10 @@ data "aws_ami" "windows-domain-controller-packer-ami" {
 
 resource "aws_instance" "windows_domain_controller_packer" {
   count         = var.windows_domain_controller == "1" && var.use_packer_amis=="1" ? 1 : 0
-  ami           = "${data.aws_ami.windows-domain-controller-packer-ami[count.index].id}"
+  ami           = data.aws_ami.windows-domain-controller-packer-ami[count.index].id
   instance_type = "t2.2xlarge"
   key_name = var.key_name
-  subnet_id = "${var.vpc_subnet_id}"
+  subnet_id = var.vpc_subnet_id
   private_ip = var.windows_domain_controller_private_ip
   vpc_security_group_ids = [var.vpc_security_group_ids]
   tags = {
@@ -101,9 +101,9 @@ EOF
 
     connection {
       type     = "winrm"
-      user     = "${var.win_username}"
-      password = "${var.win_password}"
-      host     = "${aws_instance.windows_domain_controller_packer[count.index].public_ip}"
+      user     = var.win_username
+      password = var.win_password
+      host     = aws_instance.windows_domain_controller_packer[count.index].public_ip
       port     = 5986
       insecure = true
       https    = true
