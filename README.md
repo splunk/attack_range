@@ -80,7 +80,7 @@ python attack_range.py -m terraform/vagrant/packer -a resume
   * Out of the box Splunk detections with Enterprise Security Content Update ([ESCU](https://splunkbase.splunk.com/app/3449/)) App
   * Preinstalled Machine Learning Toolkit ([MLTK](https://splunkbase.splunk.com/app/2890/))
   * Splunk UI available through port 8000 with user admin
-  * ssh connection over provided ssh key
+  * ssh connection over configured ssh key
 
 - [Windows Domain Controller & Window Server & Windows 10 Client](https://github.com/splunk/attack_range/wiki/Windows-Infrastructure)
   * Can be enabled, disabled and configured over [attack_range.conf](attack_range.conf)
@@ -94,20 +94,20 @@ python attack_range.py -m terraform/vagrant/packer -a resume
 
 - [Caldera](https://github.com/mitre/caldera)
   * Adversary Emulation with [Caldera](https://github.com/mitre/caldera)
+  * Installed on the Splunk Server and available over port 8888 with user admin
   * Preinstalled Caldera agents on windows machines
-  * Caldera UI available through port 8888 with user admin
 
 - [Kali Linux](https://www.kali.org/)
   * Preconfigured Kali Linux machine for penetration testing
-  * ssh connection over provided ssh key
+  * ssh connection over configured ssh key
 
 
 ## Planned features
 - [Phantom Server](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html)
 - [Enterprise Security](https://splunkbase.splunk.com/app/263/)
-- Linux Server with OSQuery
-- Linux Client with OSQuery
-- macOS Client with OSQuery
+- Linux Server
+- Linux Client
+- macOS Client
 
 
 ## Support
