@@ -16,7 +16,7 @@ Attack Range can be built in three different ways:
 - in the **cloud** using terraform and AWS
 - **cloud optimized** using terraform, packer and AWS
 
-![Logical Diagram](docs/attack_range_architecture.jpeg)
+![Logical Diagram](docs/attack_range_architecture1.png)
 
 Attack Range consists of Windows Domain Controller, Windows Server, Windows Workstation and a Kali Machine, which can be added/removed/configured using attack_range.conf. More machines such as Phantom, Linux Server, Linux Client are currently under development.
 
