@@ -23,7 +23,9 @@ config.vm.define "attack-range-splunk-server" do |config|
         splunk_cim_app: '{{ splunk_cim_app }}',
         splunk_sysmon_ta: '{{ splunk_sysmon_ta }}',
         splunk_mltk_app: '{{ splunk_python_app }}',
-        splunk_python_app: '{{ splunk_mltk_app }}'
+        splunk_python_app: '{{ splunk_mltk_app }}',
+        install_es: '{{ install_es }}',
+        splunk_es_app: '{{ splunk_es_app }}'
       }
   end
 

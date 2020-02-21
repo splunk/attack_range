@@ -51,3 +51,6 @@ variable "splunk_python_app" { }
 
 variable "splunk_mltk_app" { }
 
+variable "install_es" { }
+
+variable "splunk_es_app" { }

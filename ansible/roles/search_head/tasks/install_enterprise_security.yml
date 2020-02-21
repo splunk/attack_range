@@ -1,0 +1,26 @@
+- name: Copy enterprise security to server
+  copy:
+    src: "../../apps/{{ splunk_es_app }}"
+    dest: /tmp/es_app.tgz
+  when: install_es == "1"
+
+- name: Install es app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/es_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: install_es == "1"
+  notify: restart splunk
+
+- name: Run es post-install setup
+  command: "/opt/splunk/bin/splunk search '| essinstall' -auth admin:{{ splunk_admin_password }}"
+  become: yes
+  become_user: splunk
+  when: install_es == "1"
