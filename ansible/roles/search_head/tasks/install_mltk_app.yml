@@ -51,6 +51,3 @@
   when: mltk_app.stat.exists == False
   notify: restart splunk
 
-- name: Debug mltk installation
-  debug:
-    var: feedback_mltk
