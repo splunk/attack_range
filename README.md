@@ -122,9 +122,9 @@ If you have questions or need support, you can:
 
 ## Author
 * [Jose Hernandez](https://twitter.com/d1vious)
+* [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 
 ## Contributors
-* [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 * [Bhavin Patel](https://twitter.com/hackpsy)
 * [Rod Soto](https://twitter.com/rodsoto)
 * Russ Nolen
