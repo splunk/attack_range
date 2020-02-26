@@ -17,7 +17,7 @@ data "aws_ami" "latest-kali-linux" {
 # standup splunk server
 resource "aws_instance" "kali_machine" {
   count         = var.kali_machine ? 1 : 0
-  ami           = "${data.aws_ami.latest-kali-linux.id}"
+  ami           = data.aws_ami.latest-kali-linux.id
   instance_type = "t2.medium"
   key_name = var.key_name
   subnet_id = var.vpc_subnet_id

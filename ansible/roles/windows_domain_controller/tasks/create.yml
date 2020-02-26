@@ -30,6 +30,7 @@
 
 - name: reboot | Rebooting Server
   win_reboot:
+    post_reboot_delay: 300
 
 - name: Managing Domain Controller Membership
   win_domain_controller:
