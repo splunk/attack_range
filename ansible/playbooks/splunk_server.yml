@@ -2,5 +2,5 @@
   gather_facts: False
   become: true
   roles:
-    - caldera
     - search_head
+    - caldera
