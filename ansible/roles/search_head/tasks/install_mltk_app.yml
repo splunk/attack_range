@@ -49,7 +49,3 @@
     timeout: 30
   when: mltk_app.stat.exists == False
   notify: restart splunk
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
