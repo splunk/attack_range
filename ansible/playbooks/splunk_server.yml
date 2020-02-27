@@ -3,3 +3,4 @@
   become: true
   roles:
     - search_head
+    - caldera

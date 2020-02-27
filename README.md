@@ -16,9 +16,9 @@ Attack Range can be built in three different ways:
 - in the **cloud** using terraform and AWS
 - **cloud optimized** using terraform, packer and AWS
 
-![Logical Diagram](docs/attack_range_architecture.jpeg)
+![Logical Diagram](docs/attack_range_architecture1.png)
 
-Attack Range consists of Windows Domain Controller, Windows Server, Windows Workstation and a Kali Machine, which can be added/removed/configured using attack_range.conf. More machines such as Phantom, Linux Server, Linux Client are currently under development.
+Attack Range consists of Windows Domain Controller, Windows Server, Windows Workstation and a Kali Machine, which can be added/removed/configured using attack_range.conf. More machines such as Phantom, Linux Server, Linux Client, macOS client are currently under development.
 
 ![Logical Diagram](docs/attack_range_architecture2.png)
 
@@ -73,6 +73,42 @@ python attack_range.py -m terraform/vagrant/packer -a stop
 python attack_range.py -m terraform/vagrant/packer -a resume
 ```
 
+## Features
+- [Splunk Server](https://github.com/splunk/attack_range/wiki/Splunk-Server)
+  * Indexing of Microsoft Event Logs, PowerShell Logs, Sysmon Logs, DNS Logs, ...
+  * Preconfigured with multiple TAs for field extractions
+  * Out of the box Splunk detections with Enterprise Security Content Update ([ESCU](https://splunkbase.splunk.com/app/3449/)) App
+  * Preinstalled Machine Learning Toolkit ([MLTK](https://splunkbase.splunk.com/app/2890/))
+  * Splunk UI available through port 8000 with user admin
+  * ssh connection over configured ssh key
+
+- [Windows Domain Controller & Window Server & Windows 10 Client](https://github.com/splunk/attack_range/wiki/Windows-Infrastructure)
+  * Can be enabled, disabled and configured over [attack_range.conf](attack_range.conf)
+  * Collecting of Microsoft Event Logs, PowerShell Logs, Sysmon Logs, DNS Logs, ...
+  * Sysmon log collection with customizable Sysmon configuration
+  * RDP connection over port 3389 with user Administrator
+
+- [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
+  * Attack Simulation with [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
+  * Will be automatically installed on target during first execution of simulate
+
+- [Caldera](https://github.com/mitre/caldera)
+  * Adversary Emulation with [Caldera](https://github.com/mitre/caldera)
+  * Installed on the Splunk Server and available over port 8888 with user admin
+  * Preinstalled Caldera agents on windows machines
+
+- [Kali Linux](https://www.kali.org/)
+  * Preconfigured Kali Linux machine for penetration testing
+  * ssh connection over configured ssh key
+
+
+## Planned features
+- [Phantom Server](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html)
+- [Enterprise Security](https://splunkbase.splunk.com/app/263/)
+- Linux Server
+- Linux Client
+- macOS Client
+
 
 ## Support
 Please use the [GitHub issue tracker](https://github.com/splunk/attack_range/issues) to submit bugs or request features.
@@ -86,9 +122,9 @@ If you have questions or need support, you can:
 
 ## Author
 * [Jose Hernandez](https://twitter.com/d1vious)
+* [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 
 ## Contributors
-* [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 * [Bhavin Patel](https://twitter.com/hackpsy)
 * [Rod Soto](https://twitter.com/rodsoto)
 * Russ Nolen
