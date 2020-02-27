@@ -47,7 +47,9 @@
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
     timeout: 30
-  register: feedback_mltk
   when: mltk_app.stat.exists == False
   notify: restart splunk
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop

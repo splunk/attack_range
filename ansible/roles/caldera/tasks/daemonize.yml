@@ -1,0 +1,22 @@
+---
+- name: install systemd configuration
+  template:
+    src: systemd-caldera.service.j2
+    dest: /lib/systemd/system/caldera.service
+    mode: '0644'
+    backup: yes
+  register: systemd
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+    name: caldera
+  when: systemd.changed
+  ignore_errors: true
+
+- name: enable and start caldera systemd service
+  service:
+    name: caldera
+    enabled: yes
+    state: 'started'
+  ignore_errors: true

@@ -9,6 +9,7 @@
       "splunk_windows_ta": "",
       "splunk_cim_app": "",
       "splunk_sysmon_ta": "",
+      "caldera_password": "",
       "key_name": ""
   },
   "builders": [{
@@ -36,7 +37,7 @@
     {
       "type": "ansible",
       "playbook_file": "ansible/playbooks/splunk_server.yml",
-      "extra_arguments": [ "--extra-vars", "splunk_admin_password={{user `splunk_admin_password`}} splunk_url={{user `splunk_url`}} splunk_binary={{user `splunk_binary`}} s3_bucket_url={{user `s3_bucket_url`}} splunk_escu_app={{user `splunk_escu_app`}} splunk_asx_app={{user `splunk_asx_app`}} splunk_windows_ta={{user `splunk_windows_ta`}} splunk_cim_app={{user `splunk_cim_app`}} splunk_sysmon_ta={{user `splunk_sysmon_ta`}} splunk_python_app={{user `splunk_python_app`}} splunk_mltk_app={{user `splunk_mltk_app`}}" ]
+      "extra_arguments": [ "--extra-vars", "splunk_admin_password={{user `splunk_admin_password`}} splunk_url={{user `splunk_url`}} splunk_binary={{user `splunk_binary`}} s3_bucket_url={{user `s3_bucket_url`}} splunk_escu_app={{user `splunk_escu_app`}} splunk_asx_app={{user `splunk_asx_app`}} splunk_windows_ta={{user `splunk_windows_ta`}} splunk_cim_app={{user `splunk_cim_app`}} splunk_sysmon_ta={{user `splunk_sysmon_ta`}} splunk_python_app={{user `splunk_python_app`}} splunk_mltk_app={{user `splunk_mltk_app`}} caldera_password={{user `caldera_password`}}" ]
     }
   ]
 
