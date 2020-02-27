@@ -1,5 +1,5 @@
-Vagrant.configure("2") do |config| 
- 
+Vagrant.configure("2") do |config|
+
 config.vm.define "attack-range-splunk-server" do |config|
   VM_NAME= "attack-range-splunk-server"
   config.vm.box = "generic/ubuntu1804"
@@ -16,7 +16,7 @@ config.vm.define "attack-range-splunk-server" do |config|
       ansible.extra_vars = {
         ansible_python_interpreter: "/usr/bin/python3",
         splunk_admin_password: 'I-l1ke-Attack-Range!',
-        splunk_url: 'https://www.splunk.com/page/download_track?file=7.3.2/linux/splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz&ac=&wget=true&name=wget&platform=Linux&architecture=x86_64&version=7.3.2&product=splunk&typed=release',
+        splunk_url: 'https://download.splunk.com/products/splunk/releases/7.3.2/linux/splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz',
         splunk_binary: 'splunk-7.3.2-c60db69f8e32-Linux-x86_64.tgz',
         s3_bucket_url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com',
         splunk_escu_app: 'DA-ESS-ContentUpdate-latest.tar.gz',
@@ -24,6 +24,7 @@ config.vm.define "attack-range-splunk-server" do |config|
         splunk_windows_ta: 'splunk-add-on-for-microsoft-windows_700.tgz',
         splunk_cim_app: 'splunk-common-information-model-cim_4130.tgz',
         splunk_sysmon_ta: 'add-on-for-microsoft-sysmon_810.tgz',
+        caldera_password: 'I-l1ke-Attack-Range!',
         splunk_mltk_app: 'python-for-scientific-computing-for-linux-64-bit_14.tgz',
         splunk_python_app: 'splunk-machine-learning-toolkit_450.tgz',
         install_es: '1',
@@ -59,7 +60,7 @@ config.vm.define "attack-range-domain-controller" do |config|
         ansible_winrm_scheme: 'http',
         splunk_indexer_ip: "10.0.1.5",
         win_password: 'I-l1ke-Attack-Range!',
-        splunk_uf_win_url: 'https://www.splunk.com/page/download_track?file=7.3.2/windows/splunkforwarder-7.3.2-c60db69f8e32-x64-release.msi&ac=&wget=true&name=wget&platform=Windows&architecture=x86_64&version=7.3.2&product=universalforwarder&typed=release',
+        splunk_uf_win_url: 'https://download.splunk.com/products/universalforwarder/releases/7.3.2/windows/splunkforwarder-7.3.2-c60db69f8e32-x64-release.msi',
         win_sysmon_url: 'https://download.sysinternals.com/files/Sysmon.zip',
         win_sysmon_template: 'SysmonConfig-TSwift.xml',
         splunk_admin_password: 'I-l1ke-Attack-Range!'
