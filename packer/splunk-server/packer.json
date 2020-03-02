@@ -26,9 +26,13 @@
                 },
                 "most_recent": true,
                 "owners": [
-                    "679593333241"
+                    "099720109477"
                 ]
             },
+    "launch_block_device_mappings": [{
+        "device_name": "/dev/sda1",
+        "volume_size": "30"
+    }],
     "instance_type": "t2.2xlarge",
     "ssh_username": "ubuntu",
     "ssh_keypair_name": "{{user `key_name`}}",
