@@ -12,12 +12,12 @@ DESCRIPTION
 
 variable "win_username" {
 	description = "Windows Host default username to use"
-	type = "string"
+	type = string
 }
 
 variable "win_password" {
 	description = "Windows Host default password to use"
-	type = "string"
+	type = string
 }
 
 variable "key_name" {
@@ -78,6 +78,7 @@ variable "windows_client_packer_ami" { }
 variable "region" { }
 variable "availability_zone" { }
 variable "subnet_cidr" { }
+variable "caldera_password" { }
 
 # Splunk server
 variable "splunk_admin_password" { }

@@ -18,7 +18,7 @@ data "aws_ami" "latest-ubuntu" {
 
 resource "aws_instance" "splunk-server" {
   count = var.use_packer_amis ? 0 : 1
-  ami           = "${data.aws_ami.latest-ubuntu[count.index].id}"
+  ami           = data.aws_ami.latest-ubuntu[count.index].id
   instance_type = "t2.2xlarge"
   key_name = var.key_name
   subnet_id = var.vpc_subnet_id
@@ -39,14 +39,14 @@ resource "aws_instance" "splunk-server" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      host        = "${aws_instance.splunk-server[count.index].public_ip}"
-      private_key = "${file(var.private_key_path)}"
+      host        = aws_instance.splunk-server[count.index].public_ip
+      private_key = file(var.private_key_path)
     }
   }
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server[count.index].public_ip},' playbooks/splunk_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 splunk_admin_password=${var.splunk_admin_password} splunk_url=${var.splunk_url} splunk_binary=${var.splunk_binary} s3_bucket_url=${var.s3_bucket_url} splunk_escu_app=${var.splunk_escu_app} splunk_asx_app=${var.splunk_asx_app} splunk_windows_ta=${var.splunk_windows_ta} splunk_cim_app=${var.splunk_cim_app} splunk_sysmon_ta=${var.splunk_sysmon_ta} splunk_python_app=${var.splunk_python_app} splunk_mltk_app=${var.splunk_mltk_app}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server[count.index].public_ip},' playbooks/splunk_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 splunk_admin_password=${var.splunk_admin_password} splunk_url=${var.splunk_url} splunk_binary=${var.splunk_binary} s3_bucket_url=${var.s3_bucket_url} splunk_escu_app=${var.splunk_escu_app} splunk_asx_app=${var.splunk_asx_app} splunk_windows_ta=${var.splunk_windows_ta} splunk_cim_app=${var.splunk_cim_app} splunk_sysmon_ta=${var.splunk_sysmon_ta} splunk_python_app=${var.splunk_python_app} splunk_mltk_app=${var.splunk_mltk_app} caldera_password=${var.caldera_password}'"
   }
 }
 
@@ -73,7 +73,7 @@ data "aws_ami" "splunk-ami-packer" {
 
 resource "aws_instance" "splunk-server-packer" {
   count = var.use_packer_amis ? 1 : 0
-  ami           = "${data.aws_ami.splunk-ami-packer[count.index].id}"
+  ami           = data.aws_ami.splunk-ami-packer[count.index].id
   instance_type = "t2.2xlarge"
   key_name = var.key_name
   subnet_id = var.vpc_subnet_id
@@ -94,8 +94,8 @@ resource "aws_instance" "splunk-server-packer" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      host        = "${aws_instance.splunk-server-packer[count.index].public_ip}"
-      private_key = "${file(var.private_key_path)}"
+      host        = aws_instance.splunk-server-packer[count.index].public_ip
+      private_key = file(var.private_key_path)
     }
   }
 }

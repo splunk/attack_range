@@ -1,0 +1,6 @@
+---
+
+caldera_win_temp_dir: 'c:\ansible\temp'
+caldera_server_conf: ''
+calderaagent_urls:
+  - { u: 'https://github.com/mitre/caldera-agent/releases/download/v0.1.0/cagent.exe', c: 'sha256:a7a2269db0b90815390b8986b706212647506dfb988798b937ebf1b92e188d41', d: 'c:\Program Files\cagent\cagent.exe' }

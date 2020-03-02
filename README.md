@@ -3,21 +3,25 @@
 # Splunk Attack Range
 
 ## Purpose
-The Attack Range solves two main challenges in development of detections. First, it allows the user to quickly build a small lab infrastructure as close as possible to your production environment. This lab infrastructure contains a Windows Domain Controller, Windows Workstation and Linux server, which comes pre-configured with multiple security tools and logging configuration. The infrastructure comes with a Splunk server collecting multiple log sources from the different servers.  
+The Attack Range solves two main challenges in development of detections. First, it allows the user to quickly build a small lab infrastructure as close as possible to your production environment. This lab infrastructure contains a Windows Domain Controller, Windows Server, Windows Workstation and a Kali Machine, which comes pre-configured with multiple security tools and logging configuration. The infrastructure comes with a Splunk server collecting multiple log sources from the different servers.  
 
 Second, this framework allows the user to perform attack simulation using different engines. Therefore, the user can repeatedly replicate and generate data as close to "ground truth" as possible, in a format that allows the creation of detections, investigations, knowledge objects, and playbooks in Splunk.
 
-## Demo 
+## Demo
 [![Attack Range Demo](https://img.youtube.com/vi/xIbln7OQ-Ak/0.jpg)](https://www.youtube.com/watch?v=xIbln7OQ-Ak)
 
 ## Architecture
-Attack Range can be used in two different ways:
-- local using vagrant and virtualbox
-- in the cloud using terraform and AWS
+Attack Range can be built in three different ways:
+- **local** using vagrant and virtualbox
+- in the **cloud** using terraform and AWS
+- **cloud optimized** using terraform, packer and AWS
 
-In order to make Attack Range work on almost every laptop, the local version using Vagrant and Virtualbox consists of a subset of the full-blown cloud infrastructure in AWS using Terraform. The local version consists of a Splunk single instance and a Windows 10 workstation pre-configured with best practice logging configuration according to Splunk. The cloud infrastructure in AWS using Terraform consists of a Windows 10 workstation, a Windows 2016 server and a Splunk server. More information can be found in the wiki
+![Logical Diagram](docs/attack_range_architecture1.png)
 
-![Logical Diagram](docs/attack_range_architecture.jpeg)
+Attack Range consists of Windows Domain Controller, Windows Server, Windows Workstation and a Kali Machine, which can be added/removed/configured using attack_range.conf. More machines such as Phantom, Linux Server, Linux Client, macOS client are currently under development.
+
+![Logical Diagram](docs/attack_range_architecture2.png)
+
 
 ## Configuration
 - local [Vagrant and Virtualbox](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Vagrant)
@@ -34,88 +38,77 @@ Attack Range supports different actions:
 - Resume Attack Range
 
 ### Build Attack Range
-- Build Attack Range using **Terraform**
+- Build Attack Range
 ```
-python attack_range.py -m terraform -a build
-```
-- Build Attack Range using **Vagrant**
-```
-python attack_range.py -m vagrant -a build
-```
-- Build Attack Range using **Packer**
-```
-python attack_range.py -m packer -a build
+python attack_range.py -m terraform/vagrant/packer -a build
 ```
 
 ### Perform Attack Simulation
-- Perform Attack Simulation using **Terraform**
+- Perform Attack Simulation
 ```
-python attack_range.py -m terraform -a simulate -st T1117,T1003 -t attack-range-windows-domain-controller
-```
-- Perform Attack Simulation using **Vagrant**
-```
-python attack_range.py -m vagrant -a simulate -st T1117,T1003 -t attack-range-win10
-```
-- Perform Attack Simulation using **Packer**
-```
-python attack_range.py -m packer -a simulate -st T1117,T1003 -t attack-range-win10
+python attack_range.py -m terraform/vagrant/packer -a simulate -st T1117,T1003 -t attack-range-windows-domain-controller
 ```
 
 ### Search with Attack Range
-- Run a savedsearch with **Terraform** and return the results:
+- Run a savedsearch and return the results
 ```
-python attack_range.py -m terraform -a search -sn search_name
-```
-- Run a savedsearch with **Vagrant** and return the results:
-```
-python attack_range.py -m vagrant -a search -sn search_name
-```
-- Run a savedsearch with **Packer** and return the results:
-```
-python attack_range.py -m packer -a search -sn search_name
+python attack_range.py -m terraform/vagrant/packer -a search -sn search_name
 ```
 
 ### Destroy Attack Range
-- Destroy Attack Range using **Terraform**
+- Destroy Attack Range
 ```
-python attack_range.py -m terraform -a destroy
-```
-- Destroy Attack Range using **Vagrant**
-```
-python attack_range.py -m vagrant -a destroy
-```
-- Destroy Attack Range using **Packer**
-```
-python attack_range.py -m packer -a destroy
+python attack_range.py -m terraform/vagrant/packer -a destroy
 ```
 
 ### Stop Attack Range
-- Stop Attack Range using **Terraform**
+- Stop Attack Range
 ```
-python attack_range.py -m terraform -a stop
-```
-- Stop Attack Range using **Vagrant**
-```
-python attack_range.py -m vagrant -a stop
-```
-- Stop Attack Range using **Packer**
-```
-python attack_range.py -m packer -a stop
+python attack_range.py -m terraform/vagrant/packer -a stop
 ```
 
 ### Resume Attack Range
-- Resume Attack Range using **Terraform**
+- Resume Attack Range
 ```
-python attack_range.py -m terraform -a resume
+python attack_range.py -m terraform/vagrant/packer -a resume
 ```
-- Resume Attack Range using **Vagrant**
-```
-python attack_range.py -m vagrant -a resume
-```
-- Resume Attack Range using **Packer**
-```
-python attack_range.py -m packer -a resume
-```
+
+## Features
+- [Splunk Server](https://github.com/splunk/attack_range/wiki/Splunk-Server)
+  * Indexing of Microsoft Event Logs, PowerShell Logs, Sysmon Logs, DNS Logs, ...
+  * Preconfigured with multiple TAs for field extractions
+  * Out of the box Splunk detections with Enterprise Security Content Update ([ESCU](https://splunkbase.splunk.com/app/3449/)) App
+  * Preinstalled Machine Learning Toolkit ([MLTK](https://splunkbase.splunk.com/app/2890/))
+  * Splunk UI available through port 8000 with user admin
+  * ssh connection over configured ssh key
+
+- [Windows Domain Controller & Window Server & Windows 10 Client](https://github.com/splunk/attack_range/wiki/Windows-Infrastructure)
+  * Can be enabled, disabled and configured over [attack_range.conf](attack_range.conf)
+  * Collecting of Microsoft Event Logs, PowerShell Logs, Sysmon Logs, DNS Logs, ...
+  * Sysmon log collection with customizable Sysmon configuration
+  * RDP connection over port 3389 with user Administrator
+
+- [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
+  * Attack Simulation with [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
+  * Will be automatically installed on target during first execution of simulate
+
+- [Caldera](https://github.com/mitre/caldera)
+  * Adversary Emulation with [Caldera](https://github.com/mitre/caldera)
+  * Installed on the Splunk Server and available over port 8888 with user admin
+  * Preinstalled Caldera agents on windows machines
+
+- [Kali Linux](https://www.kali.org/)
+  * Preconfigured Kali Linux machine for penetration testing
+  * ssh connection over configured ssh key
+
+
+## Planned features
+- [Phantom Server](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html)
+- [Enterprise Security](https://splunkbase.splunk.com/app/263/)
+- Linux Server
+- Linux Client
+- macOS Client
+
 
 ## Support
 Please use the [GitHub issue tracker](https://github.com/splunk/attack_range/issues) to submit bugs or request features.
@@ -129,13 +122,14 @@ If you have questions or need support, you can:
 
 ## Author
 * [Jose Hernandez](https://twitter.com/d1vious)
+* [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 
 ## Contributors
-* [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 * [Bhavin Patel](https://twitter.com/hackpsy)
 * [Rod Soto](https://twitter.com/rodsoto)
 * Russ Nolen
 * Phil Royer
+* [Joseph Zadeh](https://twitter.com/JosephZadeh)
 
 ## Contributing
 We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved.

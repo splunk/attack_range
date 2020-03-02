@@ -44,7 +44,7 @@
     },
     {
       "type": "shell-local",
-      "command": "ansible-playbook -i ansible/hosts ansible/playbooks/windows_dc_client_packer1.yml --extra-vars 'splunk_indexer_ip={{user `splunk_indexer_ip`}} ansible_user={{user `win_username`}} ansible_password={{user `win_password`}} win_password={{user `win_password`}} splunk_uf_win_url={{user `splunk_uf_win_url`}} win_sysmon_url={{user `win_sysmon_url`}} win_sysmon_template={{user `win_sysmon_template`}} splunk_admin_password={{user `splunk_admin_password`}} windows_domain_controller_private_ip={{user `windows_domain_controller_private_ip`}} windows_server_join_domain={{user `windows_server_join_domain`}}'"
+      "command": "ansible-playbook -i ansible/hosts ansible/playbooks/windows_dc_client_packer_build.yml --extra-vars 'splunk_indexer_ip={{user `splunk_indexer_ip`}} ansible_user={{user `win_username`}} ansible_password={{user `win_password`}} win_password={{user `win_password`}} splunk_uf_win_url={{user `splunk_uf_win_url`}} win_sysmon_url={{user `win_sysmon_url`}} win_sysmon_template={{user `win_sysmon_template`}} splunk_admin_password={{user `splunk_admin_password`}} windows_domain_controller_private_ip={{user `windows_domain_controller_private_ip`}} windows_server_join_domain={{user `windows_server_join_domain`}}'"
     },
     {
       "type": "shell-local",
