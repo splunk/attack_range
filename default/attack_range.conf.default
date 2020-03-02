@@ -95,7 +95,7 @@ win_sysmon_template = SysmonConfig-TSwift.xml
 # Possible Values: SysmonConfig-moti.xml, SysmonConfig-Neo23x0-server.xml, SysmonConfig-Neo23x0-workstations.xml, SysmonConfig-TSwift.xml, SysmonConfig-Verbose.xml, SysmonConfigCustom.xml
 
 [enterprise_security]
-install_es = 1
+install_es = 0
 # Specify whether install Splunk Enterprise Security or not.
 # Splunk Enterprise Security is a Splunk Premium App, that's why it needs to be downloaded and stored into apps folder.
 # After installing ES, Splunk is available under https://[ip]:8000
