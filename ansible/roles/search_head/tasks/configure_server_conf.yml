@@ -16,3 +16,7 @@
     owner: splunk
     group: splunk
   notify: restart splunk
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes
