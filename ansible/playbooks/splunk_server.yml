@@ -3,4 +3,5 @@
   become: true
   roles:
     - search_head
+    - splunk_phantom
     - caldera

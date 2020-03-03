@@ -71,6 +71,7 @@ variable "windows_client_join_domain" { }
 variable "windows_client_os" { }
 variable "windows_client_packer_ami" { }
 
+variable "phantom_packer_ami" { }
 
 #ansible variables
 # ---------------------- #
@@ -92,7 +93,7 @@ variable "splunk_cim_app" { }
 variable "splunk_sysmon_ta" { }
 variable "splunk_python_app" { }
 variable "splunk_mltk_app" { }
-
+variable "phantom_app" { }
 
 
 # Phantom server

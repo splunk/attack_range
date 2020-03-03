@@ -16,6 +16,7 @@ class TerraformController(IEnvironmentController):
         custom_dict['ip_whitelist'] = [custom_dict['ip_whitelist']]
         custom_dict['use_packer_amis'] = '0'
         custom_dict['splunk_packer_ami'] = "packer-splunk-server-" + self.config['key_name']
+        custom_dict['phantom_packer_ami'] = "packer-phantom-server-" + self.config['key_name']
         custom_dict['windows_domain_controller_packer_ami'] = "packer-windows-domain-controller-" + self.config['key_name']
         custom_dict['windows_server_packer_ami'] = "packer-windows-server-" + self.config['key_name']
         custom_dict['windows_client_packer_ami'] = "packer-windows-client-" + self.config['key_name']

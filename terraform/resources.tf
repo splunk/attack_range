@@ -30,19 +30,23 @@ module "splunk-server" {
   use_packer_amis        = var.use_packer_amis
   splunk_packer_ami      = var.splunk_packer_ami
   caldera_password       = var.caldera_password
+  phantom_app            = var.phantom_app
+  phantom_server         = var.phantom_server
 }
 
 module "phantom-server" {
   source                     = "./modules/phantom-server"
-  phantom_server             = "${var.phantom_server}"
-  private_key_path           = "${var.private_key_path}"
-  key_name                   = "${var.key_name}"
-  vpc_security_group_ids     = "${module.networkModule.vpc_security_group_ids}"
-  vpc_subnet_id              = "${module.networkModule.vpc_subnet_id}"
-  phantom_server_private_ip  = "${var.phantom_server_private_ip}"
-  phantom_admin_password     = "${var.splunk_admin_password}"
-  phantom_community_username = "${var.phantom_community_username}"
-  phantom_community_password = "${var.phantom_community_password}"
+  phantom_server             = var.phantom_server
+  private_key_path           = var.private_key_path
+  key_name                   = var.key_name
+  vpc_security_group_ids     = module.networkModule.vpc_security_group_ids
+  vpc_subnet_id              = module.networkModule.vpc_subnet_id
+  phantom_server_private_ip  = var.phantom_server_private_ip
+  phantom_admin_password     = var.splunk_admin_password
+  phantom_community_username = var.phantom_community_username
+  phantom_community_password = var.phantom_community_password
+  use_packer_amis            = var.use_packer_amis
+  phantom_packer_ami         = var.phantom_packer_ami
 }
 
 module "windows-domain-controller" {

@@ -17,6 +17,9 @@ class VagrantController(IEnvironmentController):
         self.vagrantfile = 'Vagrant.configure("2") do |config| \n \n'
         self.vagrantfile += self.read_vagrant_file('splunk_server/Vagrantfile')
         self.vagrantfile += '\n\n'
+        if config['phantom_server'] == '1':
+            self.vagrantfile += self.read_vagrant_file('phantom-server/Vagrantfile')
+            self.vagrantfile += '\n\n'
         if config['windows_domain_controller'] == '1':
             self.vagrantfile += self.read_vagrant_file('windows-domain-controller/Vagrantfile')
             self.vagrantfile += '\n\n'

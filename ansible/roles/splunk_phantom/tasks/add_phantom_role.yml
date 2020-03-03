@@ -1,0 +1,10 @@
+---
+  
+- name: copy authorize.conf to give admin phantom capabilities
+  copy:
+    src: authorize.conf
+    dest: /opt/splunk/etc/system/local/authorize.conf
+    owner: splunk
+    group: splunk
+    force: yes
+  notify: restart splunk

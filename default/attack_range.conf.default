@@ -1,5 +1,5 @@
 # DO NOT CHANGE THIS FILE
- 
+
 [global]
 hash_value = HASH
 
@@ -71,11 +71,11 @@ splunk_asx_app = Splunk_Analytic_Story_Execution-latest.tar.gz
 
 
 [phantom_settings]
-phantom_community_username = attack-range@splunk.com
+phantom_community_username = username
 # Specify the username needed to login to my.phantom.us to download Phantom
 # This must be changed to a real username
 
-phantom_community_password = I-l1ke-Attack-Range!
+phantom_community_password = password
 # Specify the password used to login to my.phantom.us to download Phantom
 # This must be changed to a real password
 
@@ -114,7 +114,7 @@ art_run_techniques = T1002
 [environment]
 # specify your Attack Range environment by enabling (1) or disabling (0) machines
 
-phantom_server = 1
+phantom_server = 0
 # enable a phantom server
 # possible values: 1, 0
 

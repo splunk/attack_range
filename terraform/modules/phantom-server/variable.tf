@@ -23,6 +23,9 @@ variable "vpc_subnet_id" { }
 variable "phantom_server" { }
 variable "phantom_server_private_ip" { }
 
+variable "use_packer_amis" { }
+variable "phantom_packer_ami" { }
+
 #ansible variables
 # ---------------------- #
 
@@ -30,4 +33,3 @@ variable "phantom_server_private_ip" { }
 variable "phantom_admin_password" { }
 variable "phantom_community_username" { }
 variable "phantom_community_password" { }
-

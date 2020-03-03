@@ -24,6 +24,7 @@ class PackerController(IEnvironmentController):
         custom_dict['ip_whitelist'] = [custom_dict['ip_whitelist']]
         custom_dict['use_packer_amis'] = '1'
         custom_dict['splunk_packer_ami'] = "packer-splunk-server-" + self.config['key_name']
+        custom_dict['phantom_packer_ami'] = "packer-phantom-server-" + self.config['key_name']
         custom_dict['windows_domain_controller_packer_ami'] = "packer-windows-domain-controller-" + self.config['key_name']
         custom_dict['windows_server_packer_ami'] = "packer-windows-server-" + self.config['key_name']
         custom_dict['windows_client_packer_ami'] = "packer-windows-client-" + self.config['key_name']
@@ -55,6 +56,8 @@ class PackerController(IEnvironmentController):
         if self.md5_hash != self.config['hash_value'] or self.force:
             packer_amis = ['splunk-server']
             #packer_amis = []
+            if self.config['phantom_server']=='1':
+                packer_amis.append('phantom-server')
             if self.config['windows_domain_controller']=='1':
                 self.read_and_write_userdata_file()
                 packer_amis.append('windows-domain-controller')

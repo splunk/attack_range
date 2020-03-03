@@ -1,12 +1,13 @@
 # install phantom on a fresh centos 7 aws instance
 
 data "aws_ami" "latest-centos" {
-most_recent = true
-owners = ["679593333241"] # owned by AWS Marketplace
+  count         = var.phantom_server == "1" && var.use_packer_amis=="0" ? 1 : 0
+  most_recent = true
+  owners = ["679593333241"] # owned by AWS Marketplace
 
   filter {
       name   = "name"
-      values = ["CentOS Linux 7 x86_64 HVM EBS ENA 1901*"]
+      values = ["CentOS Linux 7 x86_64 HVM EBS ENA 1901_01-b7ee8a69-ee97-4a49-9e68-afaee216db2e-ami-05713873c6794f575.4"]
   }
 
   filter {
@@ -17,8 +18,8 @@ owners = ["679593333241"] # owned by AWS Marketplace
 
 # install Phantom on a bare CentOS 7 instance
 resource "aws_instance" "phantom-server" {
-  count         = var.phantom_server ? 1 : 0
-  ami           = "${data.aws_ami.latest-centos.id}"
+  count         = var.phantom_server == "1" && var.use_packer_amis=="0" ? 1 : 0
+  ami           = data.aws_ami.latest-centos[count.index].id
   instance_type = "t3a.xlarge"
   key_name = var.key_name
   subnet_id = var.vpc_subnet_id
@@ -39,8 +40,8 @@ resource "aws_instance" "phantom-server" {
     connection {
       type        = "ssh"
       user        = "centos"
-      host        = "${aws_instance.phantom-server[0].public_ip}"
-      private_key = "${file(var.private_key_path)}"
+      host        = aws_instance.phantom-server[0].public_ip
+      private_key = file(var.private_key_path)
     }
   }
 
@@ -51,23 +52,57 @@ resource "aws_instance" "phantom-server" {
 }
 
 resource "aws_eip" "phantom_ip" {
-  count    = var.phantom_server ? 1 : 0
+  count         = var.phantom_server == "1" && var.use_packer_amis=="0" ? 1 : 0
   instance = aws_instance.phantom-server[0].id
 }
 
 
-output "phantom_server_base_url" {
-  value = "https://${aws_eip.phantom_ip[0].public_ip}"
+#### packer ####
+
+data "aws_ami" "phantom-ami-packer" {
+  count = var.use_packer_amis ? 1 : 0
+  owners       = ["self"]
+
+  filter {
+    name   = "name"
+    values = [var.phantom_packer_ami]
+  }
+
+  most_recent = true
 }
 
-output "phantom_username" {
-  value = "admin"
+
+resource "aws_instance" "phantom-server-packer" {
+  count         = var.phantom_server == "1" && var.use_packer_amis=="1" ? 1 : 0
+  ami           = data.aws_ami.phantom-ami-packer[count.index].id
+  instance_type = "t3a.xlarge"
+  key_name = var.key_name
+  subnet_id = var.vpc_subnet_id
+  vpc_security_group_ids = [var.vpc_security_group_ids]
+  private_ip = var.phantom_server_private_ip
+  root_block_device {
+    volume_type = "gp2"
+    volume_size = "30"
+    delete_on_termination = "true"
+  }
+  tags = {
+    Name = "attack-range-phantom-server"
+  }
+
+  provisioner "remote-exec" {
+    inline = ["echo booted"]
+
+    connection {
+      type        = "ssh"
+      user        = "centos"
+      host        = aws_instance.phantom-server-packer[0].public_ip
+      private_key = file(var.private_key_path)
+    }
+  }
+
 }
 
-output "phantom_password" {
-  value = "please use password configured under attack_range.conf -> phantom_admin_password"
-}
-
-output "phantom_ssh_command" {
-  value = "ssh -i ${var.private_key_path} centos@${aws_eip.phantom_ip[0].public_ip}"
+resource "aws_eip" "phantom_ip_packer" {
+  count         = var.phantom_server == "1" && var.use_packer_amis=="1" ? 1 : 0
+  instance = aws_instance.phantom-server-packer[0].id
 }

@@ -1,0 +1,27 @@
+---
+
+- name: Check if Phantom App exists
+  stat:
+    path: /opt/splunk/etc/apps/phantom
+  register: phantom_app_check
+
+- name: download phantom app from S3 bucket
+  get_url:
+    url: '{{ s3_bucket_url }}/{{ phantom_app }}'
+    dest: /tmp/phantom_app.tgz
+  when: phantom_app_check.stat.exists == False
+
+- name: Install phantom app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/phantom_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: phantom_app_check.stat.exists == False
+  notify: restart splunk

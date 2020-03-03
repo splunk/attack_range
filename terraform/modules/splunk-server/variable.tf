@@ -52,3 +52,7 @@ variable "caldera_password" { }
 variable "splunk_python_app" { }
 
 variable "splunk_mltk_app" { }
+
+variable "phantom_app" { }
+
+variable "phantom_server" { }
