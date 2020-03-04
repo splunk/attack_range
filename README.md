@@ -8,20 +8,33 @@ The Attack Range solves two main challenges in development of detections. First,
 Second, this framework allows the user to perform attack simulation using different engines. Therefore, the user can repeatedly replicate and generate data as close to "ground truth" as possible, in a format that allows the creation of detections, investigations, knowledge objects, and playbooks in Splunk.
 
 ## Demo
+[:tv: A short demo (< 6 min)](https://www.youtube.com/watch?v=xIbln7OQ-Ak) which shows the basic functions of the attack range. It builds a testing enviroment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [ESCU](https://github.com/splunk/security-content) searches are used to detect the attack.
+
 [![Attack Range Demo](https://img.youtube.com/vi/xIbln7OQ-Ak/0.jpg)](https://www.youtube.com/watch?v=xIbln7OQ-Ak)
 
-## Architecture
+## Deployment
+
 Attack Range can be built in three different ways:
+
 - **local** using vagrant and virtualbox
 - in the **cloud** using terraform and AWS
 - **cloud optimized** using terraform, packer and AWS
 
 ![Logical Diagram](docs/attack_range_architecture1.png)
 
-Attack Range consists of Windows Domain Controller, Windows Server, Windows Workstation and a Kali Machine, which can be added/removed/configured using attack_range.conf. More machines such as Phantom, Linux Server, Linux Client, macOS client are currently under development.
+## Architecture
+
+Attack Range consists of:
+
+- Windows Domain Controller
+- Windows Server
+- Windows Workstation
+- A Kali Machine
+- Splunk Server
+
+Which can be added/removed/configured using [attack_range.conf](attack_range.conf). More machines such as Phantom, Linux server, Linux client, MacOS clients are currently under development.
 
 ![Logical Diagram](docs/attack_range_architecture2.png)
-
 
 ## Configuration
 - local [Vagrant and Virtualbox](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Vagrant)
