@@ -25,6 +25,8 @@ config.vm.define "attack-range-splunk-server" do |config|
         caldera_password: '{{ caldera_password }}',
         splunk_mltk_app: '{{ splunk_mltk_app }}',
         splunk_python_app: '{{ splunk_python_app }}',
+        install_es: '{{ install_es }}',
+        splunk_es_app: '{{ splunk_es_app }}',
         phantom_app: '{{ phantom_app }}',
         phantom_server: '{{ phantom_server }}',
         phantom_server_private_ip: '{{ phantom_server_private_ip }}',
@@ -35,7 +37,7 @@ config.vm.define "attack-range-splunk-server" do |config|
   config.vm.provider "virtualbox" do |vb, override|
     vb.gui = true
     vb.name = "#{VM_NAME}"
-    vb.customize ["modifyvm", :id, "--memory", 4096]
+    vb.customize ["modifyvm", :id, "--memory", 6144]
     vb.customize ["modifyvm", :id, "--cpus", 4]
   end
 end

@@ -82,6 +82,11 @@ python attack_range.py -m terraform/vagrant/packer -a resume
   * Splunk UI available through port 8000 with user admin
   * ssh connection over configured ssh key
 
+- [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/)
+  * [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) is a premium security solution requiring a paid license.
+  * Enable or disable [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) in [attack_range.conf](attack_range.conf)
+  * Purchase a license, download it and store it in the apps folder to use it.
+
 - [Windows Domain Controller & Window Server & Windows 10 Client](https://github.com/splunk/attack_range/wiki/Windows-Infrastructure)
   * Can be enabled, disabled and configured over [attack_range.conf](attack_range.conf)
   * Collecting of Microsoft Event Logs, PowerShell Logs, Sysmon Logs, DNS Logs, ...
@@ -104,7 +109,6 @@ python attack_range.py -m terraform/vagrant/packer -a resume
 
 ## Planned features
 - [Phantom Server](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html)
-- [Enterprise Security](https://splunkbase.splunk.com/app/263/)
 - Linux Server
 - Linux Client
 - macOS Client
