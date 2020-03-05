@@ -32,6 +32,10 @@ module "splunk-server" {
   caldera_password       = var.caldera_password
   phantom_app            = var.phantom_app
   phantom_server         = var.phantom_server
+  phantom_server_private_ip = var.phantom_server_private_ip
+  phantom_admin_password = var.phantom_admin_password
+  phantom_server_instance = module.phantom-server.phantom_server_instance
+  phantom_server_instance_packer = module.phantom-server.phantom_server_instance_packer
 }
 
 module "phantom-server" {

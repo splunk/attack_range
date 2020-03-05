@@ -1,0 +1,4 @@
+---
+
+- include: configure_phantom_app.yml
+  when: phantom_server == "1"

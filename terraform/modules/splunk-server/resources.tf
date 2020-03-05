@@ -24,6 +24,7 @@ resource "aws_instance" "splunk-server" {
   subnet_id = var.vpc_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.splunk_server_private_ip
+  depends_on = [var.phantom_server_instance]
   root_block_device {
     volume_type = "gp2"
     volume_size = "30"
@@ -46,7 +47,7 @@ resource "aws_instance" "splunk-server" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server[count.index].public_ip},' playbooks/splunk_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 splunk_admin_password=${var.splunk_admin_password} splunk_url=${var.splunk_url} splunk_binary=${var.splunk_binary} s3_bucket_url=${var.s3_bucket_url} splunk_escu_app=${var.splunk_escu_app} splunk_asx_app=${var.splunk_asx_app} splunk_windows_ta=${var.splunk_windows_ta} splunk_cim_app=${var.splunk_cim_app} splunk_sysmon_ta=${var.splunk_sysmon_ta} splunk_python_app=${var.splunk_python_app} splunk_mltk_app=${var.splunk_mltk_app} caldera_password=${var.caldera_password} phantom_app=${var.phantom_app} phantom_server=${var.phantom_server}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server[count.index].public_ip},' playbooks/splunk_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 splunk_admin_password=${var.splunk_admin_password} splunk_url=${var.splunk_url} splunk_binary=${var.splunk_binary} s3_bucket_url=${var.s3_bucket_url} splunk_escu_app=${var.splunk_escu_app} splunk_asx_app=${var.splunk_asx_app} splunk_windows_ta=${var.splunk_windows_ta} splunk_cim_app=${var.splunk_cim_app} splunk_sysmon_ta=${var.splunk_sysmon_ta} splunk_python_app=${var.splunk_python_app} splunk_mltk_app=${var.splunk_mltk_app} caldera_password=${var.caldera_password} phantom_app=${var.phantom_app} phantom_server=${var.phantom_server} phantom_server_private_ip=${var.phantom_server_private_ip} phantom_admin_password=${var.phantom_admin_password}'"
   }
 }
 
@@ -79,6 +80,7 @@ resource "aws_instance" "splunk-server-packer" {
   subnet_id = var.vpc_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.splunk_server_private_ip
+  depends_on = [var.phantom_server_instance_packer]
   root_block_device {
     volume_type = "gp2"
     volume_size = "30"
@@ -97,6 +99,11 @@ resource "aws_instance" "splunk-server-packer" {
       host        = aws_instance.splunk-server-packer[count.index].public_ip
       private_key = file(var.private_key_path)
     }
+  }
+
+  provisioner "local-exec" {
+    working_dir = "../ansible"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server-packer[count.index].public_ip},' playbooks/splunk_server_packer_terraform.yml -e 'ansible_python_interpreter=/usr/bin/python3 splunk_admin_password=${var.splunk_admin_password} splunk_url=${var.splunk_url} splunk_binary=${var.splunk_binary} s3_bucket_url=${var.s3_bucket_url} splunk_escu_app=${var.splunk_escu_app} splunk_asx_app=${var.splunk_asx_app} splunk_windows_ta=${var.splunk_windows_ta} splunk_cim_app=${var.splunk_cim_app} splunk_sysmon_ta=${var.splunk_sysmon_ta} splunk_python_app=${var.splunk_python_app} splunk_mltk_app=${var.splunk_mltk_app} caldera_password=${var.caldera_password} phantom_app=${var.phantom_app} phantom_server=${var.phantom_server} phantom_server_private_ip=${var.phantom_server_private_ip} phantom_admin_password=${var.phantom_admin_password}'"
   }
 }
 

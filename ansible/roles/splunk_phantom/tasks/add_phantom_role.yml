@@ -1,5 +1,5 @@
 ---
-  
+
 - name: copy authorize.conf to give admin phantom capabilities
   copy:
     src: authorize.conf
@@ -7,4 +7,3 @@
     owner: splunk
     group: splunk
     force: yes
-  notify: restart splunk

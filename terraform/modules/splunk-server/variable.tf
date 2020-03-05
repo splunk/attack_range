@@ -25,6 +25,13 @@ variable "splunk_server_private_ip" { }
 variable "use_packer_amis" { }
 variable "splunk_packer_ami" { }
 
+variable "phantom_app" { }
+variable "phantom_server" { }
+variable "phantom_server_private_ip" { }
+variable "phantom_admin_password" { }
+
+variable "phantom_server_instance" { }
+variable "phantom_server_instance_packer" { }
 
 #ansible variables
 # ---------------------- #
@@ -52,7 +59,3 @@ variable "caldera_password" { }
 variable "splunk_python_app" { }
 
 variable "splunk_mltk_app" { }
-
-variable "phantom_app" { }
-
-variable "phantom_server" { }
