@@ -1,6 +1,6 @@
 
-config.vm.define "attack-range-domain-controller" do |config|
-  VM_NAME_WIN_DC= "attack-range-domain-controller"
+config.vm.define "attack-range-windows-domain-controller" do |config|
+  VM_NAME_WIN_DC= "attack-range-windows-domain-controller"
   config.vm.box = "d1vious/windows2016"
   config.vm.hostname = "dc"
   config.vm.boot_timeout = 600
