@@ -59,6 +59,7 @@ def search(splunk_host, splunk_password, search_name, log):
     mysavedsearch.update(**kwargs).refresh()
 
 
+
 def list_searches(splunk_host, splunk_password):
 
     service = client.connect(

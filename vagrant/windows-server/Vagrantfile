@@ -3,7 +3,7 @@
 config.vm.define "attack-range-windows-server" do |config|
   VM_NAME_WIN_DC_CLIENT= "attack-range-windows-server"
   config.vm.box = "d1vious/windows2016"
-  config.vm.hostname = "win_server"
+  config.vm.hostname = "win-server"
   config.vm.boot_timeout = 600
   config.vm.communicator = "winrm"
   config.winrm.transport = :plaintext
