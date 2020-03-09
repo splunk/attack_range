@@ -10,9 +10,6 @@
     - /opt/splunk/etc/apps/inputs_app/local/
 
 - name: copy inputs.conf
-  tags:
-   - install
-   - security
   copy:
     src: inputs.conf
     dest: /opt/splunk/etc/apps/inputs_app/local/inputs.conf

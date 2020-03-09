@@ -1,5 +1,5 @@
 
-- name: Create folder directory for indexes configuration
+- name: Create folder directory for server configuration
   file:
     path: "{{ item }}"
     state: directory
