@@ -56,3 +56,6 @@ variable "splunk_mltk_app" { }
 variable "install_es" { }
 
 variable "splunk_es_app" { }
+
+variable "splunk_stream_app" { }
+
