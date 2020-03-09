@@ -1,0 +1,39 @@
+{
+  "variables": {
+      "phantom_admin_password": "",
+      "phantom_community_username": "",
+      "phantom_community_password": "",
+      "phantom_server_private_ip": "",
+      "private_key_path": "",
+      "key_name": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "force_deregister": "true",
+    "force_delete_snapshot": "true",
+    "source_ami_filter": {
+                "filters": {
+                    "name": "CentOS Linux 7 x86_64 HVM EBS ENA 1901_01-b7ee8a69-ee97-4a49-9e68-afaee216db2e-ami-05713873c6794f575.4",
+                    "root-device-type": "ebs",
+                    "virtualization-type": "hvm"
+                },
+                "most_recent": true,
+                "owners": [
+                    "679593333241"
+                ]
+            },
+    "instance_type": "t3a.xlarge",
+    "ssh_username": "centos",
+    "ssh_keypair_name": "{{user `key_name`}}",
+    "ssh_private_key_file": "{{user `private_key_path`}}",
+    "ami_name": "packer-phantom-server-{{user `key_name`}}"
+  }],
+  "provisioners": [
+    {
+      "type": "ansible",
+      "playbook_file": "ansible/playbooks/phantom_server.yml",
+      "extra_arguments": [ "--extra-vars", "phantom_admin_password={{user `phantom_admin_password`}} phantom_community_username={{user `phantom_community_username`}} phantom_community_password={{user `phantom_community_password`}} phantom_server_private_ip={{user `phantom_server_private_ip`}}" ]
+    }
+  ]
+
+}

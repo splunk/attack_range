@@ -1,5 +1,33 @@
 Vagrant.configure("2") do |config| 
  
+config.vm.define "attack-range-phantom-server" do |config|
+  VM_NAME_P= "attack-range-phantom-server"
+  config.vm.box = "centos/7"
+  config.vm.hostname = "#{VM_NAME_P}"
+  config.vm.boot_timeout = 600
+  config.vm.network "forwarded_port", guest: 443, host: 8443, protocol: "tcp"
+  config.vm.network :private_network, ip: "10.0.1.3"
+
+  config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "../ansible/playbooks/phantom_server.yml"
+      ansible.config_file = "../ansible/ansible.cfg"
+      ansible.compatibility_mode = "2.0"
+      ansible.extra_vars = {
+        phantom_admin_password: 'I-l1ke-Attack-Range!',
+        phantom_community_username: 'aws-phantom-research@splunk.com',
+        phantom_community_password: 'girdleipodscurvysplendor',
+        phantom_server_private_ip: '10.0.1.3'
+      }
+  end
+
+  config.vm.provider "virtualbox" do |vb, override|
+    vb.gui = true
+    vb.name = "#{VM_NAME_P}"
+    vb.customize ["modifyvm", :id, "--memory", 4096]
+    vb.customize ["modifyvm", :id, "--cpus", 4]
+  end
+end
+
 config.vm.define "attack-range-splunk-server" do |config|
   VM_NAME= "attack-range-splunk-server"
   config.vm.box = "generic/ubuntu1804"
@@ -7,7 +35,7 @@ config.vm.define "attack-range-splunk-server" do |config|
   config.vm.boot_timeout = 600
   config.vm.network "forwarded_port", guest: 8000, host: 8000, protocol: "tcp"
   config.vm.network "forwarded_port", guest: 8089, host: 8089, protocol: "tcp"
-  config.vm.network :private_network, ip: "10.0.1.5"
+  config.vm.network :private_network, ip: "10.0.1.2"
 
   config.vm.provision "ansible" do |ansible|
       ansible.playbook = "../ansible/playbooks/splunk_server.yml"
@@ -25,6 +53,10 @@ config.vm.define "attack-range-splunk-server" do |config|
         splunk_cim_app: 'splunk-common-information-model-cim_4150.tgz',
         splunk_sysmon_ta: 'add-on-for-microsoft-sysmon_1030.tgz',
         caldera_password: 'I-l1ke-Attack-Range!',
+        phantom_app: 'phantom-app-for-splunk_305.tgz',
+        phantom_server: '1',
+        phantom_server_private_ip: '10.0.1.3',
+        phantom_admin_password: 'I-l1ke-Attack-Range!'
         splunk_mltk_app: 'splunk-machine-learning-toolkit_510.tgz',
         splunk_python_app: 'python-for-scientific-computing-for-linux-64-bit_200.tgz',
         install_es: '0',
@@ -52,13 +84,13 @@ config.vm.define "attack-range-windows-domain-controller" do |config|
   config.winrm.timeout = 300
   config.winrm.retry_limit = 20
   config.vm.network "forwarded_port", guest: 5985, host: 6000
-  config.vm.network :private_network, ip: "10.0.1.6"
+  config.vm.network :private_network, ip: "10.0.1.4"
 
   config.vm.provision "ansible" do |ansible|
       ansible.extra_vars = {
         ansible_port: 6000,
         ansible_winrm_scheme: 'http',
-        splunk_indexer_ip: "10.0.1.5",
+        splunk_indexer_ip: "10.0.1.2",
         win_password: 'I-l1ke-Attack-Range!',
         splunk_uf_win_url: 'https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi',
         win_sysmon_url: 'https://download.sysinternals.com/files/Sysmon.zip',

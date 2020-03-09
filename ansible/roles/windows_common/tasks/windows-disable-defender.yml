@@ -12,6 +12,7 @@
 #   when: ansible_distribution == "Microsoft Windows 10 Enterprise Evaluation"
 
 - name: Disable Real-Time Protection of Windows Defender for Windows 10
+  ignore_errors: yes
   win_regedit:
     path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection"
     name: DisableRealtimeMonitoring

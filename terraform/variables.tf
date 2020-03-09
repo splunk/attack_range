@@ -32,6 +32,10 @@ variable "ip_whitelist" {
 
 
 #environment variables
+variable "phantom_server" {
+  default = "1"
+}
+
 variable "windows_domain_controller" {
   default = "1"
 }
@@ -49,6 +53,7 @@ variable "kali_machine" {
 }
 
 variable "splunk_server_private_ip" { }
+variable "phantom_server_private_ip" { }
 variable "windows_domain_controller_private_ip" { }
 variable "windows_domain_controller_os" { }
 variable "windows_server_os" { }
@@ -66,6 +71,7 @@ variable "windows_client_join_domain" { }
 variable "windows_client_os" { }
 variable "windows_client_packer_ami" { }
 
+variable "phantom_packer_ami" { }
 
 #ansible variables
 # ---------------------- #
@@ -89,7 +95,12 @@ variable "splunk_python_app" { }
 variable "splunk_mltk_app" { }
 variable "install_es" { }
 variable "splunk_es_app" { }
+variable "phantom_app" { }
 
+# Phantom server
+variable "phantom_admin_password" { }
+variable "phantom_community_username" { }
+variable "phantom_community_password" { }
 
 # Windows server
 variable "splunk_uf_win_url" { }

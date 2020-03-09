@@ -1,0 +1,27 @@
+config.vm.define "attack-range-phantom-server" do |config|
+  VM_NAME_P= "attack-range-phantom-server"
+  config.vm.box = "centos/7"
+  config.vm.hostname = "#{VM_NAME_P}"
+  config.vm.boot_timeout = 600
+  config.vm.network "forwarded_port", guest: 443, host: 8443, protocol: "tcp"
+  config.vm.network :private_network, ip: "{{ phantom_server_private_ip }}"
+
+  config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "../ansible/playbooks/phantom_server.yml"
+      ansible.config_file = "../ansible/ansible.cfg"
+      ansible.compatibility_mode = "2.0"
+      ansible.extra_vars = {
+        phantom_admin_password: '{{ phantom_admin_password }}',
+        phantom_community_username: '{{ phantom_community_username }}',
+        phantom_community_password: '{{ phantom_community_password }}',
+        phantom_server_private_ip: '{{ phantom_server_private_ip }}'
+      }
+  end
+
+  config.vm.provider "virtualbox" do |vb, override|
+    vb.gui = true
+    vb.name = "#{VM_NAME_P}"
+    vb.customize ["modifyvm", :id, "--memory", 4096]
+    vb.customize ["modifyvm", :id, "--cpus", 4]
+  end
+end
