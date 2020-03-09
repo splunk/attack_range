@@ -31,6 +31,7 @@ Attack Range consists of:
 - Windows Workstation
 - A Kali Machine
 - Splunk Server
+- Phantom Server
 
 Which can be added/removed/configured using [attack_range.conf](attack_range.conf). More machines such as Phantom, Linux server, Linux client, MacOS clients are currently under development.
 
