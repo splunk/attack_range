@@ -8,9 +8,10 @@
       "splunk_asx_app": "",
       "splunk_windows_ta": "",
       "splunk_cim_app": "",
+      "splunk_stream_app:": "",
       "splunk_sysmon_ta": "",
       "caldera_password": "",
-      "install_es": "",)
+      "install_es": "",
       "splunk_es_app": "",
       "key_name": ""
   },
