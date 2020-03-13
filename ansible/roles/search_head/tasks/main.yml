@@ -13,3 +13,5 @@
 - include: install_cim_app.yml
 - include: install_sysmon_ta.yml
 - include: install_mltk_app.yml
+- include: install_stream_app.yml
+

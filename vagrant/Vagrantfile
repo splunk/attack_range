@@ -56,9 +56,10 @@ config.vm.define "attack-range-splunk-server" do |config|
         phantom_app: 'phantom-app-for-splunk_305.tgz',
         phantom_server: '1',
         phantom_server_private_ip: '10.0.1.3',
-        phantom_admin_password: 'I-l1ke-Attack-Range!'
-        splunk_mltk_app: 'splunk-machine-learning-toolkit_510.tgz',
+        phantom_admin_password: 'I-l1ke-Attack-Range!',
         splunk_python_app: 'python-for-scientific-computing-for-linux-64-bit_200.tgz',
+        splunk_mltk_app: 'splunk-machine-learning-toolkit_510.tgz',
+        splunk_stream_app: 'Splunk_TA_stream.zip',
         install_es: '0',
         splunk_es_app: 'splunk-enterprise-security_610.spl'
       }

@@ -6,7 +6,7 @@
 - name: download Stream app from S3 bucket
   get_url:
     url: '{{ s3_bucket_url }}/{{ splunk_stream_app }}'
-    dest: /tmp/stream_app.tgz
+    dest: /tmp/Splunk_TA_stream.zip
   when: stream_app.stat.exists == False
 
 - name: Install stream app via REST
@@ -16,7 +16,7 @@
     user: "admin"
     password: "{{ splunk_admin_password }}"
     validate_certs: false
-    body: "name=/tmp/stream_app.tgz&update=true&filename=true"
+    body: "name=/tmp/Splunk_TA_stream.zip&update=true&filename=true"
     headers:
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
