@@ -31,8 +31,8 @@ if __name__ == "__main__":
                         help="name of savedsearch, which you want to run")
     parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
                         help="path to the configuration file of the attack range")
-    parser.add_argument("-lm", "--list_machines", required=False, default=False, action="store_true", help="prints out all avaiable machines")
-    parser.add_argument("-ls", "--list_searches", required=False, default=False, action="store_true", help="prints out all avaiable savedsearches")
+    parser.add_argument("-lm", "--list_machines", required=False, default=False, action="store_true", help="prints out all available machines")
+    parser.add_argument("-ls", "--list_searches", required=False, default=False, action="store_true", help="prints out all available savedsearches")
     parser.add_argument("-f", "--force", required=False, default=False, action="store_true", help="forces a regeneration of amis (mode packer only)")
     parser.add_argument("-v", "--version", default=False, action="store_true", required=False,
                         help="shows current attack_range version")
@@ -93,7 +93,7 @@ starting program loaded for B1 battle droid
         sys.exit(1)
 
     if mode and not action and not list_machines and not list_searches:
-        log.error('ERROR: Use -a to perform an action or -ls to list avaiable machines')
+        log.error('ERROR: Use -a to perform an action or -lm to list available machines')
         sys.exit(1)
 
     if mode and action == 'simulate' and not target:

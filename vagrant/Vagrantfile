@@ -1,33 +1,5 @@
 Vagrant.configure("2") do |config| 
  
-config.vm.define "attack-range-phantom-server" do |config|
-  VM_NAME_P= "attack-range-phantom-server"
-  config.vm.box = "centos/7"
-  config.vm.hostname = "#{VM_NAME_P}"
-  config.vm.boot_timeout = 600
-  config.vm.network "forwarded_port", guest: 443, host: 8443, protocol: "tcp"
-  config.vm.network :private_network, ip: "10.0.1.3"
-
-  config.vm.provision "ansible" do |ansible|
-      ansible.playbook = "../ansible/playbooks/phantom_server.yml"
-      ansible.config_file = "../ansible/ansible.cfg"
-      ansible.compatibility_mode = "2.0"
-      ansible.extra_vars = {
-        phantom_admin_password: 'I-l1ke-Attack-Range!',
-        phantom_community_username: 'aws-phantom-research@splunk.com',
-        phantom_community_password: 'girdleipodscurvysplendor',
-        phantom_server_private_ip: '10.0.1.3'
-      }
-  end
-
-  config.vm.provider "virtualbox" do |vb, override|
-    vb.gui = true
-    vb.name = "#{VM_NAME_P}"
-    vb.customize ["modifyvm", :id, "--memory", 4096]
-    vb.customize ["modifyvm", :id, "--cpus", 4]
-  end
-end
-
 config.vm.define "attack-range-splunk-server" do |config|
   VM_NAME= "attack-range-splunk-server"
   config.vm.box = "generic/ubuntu1804"
@@ -61,7 +33,11 @@ config.vm.define "attack-range-splunk-server" do |config|
         splunk_mltk_app: 'splunk-machine-learning-toolkit_510.tgz',
         splunk_stream_app: 'Splunk_TA_stream.zip',
         install_es: '0',
-        splunk_es_app: 'splunk-enterprise-security_610.spl'
+        splunk_es_app: 'splunk-enterprise-security_610.spl',
+        phantom_app: 'phantom-app-for-splunk_305.tgz',
+        phantom_server: '0',
+        phantom_server_private_ip: '10.0.1.3',
+        phantom_admin_password: 'I-l1ke-Attack-Range!'
       }
   end
 
