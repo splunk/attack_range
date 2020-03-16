@@ -29,7 +29,13 @@
     path: /opt/splunk/etc/apps/Splunk_TA_stream/set_permissions.sh
     owner: root
     group: root
-    mode: '0700'
+    mode: '0777'
+
+- name: Run the script for setting NIC configuration
+  shell: /opt/splunk/etc/apps/Splunk_TA_stream/set_permissions.sh
+  become: yes
+  become_method: sudo
+  become_user: root
 
 # Use script to set NIC to promiscuous mode: https://docs.splunk.com/Documentation/StreamApp/7.2.0/DeployStreamApp/InstallSplunkAppforStream#Set_Splunk_TA_stream_permissions
 #- name: Change the working directory to cd /opt/splunk/etc/apps/Splunk_TA_stream/ before setting write permissions.
@@ -40,8 +46,3 @@
 #  become_user: admin
 #  become_method: sudo
 
-- name: Run the script for setting NIC configuration
-  shell: /opt/splunk/etc/apps/Splunk_TA_stream/set_permissions.sh >> splunk_stream_install_debug.txt
-  become: yes
-  become_user: root
-  become_method: sudo
