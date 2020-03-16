@@ -23,3 +23,12 @@
     timeout: 30
   when: stream_app.stat.exists == False
   notify: restart splunk
+
+# Use script to set NIC to promiscuous mode: https://docs.splunk.com/Documentation/StreamApp/7.2.0/DeployStreamApp/InstallSplunkAppforStream#Set_Splunk_TA_stream_permissions
+- name: Change the working directory to cd $SPLUNK_HOME/etc/apps/Splunk_TA_stream/ before setting write permissions.
+  shell: sudo chmod +x ./set_permissions.sh >> splunk_stream_install_debug.txt
+  args:
+    chdir: $SPLUNK_HOME/etc/apps/Splunk_TA_stream/
+
+- name: Run the script for setting NIC configuration
+  shell: sudo ./set_permissions.sh >> splunk_stream_install_debug.txt
