@@ -25,10 +25,14 @@
   notify: restart splunk
 
 # Use script to set NIC to promiscuous mode: https://docs.splunk.com/Documentation/StreamApp/7.2.0/DeployStreamApp/InstallSplunkAppforStream#Set_Splunk_TA_stream_permissions
-- name: Change the working directory to cd $SPLUNK_HOME/etc/apps/Splunk_TA_stream/ before setting write permissions.
-  shell: sudo chmod +x ./set_permissions.sh >> splunk_stream_install_debug.txt
+- name: Change the working directory to cd /opt/splunk/etc/apps/Splunk_TA_stream/ before setting write permissions.
+  shell: chmod +x ./set_permissions.sh >> splunk_stream_install_debug.txt
   args:
-    chdir: $SPLUNK_HOME/etc/apps/Splunk_TA_stream/
+    chdir: /opt/splunk/etc/apps/Splunk_TA_stream/
+  become: yes
+  become_user: su
 
 - name: Run the script for setting NIC configuration
-  shell: sudo ./set_permissions.sh >> splunk_stream_install_debug.txt
+  shell: ./set_permissions.sh >> splunk_stream_install_debug.txt
+  become: yes
+  become_user: su
