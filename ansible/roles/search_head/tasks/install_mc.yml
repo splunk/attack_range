@@ -30,8 +30,6 @@
 #   with_items:
 #     - /opt/splunk/etc/apps/scsproxy/local/
 
-# create certificate
-
 - name: copy proxy.conf to splunk server
   copy:
     src: proxy.conf
