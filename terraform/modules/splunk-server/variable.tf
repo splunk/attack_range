@@ -63,3 +63,6 @@ variable "splunk_mltk_app" { }
 variable "install_es" { }
 
 variable "splunk_es_app" { }
+
+variable "install_mission_control" { }
+variable "mission_control_app" { }

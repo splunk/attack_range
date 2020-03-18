@@ -38,6 +38,8 @@ module "splunk-server" {
   phantom_admin_password = var.phantom_admin_password
   phantom_server_instance = module.phantom-server.phantom_server_instance
   phantom_server_instance_packer = module.phantom-server.phantom_server_instance_packer
+  install_mission_control = var.install_mission_control
+  mission_control_app    = var.mission_control_app
 }
 
 module "phantom-server" {

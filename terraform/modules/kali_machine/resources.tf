@@ -26,6 +26,23 @@ resource "aws_instance" "kali_machine" {
   tags = {
     Name = "attack-range-kali_machine"
   }
+
+  provisioner "remote-exec" {
+    inline = ["echo booted"]
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = aws_instance.kali_machine[count.index].public_ip
+      private_key = file(var.private_key_path)
+    }
+  }
+
+  provisioner "local-exec" {
+    working_dir = "../ansible"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key_path} -i '${aws_instance.kali_machine[count.index].public_ip},' playbooks/kali_linux.yml -e 'ansible_python_interpreter=/usr/bin/python3' "
+  }
+
 }
 
 resource "aws_eip" "kali_ip" {
