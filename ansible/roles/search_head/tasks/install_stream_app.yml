@@ -6,7 +6,7 @@
 - name: download Stream app from S3 bucket
   get_url:
     url: '{{ s3_bucket_url }}/{{ splunk_stream_app }}'
-    dest: /tmp/stream_app.tgz
+    dest: /tmp/splunk-stream_720.tgz
   when: stream_app.stat.exists == False
 
 - name: Install stream app via REST
@@ -16,10 +16,26 @@
     user: "admin"
     password: "{{ splunk_admin_password }}"
     validate_certs: false
-    body: "name=/tmp/stream_app.tgz&update=true&filename=true"
+    body: "name=/tmp/splunk-stream_720.tgz&update=true&filename=true"
     headers:
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
     timeout: 30
   when: stream_app.stat.exists == False
   notify: restart splunk
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /opt/splunk/etc/apps/Splunk_TA_stream/set_permissions.sh
+    owner: root
+    group: root
+    mode: '0700'
+
+# Script to set NIC to promiscuous mode: https://docs.splunk.com/Documentation/StreamApp/7.2.0/DeployStreamApp/InstallSplunkAppforStream#Set_Splunk_TA_stream_permissions
+- name: Change the working directory to cd /opt/splunk/etc/apps/Splunk_TA_stream/ before setting write permissions.
+  shell: ./set_permissions.sh
+  args:
+    chdir: /opt/splunk/etc/apps/Splunk_TA_stream/
+  become: yes
+  become_user: root
+  become_method: sudo
