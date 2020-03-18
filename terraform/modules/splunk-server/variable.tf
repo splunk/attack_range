@@ -66,3 +66,5 @@ variable "splunk_es_app" { }
 
 variable "install_mission_control" { }
 variable "mission_control_app" { }
+
+variable "splunk_stream_app" { }
