@@ -96,6 +96,8 @@ variable "splunk_mltk_app" { }
 variable "install_es" { }
 variable "splunk_es_app" { }
 variable "phantom_app" { }
+variable "install_mission_control" { }
+variable "mission_control_app" { }
 
 # Phantom server
 variable "phantom_admin_password" { }
