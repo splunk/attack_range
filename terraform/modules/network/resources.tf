@@ -32,7 +32,7 @@ resource "aws_security_group" "default" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = var.ip_whitelist
+    cidr_blocks = concat(var.ip_whitelist, [var.subnet_cidr])
   }
 
   egress {
