@@ -77,6 +77,8 @@ module "windows-domain-controller" {
   windows_domain_controller_os = var.windows_domain_controller_os
   use_packer_amis        = var.use_packer_amis
   windows_domain_controller_packer_ami = var.windows_domain_controller_packer_ami
+  splunk_stream_app       = var.splunk_stream_app
+  s3_bucket_url          = var.s3_bucket_url
 }
 
 
@@ -103,6 +105,8 @@ module "windows-server" {
   windows_server_join_domain = var.windows_server_join_domain
   use_packer_amis        = var.use_packer_amis
   windows_server_packer_ami = var.windows_server_packer_ami
+  splunk_stream_app       = var.splunk_stream_app
+  s3_bucket_url          = var.s3_bucket_url
 }
 
 module "windows-client" {
@@ -128,6 +132,8 @@ module "windows-client" {
   windows_client_os = var.windows_client_os
   use_packer_amis        = var.use_packer_amis
   windows_client_packer_ami = var.windows_client_packer_ami
+  splunk_stream_app       = var.splunk_stream_app
+  s3_bucket_url          = var.s3_bucket_url
 }
 
 module "kali_machine" {
