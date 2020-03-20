@@ -39,3 +39,24 @@
   become: yes
   become_user: root
   become_method: sudo
+
+- name: Delete local inputs.conf for Splunk Stream deployment Apps
+  file:
+    path: /opt/splunk/etc/deployment-apps/Splunk_TA_stream/local/inputs.conf
+    state: absent
+  become: yes
+  become_user: splunk
+
+- name: Delete local inputs.conf for Splunk Stream deployment Apps
+  file:
+    path: /opt/splunk/etc/deployment-apps/Splunk_TA_stream/local/inputs.conf
+    state: absent
+  become: yes
+  become_user: splunk
+
+- name: Copy new inputs.conf configuration
+  template:
+    src: inputs.conf.j2
+    dest: /opt/splunk/etc/deployment-apps/Splunk_TA_stream/local/inputs.conf
+    owner: splunk
+    group: splunk
