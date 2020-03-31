@@ -60,7 +60,7 @@ resource "aws_eip" "phantom_ip" {
 #### packer ####
 
 data "aws_ami" "phantom-ami-packer" {
-  count = var.use_packer_amis ? 1 : 0
+  count        = var.phantom_server == "1" && var.use_packer_amis=="1" ? 1 : 0
   owners       = ["self"]
 
   filter {
