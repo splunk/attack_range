@@ -8,13 +8,16 @@ import ansible_runner
 
 class TerraformController(IEnvironmentController):
 
-    def __init__(self, config, log):
+    def __init__(self, config, log, packer_amis):
         super().__init__(config, log)
         custom_dict = self.config.copy()
-        rem_list = ['hash_value', 'log_path', 'log_level', 'art_run_techniques']
+        rem_list = ['log_path', 'log_level', 'art_run_techniques']
         [custom_dict.pop(key) for key in rem_list]
         custom_dict['ip_whitelist'] = [custom_dict['ip_whitelist']]
-        custom_dict['use_packer_amis'] = '0'
+        if packer_amis:
+            custom_dict['use_packer_amis'] = '1'
+        else:
+            custom_dict['use_packer_amis'] = '0'
         custom_dict['splunk_packer_ami'] = "packer-splunk-server-" + self.config['key_name']
         custom_dict['phantom_packer_ami'] = "packer-phantom-server-" + self.config['key_name']
         custom_dict['windows_domain_controller_packer_ami'] = "packer-windows-domain-controller-" + self.config['key_name']
