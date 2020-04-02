@@ -54,38 +54,57 @@ Attack Range supports different actions:
 ### Build Attack Range
 - Build Attack Range
 ```
-python attack_range.py -m terraform/vagrant/packer -a build
+python attack_range.py -m terraform/vagrant -a build
 ```
 
 ### Perform Attack Simulation
 - Perform Attack Simulation
 ```
-python attack_range.py -m terraform/vagrant/packer -a simulate -st T1117,T1003 -t attack-range-windows-domain-controller
+python attack_range.py -m terraform/vagrant -a simulate -st T1117,T1003 -t attack-range-windows-domain-controller
 ```
 
 ### Search with Attack Range
 - Run a savedsearch and return the results
 ```
-python attack_range.py -m terraform/vagrant/packer -a search -sn search_name
+python attack_range.py -m terraform/vagrant -a search -sn search_name
 ```
 
 ### Destroy Attack Range
 - Destroy Attack Range
 ```
-python attack_range.py -m terraform/vagrant/packer -a destroy
+python attack_range.py -m terraform/vagrant -a destroy
 ```
 
 ### Stop Attack Range
 - Stop Attack Range
 ```
-python attack_range.py -m terraform/vagrant/packer -a stop
+python attack_range.py -m terraform/vagrant -a stop
 ```
 
 ### Resume Attack Range
 - Resume Attack Range
 ```
-python attack_range.py -m terraform/vagrant/packer -a resume
+python attack_range.py -m terraform/vagrant -a resume
 ```
+
+## Cloud Optimized
+Using the Attack Range for automated detection testing in a Continuous Integration (CI) pipeline, needs the ability to build Attack Range in a short time. Therefore we introduced the mode cloud optimized by combining [packer](https://packer.io/) and [terraform](https://www.terraform.io/). In this mode you need to need to build the AMIs with packer and then use terraform with the prebuilt AMIs:
+
+- Build AMIs with packer
+```
+python attack_range.py -m packer -a build_amis
+```
+
+- Build Attack Range with terraform and -ami flag:
+```
+python attack_range.py -m terraform -a build -ami
+```
+
+- Deregister AMIs with packer
+```
+python attack_range.py -m packer -a destroy_amis
+```
+
 
 ## Features
 - [Splunk Server](https://github.com/splunk/attack_range/wiki/Splunk-Server)
