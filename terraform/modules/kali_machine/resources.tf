@@ -40,12 +40,12 @@ resource "aws_instance" "kali_machine" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key_path} -i '${aws_instance.kali_machine[count.index].public_ip},' playbooks/kali_linux.yml -e 'ansible_python_interpreter=/usr/bin/python3' "
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key_path} -i '${aws_instance.kali_machine[count.index].public_ip},' playbooks/kali_linux.yml -e 'ansible_python_interpreter=/usr/bin/python3 run_demo=${var.run_demo} demo_scenario=${var.demo_scenario}' "
   }
 
 }
 
 resource "aws_eip" "kali_ip" {
   count         = var.kali_machine ? 1 : 0
-  instance = aws_instance.kali_machine[0].id
+  instance      = aws_instance.kali_machine[0].id
 }

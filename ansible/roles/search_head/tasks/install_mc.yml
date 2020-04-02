@@ -28,12 +28,12 @@
 #     group: splunk
 #     recurse: yes
 #   with_items:
-#     - /opt/splunk/etc/apps/scsproxy/local/
+#     - /opt/splunk/etc/apps/splunk-connect-for-mission-control/local/
 
 - name: copy proxy.conf to splunk server
   copy:
     src: proxy.conf
-    dest: /opt/splunk/etc/apps/scsproxy/local/proxy.conf
+    dest: /opt/splunk/etc/apps/splunk-connect-for-mission-control/local/proxy.conf
     owner: splunk
     group: splunk
   notify: restart splunk
@@ -41,7 +41,7 @@
 - name: copy outputs.conf to splunk server
   copy:
     src: outputs.conf
-    dest: /opt/splunk/etc/apps/scsproxy/local/outputs.conf
+    dest: /opt/splunk/etc/apps/splunk-connect-for-mission-control/local/outputs.conf
     owner: splunk
     group: splunk
   notify: restart splunk

@@ -53,3 +53,6 @@ variable "splunk_admin_password" { }
 
 variable "splunk_stream_app" { }
 variable "s3_bucket_url" { }
+
+variable "run_demo" { }
+variable "demo_scenario" { }
