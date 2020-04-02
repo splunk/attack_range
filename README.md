@@ -93,7 +93,7 @@ python attack_range.py -m terraform/vagrant -a resume
 ```
 
 ## Cloud Optimized
-Using the Attack Range for automated detection testing in a Continuous Integration (CI) pipeline, needs the ability to build Attack Range in a short time. Therefore we introduced the mode cloud optimized by combining [packer](https://packer.io/) and [terraform](https://www.terraform.io/). In this mode you need to need to build the AMIs with packer and then use terraform with the prebuilt AMIs:
+Using the Attack Range for automated detection testing in a Continuous Integration (CI) pipeline, needs the ability to build it quickly. Therefore we introduced the mode cloud optimized by combining [packer](https://packer.io/) and [terraform](https://www.terraform.io/). In this mode you need to build the AMIs with packer and then use terraform with the prebuilt AMIs:
 
 - Build AMIs with packer
 ```
