@@ -3,9 +3,14 @@
 # Splunk Attack Range
 
 ## Purpose
-The Attack Range solves two main challenges in development of detections. First, it allows the user to quickly build a small lab infrastructure as close as possible to your production environment. This lab infrastructure contains a Windows Domain Controller, Windows Server, Windows Workstation and a Kali Machine, which comes pre-configured with multiple security tools and logging configuration. The infrastructure comes with a Splunk server collecting multiple log sources from the different servers.  
+The Attack Range is a detection development platform, which solves three main challenges in detection engineering. First, the user is able to build quickly a small lab infrastructure as close as possible to a production environment. Second, the Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. Third, it integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
 
-Second, this framework allows the user to perform attack simulation using different engines. Therefore, the user can repeatedly replicate and generate data as close to "ground truth" as possible, in a format that allows the creation of detections, investigations, knowledge objects, and playbooks in Splunk.
+The lab infrastructure contains a Windows Domain Controller, Windows Server, Windows Workstation and a Kali Machine, which comes pre-configured with multiple security tools and logging configuration. Furthermore, a Splunk server and a Phantom server completes the lab infrastructure. The lab infrastructure can be deployed locally or in the cloud. The building process is completely automated and can be executed with a single command.  
+
+The Attack Range incorporates different simulation engines such as Atomic Red Team from Red Canary and Caldera from Mitre. Attacks can be executed with a single command allowing the user to attack the lab infrastructure. These data can be used to develop new detections or test existing detection rules.  
+
+The differentiation to existing open source tools such as Detection Lab is that the Attack Range exposes all actions over the command line. This allows the user to integrate the Attack Range into a CI/CD pipeline and automating the detection testing/development process. For example, after writing a new detection for credential dumping, the Attack Range can automatically test it by performing the following steps: build Attack Range, perform attack T1103 (credential dumping), run detection, destroy Attack Range.
+
 
 ## Demo
 [:tv: A short demo (< 6 min)](https://www.youtube.com/watch?v=xIbln7OQ-Ak) which shows the basic functions of the attack range. It builds a testing enviroment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [ESCU](https://github.com/splunk/security-content) searches are used to detect the attack.
@@ -54,38 +59,57 @@ Attack Range supports different actions:
 ### Build Attack Range
 - Build Attack Range
 ```
-python attack_range.py -m terraform/vagrant/packer -a build
+python attack_range.py -m terraform/vagrant -a build
 ```
 
 ### Perform Attack Simulation
 - Perform Attack Simulation
 ```
-python attack_range.py -m terraform/vagrant/packer -a simulate -st T1117,T1003 -t attack-range-windows-domain-controller
+python attack_range.py -m terraform/vagrant -a simulate -st T1117,T1003 -t attack-range-windows-domain-controller
 ```
 
 ### Search with Attack Range
 - Run a savedsearch and return the results
 ```
-python attack_range.py -m terraform/vagrant/packer -a search -sn search_name
+python attack_range.py -m terraform/vagrant -a search -sn search_name
 ```
 
 ### Destroy Attack Range
 - Destroy Attack Range
 ```
-python attack_range.py -m terraform/vagrant/packer -a destroy
+python attack_range.py -m terraform/vagrant -a destroy
 ```
 
 ### Stop Attack Range
 - Stop Attack Range
 ```
-python attack_range.py -m terraform/vagrant/packer -a stop
+python attack_range.py -m terraform/vagrant -a stop
 ```
 
 ### Resume Attack Range
 - Resume Attack Range
 ```
-python attack_range.py -m terraform/vagrant/packer -a resume
+python attack_range.py -m terraform/vagrant -a resume
 ```
+
+## Cloud Optimized
+Using the Attack Range for automated detection testing in a Continuous Integration (CI) pipeline, needs the ability to build it quickly. Therefore we introduced the mode cloud optimized by combining [packer](https://packer.io/) and [terraform](https://www.terraform.io/). In this mode you need to build the AMIs with packer and then use terraform with the prebuilt AMIs:
+
+- Build AMIs with packer
+```
+python attack_range.py -m packer -a build_amis
+```
+
+- Build Attack Range with terraform and -ami flag:
+```
+python attack_range.py -m terraform -a build -ami
+```
+
+- Deregister AMIs with packer
+```
+python attack_range.py -m packer -a destroy_amis
+```
+
 
 ## Features
 - [Splunk Server](https://github.com/splunk/attack_range/wiki/Splunk-Server)

@@ -21,8 +21,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
     parser.add_argument("-m", "--mode", required=False, choices=['vagrant', 'terraform', 'packer'],
                         help="mode of operation, terraform/vagrant/packer, please see configuration for each at: https://github.com/splunk/attack_range")
-    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'search'],
-                        help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume/search allowed")
+    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'search', 'build_amis', 'destroy_amis'],
+                        help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume/search/build-amis/destroy_amis allowed")
     parser.add_argument("-t", "--target", required=False,
                         help="target for attack simulation. For mode vagrant use name of the vbox. For mode terraform use the name of the aws EC2 name")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
@@ -33,7 +33,7 @@ if __name__ == "__main__":
                         help="path to the configuration file of the attack range")
     parser.add_argument("-lm", "--list_machines", required=False, default=False, action="store_true", help="prints out all available machines")
     parser.add_argument("-ls", "--list_searches", required=False, default=False, action="store_true", help="prints out all available savedsearches")
-    parser.add_argument("-f", "--force", required=False, default=False, action="store_true", help="forces a regeneration of amis (mode packer only)")
+    parser.add_argument("-ami", required=False, default=False, action="store_true", help="use prebuilt packer amis with mode terraform")
     parser.add_argument("-v", "--version", default=False, action="store_true", required=False,
                         help="shows current attack_range version")
 
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     list_machines = args.list_machines
     list_searches = args.list_searches
     search_name = args.search_name
-    force = args.force
+    packer_amis = args.ami
 
     print("""
 starting program loaded for B1 battle droid
@@ -104,8 +104,16 @@ starting program loaded for B1 battle droid
         log.error('ERROR: Specify search name to execute.')
         sys.exit(1)
 
-    if mode != 'packer' and force:
-        log.error('ERROR: Force can only be used with mode packer.')
+    if mode != 'packer' and (action == 'build_amis' or action == 'destroy_amis'):
+        log.error('ERROR: action build_amis and destroy_amis can only be used with packer')
+        sys.exit(1)
+
+    if mode != 'terraform' and packer_amis:
+        log.error('ERROR: parameter packer_amis can only be used with terraform.')
+        sys.exit(1)
+
+    if mode == 'packer' and action != 'build_amis' and action != 'destroy_amis':
+        log.error('ERROR: packer can only be used with action build_amis and destroy_amis. To build attack range use mode terraform or vagrant.')
         sys.exit(1)
 
     # lets give CLI priority over config file for pre-configured techniques
@@ -114,13 +122,16 @@ starting program loaded for B1 battle droid
     else:
         simulation_techniques = config['art_run_techniques']
 
-
     if mode == 'terraform':
-        controller = TerraformController(config, log)
+        controller = TerraformController(config, log, packer_amis)
     elif mode == 'vagrant':
         controller = VagrantController(config, log)
     elif mode == 'packer':
-        controller = PackerController(config, log, force)
+        controller = PackerController(config, log)
+        if action == 'build_amis':
+            controller.build_amis()
+        elif action == 'destroy_amis':
+            controller.destroy_amis()
 
     if list_machines:
         controller.list_machines()
@@ -147,3 +158,9 @@ starting program loaded for B1 battle droid
 
     if action == 'search':
         controller.search(search_name)
+
+
+
+
+
+# rnfgre rtt ol C4G12VPX
