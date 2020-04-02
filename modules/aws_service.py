@@ -72,3 +72,25 @@ def change_ec2_state(instances, new_state, log):
                     InstanceIds=[instance['InstanceId']]
                 )
                 log.info('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
+
+
+def deregister_images(images, config, log):
+    client = boto3.client('ec2')
+
+    for image in images:
+        response = client.describe_images(
+            Filters=[
+                {
+                    'Name': 'name',
+                    'Values': [
+                        str("packer-" + image + "-" + config['key_name']),
+                    ]
+                }
+            ]
+        )
+        if len(response['Images']):
+            image_obj = response['Images'][0]
+            client.deregister_image(ImageId=image_obj['ImageId'])
+            log.info('Successfully deregistered AMI ' +  image_obj['Name'] +  ' with AMI ID ' + image_obj['ImageId'] + ' .')
+        else:
+            log.info('Didn\'t find AMI: ' +  str("packer-" + image + "-" + config['key_name']) + ' .')
