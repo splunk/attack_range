@@ -107,6 +107,8 @@ module "windows-server" {
   windows_server_packer_ami = var.windows_server_packer_ami
   splunk_stream_app       = var.splunk_stream_app
   s3_bucket_url          = var.s3_bucket_url
+  run_demo               = var.run_demo
+  demo_scenario          = var.demo_scenario
 }
 
 module "windows-client" {
@@ -134,6 +136,8 @@ module "windows-client" {
   windows_client_packer_ami = var.windows_client_packer_ami
   splunk_stream_app       = var.splunk_stream_app
   s3_bucket_url          = var.s3_bucket_url
+  run_demo               = var.run_demo
+  demo_scenario          = var.demo_scenario
 }
 
 module "kali_machine" {
@@ -144,4 +148,6 @@ module "kali_machine" {
 	vpc_security_group_ids = module.networkModule.vpc_security_group_ids
 	vpc_subnet_id          = module.networkModule.vpc_subnet_id
   kali_machine_private_ip = var.kali_machine_private_ip
+  run_demo               = var.run_demo
+  demo_scenario          = var.demo_scenario
 }

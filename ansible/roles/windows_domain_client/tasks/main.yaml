@@ -5,3 +5,6 @@
   when: windows_server_join_domain == "1"
 
 - include: copy_malicious_putty.yml
+  when:
+    - run_demo == "1"
+    - demo_scenario = "mission_control_malicious_putty"

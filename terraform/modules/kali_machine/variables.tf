@@ -23,3 +23,6 @@ variable "vpc_subnet_id" { }
 variable "kali_machine" { }
 
 variable "kali_machine_private_ip" { }
+
+variable "run_demo" { }
+variable "demo_scenario" { }

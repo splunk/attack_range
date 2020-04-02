@@ -109,3 +109,7 @@ variable "phantom_community_password" { }
 variable "splunk_uf_win_url" { }
 variable "win_sysmon_url" { }
 variable "win_sysmon_template" { }
+
+# Demo mode
+variable "run_demo" { }
+variable "demo_scenario" { }
