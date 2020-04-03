@@ -49,7 +49,7 @@ if __name__ == "__main__":
     list_searches = args.list_searches
     search_name = args.search_name
     packer_amis = args.ami
-    demo = args.demo
+
 
     print("""
 starting program loaded for B1 battle droid

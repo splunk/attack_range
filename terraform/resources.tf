@@ -150,4 +150,6 @@ module "kali_machine" {
   kali_machine_private_ip = var.kali_machine_private_ip
   run_demo               = var.run_demo
   demo_scenario          = var.demo_scenario
+  kali_machine_packer_ami = var.kali_machine_packer_ami
+  use_packer_amis        = var.use_packer_amis
 }

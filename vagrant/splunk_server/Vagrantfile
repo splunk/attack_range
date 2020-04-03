@@ -31,7 +31,10 @@ config.vm.define "attack-range-splunk-server" do |config|
         phantom_app: '{{ phantom_app }}',
         phantom_server: '{{ phantom_server }}',
         phantom_server_private_ip: '{{ phantom_server_private_ip }}',
-        phantom_admin_password: '{{ phantom_admin_password }}'
+        phantom_admin_password: '{{ phantom_admin_password }}',
+        install_mission_control: '{{ install_mission_control }}',
+        mission_control_app: '{{ mission_control_app }}',
+        splunk_server_private_ip: '{{ splunk_server_private_ip }}'
       }
   end
 

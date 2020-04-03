@@ -1,5 +1,6 @@
 
 data "aws_ami" "latest-kali-linux" {
+  count = var.kali_machine == "1" && var.use_packer_amis=="0" ? 1 : 0
   most_recent = true
   owners = ["679593333241"] # owned by AWS marketplace
 
@@ -14,10 +15,9 @@ data "aws_ami" "latest-kali-linux" {
   }
 }
 
-# standup splunk server
 resource "aws_instance" "kali_machine" {
-  count         = var.kali_machine ? 1 : 0
-  ami           = data.aws_ami.latest-kali-linux.id
+  count = var.kali_machine == "1" && var.use_packer_amis=="0" ? 1 : 0
+  ami           = data.aws_ami.latest-kali-linux[count.index].id
   instance_type = "t2.medium"
   key_name = var.key_name
   subnet_id = var.vpc_subnet_id
@@ -46,6 +46,52 @@ resource "aws_instance" "kali_machine" {
 }
 
 resource "aws_eip" "kali_ip" {
-  count         = var.kali_machine ? 1 : 0
+  count = var.kali_machine == "1" && var.use_packer_amis=="0" ? 1 : 0
   instance      = aws_instance.kali_machine[0].id
+}
+
+
+
+#### Packer ######
+
+data "aws_ami" "kali-machine-packer-ami" {
+  count = var.kali_machine == "1" && var.use_packer_amis=="1" ? 1 : 0
+  owners       = ["self"]
+
+  filter {
+    name   = "name"
+    values = [var.kali_machine_packer_ami]
+  }
+
+  most_recent = true
+}
+
+resource "aws_instance" "kali_machine_packer" {
+  count = var.kali_machine == "1" && var.use_packer_amis=="1" ? 1 : 0
+  ami           = data.aws_ami.kali-machine-packer-ami[count.index].id
+  instance_type = "t2.medium"
+  key_name = var.key_name
+  subnet_id = var.vpc_subnet_id
+  vpc_security_group_ids = [var.vpc_security_group_ids]
+  private_ip = var.kali_machine_private_ip
+  tags = {
+    Name = "attack-range-kali_machine"
+  }
+
+  provisioner "remote-exec" {
+    inline = ["echo booted"]
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = aws_instance.kali_machine_packer[count.index].public_ip
+      private_key = file(var.private_key_path)
+    }
+  }
+
+}
+
+resource "aws_eip" "kali_ip_packer" {
+  count = var.kali_machine == "1" && var.use_packer_amis=="1" ? 1 : 0
+  instance      = aws_instance.kali_machine_packer[0].id
 }

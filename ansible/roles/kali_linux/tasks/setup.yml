@@ -31,7 +31,8 @@
 - name: copy attack.service to kali linux
   copy:
     src: attack.service
-    dest: /lib/systemd/system/attack.service
+    dest: /etc/systemd/system/attack.service
+    mode: '0644'
   become: yes
 
 - name: setup metasploit database
