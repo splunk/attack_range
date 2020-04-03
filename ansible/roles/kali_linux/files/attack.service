@@ -6,7 +6,7 @@ Conflicts=getty@tty1.service
 [Service]
 Type=simple
 ExecStart=/usr/bin/python3 /var/www/run_metasploit.py
-StandardInput=tty-force
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

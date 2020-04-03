@@ -73,6 +73,8 @@ variable "windows_client_packer_ami" { }
 
 variable "phantom_packer_ami" { }
 
+variable "kali_machine_packer_ami" { }
+
 #ansible variables
 # ---------------------- #
 # general
