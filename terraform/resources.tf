@@ -6,42 +6,43 @@ module "networkModule" {
   source			  = "./modules/network"
 	ip_whitelist  = var.ip_whitelist
   availability_zone = var.availability_zone
-  subnet_cidr   = var.subnet_cidr
+  subnet_ec2   = var.subnet_ec2
+  subnet_vpc   = var.subnet_vpc
 }
 
-module "splunk-server" {
-  source			           = "./modules/splunk-server"
- 	private_key_path       = var.private_key_path
-	key_name		           = var.key_name
-	vpc_security_group_ids = module.networkModule.vpc_security_group_ids
-	vpc_subnet_id         = module.networkModule.vpc_subnet_id
-  splunk_admin_password  = var.splunk_admin_password
-  splunk_url             = var.splunk_url
-  splunk_binary          = var.splunk_binary
-  s3_bucket_url          = var.s3_bucket_url
-  splunk_escu_app        = var.splunk_escu_app
-  splunk_asx_app         = var.splunk_asx_app
-  splunk_windows_ta      = var.splunk_windows_ta
-  splunk_cim_app         = var.splunk_cim_app
-  splunk_sysmon_ta       = var.splunk_sysmon_ta
-  splunk_python_app       = var.splunk_python_app
-  splunk_mltk_app         = var.splunk_mltk_app
-  splunk_stream_app       = var.splunk_stream_app
-  splunk_server_private_ip = var.splunk_server_private_ip
-  use_packer_amis        = var.use_packer_amis
-  splunk_packer_ami      = var.splunk_packer_ami
-  caldera_password       = var.caldera_password
-  install_es             = var.install_es
-  splunk_es_app          = var.splunk_es_app
-  phantom_app            = var.phantom_app
-  phantom_server         = var.phantom_server
-  phantom_server_private_ip = var.phantom_server_private_ip
-  phantom_admin_password = var.phantom_admin_password
-  phantom_server_instance = module.phantom-server.phantom_server_instance
-  phantom_server_instance_packer = module.phantom-server.phantom_server_instance_packer
-  install_mission_control = var.install_mission_control
-  mission_control_app    = var.mission_control_app
-}
+# module "splunk-server" {
+#   source			           = "./modules/splunk-server"
+#  	private_key_path       = var.private_key_path
+# 	key_name		           = var.key_name
+# 	vpc_security_group_ids = module.networkModule.vpc_security_group_ids
+# 	vpc_subnet_id         = module.networkModule.vpc_subnet_id
+#   splunk_admin_password  = var.splunk_admin_password
+#   splunk_url             = var.splunk_url
+#   splunk_binary          = var.splunk_binary
+#   s3_bucket_url          = var.s3_bucket_url
+#   splunk_escu_app        = var.splunk_escu_app
+#   splunk_asx_app         = var.splunk_asx_app
+#   splunk_windows_ta      = var.splunk_windows_ta
+#   splunk_cim_app         = var.splunk_cim_app
+#   splunk_sysmon_ta       = var.splunk_sysmon_ta
+#   splunk_python_app       = var.splunk_python_app
+#   splunk_mltk_app         = var.splunk_mltk_app
+#   splunk_stream_app       = var.splunk_stream_app
+#   splunk_server_private_ip = var.splunk_server_private_ip
+#   use_packer_amis        = var.use_packer_amis
+#   splunk_packer_ami      = var.splunk_packer_ami
+#   caldera_password       = var.caldera_password
+#   install_es             = var.install_es
+#   splunk_es_app          = var.splunk_es_app
+#   phantom_app            = var.phantom_app
+#   phantom_server         = var.phantom_server
+#   phantom_server_private_ip = var.phantom_server_private_ip
+#   phantom_admin_password = var.phantom_admin_password
+#   phantom_server_instance = module.phantom-server.phantom_server_instance
+#   phantom_server_instance_packer = module.phantom-server.phantom_server_instance_packer
+#   install_mission_control = var.install_mission_control
+#   mission_control_app    = var.mission_control_app
+# }
 
 module "phantom-server" {
   source                     = "./modules/phantom-server"
@@ -152,4 +153,13 @@ module "kali_machine" {
   demo_scenario          = var.demo_scenario
   kali_machine_packer_ami = var.kali_machine_packer_ami
   use_packer_amis        = var.use_packer_amis
+}
+
+module "serverless-application" {
+  source                = "./modules/serverless-application"
+  vpc_id                = module.networkModule.vpc_id
+  availability_zone_db1 = var.availability_zone_db1
+  subnet_db1            = var.subnet_db1
+  availability_zone_db2 = var.availability_zone_db2
+  subnet_db2            = var.subnet_db2
 }

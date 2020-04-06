@@ -1,6 +1,6 @@
 
 resource "aws_vpc" "default" {
-  cidr_block = var.subnet_cidr
+  cidr_block = var.subnet_vpc
 }
 
 
@@ -11,7 +11,7 @@ resource "aws_internet_gateway" "default" {
 
 resource "aws_subnet" "subnet" {
   vpc_id                  = aws_vpc.default.id
-  cidr_block              = var.subnet_cidr
+  cidr_block              = var.subnet_ec2
   map_public_ip_on_launch = true
   availability_zone       = var.availability_zone
   depends_on              = [aws_internet_gateway.default]
@@ -32,7 +32,7 @@ resource "aws_security_group" "default" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = concat(var.ip_whitelist, [var.subnet_cidr])
+    cidr_blocks = concat(var.ip_whitelist, [var.subnet_ec2])
   }
 
   egress {

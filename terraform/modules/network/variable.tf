@@ -6,4 +6,5 @@ variable "ip_whitelist" {
 }
 
 variable "availability_zone" { }
-variable "subnet_cidr" { }
+variable "subnet_ec2" { }
+variable "subnet_vpc" { }

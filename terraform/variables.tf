@@ -80,7 +80,8 @@ variable "kali_machine_packer_ami" { }
 # general
 variable "region" { }
 variable "availability_zone" { }
-variable "subnet_cidr" { }
+variable "subnet_ec2" { }
+variable "subnet_vpc" { }
 variable "caldera_password" { }
 
 # Splunk server
@@ -115,3 +116,9 @@ variable "win_sysmon_template" { }
 # Demo mode
 variable "run_demo" { }
 variable "demo_scenario" { }
+
+# cloud
+variable "subnet_db1" { }
+variable "availability_zone_db1" { }
+variable "subnet_db2" { }
+variable "availability_zone_db2" { }
