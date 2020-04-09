@@ -29,7 +29,7 @@ variable "windows_domain_controller_instance_packer" { }
 
 variable "vpc_security_group_ids" { }
 
-variable "vpc_subnet_id" { }
+variable "ec2_subnet_id" { }
 variable "availability_zone" { }
 
 variable "windows_client" { }

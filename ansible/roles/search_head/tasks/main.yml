@@ -7,6 +7,8 @@
 - include: configure_web_conf.yml
 - include: configure_server_conf.yml
 - include: create_serverclass.yml
+- include: install_aws_app.yml
+  when: cloud_attack_range == "1"
 - include: install_enterprise_security.yml
 - include: install_mc.yml
   when: install_mission_control == "1"

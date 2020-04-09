@@ -22,7 +22,7 @@ resource "aws_instance" "phantom-server" {
   ami           = data.aws_ami.latest-centos[count.index].id
   instance_type = "t3a.xlarge"
   key_name = var.key_name
-  subnet_id = var.vpc_subnet_id
+  subnet_id = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.phantom_server_private_ip
   root_block_device {
@@ -77,7 +77,7 @@ resource "aws_instance" "phantom-server-packer" {
   ami           = data.aws_ami.phantom-ami-packer[count.index].id
   instance_type = "t3a.xlarge"
   key_name = var.key_name
-  subnet_id = var.vpc_subnet_id
+  subnet_id = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.phantom_server_private_ip
   root_block_device {

@@ -31,7 +31,10 @@ class TerraformController(IEnvironmentController):
         self.log.info("[action] > build\n")
         return_code, stdout, stderr = self.terraform.apply(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
         if not return_code:
-            self.log.info("attack_range has been built using terraform successfully")
+           self.log.info("attack_range has been built using terraform successfully")
+        if self.config["cloud_attack_range"]=="1":
+            aws_service.provision_db(self.config, self.log)
+        else:
             self.list_machines()
 
     def destroy(self):

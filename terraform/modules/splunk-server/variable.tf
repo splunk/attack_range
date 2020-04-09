@@ -18,7 +18,7 @@ variable "key_name" {
 
 variable "vpc_security_group_ids" { }
 
-variable "vpc_subnet_id" { }
+variable "ec2_subnet_id" { }
 
 variable "splunk_server_private_ip" { }
 
@@ -68,3 +68,13 @@ variable "install_mission_control" { }
 variable "mission_control_app" { }
 
 variable "splunk_stream_app" { }
+
+variable "splunk_aws_app" { }
+
+variable "cloud_attack_range" { }
+
+variable "api_gateway_id" { }
+
+variable "db_id" { }
+
+variable "region" { }
