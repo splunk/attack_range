@@ -1,0 +1,96 @@
+- name: Check if Status Indicator Dashboard exists
+  stat:
+    path: /opt/splunk/etc/apps/status_indicator_app
+  register: custom_dashboard_status_app
+
+- name: download Status Indicator Dashboard from S3 bucket
+  get_url:
+    url: '{{ s3_bucket_url }}/{{ status_indicator_custom_visualization }}'
+    dest: /tmp/custom_dashboard_status_app.tgz
+  when: custom_dashboard_status_app.stat.exists == False
+
+- name: Install Status Indicator Dashboard via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/custom_dashboard_status_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: custom_dashboard_status_app.stat.exists == False
+  notify: restart splunk
+
+- name: Check if Punchcard Dashboard exists
+  stat:
+    path: /opt/splunk/etc/apps/punchcard_app
+  register: punchcard_dashboard_app
+
+- name: download Punchcard Dashboard from S3 bucket
+  get_url:
+    url: '{{ s3_bucket_url }}/{{ punchard_custom_visualization }}'
+    dest: /tmp/punchcard_dashboard_app.tgz
+  when: punchcard_dashboard_app.stat.exists == False
+
+- name: Install Punchcard Dashboard via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/punchcard_dashboard_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: punchcard_dashboard_app.stat.exists == False
+  notify: restart splunk
+
+
+- name: Check if Attack Range Reporting exists
+  stat:
+    path: /opt/splunk/etc/apps/splunk_attack_range_reporting
+  register: attack_range_reporting_app
+
+- name: download Attack Range Reporting from S3 bucket
+  get_url:
+    url: '{{ s3_bucket_url }}/{{ splunk_attack_range_dashboard }}'
+    dest: /tmp/attack_range_reporting_app.tgz
+  when: attack_range_reporting_app.stat.exists == False
+
+- name: Install Attack Range Reporting via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/attack_range_reporting_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: attack_range_reporting_app.stat.exists == False
+  notify: restart splunk
+
+- name: Create folder directory for user-prefs configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/users/admin/user-prefs/local/
+
+- name: copy user-prefs.conf to splunk server
+  copy:
+    src: user-prefs.conf
+    dest: /opt/splunk/etc/users/admin/user-prefs/local/user-prefs.conf
+    owner: splunk
+    group: splunk
+  notify: restart splunk
