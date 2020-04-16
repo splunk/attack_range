@@ -119,10 +119,8 @@ variable "demo_scenario" { }
 
 # cloud
 variable "cloud_attack_range" { }
-variable "subnet_db1" { }
-variable "availability_zone_db1" { }
-variable "subnet_db2" { }
-variable "availability_zone_db2" { }
-variable "db_user" { }
-variable "db_password" { }
+
 variable "splunk_aws_app" { }
+
+variable "cloud_s3_bucket" { }
+variable "cloud_s3_bucket_key" { }

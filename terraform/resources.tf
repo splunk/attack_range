@@ -45,7 +45,6 @@ module "splunk-server" {
   splunk_aws_app         = var.splunk_aws_app
   cloud_attack_range     = var.cloud_attack_range
   api_gateway_id         = module.serverless-application.api_gateway_id
-  db_id                  = module.serverless-application.db_id
   region                 = var.region
 }
 
@@ -163,13 +162,7 @@ module "kali_machine" {
 module "serverless-application" {
   source                = "./modules/serverless-application"
   cloud_attack_range    = var.cloud_attack_range
-  vpc_id                = module.networkModule.vpc_id
-  availability_zone_db1 = var.availability_zone_db1
-  subnet_db1            = var.subnet_db1
-  availability_zone_db2 = var.availability_zone_db2
-  subnet_db2            = var.subnet_db2
   key_name		          = var.key_name
-  db_user               = var.db_user
-  db_password           = var.db_password
-  ip_whitelist          = var.ip_whitelist
+  cloud_s3_bucket       = var.cloud_s3_bucket
+  cloud_s3_bucket_key   = var.cloud_s3_bucket_key
 }

@@ -75,6 +75,4 @@ variable "cloud_attack_range" { }
 
 variable "api_gateway_id" { }
 
-variable "db_id" { }
-
 variable "region" { }

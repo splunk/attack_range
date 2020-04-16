@@ -70,8 +70,7 @@ data "aws_iam_policy_document" "splunk_logging" {
 
     resources = [
       "arn:aws:logs:*:log-group:/aws/lambda/notes_application_${var.key_name}:*",
-      "arn:aws:logs:*:log-group:API-Gateway-Execution-Logs_${var.api_gateway_id}/prod*",
-      "arn:aws:logs:*:log-group:RDSOSMetrics*"
+      "arn:aws:logs:*:log-group:API-Gateway-Execution-Logs_${var.api_gateway_id}/prod*"
     ]
   }
 }
@@ -118,7 +117,7 @@ resource "aws_instance" "splunk-server" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server[count.index].public_ip},' playbooks/splunk_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 splunk_admin_password=${var.splunk_admin_password} splunk_url=${var.splunk_url} splunk_binary=${var.splunk_binary} s3_bucket_url=${var.s3_bucket_url} splunk_escu_app=${var.splunk_escu_app} splunk_asx_app=${var.splunk_asx_app} splunk_windows_ta=${var.splunk_windows_ta} splunk_cim_app=${var.splunk_cim_app} splunk_sysmon_ta=${var.splunk_sysmon_ta} splunk_python_app=${var.splunk_python_app} splunk_mltk_app=${var.splunk_mltk_app} caldera_password=${var.caldera_password} install_es=${var.install_es} splunk_es_app=${var.splunk_es_app} phantom_app=${var.phantom_app} phantom_server=${var.phantom_server} phantom_server_private_ip=${var.phantom_server_private_ip} phantom_admin_password=${var.phantom_admin_password}  install_mission_control=${var.install_mission_control} mission_control_app=${var.mission_control_app} splunk_stream_app=${var.splunk_stream_app} splunk_server_private_ip=${var.splunk_server_private_ip} splunk_aws_app=${var.splunk_aws_app} cloud_attack_range=${var.cloud_attack_range} region=${var.region} key_name=${var.key_name} api_gateway_id=${var.api_gateway_id} db_id=${var.db_id}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.private_key_path} -i '${aws_instance.splunk-server[count.index].public_ip},' playbooks/splunk_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 splunk_admin_password=${var.splunk_admin_password} splunk_url=${var.splunk_url} splunk_binary=${var.splunk_binary} s3_bucket_url=${var.s3_bucket_url} splunk_escu_app=${var.splunk_escu_app} splunk_asx_app=${var.splunk_asx_app} splunk_windows_ta=${var.splunk_windows_ta} splunk_cim_app=${var.splunk_cim_app} splunk_sysmon_ta=${var.splunk_sysmon_ta} splunk_python_app=${var.splunk_python_app} splunk_mltk_app=${var.splunk_mltk_app} caldera_password=${var.caldera_password} install_es=${var.install_es} splunk_es_app=${var.splunk_es_app} phantom_app=${var.phantom_app} phantom_server=${var.phantom_server} phantom_server_private_ip=${var.phantom_server_private_ip} phantom_admin_password=${var.phantom_admin_password}  install_mission_control=${var.install_mission_control} mission_control_app=${var.mission_control_app} splunk_stream_app=${var.splunk_stream_app} splunk_server_private_ip=${var.splunk_server_private_ip} splunk_aws_app=${var.splunk_aws_app} cloud_attack_range=${var.cloud_attack_range} region=${var.region} key_name=${var.key_name} api_gateway_id=${var.api_gateway_id}'"
   }
 }
 

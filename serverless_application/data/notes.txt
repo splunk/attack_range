@@ -1,0 +1,17 @@
+Dave_Fischer; 1; Chuck Norris Joke #1; Jaws stays on the beach when Chuck Norris swims.
+Dave_Fischer; 1; Chuck Norris Joke #2; Freddie Krueger is afraid that Chuck Norris might one day get tired and take a nap.
+Dave_Fischer; 1; Chuck Norris Joke #3; Death once had a near-Chuck-Norris experience.
+Dave_Fischer; 1; Chuck Norris Joke #4; Chuck Norris got Coronavirus. Now the Coronavirus is in isolation.
+Dave_Fischer; 1; Chuck Norris Joke #5; Chuck Norris knows Victoria's secret.
+Dave_Fischer; 0; my aws credentials; user=dave password=ChuckNorris123!
+Luke_Skywalker; 1; Deep Core; the innermost brightly lit region of space, with a supermassive black hole at the center which binds the galaxy together. Densely-packed with stars, nebulae, and other anomalies, it is therefore thinly settled due to the resulting high radiation levels and lack of stable hyperspace routes.
+Luke_Skywalker; 1; Core Worlds; powerful and wealthy planets with millennia-long histories, many of them founding members of the Galactic Republic. On-screen examples include Coruscant, Corellia, Alderaan, and Hosnian Prime.
+Luke_Skywalker; 1; The Colonies; the first colonies founded by the nascent Galactic Republic in ancient times. The name is somewhat of a misnomer, as they have grown nearly as powerful as the Core Worlds themselves, though their histories aren't quite as long or prestigious (i.e. comparable to how the United States or Canada could be called the colonies of Great Britain). Mentioned by name in The Rise of Skywalker.
+Luke_Skywalker; 1; Inner Rim; the original edge of the Galactic Republic, where expansion waves stopped for many generations.
+Luke_Skywalker; 1; Expansion Region; nestled between the Inner Rim and the Mid Rim, anachronistically named due to a new colonization wave starting again.
+Luke_Skywalker; 1; Mid-Rim; Generally industrialized though not very important planets, but more developed than the true frontier in the Outer Rim. On-screen examples include Naboo and Kashyyyk.
+Luke_Skywalker; 1; Outer Rim; a vast region including all of the last major star systems up to the galaxys edge. As the last region that the Republic expanded into, it is relatively the least developed, a frontier more often than not exploited by the central galactic government for its resources. On-screen examples include Tatooine, Yavin, Hoth, Bespin, Endor, Geonosis, Utapau, Mustafar, and Kessel.
+Luke_Skywalker; 1; Wild Space; star systems located beyond the Outer Rim – because a galaxys edge is not a fixed border line, but a concentration of stars tapering off in frequency. Unlike the Outer Rim, these sparse few systems around the galaxys circumference were never formally charted. More broadly, Attack of the Clones established that the Star Wars galaxy actually possesses at least three small satellite galaxies, never colonized and considered largely inhospitable. The secret cloner-world Kamino, however, is located in one of these minor galactic clusters beyond the Outer Rim.
+Luke_Skywalker; 0; my favourite star wars cite 1; You Can Either Profit By This, Or Be Destroyed.
+Luke_Skywalker; 0; my favourite star wars cite 2; I Want To Learn The Ways Of The Force...
+Luke_Skywalker; 0; my favourite star wars cite 3; You're Overconfidence Is Your Weakness.
