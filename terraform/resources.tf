@@ -38,6 +38,10 @@ module "splunk-server" {
   phantom_admin_password = var.phantom_admin_password
   phantom_server_instance = module.phantom-server.phantom_server_instance
   phantom_server_instance_packer = module.phantom-server.phantom_server_instance_packer
+  splunk_security_essentials_app = var.splunk_security_essentials_app
+  punchard_custom_visualization = var.punchard_custom_visualization
+  status_indicator_custom_visualization = var.status_indicator_custom_visualization
+  splunk_attack_range_dashboard = var.splunk_attack_range_dashboard
 }
 
 module "phantom-server" {

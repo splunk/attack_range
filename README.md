@@ -176,6 +176,8 @@ If you have questions or need support, you can:
 * Russ Nolen
 * Phil Royer
 * [Joseph Zadeh](https://twitter.com/JosephZadeh)
+* Rico Valdez
+* [Dimitris Lambrou](https://twitter.com/etz69)
 
 ## Contributing
 We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved.
