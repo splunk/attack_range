@@ -8,8 +8,8 @@ class CustomConfigParser:
 
     def _config_rules(self, CONFIG_PATH):
         if self.settings['windows_domain_controller'] == "0" and self.settings['windows_server_join_domain'] == "1":
-            print("ERROR - with configuration file at {0} 'windows_server_join_domain' cannot be '1' if the number of "
-                  "'windows_domain_controller' is set to '0'".format(CONFIG_PATH))
+            print("ERROR - with configuration file at {0} 'windows_server_join_domain' must be set to '0' "
+                  "if the number of 'windows_domain_controller' is set to '0'".format(CONFIG_PATH))
             sys.exit(1)
 
     def load_conf(self,CONFIG_PATH):
