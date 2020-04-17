@@ -1,6 +1,6 @@
 - name: Check if Timeline Visualization exists
   stat:
-    path: /opt/splunk/etc/apps/tbd
+    path: /opt/splunk/etc/apps/timeline_app
   register: timeline_custom_visualization_app
 
 - name: download Timeline Visualization from S3 bucket
@@ -27,7 +27,7 @@
 
 - name: Check if ASX App exists
   stat:
-    path: /opt/splunk/etc/apps/tbd
+    path: /opt/splunk/etc/apps/Splunk_ASX
   register: asx_app
 
 - name: download ASX app from S3 bucket
