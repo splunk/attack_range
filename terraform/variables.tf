@@ -100,6 +100,7 @@ variable "splunk_security_essentials_app" { }
 variable "punchard_custom_visualization" { }
 variable "status_indicator_custom_visualization" { }
 variable "splunk_attack_range_dashboard" { }
+variable "timeline_custom_visualization" { }
 
 # Phantom server
 variable "phantom_admin_password" { }

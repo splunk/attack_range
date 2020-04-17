@@ -42,6 +42,7 @@ module "splunk-server" {
   punchard_custom_visualization = var.punchard_custom_visualization
   status_indicator_custom_visualization = var.status_indicator_custom_visualization
   splunk_attack_range_dashboard = var.splunk_attack_range_dashboard
+  timeline_custom_visualization = var.timeline_custom_visualization
 }
 
 module "phantom-server" {

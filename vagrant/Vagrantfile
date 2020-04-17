@@ -20,7 +20,7 @@ config.vm.define "attack-range-splunk-server" do |config|
         splunk_binary: 'splunk-8.0.2-a7f645ddaf91-Linux-x86_64.tgz',
         s3_bucket_url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com',
         splunk_escu_app: 'DA-ESS-ContentUpdate-latest.tar.gz',
-        splunk_asx_app: 'Splunk_Analytic_Story_Execution-latest.tar.gz',
+        splunk_asx_app: 'Splunk_ASX-latest.tar.gz',
         splunk_windows_ta: 'splunk-add-on-for-microsoft-windows_700.tgz',
         splunk_cim_app: 'splunk-common-information-model-cim_4150.tgz',
         splunk_sysmon_ta: 'add-on-for-microsoft-sysmon_1030.tgz',
@@ -32,7 +32,12 @@ config.vm.define "attack-range-splunk-server" do |config|
         phantom_app: 'phantom-app-for-splunk_305.tgz',
         phantom_server: '0',
         phantom_server_private_ip: '10.0.1.3',
-        phantom_admin_password: 'I-l1ke-Attack-Range!'
+        phantom_admin_password: 'I-l1ke-Attack-Range!',
+        splunk_security_essentials_app: 'splunk-security-essentials_310.tgz',
+        punchard_custom_visualization: 'punchcard-custom-visualization_140.tgz',
+        status_indicator_custom_visualization: 'status-indicator-custom-visualization_140.tgz',
+        splunk_attack_range_dashboard: 'splunk_attack_range_reporting.spl',
+        timeline_custom_visualization: 'timeline-custom-visualization_140.tgz'
       }
   end
 
