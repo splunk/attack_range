@@ -130,6 +130,10 @@ python attack_range.py -m packer -a destroy_amis
   * For a free development license (100 actions per day) register [here](https://my.phantom.us/login/?next=/)
   * Enable or disable [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [attack_range.conf](attack_range.conf)
 
+- [Splunk Mission Control (BETA)](https://www.splunk.com/en_us/form/splunk-mission-control.html)
+  * Splunk Mission Control is a unified experience that modernizes and optimizes your team’s security operations. The cloud-based software-as-a-service (SaaS) allows you to detect, manage, investigate, hunt, contain, and remediate threats and other high-priority security issues across the entire event lifecycle—all from the common work surface it provides.
+  * Contact Splunk, if you want to have access to Mission Control.
+
 - [Windows Domain Controller & Window Server & Windows 10 Client](https://github.com/splunk/attack_range/wiki/Windows-Infrastructure)
   * Can be enabled, disabled and configured over [attack_range.conf](attack_range.conf)
   * Collecting of Microsoft Event Logs, PowerShell Logs, Sysmon Logs, DNS Logs, ...
@@ -148,6 +152,12 @@ python attack_range.py -m packer -a destroy_amis
 - [Kali Linux](https://www.kali.org/)
   * Preconfigured Kali Linux machine for penetration testing
   * ssh connection over configured ssh key
+
+
+## Demo Mode
+We are using Attack Range to test and demo specific attack scenarios. We want to share them with the community. The [attack_range.conf](attack_range.conf) has an option run_demo and demo_scenario. We currently support the following demo scenario:
+- demo_scenario: mission_control_malicious_putty. In this scenario, the windows server contains a backdoored version of putty.exe called puttyX.exe located in the C drive. When the user clicks on it a reverse meterpreter shell is established to the kali linux. Then, kali linux will perform enumeration and credential dumping with hashdump and mimikatz. These credentials are used by kali linux to copy the malicious puttyX.exe from the windows domain controller to the windows server.
+
 
 
 ## Planned features

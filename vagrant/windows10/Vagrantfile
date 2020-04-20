@@ -20,7 +20,9 @@ config.vm.define "attack-range-win10" do |config|
         win_sysmon_template: '{{ win_sysmon_template }}',
         splunk_admin_password: '{{ splunk_admin_password }}',
         windows_server_join_domain: '{{ windows_client_join_domain }}',
-        windows_domain_controller_private_ip: '{{ windows_domain_controller_private_ip }}'
+        windows_domain_controller_private_ip: '{{ windows_domain_controller_private_ip }}',
+        run_demo: '{{ run_demo }}',
+        demo_scenario: '{{ demo_scenario }}'
       }
       ansible.playbook = "../ansible/playbooks/windows_workstation.yml"
       ansible.config_file = "../ansible/ansible.cfg"
