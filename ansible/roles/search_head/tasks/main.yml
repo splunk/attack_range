@@ -11,7 +11,9 @@
 - include: install_mc.yml
   when: install_mission_control == "1"
 - include: install_escu_app.yml
-#- include: install_asx_app.yml
+- include: install_asx_app.yml
+- include: install_sse_app.yml
+- include: install_attack_range_dashboard.yml
 - include: install_windows_ta.yml
 - include: install_cim_app.yml
 - include: install_sysmon_ta.yml
