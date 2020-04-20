@@ -52,33 +52,25 @@ resource "aws_iam_policy" "lambda_logging" {
 
   policy = <<EOF
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "logs:GetLogRecord",
-                "logs:DescribeLogGroups"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "logs:Describe*",
-                "logs:FilterLogEvents",
-                "logs:GetLogEvents"
-            ],
-            "Resource": "arn:aws:logs:*:log-group:/aws/lambda/notes_application_attack-range-key-pair:*"
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*",
+      "Effect": "Allow"
+    }
+  ]
 }
 EOF
 }
 
 resource "aws_iam_policy" "lambda_dynamodb_access" {
   count       = var.cloud_attack_range ? 1 : 0
-  name        = "lambda_rds_access_${var.key_name}"
+  name        = "lambda_dynamodb_access_${var.key_name}"
   path        = "/"
   description = "IAM policy for RDS access"
 
@@ -232,10 +224,10 @@ resource "aws_dynamodb_table" "users_table" {
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
-  hash_key       = "UserId"
+  hash_key       = "UserName"
 
   attribute {
-    name = "UserId"
+    name = "UserName"
     type = "S"
   }
 
@@ -256,10 +248,16 @@ resource "aws_dynamodb_table" "notes_table" {
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
-  hash_key       = "NoteId"
+  hash_key       = "UserName"
+  range_key      = "TimeStamp"
 
   attribute {
-    name = "NoteId"
+    name = "UserName"
+    type = "S"
+  }
+
+  attribute {
+    name = "TimeStamp"
     type = "S"
   }
 
@@ -272,117 +270,3 @@ resource "aws_dynamodb_table" "notes_table" {
     Name        = "dynamodb-table-notes-${var.key_name}"
   }
 }
-
-
-## Amazon RDS database
-
-# data "aws_iam_policy_document" "enhanced_monitoring" {
-#   count = var.cloud_attack_range ? 1 : 0
-#   statement {
-#     actions = [
-#       "sts:AssumeRole",
-#     ]
-#
-#     principals {
-#       type        = "Service"
-#       identifiers = ["monitoring.rds.amazonaws.com"]
-#     }
-#   }
-# }
-#
-# resource "aws_iam_role" "enhanced_monitoring" {
-#   count              = var.cloud_attack_range ? 1 : 0
-#   name               = "EnhancedMonitoringARN_${var.key_name}"
-#   assume_role_policy = data.aws_iam_policy_document.enhanced_monitoring[0].json
-# }
-#
-# resource "aws_iam_role_policy_attachment" "enhanced_monitoring" {
-#   count      = var.cloud_attack_range ? 1 : 0
-#   role       = aws_iam_role.enhanced_monitoring[0].name
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
-# }
-#
-# resource "aws_subnet" "subnet_db1" {
-#   count                   = var.cloud_attack_range ? 1 : 0
-#   vpc_id                  = var.vpc_id
-#   cidr_block              = var.subnet_db1
-#   availability_zone       = var.availability_zone_db1
-# }
-#
-# resource "aws_subnet" "subnet_db2" {
-#   count                   = var.cloud_attack_range ? 1 : 0
-#   vpc_id                  = var.vpc_id
-#   cidr_block              = var.subnet_db2
-#   availability_zone       = var.availability_zone_db2
-# }
-#
-# resource "aws_db_subnet_group" "db_subnet_group" {
-#   count      = var.cloud_attack_range ? 1 : 0
-#   name       = "db subnet group"
-#   subnet_ids = [aws_subnet.subnet_db1[0].id, aws_subnet.subnet_db2[0].id]
-# }
-#
-# resource "aws_security_group" "sg_subnet1" {
-#   count = var.cloud_attack_range ? 1 : 0
-#   name = "sg_subnet1"
-#   vpc_id = var.vpc_id
-#
-#   # Only postgres in
-#   ingress {
-#     from_port = 3306
-#     to_port = 3306
-#     protocol = "tcp"
-#     cidr_blocks = concat(var.ip_whitelist, [var.subnet_db1])
-#   }
-#
-#   # Allow all outbound traffic.
-#   egress {
-#     from_port = 0
-#     to_port = 0
-#     protocol = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-# }
-#
-# resource "aws_security_group" "sg_subnet2" {
-#   count = var.cloud_attack_range ? 1 : 0
-#   name = "sg_subnet2"
-#   vpc_id = var.vpc_id
-#
-#   # Only postgres in
-#   ingress {
-#     from_port = 3306
-#     to_port = 3306
-#     protocol = "tcp"
-#     cidr_blocks = concat(var.ip_whitelist, [var.subnet_db2])
-#   }
-#
-#   # Allow all outbound traffic.
-#   egress {
-#     from_port = 0
-#     to_port = 0
-#     protocol = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-# }
-#
-# resource "aws_db_instance" "db_attack_range" {
-#   count                = var.cloud_attack_range ? 1 : 0
-#   availability_zone    = var.availability_zone_db1
-#   allocated_storage    = 20
-#   storage_type         = "gp2"
-#   engine               = "mysql"
-#   engine_version       = "5.7"
-#   instance_class       = "db.t2.micro"
-#   name                 = "notedb"
-#   identifier           = "db-${var.key_name}"
-#   username             = var.db_user
-#   password             = var.db_password
-#   parameter_group_name = "default.mysql5.7"
-#   vpc_security_group_ids = [aws_security_group.sg_subnet1[0].id, aws_security_group.sg_subnet2[0].id]
-#   db_subnet_group_name = aws_db_subnet_group.db_subnet_group[0].id
-#   skip_final_snapshot  = "true"
-#   publicly_accessible  = "true"
-#   monitoring_interval  = 10
-#   monitoring_role_arn  = aws_iam_role.enhanced_monitoring[0].arn
-# }
