@@ -24,6 +24,7 @@ config.vm.define "attack-range-splunk-server" do |config|
         splunk_sysmon_ta: '{{ splunk_sysmon_ta }}',
         caldera_password: '{{ caldera_password }}',
         splunk_mltk_app: '{{ splunk_mltk_app }}',
+        splunk_stream_app: '{{ splunk_stream_app }}',
         splunk_python_app: '{{ splunk_python_app }}',
         install_es: '{{ install_es }}',
         splunk_es_app: '{{ splunk_es_app }}',
@@ -35,7 +36,10 @@ config.vm.define "attack-range-splunk-server" do |config|
         punchard_custom_visualization: '{{ punchard_custom_visualization }}',
         status_indicator_custom_visualization: '{{ status_indicator_custom_visualization }}',
         splunk_attack_range_dashboard: '{{ splunk_attack_range_dashboard }}',
-        timeline_custom_visualization: '{{ timeline_custom_visualization }}'
+        timeline_custom_visualization: '{{ timeline_custom_visualization }}',
+        install_mission_control: '{{ install_mission_control }}',
+        mission_control_app: '{{ mission_control_app }}',
+        splunk_server_private_ip: '{{ splunk_server_private_ip }}'
       }
   end
 

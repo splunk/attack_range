@@ -26,6 +26,7 @@ module "splunk-server" {
   splunk_sysmon_ta       = var.splunk_sysmon_ta
   splunk_python_app       = var.splunk_python_app
   splunk_mltk_app         = var.splunk_mltk_app
+  splunk_stream_app       = var.splunk_stream_app
   splunk_server_private_ip = var.splunk_server_private_ip
   use_packer_amis        = var.use_packer_amis
   splunk_packer_ami      = var.splunk_packer_ami
@@ -43,6 +44,8 @@ module "splunk-server" {
   status_indicator_custom_visualization = var.status_indicator_custom_visualization
   splunk_attack_range_dashboard = var.splunk_attack_range_dashboard
   timeline_custom_visualization = var.timeline_custom_visualization
+  install_mission_control = var.install_mission_control
+  mission_control_app    = var.mission_control_app
 }
 
 module "phantom-server" {
@@ -79,6 +82,8 @@ module "windows-domain-controller" {
   windows_domain_controller_os = var.windows_domain_controller_os
   use_packer_amis        = var.use_packer_amis
   windows_domain_controller_packer_ami = var.windows_domain_controller_packer_ami
+  splunk_stream_app       = var.splunk_stream_app
+  s3_bucket_url          = var.s3_bucket_url
 }
 
 
@@ -105,6 +110,10 @@ module "windows-server" {
   windows_server_join_domain = var.windows_server_join_domain
   use_packer_amis        = var.use_packer_amis
   windows_server_packer_ami = var.windows_server_packer_ami
+  splunk_stream_app       = var.splunk_stream_app
+  s3_bucket_url          = var.s3_bucket_url
+  run_demo               = var.run_demo
+  demo_scenario          = var.demo_scenario
 }
 
 module "windows-client" {
@@ -130,6 +139,10 @@ module "windows-client" {
   windows_client_os = var.windows_client_os
   use_packer_amis        = var.use_packer_amis
   windows_client_packer_ami = var.windows_client_packer_ami
+  splunk_stream_app       = var.splunk_stream_app
+  s3_bucket_url          = var.s3_bucket_url
+  run_demo               = var.run_demo
+  demo_scenario          = var.demo_scenario
 }
 
 module "kali_machine" {
@@ -140,4 +153,8 @@ module "kali_machine" {
 	vpc_security_group_ids = module.networkModule.vpc_security_group_ids
 	vpc_subnet_id          = module.networkModule.vpc_subnet_id
   kali_machine_private_ip = var.kali_machine_private_ip
+  run_demo               = var.run_demo
+  demo_scenario          = var.demo_scenario
+  kali_machine_packer_ami = var.kali_machine_packer_ami
+  use_packer_amis        = var.use_packer_amis
 }

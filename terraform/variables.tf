@@ -73,6 +73,8 @@ variable "windows_client_packer_ami" { }
 
 variable "phantom_packer_ami" { }
 
+variable "kali_machine_packer_ami" { }
+
 #ansible variables
 # ---------------------- #
 # general
@@ -93,6 +95,7 @@ variable "splunk_cim_app" { }
 variable "splunk_sysmon_ta" { }
 variable "splunk_python_app" { }
 variable "splunk_mltk_app" { }
+variable "splunk_stream_app" { }
 variable "install_es" { }
 variable "splunk_es_app" { }
 variable "phantom_app" { }
@@ -101,6 +104,8 @@ variable "punchard_custom_visualization" { }
 variable "status_indicator_custom_visualization" { }
 variable "splunk_attack_range_dashboard" { }
 variable "timeline_custom_visualization" { }
+variable "install_mission_control" { }
+variable "mission_control_app" { }
 
 # Phantom server
 variable "phantom_admin_password" { }
@@ -111,3 +116,7 @@ variable "phantom_community_password" { }
 variable "splunk_uf_win_url" { }
 variable "win_sysmon_url" { }
 variable "win_sysmon_template" { }
+
+# Demo mode
+variable "run_demo" { }
+variable "demo_scenario" { }

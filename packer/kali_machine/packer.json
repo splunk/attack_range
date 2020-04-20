@@ -1,0 +1,36 @@
+{
+  "variables": {
+      "run_demo": "",
+      "demo_scenario": "",
+      "key_name": ""
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "force_deregister": "true",
+    "force_delete_snapshot": "true",
+    "source_ami_filter": {
+                "filters": {
+                    "name": "Kali Linux 2019.*",
+                    "root-device-type": "ebs",
+                    "virtualization-type": "hvm"
+                },
+                "most_recent": true,
+                "owners": [
+                    "679593333241"
+                ]
+            },
+    "instance_type": "t2.medium",
+    "ssh_username": "ec2-user",
+    "ssh_keypair_name": "{{user `key_name`}}",
+    "ssh_private_key_file": "{{user `private_key_path`}}",
+    "ami_name": "packer-kali-machine-{{user `key_name`}}"
+  }],
+  "provisioners": [
+    {
+      "type": "ansible",
+      "playbook_file": "ansible/playbooks/kali_linux.yml",
+      "extra_arguments": [ "--extra-vars", "ansible_python_interpreter=/usr/bin/python3 run_demo={{user `run_demo`}} demo_scenario={{user `demo_scenario`}}" ]
+    }
+  ]
+
+}
