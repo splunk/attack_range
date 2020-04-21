@@ -1,0 +1,80 @@
+# v1
+- name: Check if BOTs v1 App exists
+  stat:
+    path: /opt/splunk/etc/apps/Splunk_Security_Essentials
+  register: botsv1_app
+
+- name: download BOTs v1 attack-only dataset
+  get_url:
+    url: 'https://s3.amazonaws.com/botsdataset/botsv1/botsv1-attack-only.tgz'
+    dest: /tmp/botsv1_app.tgz
+  when: botsv1_app.stat.exists == False
+
+- name: Install BOTS v1 app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/sse_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: botsv1_app.stat.exists == False
+  notify: restart splunk
+
+# v2
+- name: Check if BOTs v2 App exists
+  stat:
+    path: /opt/splunk/etc/apps/Splunk_Security_Essentials
+  register: botsv2_app
+
+- name: download BOTs v2 attack-only dataset
+  get_url:
+    url: 'https://s3.amazonaws.com/botsdataset/botsv2/botsv2_data_set_attack_only.tgz'
+    dest: /tmp/botsv2_app.tgz
+  when: botsv2_app.stat.exists == False
+
+- name: Install BOTS v2 app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/sse_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: botsv2_app.stat.exists == False
+  notify: restart splunk
+
+# v3
+- name: Check if BOTs v3 App exists
+  stat:
+    path: /opt/splunk/etc/apps/Splunk_Security_Essentials
+  register: botsv3_app
+
+- name: download BOTs v3 dataset
+  get_url:
+    url: 'https://botsdataset.s3.amazonaws.com/botsv3/botsv3_data_set.tgz'
+    dest: /tmp/botsv3_app.tgz
+  when: botsv1_app.stat.exists == False
+
+- name: Install BOTS v3 app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/sse_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: botsv3_app.stat.exists == False
+  notify: ressart splunk
