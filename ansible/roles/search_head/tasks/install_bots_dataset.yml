@@ -1,7 +1,7 @@
 # v1
 - name: Check if BOTs v1 App exists
   stat:
-    path: /opt/splunk/etc/apps/Splunk_Security_Essentials
+    path: /opt/splunk/etc/apps/botsv1_data_set
   register: botsv1_app
 
 - name: download BOTs v1 attack-only dataset
@@ -17,7 +17,7 @@
     user: "admin"
     password: "{{ splunk_admin_password }}"
     validate_certs: false
-    body: "name=/tmp/sse_app.tgz&update=true&filename=true"
+    body: "name=/tmp/botsv1_app.tgz&update=true&filename=true"
     headers:
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
@@ -28,7 +28,7 @@
 # v2
 - name: Check if BOTs v2 App exists
   stat:
-    path: /opt/splunk/etc/apps/Splunk_Security_Essentials
+    path: /opt/splunk/etc/apps/botsv2_data_set
   register: botsv2_app
 
 - name: download BOTs v2 attack-only dataset
@@ -44,7 +44,7 @@
     user: "admin"
     password: "{{ splunk_admin_password }}"
     validate_certs: false
-    body: "name=/tmp/sse_app.tgz&update=true&filename=true"
+    body: "name=/tmp/botsv2_app.tgz&update=true&filename=true"
     headers:
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
@@ -55,14 +55,14 @@
 # v3
 - name: Check if BOTs v3 App exists
   stat:
-    path: /opt/splunk/etc/apps/Splunk_Security_Essentials
+    path: /opt/splunk/etc/apps/botsv3_data_set
   register: botsv3_app
 
 - name: download BOTs v3 dataset
   get_url:
     url: 'https://botsdataset.s3.amazonaws.com/botsv3/botsv3_data_set.tgz'
     dest: /tmp/botsv3_app.tgz
-  when: botsv1_app.stat.exists == False
+  when: botsv3_app.stat.exists == False
 
 - name: Install BOTS v3 app via REST
   uri:
@@ -71,7 +71,7 @@
     user: "admin"
     password: "{{ splunk_admin_password }}"
     validate_certs: false
-    body: "name=/tmp/sse_app.tgz&update=true&filename=true"
+    body: "name=/tmp/botsv3_app.tgz&update=true&filename=true"
     headers:
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
