@@ -1,0 +1,12 @@
+
+- name: Create folder directory for deplyment client configuration
+  win_file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - 'C:\Program Files\SplunkUniversalForwarder\etc\apps\win_deploymentclient_app\local'
+
+- name: Copy an deploymentclient.conf using templating
+  win_template:
+    src: deploymentclient.conf.j2
+    dest: C:\Program Files\SplunkUniversalForwarder\etc\apps\win_deploymentclient_app\local\deploymentclient.conf

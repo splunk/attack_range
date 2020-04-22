@@ -9,12 +9,15 @@
       "splunk_windows_ta": "",
       "splunk_bots_dataset": "",
       "splunk_cim_app": "",
+      "splunk_stream_app:": "",
       "splunk_sysmon_ta": "",
       "caldera_password": "",
       "install_es": "",
       "splunk_es_app": "",
       "phantom_server": "",
       "phantom_app": "",
+      "install_mission_control": "",
+      "mission_control_app": "",
       "key_name": ""
   },
   "builders": [{
@@ -46,7 +49,7 @@
     {
       "type": "ansible",
       "playbook_file": "ansible/playbooks/splunk_server_packer_build.yml",
-      "extra_arguments": [ "--extra-vars", "splunk_admin_password={{user `splunk_admin_password`}} splunk_url={{user `splunk_url`}} splunk_binary={{user `splunk_binary`}} s3_bucket_url={{user `s3_bucket_url`}} splunk_escu_app={{user `splunk_escu_app`}} splunk_asx_app={{user `splunk_asx_app`}} splunk_windows_ta={{user `splunk_windows_ta`}} splunk_cim_app={{user `splunk_cim_app`}} splunk_sysmon_ta={{user `splunk_sysmon_ta`}} splunk_python_app={{user `splunk_python_app`}} splunk_mltk_app={{user `splunk_mltk_app`}} splunk_bots_dataset={{user `splunk_bots_dataset`}} caldera_password={{user `caldera_password`}} install_es={{user `install_es`}} splunk_es_app={{user `splunk_es_app`}} phantom_server={{user `phantom_server`}} phantom_app={{user `phantom_app`}}" ]
+      "extra_arguments": [ "--extra-vars", "splunk_admin_password={{user `splunk_admin_password`}} splunk_server_private_ip={{user `splunk_indexer_ip`}} splunk_url={{user `splunk_url`}} splunk_binary={{user `splunk_binary`}} s3_bucket_url={{user `s3_bucket_url`}} splunk_escu_app={{user `splunk_escu_app`}} splunk_asx_app={{user `splunk_asx_app`}} splunk_windows_ta={{user `splunk_windows_ta`}} splunk_cim_app={{user `splunk_cim_app`}} splunk_sysmon_ta={{user `splunk_sysmon_ta`}} splunk_python_app={{user `splunk_python_app`}} splunk_mltk_app={{user `splunk_mltk_app`}} splunk_bots_dataset={{user `splunk_bots_dataset`}} caldera_password={{user `caldera_password`}} install_es={{user `install_es`}} splunk_es_app={{user `splunk_es_app`}} phantom_server={{user `phantom_server`}} phantom_app={{user `phantom_app`}} splunk_stream_app={{user `splunk_stream_app`}} install_mission_control={{user `install_mission_control`}} mission_control_app={{user `mission_control_app`}}" ]
     }
   ]
 
