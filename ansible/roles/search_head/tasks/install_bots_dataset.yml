@@ -77,4 +77,4 @@
     status_code: [ 200, 201 ]
     timeout: 30
   when: botsv3_app.stat.exists == False
-  notify: ressart splunk
+  notify: restart splunk
