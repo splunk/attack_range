@@ -1,0 +1,105 @@
+
+- name: Copy Mission Control App to server
+  copy:
+    src: "../../apps/{{ mission_control_app }}"
+    dest: /tmp/mc_app.tgz
+  when: install_mission_control == "1"
+
+- name: Install mc app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/mc_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: install_mission_control == "1"
+  notify: restart splunk
+
+# - name: Create folder directory for proxy configuration
+#   file:
+#     path: "{{ item }}"
+#     state: directory
+#     owner: splunk
+#     group: splunk
+#     recurse: yes
+#   with_items:
+#     - /opt/splunk/etc/apps/splunk-connect-for-mission-control/local/
+
+- name: copy proxy.conf to splunk server
+  copy:
+    src: proxy.conf
+    dest: /opt/splunk/etc/apps/splunk-connect-for-mission-control/local/proxy.conf
+    owner: splunk
+    group: splunk
+  notify: restart splunk
+
+- name: copy outputs.conf to splunk server
+  copy:
+    src: outputs.conf
+    dest: /opt/splunk/etc/apps/splunk-connect-for-mission-control/local/outputs.conf
+    owner: splunk
+    group: splunk
+  notify: restart splunk
+
+- name: Create the /opt/splunk/tmp/ directory
+  file:
+    path: "/opt/splunk/tmp"
+    state: directory
+    group: "splunk"
+    owner: "splunk"
+  become: yes
+
+- name: Copy proxy_setup.py
+  copy:
+    src: proxy_setup.py
+    dest: /opt/splunk/tmp/proxy_setup.py
+
+- name: Copy ingestion_setup.py
+  copy:
+    src: ingestion_setup.py
+    dest: /opt/splunk/tmp/ingestion_setup.py
+
+- name: Make proxy_setup.py executable
+  command: chmod +x /opt/splunk/tmp/proxy_setup.py
+  become: yes
+
+- name: Make ingestion_setup.py executable
+  command: chmod +x /opt/splunk/tmp/ingestion_setup.py
+  become: yes
+
+# - name: Create and insert in outputs.conf entry in  to use splunk default cert
+#   blockinfile:
+#     path: "/opt/splunk/etc/system/local/outputs.conf"
+#     block:
+#       "[tcpout]
+#       defaultGroup = noOutputGroup
+#       indexAndForward=true"
+#     owner: "splunk"
+#     group: "splunk"
+#     create: yes
+#   become: yes
+#   become_user: "splunk"
+
+# - name: Proxy Setup to MC Tenant
+#   command: python ./proxy_setup.py --splunk_home /opt/splunk --environment production --client_id 0oa63qv1xrtH8ITDP2p7 --client_secret VrlRy5g72faYjLarXseSyAmOqyvp3gzFZ8LRUNaP --tenant mcdemo
+#   become: yes
+#   become_user: "{{splunk.user}}"
+#   args:
+#     chdir: /opt/splunk/tmp/
+# ​
+# - name: Ingestion Setup to MC Tenant
+#   command: python ./ingestion_setup.py --splunk_home /opt/splunk --environment production --test_client_id  0oa63qv1xrtH8ITDP2p7  --test_client_secret VrlRy5g72faYjLarXseSyAmOqyvp3gzFZ8LRUNaP --tenant mcdemo
+#   become: yes
+#   become_user: "{{splunk.user}}"
+#   args:
+#     chdir: /opt/splunk/tmp/
+
+# restart Splunk
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes

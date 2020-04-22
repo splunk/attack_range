@@ -2,7 +2,7 @@
 from packerpy import PackerExecutable
 from jinja2 import Environment, FileSystemLoader
 from modules import aws_service
-
+import sys 
 
 
 class PackerController():
@@ -15,6 +15,8 @@ class PackerController():
         self.packer_amis.append('splunk-server')
         if self.config['phantom_server']=='1':
             self.packer_amis.append('phantom-server')
+        if self.config['kali_machine']=='1':
+            self.packer_amis.append('kali_machine')
         if self.config['windows_domain_controller']=='1':
             self.read_and_write_userdata_file()
             self.packer_amis.append('windows-domain-controller')
@@ -49,4 +51,3 @@ class PackerController():
 
     def destroy_amis(self):
         aws_service.deregister_images(self.packer_amis, self.config, self.log)
-    
