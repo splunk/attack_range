@@ -14,4 +14,4 @@
 - include: install_sysmon_ta.yml
 - include: install_mltk_app.yml
 - include: install_bots_dataset.yml
-  when: "{{splunk_bots_dataset}}" > "0"
+  when: "splunk_bots_dataset == '1'"
