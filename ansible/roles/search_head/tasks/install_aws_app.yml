@@ -47,3 +47,10 @@
     dest: /opt/splunk/etc/apps/Splunk_TA_aws/local/aws_cloudwatch_logs_tasks.conf
     owner: splunk
     group: splunk
+
+- name: Copy new inputs.conf configuration
+  template:
+    src: aws_inputs.conf.j2
+    dest: /opt/splunk/etc/apps/Splunk_TA_aws/local/inputs.conf
+    owner: splunk
+    group: splunk

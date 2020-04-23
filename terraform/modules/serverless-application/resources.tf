@@ -270,3 +270,127 @@ resource "aws_dynamodb_table" "notes_table" {
     Name        = "dynamodb-table-notes-${var.key_name}"
   }
 }
+
+
+
+## cloudtrail
+data "aws_caller_identity" "current" {}
+
+resource "aws_s3_bucket_policy" "trail_bucket_policy" {
+  count = var.cloud_attack_range ? 1 : 0
+  bucket = var.cloudtrail_bucket
+
+  policy = <<POLICY
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AWSCloudTrailAclCheck",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "s3:GetBucketAcl",
+            "Resource": "arn:aws:s3:::${var.cloudtrail_bucket}"
+        },
+        {
+            "Sid": "AWSCloudTrailWrite",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::${var.cloudtrail_bucket}/prefix/AWSLogs/${data.aws_caller_identity.current.account_id}/*",
+            "Condition": {
+                "StringEquals": {
+                    "s3:x-amz-acl": "bucket-owner-full-control"
+                }
+            }
+        }
+    ]
+}
+POLICY
+}
+
+resource "aws_sqs_queue" "terraform_queue_deadletter" {
+  count = var.cloud_attack_range ? 1 : 0
+  name = "queue-deadletter-${var.key_name}"
+  delay_seconds = 90
+  max_message_size = 2048
+  message_retention_seconds = 86400
+  receive_wait_time_seconds = 10
+}
+
+resource "aws_sqs_queue" "queue" {
+  count = var.cloud_attack_range ? 1 : 0
+  name = "queue-${var.key_name}"
+
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.terraform_queue_deadletter[0].arn
+    maxReceiveCount     = 4
+  })
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "sqs:SendMessage",
+      "Resource": "arn:aws:sqs:*:*:queue-${var.key_name}",
+      "Condition": {
+        "ArnEquals": { "aws:SourceArn": "arn:aws:s3:::${var.cloudtrail_bucket}" }
+      }
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_sns_topic" "topic" {
+  count = var.cloud_attack_range ? 1 : 0
+  name = "cloudtrail-topic-${var.key_name}"
+
+  policy = <<POLICY
+{
+    "Version":"2012-10-17",
+    "Statement":[{
+        "Effect": "Allow",
+        "Principal": {"Service":"s3.amazonaws.com"},
+        "Action": "SNS:Publish",
+        "Resource":  "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:cloudtrail-topic-${var.key_name}",
+        "Condition":{
+            "ArnLike":{"aws:SourceArn":"arn:aws:s3:::${var.cloudtrail_bucket}"}
+        }
+    }]
+}
+POLICY
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  count = var.cloud_attack_range ? 1 : 0
+  bucket = var.cloudtrail_bucket
+
+  queue {
+    queue_arn     = "${aws_sqs_queue.queue[0].arn}"
+    events        = ["s3:ObjectCreated:*"]
+  }
+}
+
+resource "aws_sns_topic_subscription" "log_updates" {
+  count = var.cloud_attack_range ? 1 : 0
+  topic_arn = aws_sns_topic.topic[0].arn
+  protocol  = "sqs"
+  endpoint  = aws_sqs_queue.queue[0].arn
+}
+
+
+resource "aws_cloudtrail" "trail_attack_range" {
+  count = var.cloud_attack_range ? 1 : 0
+  depends_on                    = [aws_s3_bucket_policy.trail_bucket_policy[0]]
+  name                          = "trail_attack_range_${var.key_name}"
+  s3_bucket_name                = var.cloudtrail_bucket
+  s3_key_prefix                 = "prefix"
+  include_global_service_events = false
+}

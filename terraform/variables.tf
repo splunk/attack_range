@@ -124,3 +124,6 @@ variable "splunk_aws_app" { }
 
 variable "cloud_s3_bucket" { }
 variable "cloud_s3_bucket_key" { }
+
+variable "cloudtrail" { }
+variable "cloudtrail_bucket" { }

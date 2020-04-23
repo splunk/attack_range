@@ -46,6 +46,7 @@ module "splunk-server" {
   cloud_attack_range     = var.cloud_attack_range
   api_gateway_id         = module.serverless-application.api_gateway_id
   region                 = var.region
+  sqs_queue_url          = module.serverless-application.sqs_queue_url
 }
 
 module "phantom-server" {
@@ -165,4 +166,7 @@ module "serverless-application" {
   key_name		          = var.key_name
   cloud_s3_bucket       = var.cloud_s3_bucket
   cloud_s3_bucket_key   = var.cloud_s3_bucket_key
+  cloudtrail            = var.cloudtrail
+  cloudtrail_bucket     = var.cloudtrail_bucket
+  region                = var.region
 }
