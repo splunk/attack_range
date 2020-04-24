@@ -17,7 +17,7 @@ data "aws_ami" "latest-ubuntu" {
 }
 
 resource "aws_iam_role" "splunk_role" {
-  count = var.use_packer_amis == "0" && var.cloud_attack_range=="1" ? 1 : 0
+  count = var.use_packer_amis ? 0 : 1
   name = "splunk_role_${var.key_name}"
 
   assume_role_policy = <<EOF
@@ -39,7 +39,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "splunk_profile" {
-  count = var.use_packer_amis == "0" && var.cloud_attack_range=="1" ? 1 : 0
+  count = var.use_packer_amis ? 0 : 1
   name = "splunk_profile_${var.key_name}"
   role = aws_iam_role.splunk_role[0].name
 }
