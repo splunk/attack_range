@@ -277,7 +277,7 @@ resource "aws_dynamodb_table" "notes_table" {
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket_policy" "trail_bucket_policy" {
-  count = var.cloud_attack_range ? 1 : 0
+  count = var.cloud_attack_range == "1" && var.cloudtrail=="1" ? 1 : 0
   bucket = var.cloudtrail_bucket
 
   policy = <<POLICY
@@ -313,7 +313,7 @@ POLICY
 }
 
 resource "aws_sqs_queue" "terraform_queue_deadletter" {
-  count = var.cloud_attack_range ? 1 : 0
+  count = var.cloud_attack_range == "1" && var.cloudtrail=="1" ? 1 : 0
   name = "queue-deadletter-${var.key_name}"
   delay_seconds = 90
   max_message_size = 2048
@@ -322,7 +322,7 @@ resource "aws_sqs_queue" "terraform_queue_deadletter" {
 }
 
 resource "aws_sqs_queue" "queue" {
-  count = var.cloud_attack_range ? 1 : 0
+  count = var.cloud_attack_range == "1" && var.cloudtrail=="1" ? 1 : 0
   name = "queue-${var.key_name}"
 
   redrive_policy = jsonencode({
@@ -349,7 +349,7 @@ POLICY
 }
 
 resource "aws_sns_topic" "topic" {
-  count = var.cloud_attack_range ? 1 : 0
+  count = var.cloud_attack_range == "1" && var.cloudtrail=="1" ? 1 : 0
   name = "cloudtrail-topic-${var.key_name}"
 
   policy = <<POLICY
@@ -369,7 +369,7 @@ POLICY
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  count = var.cloud_attack_range ? 1 : 0
+  count = var.cloud_attack_range == "1" && var.cloudtrail=="1" ? 1 : 0
   bucket = var.cloudtrail_bucket
 
   queue {
@@ -379,7 +379,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 }
 
 resource "aws_sns_topic_subscription" "log_updates" {
-  count = var.cloud_attack_range ? 1 : 0
+  count = var.cloud_attack_range == "1" && var.cloudtrail=="1" ? 1 : 0
   topic_arn = aws_sns_topic.topic[0].arn
   protocol  = "sqs"
   endpoint  = aws_sqs_queue.queue[0].arn
@@ -387,7 +387,7 @@ resource "aws_sns_topic_subscription" "log_updates" {
 
 
 resource "aws_cloudtrail" "trail_attack_range" {
-  count = var.cloud_attack_range ? 1 : 0
+  count = var.cloud_attack_range == "1" && var.cloudtrail=="1" ? 1 : 0
   depends_on                    = [aws_s3_bucket_policy.trail_bucket_policy[0]]
   name                          = "trail_attack_range_${var.key_name}"
   s3_bucket_name                = var.cloudtrail_bucket
