@@ -34,8 +34,7 @@ class TerraformController(IEnvironmentController):
            self.log.info("attack_range has been built using terraform successfully")
         if self.config["cloud_attack_range"]=="1":
             aws_service.provision_db(self.config, self.log)
-        else:
-            self.list_machines()
+        self.list_machines()
 
     def destroy(self):
         self.log.info("[action] > destroy\n")
