@@ -91,15 +91,27 @@ if(!(Test-Path -Path $InstallPath )){
 	set-executionpolicy Unrestricted
 
 	write-verbose "Setting variables for remote URL and download Path"
-	$url = "https://github.com/splunk/atomic-red-team/archive/master.zip"
+	$url = "https://github.com/redcanaryco/atomic-red-team/archive/master.zip"
 	$path = "$DownloadPath\master.zip"
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 	$webClient = new-object System.Net.WebClient
 	write-verbose "Beginning download from Github"
 	$webClient.DownloadFile( $url, $path )
 
+	$url = "https://github.com/redcanaryco/invoke-atomicredteam/archive/master.zip"
+	$path = "$DownloadPath\master_invoke.zip"
+	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+	$webClient = new-object System.Net.WebClient
+	write-verbose "Beginning second download from Github"
+	$webClient.DownloadFile( $url, $path )
+
 	write-verbose "Extracting ART to C:\AtomicRedTeam\"
 	Expand-Archive -LiteralPath "$DownloadPath\master.zip" "C:\AtomicRedTeam"
+
+	write-verbose "Extracting ART invoke to C:\AtomicRedTeam\Invoke-AtomicRedTeam\"
+	Expand-Archive -LiteralPath "$DownloadPath\master_invoke.zip" "C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam"
+
+	mv "C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\invoke-atomicredteam-master" "C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam" 
 
 	write-verbose "Installing NuGet PackageProvider"
 	Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
@@ -108,7 +120,8 @@ if(!(Test-Path -Path $InstallPath )){
 	Install-Module -Name powershell-yaml -Force
 
 	write-verbose "Importing invoke-atomicRedTeam module"
-	Import-Module "C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam.psm1"
+	Import-Module "C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\Invoke-AtomicRed
+Team.psm1"
 
 	write-verbose "Changing current work directory Invoke-AtomicRedTeam"
 	cd "C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\"
