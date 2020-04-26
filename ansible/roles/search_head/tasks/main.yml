@@ -10,6 +10,8 @@
 - include: install_enterprise_security.yml
 - include: install_mc.yml
   when: install_mission_control == "1"
+- include: install_bots_dataset.yml
+  when: splunk_bots_dataset == "1"
 - include: install_escu_app.yml
 - include: install_asx_app.yml
 - include: install_sse_app.yml
@@ -18,7 +20,5 @@
 - include: install_cim_app.yml
 - include: install_sysmon_ta.yml
 - include: install_mltk_app.yml
-- include: install_bots_dataset.yml
 - include: install_stream_app.yml
-  when: "splunk_bots_dataset == '1'"
 
