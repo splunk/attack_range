@@ -26,6 +26,7 @@ module "splunk-server" {
   splunk_sysmon_ta       = var.splunk_sysmon_ta
   splunk_python_app       = var.splunk_python_app
   splunk_mltk_app         = var.splunk_mltk_app
+  splunk_bots_dataset	 = var.splunk_bots_dataset
   splunk_stream_app       = var.splunk_stream_app
   splunk_server_private_ip = var.splunk_server_private_ip
   use_packer_amis        = var.use_packer_amis

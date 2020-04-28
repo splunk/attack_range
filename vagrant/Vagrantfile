@@ -26,6 +26,7 @@ config.vm.define "attack-range-splunk-server" do |config|
         splunk_sysmon_ta: 'add-on-for-microsoft-sysmon_1030.tgz',
         caldera_password: 'I-l1ke-Attack-Range!',
         splunk_mltk_app: 'splunk-machine-learning-toolkit_510.tgz',
+        splunk_bots_dataset: '0',
         splunk_stream_app: 'splunk-stream_720.tgz',
         splunk_python_app: 'python-for-scientific-computing-for-linux-64-bit_200.tgz',
         install_es: '0',
