@@ -132,3 +132,6 @@ variable "cloud_s3_bucket_key" { }
 
 variable "cloudtrail" { }
 variable "cloudtrail_bucket" { }
+
+# kubernetes
+variable "kubernetes" { }

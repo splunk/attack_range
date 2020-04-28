@@ -5,6 +5,6 @@ variable "ip_whitelist" {
   type        = list(string)
 }
 
-variable "availability_zone" { }
-variable "subnet_ec2" { }
-variable "subnet_vpc" { }
+variable "key_name" {
+  description = "Desired name of AWS key pair"
+}
