@@ -163,16 +163,16 @@ module "kali_machine" {
   use_packer_amis        = var.use_packer_amis
 }
 
-module "serverless-application" {
-  source                = "./modules/serverless-application"
-  cloud_attack_range    = var.cloud_attack_range
-  key_name		          = var.key_name
-  cloud_s3_bucket       = var.cloud_s3_bucket
-  cloud_s3_bucket_key   = var.cloud_s3_bucket_key
-  cloudtrail            = var.cloudtrail
-  cloudtrail_bucket     = var.cloudtrail_bucket
-  region                = var.region
-}
+# module "serverless-application" {
+# source                = "./modules/serverless-application"
+# cloud_attack_range    = var.cloud_attack_range
+# key_name		          = var.key_name
+# cloud_s3_bucket       = var.cloud_s3_bucket
+# cloud_s3_bucket_key   = var.cloud_s3_bucket_key
+# cloudtrail            = var.cloudtrail
+# cloudtrail_bucket     = var.cloudtrail_bucket
+# region                = var.region
+#}
 
 module "kubernetes" {
   source                = "./modules/kubernetes"
