@@ -27,6 +27,6 @@
         dest: 'c:\Program Files\ansible\{{ win_sysmon_template }}'
 
     - name: install sysmon with defined config
-      win_command: '"c:\Program Files\ansible\sysmon\sysmon64.exe" -n -accepteula -i "c:\Program Files\ansible\{{ win_sysmon_template }}"'
+      win_command: '"c:\Program Files\ansible\sysmon\sysmon64.exe" -accepteula -i "c:\Program Files\ansible\{{ win_sysmon_template }}"'
 
   when: win_sysmon_template != ''
