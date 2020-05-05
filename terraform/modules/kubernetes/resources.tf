@@ -17,7 +17,7 @@ module "eks" {
       name                          = "worker-group-1"
       instance_type                 = "t2.small"
       additional_userdata           = "echo foo bar"
-      asg_desired_capacity          = 2
+      asg_desired_capacity          = 1
       additional_security_group_ids = [var.sg_worker_group_mgmt_one_id]
     },
     {
@@ -33,16 +33,18 @@ module "eks" {
 }
 
 data "aws_eks_cluster" "cluster" {
+  var.kubernetes == "1" ? 1 : 0
   name = module.eks.cluster_id
 }
 
 data "aws_eks_cluster_auth" "cluster" {
+  var.kubernetes == "1" ? 1 : 0
   name = module.eks.cluster_id
 }
 
-provider "kubernetes" {
-  load_config_file       = "false"
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  token                  = data.aws_eks_cluster_auth.cluster.token
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-}
+# provider "kubernetes" {
+#   load_config_file       = "false"
+#   host                   = data.aws_eks_cluster.cluster.endpoint
+#   token                  = data.aws_eks_cluster_auth.cluster.token
+#   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+# }
