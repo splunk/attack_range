@@ -84,11 +84,10 @@ jobs:
             source venv/bin/activate
             # change attack_range default ssh keys
             sed -i "s/key_name = .*$/key_name = attack-range-ci-job/g" attack_range.conf
-            cat attack_range.conf | grep key_name
+            sed -i "s/private_key_path =.*$/private_key_path = id_rsa_995c9a45c2d0a6b6eabd7a844d2bd613/g"
             cd terraform/
             terraform init 
             cd ..
-            ls
             python attack_range.py --mode terraform --action build
             python attack_range.py --mode terraform --action destroy
 workflows:
