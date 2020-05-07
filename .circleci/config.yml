@@ -4,6 +4,7 @@
 version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@0.1.19
+  terraform: ovotech/terraform@1.6.6
 
 dependencies:
   cache_directories:
@@ -61,6 +62,25 @@ jobs:
             cd attack_range
             source venv/bin/activate
             python attack_range.py --version
+      # enable aws cli
+      - aws-cli/setup:
+          profile-name: default
+      # add ssh keys for aws
+      - add_ssh_keys:
+          fingerprints:
+            - "99:5c:9a:45:c2:d0:a6:b6:ea:bd:7a:84:4d:2b:d6:13"
+      # init terraform
+      - terraform/new-workspace:
+          path: attack_range/terraform
+      # do a build using terraform
+      - run:
+          name: terraform build
+          command: |
+            cd attack_range
+            source venv/bin/activate
+            # change attack_range default ssh keys
+            sed -i "s/key_name = .*$/key_name = attack-range-ci-job/g" attack_range.conf
+            python attack_range.py --mode terraform --action build
 workflows:
   version: 2.1
   build-attack-destroy:
