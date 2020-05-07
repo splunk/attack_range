@@ -72,9 +72,9 @@ jobs:
       - run: 
           name: install terraform
           command: |
-            wget https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_linux_amd64.zip
-            sudo unzip terraform_0.12.20_linux_amd64.zip -d /usr/bin
-            rm terraform_0.12.20_linux_amd64.zip
+            wget https://releases.hashicorp.com/terraform/0.12.24/terraform_0.12.24_linux_amd64.zip
+            sudo unzip terraform_0.12.24_linux_amd64.zip -d /usr/bin
+            rm terraform_0.12.24_linux_amd64.zip
             terraform --version
       # do a build using terraform
       - run:
@@ -84,8 +84,13 @@ jobs:
             source venv/bin/activate
             # change attack_range default ssh keys
             sed -i "s/key_name = .*$/key_name = attack-range-ci-job/g" attack_range.conf
-            terraform init terraform/
+            cat attack_range.conf | grep key_name
+            cd terraform/
+            terraform init 
+            cd ..
+            ls
             python attack_range.py --mode terraform --action build
+            python attack_range.py --mode terraform --action destroy
 workflows:
   version: 2.1
   build-attack-destroy:
