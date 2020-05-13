@@ -4,6 +4,7 @@
 version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@0.1.19
+  queue: eddiewebb/queue@volatile
 
 dependencies:
   cache_directories:
@@ -103,8 +104,12 @@ workflows:
   version: 2.1
   build-attack-destroy:
     jobs:
+      - queue/block_workflow:
+          time: '20'
       - terraform-build-attack-destroy:
         # build always
           filters:
             tags:
               only: /.*/
+          requires:
+            - queue/block_workflow
