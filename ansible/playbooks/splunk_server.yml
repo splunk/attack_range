@@ -1,13 +1,8 @@
-- hosts: splunk-server
+- hosts: all
   gather_facts: False
-  pre_tasks:
-    - name: Install python for Ansible
-      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
-      changed_when: False
-    - setup: # aka gather_facts
   become: true
   roles:
-    - common
     - search_head
-  vars_files:
-    - ../vars/vars.yml 
+    - splunk_phantom
+    - splunk_phantom_configure
+    - caldera

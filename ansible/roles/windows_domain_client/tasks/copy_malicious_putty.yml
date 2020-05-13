@@ -1,0 +1,9 @@
+---
+
+- name: copy malicious putty
+  win_copy:
+    src: puttyX.exe
+    dest: C:\puttyX.exe
+
+- name: Create new SMB share
+  win_shell: New-SmbShare -Name evil -Path C:\ -FullAccess attackrange\Administrator

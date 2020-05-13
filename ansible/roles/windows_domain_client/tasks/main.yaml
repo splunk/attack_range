@@ -1,0 +1,11 @@
+- debug:
+    var: windows_server_join_domain
+
+- include: create.yml
+  when: windows_server_join_domain == "1"
+
+- include: copy_malicious_putty.yml
+  when:
+    - run_demo == "1"
+    - demo_scenario == "mission_control_malicious_putty"
+    - ansible_distribution == "Microsoft Windows Server 2016 Datacenter" or ansible_distribution == "Microsoft Windows Server 2016 Standard Evaluation"

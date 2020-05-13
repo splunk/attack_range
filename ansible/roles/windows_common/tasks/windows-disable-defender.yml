@@ -1,0 +1,35 @@
+---
+
+- debug:
+    var: ansible_distribution
+
+# - name: Disable Windows Defender for Windows 10
+#   win_regedit:
+#     path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender"
+#     name: DisableAntiSpyware
+#     type: dword
+#     data: 1
+#   when: ansible_distribution == "Microsoft Windows 10 Enterprise Evaluation"
+
+- name: Disable Real-Time Protection of Windows Defender for Windows 10
+  ignore_errors: yes
+  win_regedit:
+    path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection"
+    name: DisableRealtimeMonitoring
+    type: dword
+    data: 1
+  when: ansible_distribution == "Microsoft Windows 10 Enterprise Evaluation"
+
+# - name: Disable Windows Defender in Windows Server windows_domain_controller
+#   win_shell: 'Set-MpPreference -DisableRealtimeMonitoring 1'
+#   when: ansible_distribution == "Microsoft Windows 10 Enterprise Evaluation"
+
+# - name: Disable Windows Defender for Windows 10
+#   ignore_errors: yes
+#   win_shell: 'Set-MpPreference -DisableRealtimeMonitoring $true'
+#   when: ansible_distribution == "Microsoft Windows 10 Enterprise Evaluation"
+
+- name: Disable Windows Defender in Windows Server windows_domain_controller
+  win_shell: 'Uninstall-WindowsFeature -Name Windows-Defender'
+  when: ansible_distribution == "Microsoft Windows Server 2016 Datacenter" or
+        ansible_distribution == "Microsoft Windows Server 2016 Standard Evaluation"

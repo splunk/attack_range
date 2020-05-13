@@ -1,5 +1,0 @@
-- include: install_splunk_uf.yml
-- include: install_splunk_sysmon_ta.yml 
-  when: sysmon is defined
-- include: install_splunk_stream.yml
-  when: stream is defined

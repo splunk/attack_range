@@ -1,0 +1,26 @@
+config.vm.define "attack-range-kali_machine" do |config|
+  VM_NAME_KALI= "attack-range-kali_machine"
+  config.vm.box = "kalilinux/rolling"
+  config.vm.box_version = "2019.3.0"
+  config.vm.boot_timeout = 600
+  config.vm.hostname = "kali"
+  config.vm.network :private_network, ip: "{{ kali_machine_private_ip }}"
+
+  config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "../ansible/playbooks/kali_linux.yml"
+      ansible.config_file = "../ansible/ansible.cfg"
+      ansible.compatibility_mode = "2.0"
+      ansible.extra_vars = {
+        ansible_python_interpreter: "/usr/bin/python3",
+        run_demo: '{{ run_demo }}',
+        demo_scenario: '{{ demo_scenario }}'
+      }
+  end
+
+  config.vm.provider "virtualbox" do |vb, override|
+    vb.gui = true
+    vb.name = "#{VM_NAME_KALI}"
+    vb.customize ["modifyvm", :id, "--memory", 2048]
+    vb.customize ["modifyvm", :id, "--cpus", 2]
+  end
+end

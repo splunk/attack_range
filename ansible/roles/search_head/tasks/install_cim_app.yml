@@ -1,0 +1,44 @@
+- name: Check if cim app exists
+  stat:
+    path: /opt/splunk/etc/apps/Splunk_TA_cim
+  register: cim_app
+
+- name: download CIM app from S3 bucket
+  get_url:
+    url: '{{ s3_bucket_url }}/{{ splunk_cim_app }}'
+    dest: /tmp/cim_app.tgz
+  when: cim_app.stat.exists == False
+
+- name: Install cim app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/cim_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: cim_app.stat.exists == False
+
+- name: Create folder directory for local in CIM
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/Splunk_SA_CIM/local/
+  when: cim_app.stat.exists == False
+
+- name: copy datamodels.conf to splunk server
+  copy:
+    src: datamodels.conf
+    dest: /opt/splunk/etc/apps/Splunk_SA_CIM/local/datamodels.conf
+    owner: splunk
+    group: splunk
+  when: cim_app.stat.exists == False
+  notify: restart splunk

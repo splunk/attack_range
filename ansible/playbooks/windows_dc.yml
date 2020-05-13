@@ -1,0 +1,14 @@
+- hosts: all
+  gather_facts: True
+  vars:
+    ansible_connection: winrm
+    ansible_port: 5986
+    ansible_winrm_server_cert_validation: ignore
+    hostname: win-dc
+  roles:
+    - windows_common
+    - windows_dns_server
+    - windows_domain_controller
+    - windows_universal_forwarder
+    - windows_caldera_agent
+    - sysmon

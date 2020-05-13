@@ -1,0 +1,22 @@
+---
+port: 8888
+plugins:
+  - sandcat
+  - stockpile
+  - compass
+  - terminal
+  - response
+users:
+  red:
+    admin: {{ caldera_password }}
+    red: admin
+  blue:
+    blue: admin
+api_key: {{ caldera_password }}
+exfil_dir: /tmp
+reports_dir: /tmp
+crypt_salt: REPLACE_WITH_RANDOM_VALUE
+app.contact.http: http://0.0.0.0:8888
+app.contact.tcp: 0.0.0.0:7010
+app.contact.udp: 0.0.0.0:7011
+app.contact.websocket: 0.0.0.0:7012

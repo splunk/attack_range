@@ -1,0 +1,94 @@
+- name: Copy enterprise security to server
+  copy:
+    src: "../../apps/{{ splunk_es_app }}"
+    dest: /tmp/es_app.tgz
+  when: install_es == "1"
+
+- name: Install es app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/es_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: install_es == "1"
+  notify: restart splunk
+
+- name: Run es post-install setup
+  command: "/opt/splunk/bin/splunk search '| essinstall' -auth admin:{{ splunk_admin_password }}"
+  become: yes
+  become_user: splunk
+  when: install_es == "1"
+
+
+## disable most of the searches
+
+- name: Create local folder
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/DA-ESS-NetworkProtection/local/
+    - /opt/splunk/etc/apps/DA-ESS-ThreatIntelligence/local/
+    - /opt/splunk/etc/apps/SA-AccessProtection/local/
+    - /opt/splunk/etc/apps/SA-AuditAndDataProtection/local/
+    - /opt/splunk/etc/apps/SA-EndpointProtection/local/
+    - /opt/splunk/etc/apps/SA-NetworkProtection/local/
+    - /opt/splunk/etc/apps/SA-ThreatIntelligence/local/
+  when: install_es == "1"
+
+- name: Copy configuration
+  copy:
+    src: savedsearches_DA-ESS-NetworkProtection.conf
+    dest: /opt/splunk/etc/apps/DA-ESS-NetworkProtection/local/savedsearches.conf
+  when: install_es == "1"
+
+- name: Copy configuration
+  copy:
+    src: savedsearches_DA-ESS-ThreatIntelligence.conf
+    dest: /opt/splunk/etc/apps/DA-ESS-ThreatIntelligence/local/savedsearches.conf
+  when: install_es == "1"
+
+- name: Copy configuration
+  copy:
+    src: savedsearches_SA-AccessProtection.conf
+    dest: /opt/splunk/etc/apps/SA-AccessProtection/local/savedsearches.conf
+  when: install_es == "1"
+
+- name: Copy configuration
+  copy:
+    src: savedsearches_SA-AuditAndDataProtection.conf
+    dest: /opt/splunk/etc/apps/SA-AuditAndDataProtection/local/savedsearches.conf
+  when: install_es == "1"
+
+- name: Copy configuration
+  copy:
+    src: savedsearches_SA-EndpointProtection.conf
+    dest: /opt/splunk/etc/apps/SA-EndpointProtection/local/savedsearches.conf
+  when: install_es == "1"
+
+- name: Copy configuration
+  copy:
+    src: savedsearches_SA-NetworkProtection.conf
+    dest: /opt/splunk/etc/apps/SA-NetworkProtection/local/savedsearches.conf
+  when: install_es == "1"
+
+- name: Copy configuration
+  copy:
+    src: savedsearches_SA-ThreatIntelligence.conf
+    dest: /opt/splunk/etc/apps/SA-ThreatIntelligence/local/savedsearches.conf
+  when: install_es == "1"
+
+- name: Copy log_review configuration
+  copy:
+    src: log_review.conf
+    dest: /opt/splunk/etc/apps/SA-ThreatIntelligence/local/log_review.conf
+  when: install_es == "1"

@@ -1,0 +1,16 @@
+---
+
+- name: Check we have installed Atomic Red Team
+  win_stat:
+    path: 'C:\Install-AtomicRedTeam.ps1'
+  register: atr_folder
+
+- name: Copy Atomic Red Team PS module
+  win_copy:
+    src: "Install-AtomicRedTeam.ps1"
+    dest: 'C:\Install-AtomicRedTeam.ps1'
+  when: atr_folder.stat.exists == False
+
+- name: Install Atomic Red Team PS Module
+  win_shell: 'C:\Install-AtomicRedTeam.ps1 -Verbose'
+  when: atr_folder.stat.exists == False

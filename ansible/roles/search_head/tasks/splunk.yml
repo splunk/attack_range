@@ -11,7 +11,7 @@
   tags:
    - install
    - security
-  user: name=splunk comment="Splunk service user" shell=/usr/sbin/nologin groups=splunk createhome=no 
+  user: name=splunk comment="Splunk service user" shell=/usr/sbin/nologin groups=splunk createhome=yes
 
 - name: make /opt writetable by splunk
   tags:
@@ -23,21 +23,22 @@
   stat: path=/opt/splunk
   register: splunk_path
 
-- name: is splunk installed? 
+- name: is splunk installed?
   tags: install
   debug: msg='splunk is already installed under /opt/splunk'
   when: splunk_path.stat.exists
 
-- name: Download Splunk
+- name: download splunk
+  tags: install
   get_url:
-    url: "{{ splunk_binary_url }}"
+    url: '{{ splunk_url }}'
     dest: /opt/
   when: splunk_path.stat.exists == false
 
 - name: install splunk binary
   tags:
    - install
-  unarchive: remote_src=yes src=/opt/{{splunk_binary}} dest=/opt/ owner=splunk group=splunk creates=yes 
+  unarchive: remote_src=yes src=/opt/{{splunk_binary}} dest=/opt/ owner=splunk group=splunk creates=yes
   become: yes
   become_user: splunk
   when: splunk_path.stat.exists == false
@@ -45,7 +46,7 @@
 - name: accept license and start splunk
   tags:
    - install
-  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{splunk_pass}}
+  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{splunk_admin_password}}
   become: yes
   become_user: splunk
   when: splunk_path.stat.exists == false
@@ -56,3 +57,8 @@
   shell: /opt/splunk/bin/splunk enable boot-start -user splunk
   when: splunk_path.stat.exists == false
 
+- name: restart splunk
+  service:
+    name: splunkd
+    state: restarted
+  when: splunk_path.stat.exists == false

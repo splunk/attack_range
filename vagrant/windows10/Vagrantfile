@@ -1,0 +1,42 @@
+config.vm.define "attack-range-win10" do |config|
+  VM_NAME_WIN= "attack-range-win10"
+  config.vm.box = "d1vious/windows10"
+  config.vm.hostname = "win10"
+  config.vm.boot_timeout = 600
+  config.vm.communicator = "winrm"
+  config.winrm.basic_auth_only = true
+  config.winrm.timeout = 300
+  config.winrm.retry_limit = 20
+  config.vm.network "forwarded_port", guest: 5985, host: 5985
+  config.vm.network :private_network, ip: "{{ windows_client_private_ip }}"
+
+  config.vm.provision "ansible" do |ansible|
+      ansible.extra_vars = {
+        ansible_port: 5985,
+        splunk_indexer_ip: "{{ splunk_server_private_ip }}",
+        win_password: '{{ win_password }}',
+        splunk_uf_win_url: '{{ splunk_uf_win_url }}',
+        win_sysmon_url: '{{ win_sysmon_url }}',
+        win_sysmon_template: '{{ win_sysmon_template }}',
+        splunk_admin_password: '{{ splunk_admin_password }}',
+        windows_server_join_domain: '{{ windows_client_join_domain }}',
+        windows_domain_controller_private_ip: '{{ windows_domain_controller_private_ip }}',
+        run_demo: '{{ run_demo }}',
+        demo_scenario: '{{ demo_scenario }}'
+      }
+      ansible.playbook = "../ansible/playbooks/windows_workstation.yml"
+      ansible.config_file = "../ansible/ansible.cfg"
+      ansible.compatibility_mode = "2.0"
+  end
+
+  config.vm.provider "virtualbox" do |vb, override|
+    vb.gui = true
+    vb.name = "#{VM_NAME_WIN}"
+    vb.default_nic_type = "82545EM"
+    vb.customize ["modifyvm", :id, "--memory", 2048]
+    vb.customize ["modifyvm", :id, "--cpus", 1]
+    vb.customize ["modifyvm", :id, "--vram", "32"]
+    vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+    vb.customize ["setextradata", "global", "GUI/SuppressMessages", "all" ]
+  end
+end

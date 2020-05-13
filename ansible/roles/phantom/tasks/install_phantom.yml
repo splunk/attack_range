@@ -1,0 +1,26 @@
+---
+# Install Phantom from RPM on a fresh CentOS 7 instance
+
+- name: check if phantom is installed
+  stat: path=/opt/phantom
+  register: phantom_path
+
+- name: debug print if phantom is installed
+  debug: msg='phantom is already installed under /opt/phantom'
+  when: phantom_path.stat.exists
+
+- name: install the nginx dependency
+  yum:
+    name: https://repo.phantom.us/phantom/4.8/base/7/x86_64/nginx-1.17.7-1.el7.ngx.x86_64.rpm
+    state: present
+
+- name: install the phantom setup rpm from the community repository
+  yum:
+    name: https://repo.phantom.us/phantom/4.8/base/7/x86_64/phantom_repo-4.8.23319-1.x86_64.rpm
+    state: present
+
+# installing apps takes 15+ minutes longer, so later we will install just the apps we need
+- name: run the phantom install script without apps
+  shell: printf "{{phantom_community_username}}\n{{phantom_community_password}}\n" | /opt/phantom/bin/phantom_setup.sh install --no-prompt --without-apps
+  async: 600
+  poll: 60

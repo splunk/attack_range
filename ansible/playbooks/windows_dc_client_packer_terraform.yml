@@ -1,0 +1,9 @@
+- hosts: all
+  gather_facts: True
+  vars:
+    ansible_connection: winrm
+    ansible_port: 5986
+    ansible_winrm_server_cert_validation: ignore
+    use_packer: "1"
+  roles:
+    - windows_domain_client

@@ -1,0 +1,22 @@
+# v3
+- name: check if BOTs v3 app exists
+  stat:
+    path: /opt/splunk/etc/apps/botsv3_data_set
+  register: botsv3_app
+
+- name: download BOTs v3 dataset
+  unarchive:
+    src: 'https://botsdataset.s3.amazonaws.com/botsv3/botsv3_data_set.tgz'
+    dest: /opt/splunk/etc/apps 
+    owner: splunk
+    group: splunk
+    remote_src: yes
+  when: botsv3_app.stat.exists == False
+
+- name: increase bots frozen time
+  lineinfile:
+    path: /opt/splunk/etc/apps/botsv3_data_set/default/indexes.conf
+    insertafter: '^thawedPath'
+    line: frozenTimePeriodInSecs = 377395200
+  when: botsv3_app.stat.exists == False
+  notify: restart splunk

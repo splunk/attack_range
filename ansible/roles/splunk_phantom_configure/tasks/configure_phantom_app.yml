@@ -1,0 +1,69 @@
+---
+
+- name: create local folder for phantom app
+  file:
+    path: /opt/splunk/etc/apps/phantom/local
+    state: directory
+    owner: splunk
+    group: splunk
+
+- name: copy phantom.conf to splunk server
+  copy:
+    src: phantom.conf
+    dest: /opt/splunk/etc/apps/phantom/local/phantom.conf
+    owner: splunk
+    group: splunk
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes
+
+- name: fetch phantom api token
+  uri:
+    url: https://{{ phantom_server_private_ip }}/rest/ph_user/2/token
+    method: GET
+    user: admin
+    password: "{{ phantom_admin_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+  register: api_token
+
+- name: Connect Splunk Phantom App with Phantom
+  shell: curl -k -u "admin:{{ splunk_admin_password }}" --data '{"verify_certs":"false","enable_logging":"false","config":[{"ph-auth-token":"{{ api_token.json.key | replace("=","%3D") | replace("+","%2B") }}","server":"https://{{ phantom_server_private_ip }}","custom_name":"phantom","default":false,"user":"","ph_auth_config_id":"193b2ffc-48fb-4087-bc75-c44184e7fa07","proxy":"","validate":true}],"accepted":"true","save":true}' https://localhost:8089/services/update_phantom_config?output_mode=json
+  register: shell_output
+
+# - name: Debug output
+#   debug:
+#     var: shell_output
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes
+
+
+# - name: Connect Splunk Phantom App with Phantom
+#   uri:
+#     url: https://127.0.0.1:8089/services/update_phantom_config
+#     method: POST
+#     user: "admin"
+#     password: "{{ splunk_admin_password }}"
+#     validate_certs: false
+#     body:
+#       verify_certs: false
+#       enable_logging: false
+#       config:
+#         - ph-auth-token: "{{ api_token.json.key }}"
+#           server: "https://{{ phantom_server_private_ip }}"
+#           custom_name: ""
+#           default: false
+#           user: ""
+#           ph_auth_config_id: "193b2ffc-48fb-4087-bc75-c44184e7fa07"
+#           proxy: ""
+#           validate: true
+#       accepted: true
+#       save: true
+#     body_format: json
+#     status_code: [ 200, 201 ]
+#     timeout: 30
+#   notify: restart splunk
+#   register: rest_output

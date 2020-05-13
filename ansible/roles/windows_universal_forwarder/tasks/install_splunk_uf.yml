@@ -1,0 +1,23 @@
+
+- name: Nslooup splunk.common
+  win_command: 'nslookup download.splunk.com'
+  register: output
+
+# - name: Debug nslookup
+#   debug:
+#     var: output
+
+- name: Download Splunk UF from Splunk website
+  win_shell: |
+    [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
+    (New-Object System.Net.WebClient).DownloadFile("{{ splunk_uf_win_url }}", "C:\splunkuf.msi")
+
+- name: Install Splunk_UF MSI
+  win_package:
+    path: C:\splunkuf.msi
+    arguments: 'WINEVENTLOG_SEC_ENABLE=0 WINEVENTLOG_SYS_ENABLE=0 WINEVENTLOG_APP_ENABLE=0 SPLUNKPASSWORD={{ splunk_admin_password }} AGREETOLICENSE=YES /quiet'
+
+- name: Start Splunk
+  win_service:
+    name: SplunkForwarder
+    state: started

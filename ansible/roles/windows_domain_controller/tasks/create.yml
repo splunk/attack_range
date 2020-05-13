@@ -1,0 +1,42 @@
+---
+
+- name: set local admin password
+  win_user:
+    name: Administrator
+    password: "{{ win_password }}"
+    state: present
+
+- name: features | Installing RSAT AD Admin Center
+  win_feature:
+    name: RSAT-AD-AdminCenter
+    state: present
+
+- name: features | Installing AD Domain Services
+  win_feature:
+    name: AD-Domain-Services
+    include_management_tools: yes
+    include_sub_features: yes
+    state: present
+
+- name: Creating a windows domain
+  win_domain:
+    dns_domain_name: "attackrange.local"
+    safe_mode_password: "{{ win_password }}"
+
+- name: Setting DNS Servers
+  win_dns_client:
+    adapter_names: "*"
+    ipv4_addresses: "127.0.0.1"
+
+- name: reboot | Rebooting Server
+  win_reboot:
+    post_reboot_delay: 300
+
+- name: Managing Domain Controller Membership
+  win_domain_controller:
+    dns_domain_name: "attackrange.local"
+    domain_admin_user: "Administrator@attackrange.local"
+    domain_admin_password: "{{ win_password }}"
+    safe_mode_password: "{{ win_password }}"
+    state: "domain_controller"
+  register: _windows_domain_controller
