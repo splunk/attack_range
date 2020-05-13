@@ -78,7 +78,7 @@ jobs:
             terraform --version
       # do a build using terraform
       - run:
-          name: terraform build, attack, destroy
+          name: test terraform build, attack, destroy
           command: |
             cd attack_range
             source venv/bin/activate
