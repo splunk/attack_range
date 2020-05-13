@@ -89,7 +89,9 @@ jobs:
             terraform init 
             cd ..
             python attack_range.py --mode terraform --action build
+            sleep 25
             python attack_range.py --mode terraform --action simulate --target attack-range-windows-domain-controller --simulation_technique T1003 
+            sleep 25
             python attack_range.py --mode terraform --action destroy
 workflows:
   version: 2.1
