@@ -105,7 +105,7 @@ workflows:
   build-attack-destroy:
     jobs:
       - queue/block_workflow:
-          time: '20'
+          time: '30'
       - terraform-build-attack-destroy:
         # build always
           filters:
