@@ -24,7 +24,7 @@ executors:
     working_directory: ~/repo
 
 jobs:
-  test-build:
+  terraform-build-attack-destroy:
     executor: content-executor
     steps:
       - run:
@@ -97,7 +97,7 @@ workflows:
   version: 2.1
   build-attack-destroy:
     jobs:
-      - test-build:
+      - terraform-build-attack-destroy:
         # build always
           filters:
             tags:
