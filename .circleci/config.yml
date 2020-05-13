@@ -92,6 +92,13 @@ jobs:
             python attack_range.py --mode terraform --action build
             python attack_range.py --mode terraform --action simulate --target attack-range-windows-domain-controller --simulation_technique T1003 
             python attack_range.py --mode terraform --action destroy
+      - run: 
+          name: cleanup terraform on failures
+          command: |
+            cd attack_range
+            source venv/bin/activate
+            python attack_range.py --mode terraform --action destroy
+          when: on_fail
 workflows:
   version: 2.1
   build-attack-destroy:
