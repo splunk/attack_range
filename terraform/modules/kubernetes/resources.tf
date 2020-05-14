@@ -1,5 +1,6 @@
 
 module "eks" {
+  create_eks   = var.kubernetes
   source       = "terraform-aws-modules/eks/aws"
   cluster_name = "kubernetes_${var.key_name}"
   subnets      = var.vpc_private_subnets
@@ -33,18 +34,18 @@ module "eks" {
 }
 
 data "aws_eks_cluster" "cluster" {
-  var.kubernetes == "1" ? 1 : 0
+  count = var.kubernetes ? 1 : 0
   name = module.eks.cluster_id
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  var.kubernetes == "1" ? 1 : 0
+  count = var.kubernetes ? 1 : 0
   name = module.eks.cluster_id
 }
 
-# provider "kubernetes" {
-#   load_config_file       = "false"
-#   host                   = data.aws_eks_cluster.cluster.endpoint
-#   token                  = data.aws_eks_cluster_auth.cluster.token
-#   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-# }
+provider "kubernetes" {
+  load_config_file       = "false"
+  host                   = data.aws_eks_cluster.cluster[0].endpoint
+  token                  = data.aws_eks_cluster_auth.cluster[0].token
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster[0].certificate_authority.0.data)
+}

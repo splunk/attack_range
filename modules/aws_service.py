@@ -38,6 +38,13 @@ def get_all_instances(config):
     return instances
 
 
+def get_splunk_instance_ip(config):
+    all_instances = get_all_instances(config)
+    for instance in all_instances:
+        if instance['Tags'][0]['Value'] == 'attack-range-splunk-server':
+            return instance['NetworkInterfaces'][0]['PrivateIpAddresses'][0]['Association']['PublicIp']
+
+
 def check_ec2_instance_state(ec2_name, state, config):
     instance = get_instance_by_name(ec2_name, config)
 

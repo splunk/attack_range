@@ -3,6 +3,7 @@
 
 - include: splunk.yml
 - include: configure_inputs.yml
+- include: configure_hec.yml
 - include: configure_indexes.yml
 - include: configure_web_conf.yml
 - include: configure_server_conf.yml

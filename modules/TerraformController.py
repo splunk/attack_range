@@ -1,7 +1,7 @@
 
 from modules.IEnvironmentController import IEnvironmentController
 from python_terraform import *
-from modules import aws_service, splunk_sdk
+from modules import aws_service, splunk_sdk, kubernetes_service
 from tabulate import tabulate
 import ansible_runner
 
@@ -11,7 +11,7 @@ class TerraformController(IEnvironmentController):
     def __init__(self, config, log, packer_amis):
         super().__init__(config, log)
         custom_dict = self.config.copy()
-        rem_list = ['log_path', 'log_level', 'art_run_techniques']
+        rem_list = ['log_path', 'log_level', 'art_run_techniques', 'app', 'repo_name', 'repo_url']
         [custom_dict.pop(key) for key in rem_list]
         custom_dict['ip_whitelist'] = [custom_dict['ip_whitelist']]
         if packer_amis:
@@ -34,6 +34,8 @@ class TerraformController(IEnvironmentController):
            self.log.info("attack_range has been built using terraform successfully")
         if self.config["cloud_attack_range"]=="1":
             aws_service.provision_db(self.config, self.log)
+        if self.config["kubernetes"]=="1":
+            kubernetes_service.install_wordpress_application(self.config['app'], self.config['repo_name'], self.config['repo_url'], self.config["key_name"], self.config)
         self.list_machines()
 
     def destroy(self):

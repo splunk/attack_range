@@ -8,49 +8,49 @@ module "networkModule" {
   ip_whitelist  = var.ip_whitelist
 }
 
-# module "splunk-server" {
-#   source			           = "./modules/splunk-server"
-#  	private_key_path       = var.private_key_path
-# 	key_name		           = var.key_name
-# 	vpc_security_group_ids = module.networkModule.sg_vpc_id
-# 	ec2_subnet_id         = module.networkModule.ec2_subnet_id
-#   splunk_admin_password  = var.splunk_admin_password
-#   splunk_url             = var.splunk_url
-#   splunk_binary          = var.splunk_binary
-#   s3_bucket_url          = var.s3_bucket_url
-#   splunk_escu_app        = var.splunk_escu_app
-#   splunk_asx_app         = var.splunk_asx_app
-#   splunk_windows_ta      = var.splunk_windows_ta
-#   splunk_cim_app         = var.splunk_cim_app
-#   splunk_sysmon_ta       = var.splunk_sysmon_ta
-#   splunk_python_app       = var.splunk_python_app
-#   splunk_mltk_app         = var.splunk_mltk_app
-#   splunk_stream_app       = var.splunk_stream_app
-#   splunk_server_private_ip = var.splunk_server_private_ip
-#   use_packer_amis        = var.use_packer_amis
-#   splunk_packer_ami      = var.splunk_packer_ami
-#   caldera_password       = var.caldera_password
-#   install_es             = var.install_es
-#   splunk_es_app          = var.splunk_es_app
-#   phantom_app            = var.phantom_app
-#   phantom_server         = var.phantom_server
-#   phantom_server_private_ip = var.phantom_server_private_ip
-#   phantom_admin_password = var.phantom_admin_password
-#   phantom_server_instance = module.phantom-server.phantom_server_instance
-#   phantom_server_instance_packer = module.phantom-server.phantom_server_instance_packer
-#   splunk_security_essentials_app = var.splunk_security_essentials_app
-#   punchard_custom_visualization = var.punchard_custom_visualization
-#   status_indicator_custom_visualization = var.status_indicator_custom_visualization
-#   splunk_attack_range_dashboard = var.splunk_attack_range_dashboard
-#   timeline_custom_visualization = var.timeline_custom_visualization
-#   install_mission_control = var.install_mission_control
-#   mission_control_app    = var.mission_control_app
-#   splunk_aws_app         = var.splunk_aws_app
-#   cloud_attack_range     = var.cloud_attack_range
-#   api_gateway_id         = module.serverless-application.api_gateway_id
-#   region                 = var.region
-#   sqs_queue_url          = module.serverless-application.sqs_queue_url
-# }
+module "splunk-server" {
+  source			           = "./modules/splunk-server"
+ 	private_key_path       = var.private_key_path
+	key_name		           = var.key_name
+	vpc_security_group_ids = module.networkModule.sg_vpc_id
+	ec2_subnet_id         = module.networkModule.ec2_subnet_id
+  splunk_admin_password  = var.splunk_admin_password
+  splunk_url             = var.splunk_url
+  splunk_binary          = var.splunk_binary
+  s3_bucket_url          = var.s3_bucket_url
+  splunk_escu_app        = var.splunk_escu_app
+  splunk_asx_app         = var.splunk_asx_app
+  splunk_windows_ta      = var.splunk_windows_ta
+  splunk_cim_app         = var.splunk_cim_app
+  splunk_sysmon_ta       = var.splunk_sysmon_ta
+  splunk_python_app       = var.splunk_python_app
+  splunk_mltk_app         = var.splunk_mltk_app
+  splunk_stream_app       = var.splunk_stream_app
+  splunk_server_private_ip = var.splunk_server_private_ip
+  use_packer_amis        = var.use_packer_amis
+  splunk_packer_ami      = var.splunk_packer_ami
+  caldera_password       = var.caldera_password
+  install_es             = var.install_es
+  splunk_es_app          = var.splunk_es_app
+  phantom_app            = var.phantom_app
+  phantom_server         = var.phantom_server
+  phantom_server_private_ip = var.phantom_server_private_ip
+  phantom_admin_password = var.phantom_admin_password
+  phantom_server_instance = module.phantom-server.phantom_server_instance
+  phantom_server_instance_packer = module.phantom-server.phantom_server_instance_packer
+  splunk_security_essentials_app = var.splunk_security_essentials_app
+  punchard_custom_visualization = var.punchard_custom_visualization
+  status_indicator_custom_visualization = var.status_indicator_custom_visualization
+  splunk_attack_range_dashboard = var.splunk_attack_range_dashboard
+  timeline_custom_visualization = var.timeline_custom_visualization
+  install_mission_control = var.install_mission_control
+  mission_control_app    = var.mission_control_app
+  splunk_aws_app         = var.splunk_aws_app
+  cloud_attack_range     = var.cloud_attack_range
+  api_gateway_id         = module.serverless-application.api_gateway_id
+  region                 = var.region
+  sqs_queue_url          = module.serverless-application.sqs_queue_url
+}
 
 module "phantom-server" {
   source                     = "./modules/phantom-server"
@@ -163,16 +163,16 @@ module "kali_machine" {
   use_packer_amis        = var.use_packer_amis
 }
 
-# module "serverless-application" {
-# source                = "./modules/serverless-application"
-# cloud_attack_range    = var.cloud_attack_range
-# key_name		          = var.key_name
-# cloud_s3_bucket       = var.cloud_s3_bucket
-# cloud_s3_bucket_key   = var.cloud_s3_bucket_key
-# cloudtrail            = var.cloudtrail
-# cloudtrail_bucket     = var.cloudtrail_bucket
-# region                = var.region
-#}
+module "serverless-application" {
+  source                = "./modules/serverless-application"
+  cloud_attack_range    = var.cloud_attack_range
+  key_name		          = var.key_name
+  cloud_s3_bucket       = var.cloud_s3_bucket
+  cloud_s3_bucket_key   = var.cloud_s3_bucket_key
+  cloudtrail            = var.cloudtrail
+  cloudtrail_bucket     = var.cloudtrail_bucket
+  region                = var.region
+}
 
 module "kubernetes" {
   source                = "./modules/kubernetes"

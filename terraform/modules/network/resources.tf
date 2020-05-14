@@ -19,6 +19,16 @@ module "vpc" {
   single_nat_gateway   = true
   enable_dns_hostnames = true
 
+  private_subnet_tags = {
+    "kubernetes.io/cluster/kubernetes_${var.key_name}" = "shared"
+  }
+  public_subnet_tags = {
+    "kubernetes.io/cluster/kubernetes_${var.key_name}" = "shared"
+  }
+  vpc_tags = {
+    "kubernetes.io/cluster/kubernetes_${var.key_name}" = "shared"
+  }
+
 }
 
 
