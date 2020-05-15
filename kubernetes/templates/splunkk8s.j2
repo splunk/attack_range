@@ -4,10 +4,10 @@ global:
       token: 1b0bb9cc-e884-4ae0-b3fa-9062f200b328
       host: {{ splunk_ip }}
       port: 8088
-      indexName: main
+      indexName: kubernetes
       insecureSSL: true
       protocol: https
 splunk-kubernetes-metrics:
   splunk:
     hec:
-      indexName: kubernetes
+      indexName: kubernetes-metrics

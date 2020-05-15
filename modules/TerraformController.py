@@ -35,10 +35,12 @@ class TerraformController(IEnvironmentController):
         if self.config["cloud_attack_range"]=="1":
             aws_service.provision_db(self.config, self.log)
         if self.config["kubernetes"]=="1":
-            kubernetes_service.install_wordpress_application(self.config['app'], self.config['repo_name'], self.config['repo_url'], self.config["key_name"], self.config)
+            kubernetes_service.install_application(self.config, self.log)
         self.list_machines()
 
     def destroy(self):
+        if self.config["kubernetes"]=="1":
+            kubernetes_service.delete_application(self.config, self.log)
         self.log.info("[action] > destroy\n")
         return_code, stdout, stderr = self.terraform.destroy(capture_output='yes', no_color=IsNotFlagged)
         self.log.info("attack_range has been destroy using terraform successfully")

@@ -1,13 +1,19 @@
 import subprocess
 from jinja2 import Environment, FileSystemLoader
 from modules import aws_service
+import sys
 
 
-def install_wordpress_application(app, repo_name, repo, key_name, config):
+def install_application(config, logger):
 
-    update_eks = subprocess.run(['aws', 'eks', 'update-kubeconfig', '--name', str("kubernetes_" + key_name)])
-    helm_load_repo = subprocess.run(['helm', 'repo', 'add', repo_name, repo])
-    helm_install_app = subprocess.run(['helm', 'install','--name',  str("attack-range-" + app), str(repo_name + "/" + app)])
+    update_kubeconfig_args = ['aws', 'eks', 'update-kubeconfig', '--name', str("kubernetes_" + config["key_name"])]
+    logging_call(update_kubeconfig_args, logger)
+
+    helm_load_repo_args = ['helm', 'repo', 'add', config["repo_name"], config["repo_url"]]
+    logging_call(helm_load_repo_args, logger)
+
+    helm_install_app_args = ['helm', 'install',  str("attack-range-" + config["app"]), str(config["repo_name"] + "/" + config["app"])]
+    logging_call(helm_install_app_args, logger)
 
     splunk_ip = aws_service.get_splunk_instance_ip(config)
 
@@ -19,6 +25,32 @@ def install_wordpress_application(app, repo_name, repo, key_name, config):
     with open(output_path, 'w') as f:
         f.write(output)
 
-    helm_install_splunk_connect = subprocess.run(['helm', 'install','--name', 'splunk-connect', '-f', 'kubernetes/splunkk8s.yaml', 'https://github.com/splunk/splunk-connect-for-kubernetes/releases/download/1.4.1/splunk-connect-for-kubernetes-1.4.1.tgz'])
+    helm_install_splunk_connect_args = ['helm', 'install', 'splunk-connect', '-f', 'kubernetes/splunkk8s.yaml', 'https://github.com/splunk/splunk-connect-for-kubernetes/releases/download/1.4.1/splunk-connect-for-kubernetes-1.4.1.tgz']
+    logging_call(helm_install_splunk_connect_args, logger)
 
-    print("over!!")
+
+
+def logging_call(popenargs, logger):
+
+    process = subprocess.Popen(popenargs, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    def check_io():
+           while True:
+                output = process.stdout.readline().decode()
+                if output:
+                    logger.info(output)
+                else:
+                    break
+
+    # keep checking stdout/stderr until the child exits
+    while process.poll() is None:
+        check_io()
+
+
+
+def delete_application(config, logger):
+    helm_uninstall_app_args = ['helm', 'uninstall',  str("attack-range-" + config["app"])]
+    logging_call(helm_uninstall_app_args, logger)
+
+    helm_uninstall_splunk_args = ['helm', 'uninstall', 'splunk-connect']
+    logging_call(helm_uninstall_splunk_args, logger)
