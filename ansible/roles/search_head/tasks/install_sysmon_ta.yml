@@ -7,6 +7,7 @@
   get_url:
     url: '{{ s3_bucket_url }}/{{ splunk_sysmon_ta }}'
     dest: /tmp/sysmon_ta.tgz
+    timeout: 30
   when: sysmon_ta.stat.exists == False
 
 - name: Install sysmon ta app via REST

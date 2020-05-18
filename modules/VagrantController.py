@@ -50,8 +50,13 @@ class VagrantController(IEnvironmentController):
 
     def build(self):
         self.log.info("[action] > build\n")
-        v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
-        v1.up(provision=True)
+        v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False, quiet_stderr=False)
+        try:
+            v1.up(provision=True)
+        except:
+            self.log.error("vagrant failed to build")
+            sys.exit(1)
+            
         self.log.info("attack_range has been built using vagrant successfully")
         self.list_machines()
 
