@@ -76,7 +76,7 @@ config.vm.define "attack-range-windows-domain-controller" do |config|
         splunk_indexer_ip: "10.0.1.12",
         win_password: 'I-l1ke-Attack-Range!',
         splunk_uf_win_url: 'https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi',
-        win_sysmon_url: 'https://download.sysinternals.com/files/Sysmon.zip',
+        win_sysmon_url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/Sysmon.zip',
         win_sysmon_template: 'SysmonConfig-TSwift.xml',
         splunk_admin_password: 'I-l1ke-Attack-Range!'
       }

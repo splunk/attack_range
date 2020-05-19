@@ -117,7 +117,7 @@ starting program loaded for B1 battle droid
         log.error('ERROR: packer can only be used with action build_amis and destroy_amis. To build attack range use mode terraform or vagrant.')
         sys.exit(1)
 
-    if mode != 'terraform' and config['cloud_attack_range']=='1':
+    if mode != 'terraform' and (config['cloud_attack_range']=='1' or config['kubernetes']=='1'):
         log.error('ERROR: cloud_attack_range can only be used with mode terraform.')
         sys.exit(1)
 

@@ -3,9 +3,9 @@
 
 - include: splunk.yml
 - include: configure_inputs.yml
-- include: configure_hec.yml
 - include: configure_indexes.yml
 - include: configure_web_conf.yml
+- include: configure_hec.yml
 - include: configure_server_conf.yml
 - include: create_serverclass.yml
 - include: install_aws_app.yml
@@ -24,4 +24,3 @@
 - include: install_sysmon_ta.yml
 - include: install_mltk_app.yml
 - include: install_stream_app.yml
-

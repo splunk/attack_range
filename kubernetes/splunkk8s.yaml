@@ -2,7 +2,7 @@ global:
   splunk:
     hec:
       token: 1b0bb9cc-e884-4ae0-b3fa-9062f200b328
-      host: 3.126.234.44
+      host: 18.157.62.76
       port: 8088
       indexName: kubernetes
       insecureSSL: true

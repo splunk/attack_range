@@ -81,7 +81,6 @@ module "windows-domain-controller" {
   win_sysmon_url         = var.win_sysmon_url
   win_sysmon_template    = var.win_sysmon_template
   splunk_admin_password  = var.splunk_admin_password
-  availability_zone      = var.availability_zone
   splunk_server_private_ip = var.splunk_server_private_ip
   windows_domain_controller_private_ip = var.windows_domain_controller_private_ip
   windows_domain_controller_os = var.windows_domain_controller_os
@@ -107,7 +106,6 @@ module "windows-server" {
   win_sysmon_url         = var.win_sysmon_url
   win_sysmon_template    = var.win_sysmon_template
   splunk_admin_password  = var.splunk_admin_password
-  availability_zone      = var.availability_zone
   splunk_server_private_ip = var.splunk_server_private_ip
   windows_server_private_ip = var.windows_server_private_ip
   windows_domain_controller_private_ip = var.windows_domain_controller_private_ip
@@ -136,7 +134,6 @@ module "windows-client" {
   win_sysmon_url         = var.win_sysmon_url
   win_sysmon_template    = var.win_sysmon_template
   splunk_admin_password  = var.splunk_admin_password
-  availability_zone      = var.availability_zone
   splunk_server_private_ip = var.splunk_server_private_ip
   windows_client_private_ip = var.windows_client_private_ip
   windows_domain_controller_private_ip = var.windows_domain_controller_private_ip

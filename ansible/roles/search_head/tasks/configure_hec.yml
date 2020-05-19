@@ -30,4 +30,4 @@
 #       disabled = 0
 #       token = 1b0bb9cc-e884-4ae0-b3fa-9062f200b328
 #       index = kubernetes
-#       indexes = kubernetes, kubernetes-metrics
+#       indexes = kubernetes,kubernetes-metrics

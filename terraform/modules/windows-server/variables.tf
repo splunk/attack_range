@@ -31,7 +31,6 @@ variable "windows_domain_controller_instance_packer" { }
 variable "vpc_security_group_ids" { }
 
 variable "ec2_subnet_id" { }
-variable "availability_zone" { }
 
 variable "windows_server" { }
 

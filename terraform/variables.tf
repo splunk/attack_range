@@ -79,9 +79,7 @@ variable "kali_machine_packer_ami" { }
 # ---------------------- #
 # general
 variable "region" { }
-variable "availability_zone" { }
-variable "subnet_ec2" { }
-variable "subnet_vpc" { }
+
 variable "caldera_password" { }
 
 # Splunk server
