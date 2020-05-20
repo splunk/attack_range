@@ -48,7 +48,7 @@ module "splunk-server" {
   install_mission_control = var.install_mission_control
   mission_control_app    = var.mission_control_app
   install_dsp = var.install_dsp
-  dsp_client_cert    = var.dsp_client_cert
+  dsp_client_cert_path    = var.dsp_client_cert_path
   dsp_node = var.dsp_node
 }
 

@@ -17,9 +17,8 @@ class CustomConfigParser:
         if self.settings['install_dsp'] == "1":
             dsp_client_cert_path = Path(self.settings['dsp_client_cert_path'])
             if dsp_client_cert_path.is_file():
-                print("attack_range loaded dsp client certificate from path: {0}".format(dsp_client_cert_path))
-                # grab absolute path
-                self.settings['dsp_client_cert'] = dsp_client_cert_path.absolute()
+                print("attack_range loaded dsp client certificate from path: {0}".format(dsp_client_cert_path.absolute()))
+                self.settings['dsp_client_cert_path'] = str(dsp_client_cert_path.absolute())
             else:
                 print("ERROR - with configuration file at: {0}, failed to load dsp client certificate \
                         from path: {1} and install_dsp is enabled".format(CONFIG_PATH, dsp_client_cert_path))
