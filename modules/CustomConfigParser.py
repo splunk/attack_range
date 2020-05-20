@@ -1,6 +1,7 @@
 import configparser
 import collections
 import sys
+from pathlib import Path
 
 class CustomConfigParser:
     def __init__(self):
@@ -11,6 +12,19 @@ class CustomConfigParser:
             print("ERROR - with configuration file at {0} 'windows_server_join_domain' must be set to '0' "
                   "if the number of 'windows_domain_controller' is set to '0'".format(CONFIG_PATH))
             sys.exit(1)
+
+        # lets load the dsp certificate if enabled
+        if self.settings['install_dsp'] == "1":
+            dsp_client_cert_path = Path(self.settings['dsp_client_cert_path'])
+            if dsp_client_cert_path.is_file():
+                print("attack_range loaded dsp client certificate from path: {0}".format(dsp_client_cert_path))
+                # grab absolute path
+                self.settings['dsp_client_cert'] = dsp_client_cert_path.absolute()
+            else:
+                print("ERROR - with configuration file at: {0}, failed to load dsp client certificate \
+                        from path: {1} and install_dsp is enabled".format(CONFIG_PATH, dsp_client_cert_path))
+                sys.exit(1)
+
 
     def load_conf(self,CONFIG_PATH):
         """Provided a config file path and a collections of type dict,
