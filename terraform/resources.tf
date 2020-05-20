@@ -47,6 +47,9 @@ module "splunk-server" {
   timeline_custom_visualization = var.timeline_custom_visualization
   install_mission_control = var.install_mission_control
   mission_control_app    = var.mission_control_app
+  install_dsp = var.install_dsp
+  dsp_client_cert    = var.dsp_client_cert
+  dsp_node = var.dsp_node
 }
 
 module "phantom-server" {
