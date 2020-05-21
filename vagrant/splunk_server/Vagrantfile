@@ -28,6 +28,7 @@ config.vm.define "attack-range-splunk-server" do |config|
         splunk_stream_app: '{{ splunk_stream_app }}',
         splunk_python_app: '{{ splunk_python_app }}',
         install_es: '{{ install_es }}',
+        install_mltk: '{{ install_mltk }}',
         splunk_es_app: '{{ splunk_es_app }}',
         phantom_app: '{{ phantom_app }}',
         phantom_server: '{{ phantom_server }}',
