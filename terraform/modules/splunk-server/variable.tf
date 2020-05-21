@@ -63,7 +63,7 @@ variable "splunk_mltk_app" { }
 variable "splunk_bots_dataset" { }
 
 variable "install_es" { }
-
+variable "install_mltk" { }
 variable "splunk_es_app" { }
 
 variable "splunk_security_essentials_app" { }
