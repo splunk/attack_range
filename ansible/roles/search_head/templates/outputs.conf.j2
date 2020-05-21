@@ -1,6 +1,10 @@
 #jinja2: trim_blocks:False
+[indexAndForward]
+index = true
+
 [tcpout]
 defaultGroup={%- if install_dsp -%}dsp{% endif %}
+indexAndForward = true
 
 {% if install_dsp %}
 [tcpout:dsp]
