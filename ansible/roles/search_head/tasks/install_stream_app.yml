@@ -7,6 +7,7 @@
   get_url:
     url: '{{ s3_bucket_url }}/{{ splunk_stream_app }}'
     dest: /tmp/splunk-stream_720.tgz
+    timeout: 30
   when: stream_app.stat.exists == False
 
 - name: Install stream app via REST
