@@ -41,6 +41,9 @@ config.vm.define "attack-range-splunk-server" do |config|
         timeline_custom_visualization: '{{ timeline_custom_visualization }}',
         install_mission_control: '{{ install_mission_control }}',
         mission_control_app: '{{ mission_control_app }}',
+        install_dsp: '{{ install_dsp }}',
+        dsp_client_cert_path: '{{ dsp_client_cert_path }}',
+        dsp_node: '{{ dsp_node }}',
         splunk_server_private_ip: '{{ splunk_server_private_ip }}'
       }
   end
