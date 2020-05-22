@@ -140,7 +140,7 @@ python attack_range.py -m packer -a destroy_amis
   * Splunk Mission Control is a unified experience that modernizes and optimizes your team’s security operations. The cloud-based software-as-a-service (SaaS) allows you to detect, manage, investigate, hunt, contain, and remediate threats and other high-priority security issues across the entire event lifecycle—all from the common work surface it provides.
   * Instructions on how to configure mission control and run a demo can be found [here](https://github.com/splunk/attack_range/wiki/Demo:-Splunk-Mission-Control).
 
- - [Splunk Data Stream Processor](https://www.splunk.com/en_us/software/stream-processing.html)
+- [Splunk Data Stream Processor](https://www.splunk.com/en_us/software/stream-processing.html)
   * Splunk Data Stream Processor is a scalable stream processing solution built to guarantee delivery of high-volume, high-velocity data across the enterprise. As events occur, DSP continuously collects, formats, and organizes high-velocity, high-volume data based on specified conditions, masks sensitive or private information, detects abnormal data patterns, and then distributes results to Splunk or other destinations in milliseconds
   * Instructions on how to configure Splunk DSP can be found [here](https://github.com/splunk/attack_range/wiki/Output-to-Splunk-DSP-(Data-Stream-Processing)).
 
