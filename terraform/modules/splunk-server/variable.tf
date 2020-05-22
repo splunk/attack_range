@@ -74,5 +74,8 @@ variable "splunk_attack_range_dashboard" { }
 variable "timeline_custom_visualization" { }
 variable "install_mission_control" { }
 variable "mission_control_app" { }
+variable "install_dsp" { }
+variable "dsp_client_cert_path" { }
+variable "dsp_node" { }
 
 variable "splunk_stream_app" { }
