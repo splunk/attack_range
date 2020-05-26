@@ -34,7 +34,9 @@ The Attack Range can build:
 
 ![Logical Diagram](docs/attack_range_architecture.png)
 
-### Virtualied Deployment
+### Virtualized Deployment
+
+#### Architecture
 
 The virtualized deployment of Attack Range consists of:
 
@@ -49,7 +51,37 @@ Which can be added/removed/configured using [attack_range.conf](attack_range.con
 
 ![Logical Diagram](docs/attack_range_architecture2.png)
 
-An approxiamte **cost estimate** for running attack_range using `--mode terraform` on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates---mode-terraform). 
+An approxiamte **cost estimate** for running attack_range using `--mode terraform` on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates---mode-terraform).
+
+#### Logging
+The following log sources are collected from the machines:
+- Windows Event Logs (```index = win```)
+- Sysmon Logs (```index = win```)
+- Powershell Logs (```index = win```)
+- Network Logs with Splunk Stream (```index = main```)
+- Attack Simulation Logs from Atomic Red Team and Caldera (```index = attack```)
+
+
+### Container Deployment with Kubernetes
+
+#### Architecture
+
+The container deployment consists of two worker nodes and one master node in Kubernetes. Deploying a Kubernetes cluster can be activated in [attack_range.conf](attack_range.conf) with the key kubernetes. Additionally, an application is deployed to the Kubernetes cluster which can be configured in [attack_range.conf](attack_range.conf). In the default settings, a wordpress application is deployed to the Kubernetes cluster.
+
+#### Logging
+[Splunk Connect for Kubernetes](https://github.com/splunk/splunk-connect-for-kubernetes) is deployed in order to collect logs from the Kubernetes cluster. The Kubernetes logs can be found in the index ```index = kubernetes``` on the Splunk instance.
+
+
+### Serverless Deployment
+
+#### Architecture
+
+The serverless deployment consists of Lambda, REST API, S3 and DynamoDB in AWS. Deploying a serverless infrastructure can be activated in [attack_range.conf](attack_range.conf) with the key cloud_attack_range. An application is needed for the serverless application, whereby the author build an own backend application running in Lambda and leverage the REST API and DynamoDB. More information can be found [here](https://github.com/splunk/attack_range/wiki/Serverless-Deployment).
+
+#### Logging
+
+The main log sources for the serverless deployment are CloudWatch and CloudTrail. CloudWatch contains logs for Lambda and REST API. CloudTrail monitors AWS account activities. CloudTrail can be enabled/disabled separatley. CloudTrail will monitor all the account activities for the used AWS account and can't be limited to the Attack Range infrastructure only. Please make sure that you are allowed to use these logs. The serverless deplyoment logs can be found in the index ```index = aws``` on the Splunk instance.
+
 
 ## Configuration
 - local [Vagrant and Virtualbox](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Vagrant)
