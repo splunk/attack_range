@@ -38,6 +38,7 @@ class TerraformController(IEnvironmentController):
             kubernetes_service.install_application(self.config, self.log)
         self.list_machines()
 
+
     def destroy(self):
         if self.config["kubernetes"]=="1":
             kubernetes_service.delete_application(self.config, self.log)

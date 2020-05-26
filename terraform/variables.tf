@@ -96,6 +96,7 @@ variable "splunk_python_app" { }
 variable "splunk_mltk_app" { }
 variable "splunk_stream_app" { }
 variable "install_es" { }
+variable "install_mltk" { }
 variable "splunk_es_app" { }
 variable "phantom_app" { }
 variable "splunk_bots_dataset" { }
@@ -106,6 +107,11 @@ variable "splunk_attack_range_dashboard" { }
 variable "timeline_custom_visualization" { }
 variable "install_mission_control" { }
 variable "mission_control_app" { }
+variable "install_dsp" { }
+variable "dsp_client_cert_path" { }
+variable "dsp_node" { }
+
+
 
 # Phantom server
 variable "phantom_admin_password" { }
