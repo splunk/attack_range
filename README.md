@@ -9,12 +9,6 @@
 ## Purpose
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering. First, the user is able to build quickly a small lab infrastructure as close as possible to a production environment. Second, the Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. Third, it integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
 
-The lab infrastructure contains a Windows Domain Controller, Windows Server, Windows Workstation and a Kali Machine, which comes pre-configured with multiple security tools and logging configuration. Furthermore, a Splunk server and a Phantom server completes the lab infrastructure. The lab infrastructure can be deployed locally or in the cloud. The building process is completely automated and can be executed with a single command.  
-
-The Attack Range incorporates different simulation engines such as Atomic Red Team from Red Canary and Caldera from Mitre. Attacks can be executed with a single command allowing the user to attack the lab infrastructure. These data can be used to develop new detections or test existing detection rules.  
-
-The differentiation to existing open source tools such as Detection Lab is that the Attack Range exposes all actions over the command line. This allows the user to integrate the Attack Range into a CI/CD pipeline and automating the detection testing/development process. For example, after writing a new detection for credential dumping, the Attack Range can automatically test it by performing the following steps: build Attack Range, perform attack T1103 (credential dumping), run detection, destroy Attack Range.
-
 
 ## Demo
 [:tv: A short demo (< 6 min)](https://www.youtube.com/watch?v=xIbln7OQ-Ak) which shows the basic functions of the attack range. It builds a testing enviroment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [ESCU](https://github.com/splunk/security-content) searches are used to detect the attack.
@@ -33,7 +27,16 @@ Attack Range can be built in three different ways:
 
 ## Architecture
 
-Attack Range consists of:
+The Attack Range can build:
+- virtualized deployments with AWS EC2 or local with vagrant/virtualbox
+- container deployments with AWS EKS using Kubernetes
+- serverless deployments using AWS Lambda, REST API, S3 and DynamoDB
+
+![Logical Diagram](docs/attack_range_architecture.png)
+
+### Virtualied Deployment
+
+The virtualized deployment of Attack Range consists of:
 
 - Windows Domain Controller
 - Windows Server
