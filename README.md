@@ -69,7 +69,7 @@ The following log sources are collected from the machines:
 The container deployment consists of two worker nodes and one master node in Kubernetes. Deploying a Kubernetes cluster can be activated in [attack_range.conf](attack_range.conf) with the key kubernetes. Additionally, an application is deployed to the Kubernetes cluster which can be configured in [attack_range.conf](attack_range.conf). In the default settings, a wordpress application is deployed to the Kubernetes cluster.
 
 #### Logging
-[Splunk Connect for Kubernetes](https://github.com/splunk/splunk-connect-for-kubernetes) is deployed in order to collect logs from the Kubernetes cluster. The Kubernetes logs can be found in the index ```index = kubernetes``` on the Splunk instance.
+[Splunk Connect for Kubernetes](https://github.com/splunk/splunk-connect-for-kubernetes) is deployed in order to collect logs from the Kubernetes cluster. The Kubernetes logs can be found in the index ```index = kubernetes OR index = kubernetes-metrics``` on the Splunk instance.
 
 
 ### Serverless Deployment
