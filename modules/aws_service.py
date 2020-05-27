@@ -108,7 +108,7 @@ def deregister_images(images, config, log):
 def provision_db(config, log):
 
     dynamodb = boto3.resource('dynamodb')
-    table_users = dynamodb.Table('Users')
+    table_users = dynamodb.Table('Users-' + config['key_name'])
 
     file = open("serverless_application/data/users.txt")
     with table_users.batch_writer() as batch:
@@ -123,7 +123,7 @@ def provision_db(config, log):
                 }
             )
 
-    table_notes = dynamodb.Table('Notes')
+    table_notes = dynamodb.Table('Notes-' + config['key_name'])
 
     file = open("serverless_application/data/notes.txt")
     with table_notes.batch_writer() as batch:

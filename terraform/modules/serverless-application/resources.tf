@@ -214,13 +214,66 @@ resource "aws_api_gateway_integration" "lambda" {
   source_arn = "${aws_api_gateway_rest_api.example[0].execution_arn}/*/*"
 }
 
+resource "aws_api_gateway_account" "attack_range" {
+  count       = var.cloud_attack_range ? 1 : 0
+  cloudwatch_role_arn = "${aws_iam_role.cloudwatch_attack_range[0].arn}"
+}
+
+resource "aws_iam_role" "cloudwatch_attack_range" {
+  count       = var.cloud_attack_range ? 1 : 0
+  name = "api_gateway_cloudwatch_${var.key_name}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "apigateway.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "cloudwatch" {
+  count       = var.cloud_attack_range ? 1 : 0
+  name = "iam_policy_cloudwatch_${var.key_name}"
+  role = "${aws_iam_role.cloudwatch_attack_range[0].id}"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:DescribeLogGroups",
+                "logs:DescribeLogStreams",
+                "logs:PutLogEvents",
+                "logs:GetLogEvents",
+                "logs:FilterLogEvents"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+}
+
 
 
 ## AWS dynamodb table
 
 resource "aws_dynamodb_table" "users_table" {
   count = var.cloud_attack_range ? 1 : 0
-  name           = "Users"
+  name           = "Users-${var.key_name}"
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
@@ -244,7 +297,7 @@ resource "aws_dynamodb_table" "users_table" {
 
 resource "aws_dynamodb_table" "notes_table" {
   count = var.cloud_attack_range ? 1 : 0
-  name           = "Notes"
+  name           = "Notes-${var.key_name}"
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20

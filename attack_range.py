@@ -121,6 +121,14 @@ starting program loaded for B1 battle droid
         log.error('ERROR: cloud_attack_range can only be used with mode terraform.')
         sys.exit(1)
 
+    if config['cloud_attack_range']=='1' and config['cloud_s3_bucket']=="":
+        log.error('ERROR: cloud_attack_range needs a value in cloud_s3_bucket, a s3_bucket in the same region of your attack_range containing the lambda function code e.g. backend.zip which can be found in https://attack-range-appbinaries.s3-us-west-2.amazonaws.com.')
+        sys.exit(1)
+
+    if config['cloud_attack_range']=='1' and config['cloudtrail']=='1' and config['cloudtrail_bucket']=="":
+        log.error('ERROR: cloud_attack_range needs a value in cloudtrail_bucket, a s3_bucket in the same region of your attack_range to store the cloudtrail logs.')
+        sys.exit(1)
+
 
     # lets give CLI priority over config file for pre-configured techniques
     if simulation_techniques:

@@ -57,7 +57,7 @@ jobs:
           paths:
             - "/attack_range/venv"
       - run:
-          name: verify attack_range.py executes 
+          name: verify attack_range.py executes
           command: |
             cd attack_range
             source venv/bin/activate
@@ -70,7 +70,7 @@ jobs:
           fingerprints:
             - "99:5c:9a:45:c2:d0:a6:b6:ea:bd:7a:84:4d:2b:d6:13"
       # init terraform
-      - run: 
+      - run:
           name: install terraform
           command: |
             wget https://releases.hashicorp.com/terraform/0.12.24/terraform_0.12.24_linux_amd64.zip
@@ -88,12 +88,12 @@ jobs:
             sed -i "s/private_key_path =.*$/private_key_path = ~\/.ssh\/id_rsa_995c9a45c2d0a6b6eabd7a844d2bd613/g" attack_range.conf
             sed -i "s/windows_domain_controller = .*$/windows_domain_controller = 1/g" attack_range.conf
             cd terraform/
-            terraform init 
+            terraform init
             cd ..
             python attack_range.py --mode terraform --action build
-            python attack_range.py --mode terraform --action simulate --target attack-range-windows-domain-controller --simulation_technique T1003 
+            python attack_range.py --mode terraform --action simulate --target attack-range-windows-domain-controller --simulation_technique T1003
             python attack_range.py --mode terraform --action destroy
-      - run: 
+      - run:
           name: cleanup terraform on failures
           command: |
             cd attack_range
@@ -107,9 +107,9 @@ workflows:
       - queue/block_workflow:
           time: '30'
       - terraform-build-attack-destroy:
-        # build always
           filters:
-            tags:
-              only: /.*/
+            branches:
+              only:
+                - develop
           requires:
             - queue/block_workflow
