@@ -33,6 +33,7 @@
     dest: "{{ caldera_rootdir }}"
     update: false
     recursive: true
+    version: "2.6.65"
   become: yes
   become_user: "{{ caldera_user }}"
   register: result
