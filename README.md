@@ -46,6 +46,8 @@ Which can be added/removed/configured using [attack_range.conf](attack_range.con
 
 ![Logical Diagram](docs/attack_range_architecture2.png)
 
+An approxiamte **cost estimate** for running attack_range using `--mode terraform` on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates---mode-terraform). 
+
 ## Configuration
 - local [Vagrant and Virtualbox](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Vagrant)
 - cloud [Terraform and AWS](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Terraform)
@@ -136,7 +138,11 @@ python attack_range.py -m packer -a destroy_amis
 
 - [Splunk Mission Control (BETA)](https://www.splunk.com/en_us/form/splunk-mission-control.html)
   * Splunk Mission Control is a unified experience that modernizes and optimizes your team’s security operations. The cloud-based software-as-a-service (SaaS) allows you to detect, manage, investigate, hunt, contain, and remediate threats and other high-priority security issues across the entire event lifecycle—all from the common work surface it provides.
-  * Contact Splunk, if you want to have access to Mission Control.
+  * Instructions on how to configure mission control and run a demo can be found [here](https://github.com/splunk/attack_range/wiki/Demo:-Splunk-Mission-Control).
+
+- [Splunk Data Stream Processor](https://www.splunk.com/en_us/software/stream-processing.html)
+  * Splunk Data Stream Processor is a scalable stream processing solution built to guarantee delivery of high-volume, high-velocity data across the enterprise. As events occur, DSP continuously collects, formats, and organizes high-velocity, high-volume data based on specified conditions, masks sensitive or private information, detects abnormal data patterns, and then distributes results to Splunk or other destinations in milliseconds
+  * Instructions on how to configure Splunk DSP can be found [here](https://github.com/splunk/attack_range/wiki/Output-to-Splunk-DSP-(Data-Stream-Processing)).
 
 - [Windows Domain Controller & Window Server & Windows 10 Client](https://github.com/splunk/attack_range/wiki/Windows-Infrastructure)
   * Can be enabled, disabled and configured over [attack_range.conf](attack_range.conf)
