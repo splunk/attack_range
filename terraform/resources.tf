@@ -33,6 +33,7 @@ module "splunk-server" {
   splunk_packer_ami      = var.splunk_packer_ami
   caldera_password       = var.caldera_password
   install_es             = var.install_es
+  install_mltk           = var.install_mltk
   splunk_es_app          = var.splunk_es_app
   phantom_app            = var.phantom_app
   phantom_server         = var.phantom_server
