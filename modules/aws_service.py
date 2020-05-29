@@ -103,6 +103,16 @@ def deregister_images(images, config, log):
             log.info('Didn\'t find AMI: ' +  str("packer-" + image + "-" + config['key_name']) + ' .')
 
 
+def get_apigateway_endpoint(config):
+    client = boto3.client('apigateway')
+    response = client.get_rest_apis()
+    for item in response['items']:
+        if item['name'] == str('api_gateway_' + config['key_name']):
+            return item, 0
+
+    return 'error', 1
+
+
 ## Database operations ##
 
 def provision_db(config, log):

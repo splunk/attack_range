@@ -72,12 +72,19 @@ resource "aws_iam_policy" "lambda_dynamodb_access" {
   count       = var.cloud_attack_range ? 1 : 0
   name        = "lambda_dynamodb_access_${var.key_name}"
   path        = "/"
-  description = "IAM policy for RDS access"
+  description = "IAM policy for DynamoDB access"
 
   policy = <<EOF
 {
     "Version": "2012-10-17",
     "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                  "dynamodb:List*"
+            ],
+            "Resource": "*"
+        },
         {
       			"Effect": "Allow",
       			"Action": [

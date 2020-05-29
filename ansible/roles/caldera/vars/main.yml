@@ -15,6 +15,5 @@ caldera_pkg:
   - libssl-dev
   - acl
   - haproxy
-  - golang
 
 python: python3

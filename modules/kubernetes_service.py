@@ -9,6 +9,15 @@ def install_application(config, logger):
     update_kubeconfig_args = ['aws', 'eks', 'update-kubeconfig', '--name', str("kubernetes_" + config["key_name"])]
     logging_call(update_kubeconfig_args, logger)
 
+    # update_kubectl_tiller_args = ['kubectl', '-n', 'kube-system', 'create', 'serviceaccount', 'tiller']
+    # logging_call(update_kubectl_tiller_args, logger)
+    #
+    # update_kubectl_clusterrolebindings_tiller_args = ['kubectl', 'create', 'clusterrolebinding', 'tiller', '--clusterrole', 'cluster-admin', '--serviceaccount=kube-system:tiller']
+    # logging_call(update_kubectl_clusterrolebindings_tiller_args, logger)
+    #
+    # helm_init_args = ['helm', 'init', '--service-account', 'tiller']
+    # logging_call(helm_init_args, logger)
+
     helm_load_repo_args = ['helm', 'repo', 'add', config["repo_name"], config["repo_url"]]
     logging_call(helm_load_repo_args, logger)
 
@@ -54,3 +63,7 @@ def delete_application(config, logger):
 
     helm_uninstall_splunk_args = ['helm', 'uninstall', 'splunk-connect']
     logging_call(helm_uninstall_splunk_args, logger)
+
+
+def list_deployed_applications():
+    process = subprocess.call(['kubectl', 'get', 'svc'])

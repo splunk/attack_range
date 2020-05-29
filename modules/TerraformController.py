@@ -100,7 +100,7 @@ class TerraformController(IEnvironmentController):
             else:
                 response.append([instance['Tags'][0]['Value'], instance['State']['Name']])
         print()
-        print('Terraform Status\n')
+        print('Status EC2 Machines\n')
         if len(response) > 0:
             if instances_running:
                 print(tabulate(response, headers=['Name','Status', 'IP Address']))
@@ -108,8 +108,25 @@ class TerraformController(IEnvironmentController):
                 print(tabulate(response, headers=['Name','Status']))
         else:
             print("ERROR: Can't find configured EC2 Attack Range Instances in AWS.")
-            sys.exit(1)
         print()
+
+        if self.config['cloud_attack_range'] == '1':
+            print()
+            print('Status Serverless infrastructure\n')
+            api_gateway_endpoint, error = aws_service.get_apigateway_endpoint(self.config)
+            if not error:
+                arr = []
+                arr.append([api_gateway_endpoint['name'], str('https://' + api_gateway_endpoint['id'] + '.execute-api.' + self.config['region'] + '.amazonaws.com/prod/'), 'see Attack Range wiki for available REST API endpoints'])
+                print(tabulate(arr,headers = ['Name', 'URL', 'Note']))
+                print()
+            else:
+                print("ERROR: Can't find REST API Gateway.")
+
+        if self.config['kubernetes'] == '1':
+            print()
+            print('Status Kubernetes\n')
+            kubernetes_service.list_deployed_applications()
+            print()
 
 
     def list_searches(self):
