@@ -1,0 +1,22 @@
+
+- name: Download nxlog from their website
+  win_shell: |
+    [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
+    (New-Object System.Net.WebClient).DownloadFile("{{ nxlog_url }}", "C:\nxlog.msi")
+
+- name: Install nxlog
+  win_package:
+    path: C:\nxlog.msi
+    arguments: '/quiet'
+
+- name: Copy nxlog.conf configuration
+  win_copy:
+    src: nxlog.conf
+    dest: 'C:\Program Files (x86)\nxlog\conf\nxlog.conf'
+
+- name: Start nxlog
+  win_service:
+    name: nxlog
+    state: started
+
+

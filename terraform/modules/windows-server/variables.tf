@@ -47,6 +47,7 @@ variable "windows_server_packer_ami" { }
 # Ansible vars
 # Windows server
 variable "splunk_uf_win_url" { }
+variable "nxlog_url" { }
 variable "win_sysmon_url" { }
 variable "win_sysmon_template" { }
 variable "splunk_admin_password" { }

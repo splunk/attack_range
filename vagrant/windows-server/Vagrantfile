@@ -20,6 +20,7 @@ config.vm.define "attack-range-windows-server" do |config|
         splunk_indexer_ip: "{{ splunk_server_private_ip }}",
         win_password: '{{ win_password }}',
         splunk_uf_win_url: '{{ splunk_uf_win_url }}',
+        nxlog_url: '{{ nxlog_url }}',
         win_sysmon_url: '{{ win_sysmon_url }}',
         win_sysmon_template: '{{ win_sysmon_template }}',
         splunk_admin_password: '{{ splunk_admin_password }}',

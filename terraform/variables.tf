@@ -121,6 +121,7 @@ variable "phantom_community_password" { }
 
 # Windows server
 variable "splunk_uf_win_url" { }
+variable "nxlog_url" { }
 variable "win_sysmon_url" { }
 variable "win_sysmon_template" { }
 

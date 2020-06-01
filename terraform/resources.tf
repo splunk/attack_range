@@ -78,6 +78,7 @@ module "windows-domain-controller" {
 	vpc_security_group_ids = module.networkModule.vpc_security_group_ids
 	vpc_subnet_id          = module.networkModule.vpc_subnet_id
   splunk_uf_win_url      = var.splunk_uf_win_url
+  nxlog_url              = var.nxlog_url
   win_sysmon_url         = var.win_sysmon_url
   win_sysmon_template    = var.win_sysmon_template
   splunk_admin_password  = var.splunk_admin_password
@@ -104,6 +105,7 @@ module "windows-server" {
   windows_domain_controller_instance = module.windows-domain-controller.windows_domain_controller_instance
   windows_domain_controller_instance_packer = module.windows-domain-controller.windows_domain_controller_instance_packer
   splunk_uf_win_url      = var.splunk_uf_win_url
+  nxlog_url              = var.nxlog_url
   win_sysmon_url         = var.win_sysmon_url
   win_sysmon_template    = var.win_sysmon_template
   splunk_admin_password  = var.splunk_admin_password
@@ -133,6 +135,7 @@ module "windows-client" {
   windows_domain_controller_instance = module.windows-domain-controller.windows_domain_controller_instance
   windows_domain_controller_instance_packer = module.windows-domain-controller.windows_domain_controller_instance_packer
   splunk_uf_win_url      = var.splunk_uf_win_url
+  nxlog_url              = var.nxlog_url
   win_sysmon_url         = var.win_sysmon_url
   win_sysmon_template    = var.win_sysmon_template
   splunk_admin_password  = var.splunk_admin_password
