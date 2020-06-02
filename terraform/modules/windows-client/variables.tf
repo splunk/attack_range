@@ -47,6 +47,7 @@ variable "windows_client_packer_ami" { }
 # Windows server
 variable "splunk_uf_win_url" { }
 variable "nxlog_url" { }
+variable "install_dsp" { }
 variable "win_sysmon_url" { }
 variable "win_sysmon_template" { }
 variable "splunk_admin_password" { }
