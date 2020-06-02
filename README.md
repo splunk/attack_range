@@ -9,12 +9,6 @@
 ## Purpose
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering. First, the user is able to build quickly a small lab infrastructure as close as possible to a production environment. Second, the Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. Third, it integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
 
-The lab infrastructure contains a Windows Domain Controller, Windows Server, Windows Workstation and a Kali Machine, which comes pre-configured with multiple security tools and logging configuration. Furthermore, a Splunk server and a Phantom server completes the lab infrastructure. The lab infrastructure can be deployed locally or in the cloud. The building process is completely automated and can be executed with a single command.  
-
-The Attack Range incorporates different simulation engines such as Atomic Red Team from Red Canary and Caldera from Mitre. Attacks can be executed with a single command allowing the user to attack the lab infrastructure. These data can be used to develop new detections or test existing detection rules.  
-
-The differentiation to existing open source tools such as Detection Lab is that the Attack Range exposes all actions over the command line. This allows the user to integrate the Attack Range into a CI/CD pipeline and automating the detection testing/development process. For example, after writing a new detection for credential dumping, the Attack Range can automatically test it by performing the following steps: build Attack Range, perform attack T1103 (credential dumping), run detection, destroy Attack Range.
-
 
 ## Demo
 [:tv: A short demo (< 6 min)](https://www.youtube.com/watch?v=xIbln7OQ-Ak) which shows the basic functions of the attack range. It builds a testing enviroment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [ESCU](https://github.com/splunk/security-content) searches are used to detect the attack.
@@ -33,7 +27,18 @@ Attack Range can be built in three different ways:
 
 ## Architecture
 
-Attack Range consists of:
+The Attack Range can build:
+- virtualized deployments with AWS EC2 or local with vagrant/virtualbox
+- container deployments with AWS EKS using Kubernetes
+- serverless deployments using AWS Lambda, REST API, S3 and DynamoDB
+
+![Logical Diagram](docs/attack_range_architecture.png)
+
+### Virtualized Deployment
+
+#### Architecture
+
+The virtualized deployment of Attack Range consists of:
 
 - Windows Domain Controller
 - Windows Server
@@ -46,7 +51,37 @@ Which can be added/removed/configured using [attack_range.conf](attack_range.con
 
 ![Logical Diagram](docs/attack_range_architecture2.png)
 
-An approxiamte **cost estimate** for running attack_range using `--mode terraform` on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates---mode-terraform). 
+An approxiamte **cost estimate** for running attack_range using `--mode terraform` on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates---mode-terraform).
+
+#### Logging
+The following log sources are collected from the machines:
+- Windows Event Logs (```index = win```)
+- Sysmon Logs (```index = win```)
+- Powershell Logs (```index = win```)
+- Network Logs with Splunk Stream (```index = main```)
+- Attack Simulation Logs from Atomic Red Team and Caldera (```index = attack```)
+
+
+### Container Deployment with Kubernetes
+
+#### Architecture
+
+The container deployment consists of two worker nodes and one master node in Kubernetes. Deploying a Kubernetes cluster can be activated in [attack_range.conf](attack_range.conf) with the key kubernetes. Additionally, an application is deployed to the Kubernetes cluster which can be configured in [attack_range.conf](attack_range.conf). In the default settings, a wordpress application is deployed to the Kubernetes cluster.
+
+#### Logging
+[Splunk Connect for Kubernetes](https://github.com/splunk/splunk-connect-for-kubernetes) is deployed in order to collect logs from the Kubernetes cluster. The Kubernetes logs can be found in the index ```index = kubernetes OR index = kubernetes-metrics``` on the Splunk instance.
+
+
+### Serverless Deployment
+
+#### Architecture
+
+The serverless deployment consists of Lambda, REST API, S3 and DynamoDB in AWS. Deploying a serverless infrastructure can be activated in [attack_range.conf](attack_range.conf) with the key cloud_attack_range. An application is needed for the serverless application, whereby the author build an own backend application running in Lambda and leverage the REST API and DynamoDB. More information can be found [here](https://github.com/splunk/attack_range/wiki/Serverless-Deployment).
+
+#### Logging
+
+The main log sources for the serverless deployment are CloudWatch and CloudTrail. CloudWatch contains logs for Lambda and REST API. CloudTrail monitors AWS account activities. CloudTrail can be enabled/disabled separatley. CloudTrail will monitor all the account activities for the used AWS account and can't be limited to the Attack Range infrastructure only. Please make sure that you are allowed to use these logs. The serverless deplyoment logs can be found in the index ```index = aws``` on the Splunk instance.
+
 
 ## Configuration
 - local [Vagrant and Virtualbox](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Vagrant)

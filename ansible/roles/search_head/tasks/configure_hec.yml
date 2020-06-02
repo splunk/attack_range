@@ -1,0 +1,33 @@
+
+- name: Create folder directory for hec inputs configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/splunk_httpinput/local/
+
+- name: copy inputs.conf
+  copy:
+    src: hec_inputs.conf
+    dest: /opt/splunk/etc/apps/splunk_httpinput/local/inputs.conf
+    owner: splunk
+    group: splunk
+  notify: restart splunk
+
+# - name: add inputs for Kubernetes
+#   blockinfile:
+#     path: /opt/splunk/etc/apps/splunk_httpinput/local/inputs.conf
+#     insertafter: 'EOF'
+#     block: |
+#       [http]
+#       disabled = 0
+#
+#       [http://k8stoken]
+#       description = Token for Kubernetes
+#       disabled = 0
+#       token = 1b0bb9cc-e884-4ae0-b3fa-9062f200b328
+#       index = kubernetes
+#       indexes = kubernetes,kubernetes-metrics

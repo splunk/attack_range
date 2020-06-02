@@ -1,0 +1,22 @@
+---
+
+- name: Download the Go tarball
+  get_url:
+    url: "https://dl.google.com/go/go1.13.11.linux-amd64.tar.gz"
+    dest: /usr/local/src/go1.13.11.linux-amd64.tar.gz
+
+- name: Extract the Go tarball if Go is not yet installed or not the desired version
+  unarchive:
+    src: /usr/local/src/go1.13.11.linux-amd64.tar.gz
+    dest: /usr/local
+    copy: no
+
+- name: Add the Go bin directory to the PATH environment variable for all users
+  copy:
+    src: go-bin.sh
+    dest: /etc/profile.d
+
+- name: Set GOPATH for all users
+  copy:
+    src: go-path.sh
+    dest: /etc/profile.d

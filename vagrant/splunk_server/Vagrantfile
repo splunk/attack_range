@@ -44,7 +44,8 @@ config.vm.define "attack-range-splunk-server" do |config|
         install_dsp: '{{ install_dsp }}',
         dsp_client_cert_path: '{{ dsp_client_cert_path }}',
         dsp_node: '{{ dsp_node }}',
-        splunk_server_private_ip: '{{ splunk_server_private_ip }}'
+        splunk_server_private_ip: '{{ splunk_server_private_ip }}',
+        cloud_attack_range: '0'
       }
   end
 

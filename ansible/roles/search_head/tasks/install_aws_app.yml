@@ -1,0 +1,56 @@
+- name: Check if aws app exists
+  stat:
+    path: /opt/splunk/etc/apps/Splunk_TA_aws  # need to be done
+  register: aws_app
+
+- name: download AWS App from S3
+  get_url:
+    url: '{{ s3_bucket_url }}/{{ splunk_aws_app }}'
+    dest: /tmp/aws_app.tgz
+  when: aws_app.stat.exists == False
+
+- name: Install aws app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=tmp/aws_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+  when: aws_app.stat.exists == False
+  notify: restart splunk
+
+- name: Create folder directory for AWS TA
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/Splunk_TA_aws/local/
+
+- name: Copy new aws_account_ext.conf configuration
+  template:
+    src: aws_account_ext.conf.j2
+    dest: /opt/splunk/etc/apps/Splunk_TA_aws/local/aws_account_ext.conf
+    owner: splunk
+    group: splunk
+
+- name: Copy new aws_cloudwatch_logs_tasks.conf configuration
+  template:
+    src: aws_cloudwatch_logs_tasks.conf.j2
+    dest: /opt/splunk/etc/apps/Splunk_TA_aws/local/aws_cloudwatch_logs_tasks.conf
+    owner: splunk
+    group: splunk
+
+- name: Copy new inputs.conf configuration
+  template:
+    src: aws_inputs.conf.j2
+    dest: /opt/splunk/etc/apps/Splunk_TA_aws/local/inputs.conf
+    owner: splunk
+    group: splunk

@@ -4,17 +4,16 @@ provider "aws" {
 
 module "networkModule" {
   source			  = "./modules/network"
-	ip_whitelist  = var.ip_whitelist
-  availability_zone = var.availability_zone
-  subnet_cidr   = var.subnet_cidr
+	key_name		  = var.key_name
+  ip_whitelist  = var.ip_whitelist
 }
 
 module "splunk-server" {
   source			           = "./modules/splunk-server"
  	private_key_path       = var.private_key_path
 	key_name		           = var.key_name
-	vpc_security_group_ids = module.networkModule.vpc_security_group_ids
-	vpc_subnet_id         = module.networkModule.vpc_subnet_id
+	vpc_security_group_ids = module.networkModule.sg_vpc_id
+	ec2_subnet_id         = module.networkModule.ec2_subnet_id
   splunk_admin_password  = var.splunk_admin_password
   splunk_url             = var.splunk_url
   splunk_binary          = var.splunk_binary
@@ -48,6 +47,11 @@ module "splunk-server" {
   timeline_custom_visualization = var.timeline_custom_visualization
   install_mission_control = var.install_mission_control
   mission_control_app    = var.mission_control_app
+  splunk_aws_app         = var.splunk_aws_app
+  cloud_attack_range     = var.cloud_attack_range
+  api_gateway_id         = module.serverless-application.api_gateway_id
+  region                 = var.region
+  sqs_queue_url          = module.serverless-application.sqs_queue_url
   install_dsp = var.install_dsp
   dsp_client_cert_path    = var.dsp_client_cert_path
   dsp_node = var.dsp_node
@@ -58,8 +62,8 @@ module "phantom-server" {
   phantom_server             = var.phantom_server
   private_key_path           = var.private_key_path
   key_name                   = var.key_name
-  vpc_security_group_ids     = module.networkModule.vpc_security_group_ids
-  vpc_subnet_id              = module.networkModule.vpc_subnet_id
+  vpc_security_group_ids     = module.networkModule.sg_vpc_id
+  ec2_subnet_id              = module.networkModule.ec2_subnet_id
   phantom_server_private_ip  = var.phantom_server_private_ip
   phantom_admin_password     = var.splunk_admin_password
   phantom_community_username = var.phantom_community_username
@@ -75,13 +79,12 @@ module "windows-domain-controller" {
   win_username		       = var.win_username
   win_password		       = var.win_password
   windows_domain_controller		      = var.windows_domain_controller
-	vpc_security_group_ids = module.networkModule.vpc_security_group_ids
-	vpc_subnet_id          = module.networkModule.vpc_subnet_id
+	vpc_security_group_ids = module.networkModule.sg_vpc_id
+	ec2_subnet_id          = module.networkModule.ec2_subnet_id
   splunk_uf_win_url      = var.splunk_uf_win_url
   win_sysmon_url         = var.win_sysmon_url
   win_sysmon_template    = var.win_sysmon_template
   splunk_admin_password  = var.splunk_admin_password
-  availability_zone      = var.availability_zone
   splunk_server_private_ip = var.splunk_server_private_ip
   windows_domain_controller_private_ip = var.windows_domain_controller_private_ip
   windows_domain_controller_os = var.windows_domain_controller_os
@@ -99,15 +102,14 @@ module "windows-server" {
   win_username		       = var.win_username
   win_password		       = var.win_password
   windows_server = var.windows_server
-	vpc_security_group_ids = module.networkModule.vpc_security_group_ids
-	vpc_subnet_id          = module.networkModule.vpc_subnet_id
+	vpc_security_group_ids = module.networkModule.sg_vpc_id
+	ec2_subnet_id          = module.networkModule.ec2_subnet_id
   windows_domain_controller_instance = module.windows-domain-controller.windows_domain_controller_instance
   windows_domain_controller_instance_packer = module.windows-domain-controller.windows_domain_controller_instance_packer
   splunk_uf_win_url      = var.splunk_uf_win_url
   win_sysmon_url         = var.win_sysmon_url
   win_sysmon_template    = var.win_sysmon_template
   splunk_admin_password  = var.splunk_admin_password
-  availability_zone      = var.availability_zone
   splunk_server_private_ip = var.splunk_server_private_ip
   windows_server_private_ip = var.windows_server_private_ip
   windows_domain_controller_private_ip = var.windows_domain_controller_private_ip
@@ -128,15 +130,14 @@ module "windows-client" {
   win_username		       = var.win_username
   win_password		       = var.win_password
   windows_client         = var.windows_client
-	vpc_security_group_ids = module.networkModule.vpc_security_group_ids
-	vpc_subnet_id          = module.networkModule.vpc_subnet_id
+	vpc_security_group_ids = module.networkModule.sg_vpc_id
+	ec2_subnet_id          = module.networkModule.ec2_subnet_id
   windows_domain_controller_instance = module.windows-domain-controller.windows_domain_controller_instance
   windows_domain_controller_instance_packer = module.windows-domain-controller.windows_domain_controller_instance_packer
   splunk_uf_win_url      = var.splunk_uf_win_url
   win_sysmon_url         = var.win_sysmon_url
   win_sysmon_template    = var.win_sysmon_template
   splunk_admin_password  = var.splunk_admin_password
-  availability_zone      = var.availability_zone
   splunk_server_private_ip = var.splunk_server_private_ip
   windows_client_private_ip = var.windows_client_private_ip
   windows_domain_controller_private_ip = var.windows_domain_controller_private_ip
@@ -155,11 +156,32 @@ module "kali_machine" {
  	private_key_path       = var.private_key_path
 	key_name		           = var.key_name
   kali_machine           = var.kali_machine
-	vpc_security_group_ids = module.networkModule.vpc_security_group_ids
-	vpc_subnet_id          = module.networkModule.vpc_subnet_id
+	vpc_security_group_ids = module.networkModule.sg_vpc_id
+	ec2_subnet_id          = module.networkModule.ec2_subnet_id
   kali_machine_private_ip = var.kali_machine_private_ip
   run_demo               = var.run_demo
   demo_scenario          = var.demo_scenario
   kali_machine_packer_ami = var.kali_machine_packer_ami
   use_packer_amis        = var.use_packer_amis
+}
+
+module "serverless-application" {
+  source                = "./modules/serverless-application"
+  cloud_attack_range    = var.cloud_attack_range
+  key_name		          = var.key_name
+  cloud_s3_bucket       = var.cloud_s3_bucket
+  cloud_s3_bucket_key   = var.cloud_s3_bucket_key
+  cloudtrail            = var.cloudtrail
+  cloudtrail_bucket     = var.cloudtrail_bucket
+  region                = var.region
+}
+
+module "kubernetes" {
+  source                = "./modules/kubernetes"
+  kubernetes            = var.kubernetes
+  key_name              = var.key_name
+  vpc_id                = module.networkModule.vpc_id
+  vpc_private_subnets   = module.networkModule.vpc_private_subnets
+  sg_worker_group_mgmt_one_id = module.networkModule.sg_worker_group_mgmt_one_id
+  sg_worker_group_mgmt_two_id = module.networkModule.sg_worker_group_mgmt_two_id
 }

@@ -1,5 +1,6 @@
 ---
 
+
 - name: Copy caldera agent script
   win_template:
     src: caldera_agent.ps1.j2

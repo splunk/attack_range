@@ -79,8 +79,7 @@ variable "kali_machine_packer_ami" { }
 # ---------------------- #
 # general
 variable "region" { }
-variable "availability_zone" { }
-variable "subnet_cidr" { }
+
 variable "caldera_password" { }
 
 # Splunk server
@@ -127,3 +126,17 @@ variable "win_sysmon_template" { }
 # Demo mode
 variable "run_demo" { }
 variable "demo_scenario" { }
+
+# cloud
+variable "cloud_attack_range" { }
+
+variable "splunk_aws_app" { }
+
+variable "cloud_s3_bucket" { }
+variable "cloud_s3_bucket_key" { }
+
+variable "cloudtrail" { }
+variable "cloudtrail_bucket" { }
+
+# kubernetes
+variable "kubernetes" { }

@@ -21,7 +21,7 @@ resource "aws_instance" "windows_domain_controller" {
   ami           = data.aws_ami.latest-windows-server-2016[count.index].id
   instance_type = "t2.2xlarge"
   key_name = var.key_name
-  subnet_id = var.vpc_subnet_id
+  subnet_id = var.ec2_subnet_id
   private_ip = var.windows_domain_controller_private_ip
   vpc_security_group_ids = [var.vpc_security_group_ids]
   tags = {
@@ -82,7 +82,7 @@ resource "aws_instance" "windows_domain_controller_packer" {
   ami           = data.aws_ami.windows-domain-controller-packer-ami[count.index].id
   instance_type = "t2.2xlarge"
   key_name = var.key_name
-  subnet_id = var.vpc_subnet_id
+  subnet_id = var.ec2_subnet_id
   private_ip = var.windows_domain_controller_private_ip
   vpc_security_group_ids = [var.vpc_security_group_ids]
   tags = {

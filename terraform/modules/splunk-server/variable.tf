@@ -18,7 +18,7 @@ variable "key_name" {
 
 variable "vpc_security_group_ids" { }
 
-variable "vpc_subnet_id" { }
+variable "ec2_subnet_id" { }
 
 variable "splunk_server_private_ip" { }
 
@@ -79,3 +79,13 @@ variable "dsp_client_cert_path" { }
 variable "dsp_node" { }
 
 variable "splunk_stream_app" { }
+
+variable "splunk_aws_app" { }
+
+variable "cloud_attack_range" { }
+
+variable "api_gateway_id" { }
+
+variable "region" { }
+
+variable "sqs_queue_url" { }
