@@ -5,6 +5,7 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@0.1.19
   queue: eddiewebb/queue@volatile
+  slack: circleci/slack@3.4.2
 
 dependencies:
   cache_directories:
@@ -100,6 +101,10 @@ jobs:
             source venv/bin/activate
             python attack_range.py --mode terraform --action destroy
           when: on_fail
+      - slack/status:
+          webhook: '${SLACK_WEBHOOK}'
+          fail_only: true
+          mentions: jhernandez
 workflows:
   version: 2.1
   build-attack-destroy:
