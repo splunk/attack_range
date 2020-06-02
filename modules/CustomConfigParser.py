@@ -2,6 +2,7 @@ import configparser
 import collections
 import sys
 from pathlib import Path
+import re
 
 class CustomConfigParser:
     def __init__(self):
@@ -22,6 +23,27 @@ class CustomConfigParser:
             else:
                 print("ERROR - with configuration file at: {0}, failed to load dsp client certificate \
                         from path: {1} and install_dsp is enabled".format(CONFIG_PATH, dsp_client_cert_path))
+                sys.exit(1)
+
+        # Check for disallowed BOTS dataset combinations or syntax
+        if self.settings['splunk_bots_dataset'] != '0':
+            allowed_bots_data_sets = ('1', '1a', '2', '2a', '3')
+            requested_bots_data_sets = [x.strip() for x in str(self.settings['splunk_bots_dataset']).split(',')]
+            for requested_bots_dataset in requested_bots_data_sets:
+                if requested_bots_dataset not in allowed_bots_data_sets:
+                    print("ERROR - in configuration file: {0}, unknown BOTS dataset identifier: {1}".format(CONFIG_PATH, requested_bots_dataset))
+                    sys.exit(1)
+
+            if '1' in requested_bots_data_sets and '1a' in requested_bots_data_sets:
+                print("ERROR - in configuration file: {0}, cannot include datasets '1' and '1a'".format(CONFIG_PATH))
+                sys.exit(1)
+
+            if '2' in requested_bots_data_sets and '2a' in requested_bots_data_sets:
+                print("ERROR - in configuration file: {0}, cannot include datasets '2' and '2a'".format(CONFIG_PATH))
+                sys.exit(1)
+            
+            if bool(re.search(r"\s", self.settings['splunk_bots_dataset'])):
+                print("ERROR - in configuration file: {0}, cannot include whitespace in BOTS data set config directive.".format(CONFIG_PATH))
                 sys.exit(1)
 
 

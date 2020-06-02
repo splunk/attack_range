@@ -10,8 +10,16 @@
 - include: install_enterprise_security.yml
 - include: install_mc.yml
   when: install_mission_control == "1"
-- include: install_bots_dataset.yml
-  when: splunk_bots_dataset == "1"
+- include: install_botsv1_dataset.yml
+  when: splunk_bots_dataset is regex("(1)(?!a)")
+- include: install_botsv1a_dataset.yml
+  when: splunk_bots_dataset is regex("1a")
+- include: install_botsv2_dataset.yml
+  when: splunk_bots_dataset is regex("(2)(?!a)")
+- include: install_botsv2a_dataset.yml
+  when: splunk_bots_dataset is regex("2a")
+- include: install_botsv3_dataset.yml
+  when: splunk_bots_dataset is regex("3")
 - include: install_dsp.yml
   when: install_dsp == "1"
 - include: install_escu_app.yml
