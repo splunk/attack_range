@@ -2,6 +2,7 @@ import configparser
 import collections
 import sys
 from pathlib import Path
+import re
 
 class CustomConfigParser:
     def __init__(self):
@@ -23,6 +24,11 @@ class CustomConfigParser:
                 print("ERROR - with configuration file at: {0}, failed to load dsp client certificate \
                         from path: {1} and install_dsp is enabled".format(CONFIG_PATH, dsp_client_cert_path))
                 sys.exit(1)
+
+        key_name_regex = re.compile('[@!#$%^&*()<>?/\|}{~:]') 
+        if (key_name_regex.search(self.settings['key_name']) != None):
+            print("ERROR - with configuration file at: {0}, no special characters allowed for key_name: {1}".format(CONFIG_PATH,self.settings['key_name']))
+            sys.exit(1)
 
 
     def load_conf(self,CONFIG_PATH):
