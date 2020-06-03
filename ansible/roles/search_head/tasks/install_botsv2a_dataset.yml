@@ -1,0 +1,13 @@
+- name: check if BOTSv2 attack only app exists
+  stat:
+    path: /opt/splunk/etc/apps/botsv2_data_set
+  register: botsv2a_app
+
+- name: download BOTSv2 attack only dataset
+  unarchive:
+    src: 'https://s3.amazonaws.com/botsdataset/botsv2/botsv2_data_set_attack_only.tgz'
+    dest: /opt/splunk/etc/apps 
+    owner: splunk
+    group: splunk
+    remote_src: yes
+  when: botsv2a_app.stat.exists == False
