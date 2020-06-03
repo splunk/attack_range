@@ -104,7 +104,6 @@ jobs:
       - slack/status:
           webhook: '${SLACK_WEBHOOK}'
           fail_only: true
-          mentions: jhernandez
 workflows:
   version: 2.1
   build-attack-destroy:
