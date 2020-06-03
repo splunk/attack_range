@@ -233,6 +233,7 @@ If you have questions or need support, you can:
 * [Joseph Zadeh](https://twitter.com/JosephZadeh)
 * Rico Valdez
 * [Dimitris Lambrou](https://twitter.com/etz69)
+* [Dave Herrald](https://twitter.com/daveherrald)
 
 ## Contributing
 We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved.
