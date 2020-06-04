@@ -5,6 +5,7 @@
 - include: collect_powershell_logs.yml
 - include: collect_attack_simulation_logs.yml
 - include: collect_sysmon_logs.yml
+  when: install_dsp == "0"
 - include: collect_windows_event_logs.yml
   when: install_dsp == "0"
 - include: install_nxlog.yml
