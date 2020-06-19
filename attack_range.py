@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
     parser.add_argument("-m", "--mode", required=False, choices=['vagrant', 'terraform', 'packer'],
                         help="mode of operation, terraform/vagrant/packer, please see configuration for each at: https://github.com/splunk/attack_range")
-    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'search', 'build_amis', 'destroy_amis'],
+    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'search', 'test', 'build_amis', 'destroy_amis'],
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume/search/build-amis/destroy_amis allowed")
     parser.add_argument("-t", "--target", required=False,
                         help="target for attack simulation. For mode vagrant use name of the vbox. For mode terraform use the name of the aws EC2 name")
@@ -31,6 +31,7 @@ if __name__ == "__main__":
                         help="name of savedsearch, which you want to run")
     parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
                         help="path to the configuration file of the attack range")
+    parser.add_argument("-tf", "--test_file", required=False, type=str, default="", help='test file for test command')
     parser.add_argument("-lm", "--list_machines", required=False, default=False, action="store_true", help="prints out all available machines")
     parser.add_argument("-ls", "--list_searches", required=False, default=False, action="store_true", help="prints out all available savedsearches")
     parser.add_argument("-ami", required=False, default=False, action="store_true", help="use prebuilt packer amis with mode terraform")
@@ -49,6 +50,7 @@ if __name__ == "__main__":
     list_searches = args.list_searches
     search_name = args.search_name
     packer_amis = args.ami
+    test_file = args.test_file
 
 
     print("""
@@ -103,6 +105,10 @@ starting program loaded for B1 battle droid
 
     if mode and action == 'search' and not search_name:
         log.error('ERROR: Specify search name to execute.')
+        sys.exit(1)
+
+    if mode and action == 'test' and not test_file:
+        log.error('ERROR: Specify test file --test_file to execute.')
         sys.exit(1)
 
     if mode != 'packer' and (action == 'build_amis' or action == 'destroy_amis'):
@@ -173,8 +179,8 @@ starting program loaded for B1 battle droid
     if action == 'search':
         controller.search(search_name)
 
-
-
+    if action == 'test':
+        controller.test(test_file)
 
 
 # rnfgre rtt ol C4G12VPX
