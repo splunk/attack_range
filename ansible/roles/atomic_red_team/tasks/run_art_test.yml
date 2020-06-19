@@ -1,65 +1,35 @@
+
 ---
 
-- name: Clean up before execution C:\Windows\Temp
-  ignore_errors: yes
-  win_file:
-    path: 'C:\Windows\Temp'
-    state: absent
-
-- name: Recreate C:\Windows\Temp before execution
-  ignore_errors: yes
-  win_file:
-    path: 'C:\Windows\Temp'
-    state: directory
-
 - set_fact:
-    techniques: "{{ art_run_techniques.split(',') }}"
+    technique: "{{ item }}"
 
-- name: Run Techniques
-  debug:
-    var: techniques
+- debug:
+    var: technique
 
-- name: Make Atomic Red Team Execution Directory
-  win_file:
-    path: 'C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\execution'
-    state: directory
-
-- name: Run all Atomic Red Team Tests
+- name: Get requirements for Atomic Red Team Technique
   win_shell: |
-    Import-Module c:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam.psm1
-    cd C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\execution\
-    Invoke-AtomicTest All -Force -PathToAtomicsFolder C:\AtomicRedTeam\atomic-red-team-master\atomics
-  when: (techniques|length==1) and (techniques.0 == "all")
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    Invoke-AtomicTest "{{ technique }}" -GetPrereqs
+  register: requirements
+
+# - debug:
+#     var: requirements
 
 - name: Run specified Atomic Red Team Technique
-  ignore_errors: yes
   win_shell: |
-    Import-Module c:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam\Invoke-AtomicRedTeam.psm1
-    cd C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\execution\
-    Invoke-AtomicTest "{{ item }}" -Force -PathToAtomicsFolder C:\AtomicRedTeam\atomic-red-team-master\atomics -Confirm:$false
-  with_items: "{{ techniques }}"
-  when: (techniques|length>0) and (techniques.0 != "all")
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    Invoke-AtomicTest "{{ technique }}" -Confirm:$false -TimeoutSeconds 300 -ExecutionLogPath C:\AtomicRedTeam\atc_execution.csv
+  register: output
 
-- name: Check Execution Log File
-  win_stat:
-    path: 'C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\execution\Invoke-AtomicTest-ExecutionLog.csv'
-  register: art_log
+# - debug:
+#     var: output
 
-- name: Save Log File
-  win_copy:
-    src: 'C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\execution\Invoke-AtomicTest-ExecutionLog.csv'
-    dest: 'C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\Invoke-AtomicTest-ExecutionLog.csv'
-    force: yes
-    remote_src: yes
-  when: art_log.stat.exists == True
+- name: Cleanup after execution
+  win_shell: |
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    Invoke-AtomicTest "{{ technique }}" -Cleanup
+  register: cleanup
 
-- name: Clean up processes
-  ignore_errors: yes
-  win_shell: (tasklist | find /i reg.exe) -and (taskkill /IM reg.exe /F) -or (echo done)
-  when: art_log.stat.exists == True
-
-- name: Clean up after execution
-  win_file:
-    path: 'C:\AtomicRedTeam\atomic-red-team-master\execution-frameworks\Invoke-AtomicRedTeam\execution'
-    state: absent
-  when: art_log.stat.exists == True
+# - debug:
+#     var: cleanup
