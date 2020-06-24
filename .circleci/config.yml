@@ -108,8 +108,21 @@ jobs:
 workflows:
   version: 2.1
   build-attack-destroy:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+                - develop
     jobs:
+      - queue/block_workflow:
+          time: '30'
       - terraform-build-attack-destroy:
           filters:
-            tags:
-              only: /.*/
+            branches:
+              only:
+                - develop
+          requires:
+            - queue/block_workflow
