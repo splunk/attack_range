@@ -13,7 +13,7 @@ class TerraformController(IEnvironmentController):
     def __init__(self, config, log, packer_amis):
         super().__init__(config, log)
         custom_dict = self.config.copy()
-        rem_list = ['log_path', 'log_level', 'art_run_techniques', 'app', 'repo_name', 'repo_url']
+        rem_list = ['log_path', 'log_level', 'art_run_techniques', 'art_repository', 'art_branch', 'app', 'repo_name', 'repo_url']
         [custom_dict.pop(key) for key in rem_list]
         custom_dict['ip_whitelist'] = [custom_dict['ip_whitelist']]
         if packer_amis:
@@ -100,6 +100,13 @@ class TerraformController(IEnvironmentController):
         # destroy attack range
         #self.destroy()
 
+        result_cond = False
+        for result_obj in result:
+            if result_obj['error']:
+                self.log.error('Detection Testing failed: ' + result_obj['results']['detection_name'])
+            result_cond |= result_obj['error']
+        sys.exit(result_cond)
+
 
     def load_file(self, file_path):
         with open(file_path, 'r') as stream:
@@ -119,14 +126,14 @@ class TerraformController(IEnvironmentController):
                                    cmdline=str('-i ' + target_public_ip + ', '),
                                    roles_path="../ansible/roles",
                                    playbook='../ansible/playbooks/atomic_red_team.yml',
-                                   extravars={'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http'},
+                                   extravars={'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                    verbosity=0)
         else:
             runner = ansible_runner.run(private_data_dir='.attack_range/',
                                cmdline=str('-i ' + target_public_ip + ', '),
                                roles_path="../ansible/roles",
                                playbook='../ansible/playbooks/atomic_red_team.yml',
-                               extravars={'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['win_password']},
+                               extravars={'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                verbosity=0)
 
         if runner.status == "successful":

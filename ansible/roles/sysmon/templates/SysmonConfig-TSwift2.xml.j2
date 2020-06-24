@@ -465,13 +465,6 @@
 		</ProcessAccess>
 	</RuleGroup>
 
-		<!--DATA: UtcTime, SourceProcessGuid, SourceProcessId, SourceThreadId, SourceImage, TargetProcessGuid, TargetProcessId, TargetImage, GrantedAccess, CallTrace-->
-	<RuleGroup name="" groupRelation="or">
-		<ProcessAccess onmatch="include">
-			<!--NOTE: Using "include" with no rules means nothing in this section will be logged-->
-		</ProcessAccess>
-	</RuleGroup>
-
 	<!--SYSMON EVENT ID 11 : FILE CREATED [FileCreate]-->
 		<!--EVENT 11: "File created"-->
 		<!--NOTE:	Other filesystem "minifilters" can make it appear to Sysmon that some files are being written twice. This is not a Sysmon issue, per Mark Russinovich.-->
