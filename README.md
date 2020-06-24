@@ -106,7 +106,7 @@ python attack_range.py -m terraform/vagrant -a build
 ### Perform Attack Simulation
 - Perform Attack Simulation
 ```
-python attack_range.py -m terraform/vagrant -a simulate -st T1117,T1003 -t attack-range-windows-domain-controller
+python attack_range.py -m terraform/vagrant -a simulate -st T1003.001 -t attack-range-windows-domain-controller
 ```
 
 ### Search with Attack Range
@@ -188,6 +188,7 @@ python attack_range.py -m packer -a destroy_amis
 - [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
   * Attack Simulation with [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
   * Will be automatically installed on target during first execution of simulate
+  * Atomic Red Team already uses the new Mitre sub-techniques
 
 - [Caldera](https://github.com/mitre/caldera)
   * Adversary Emulation with [Caldera](https://github.com/mitre/caldera)

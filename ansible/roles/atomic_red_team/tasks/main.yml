@@ -1,5 +1,3 @@
----
-
 - name: Check if Atomic Red Team is installed
   win_stat:
     path: 'C:\AtomicRedTeam'

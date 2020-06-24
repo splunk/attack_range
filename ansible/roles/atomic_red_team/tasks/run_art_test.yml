@@ -1,5 +1,3 @@
----
-
 - set_fact:
     technique: "{{ item }}"
 
