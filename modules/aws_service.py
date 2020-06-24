@@ -1,6 +1,7 @@
 import sys
 import re
 import boto3
+from botocore.exceptions import ClientError
 import uuid
 import time
 
@@ -112,6 +113,13 @@ def get_apigateway_endpoint(config):
             return item, 0
 
     return 'error', 1
+
+
+def upload_file_s3_bucket(file_name, results, test_file):
+
+    s3_client = boto3.client('s3')
+    response = s3_client.upload_file(file_name, 'attack-range-attack-data', str(test_file['simulation_technique'] + '/attack_data.tar.gz'))
+
 
 
 ## Database operations ##

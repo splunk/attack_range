@@ -6,6 +6,8 @@ from tabulate import tabulate
 import ansible_runner
 import yaml
 import time
+import tarfile
+import os
 
 
 class TerraformController(IEnvironmentController):
@@ -59,19 +61,12 @@ class TerraformController(IEnvironmentController):
         aws_service.change_ec2_state(instances, 'running', self.log)
 
 
-    def search(self, search_name):
-        instance = aws_service.get_instance_by_name("attack-range-splunk-server",self.config)
-        if instance['State']['Name'] == 'running':
-            splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(self.config['splunk_admin_password']), '| tstats `security_content_summariesonly` count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where (Processes.process_name=reg.exe OR Processes.process_name=cmd.exe) Processes.process=*save* (Processes.process=*HKEY_LOCAL_MACHINE\\Security* OR Processes.process=*HKEY_LOCAL_MACHINE\\SAM* OR Processes.process=*HKEY_LOCAL_MACHINE\\System* OR Processes.process=*HKLM\\Security* OR Processes.process=*HKLM\\System* OR Processes.process=*HKLM\\SAM*) by Processes.user Processes.process_name Processes.process Processes.dest | `drop_dm_object_name(Processes)` | `security_content_ctime(firstTime)`| `security_content_ctime(lastTime)` | `attempted_credential_dump_from_registry_via_reg_exe_filter`', '| stats count | where count = 6', 'Test detection', self.log)
-        else:
-            self.log.error('ERROR: Splunk server is not running.')
-
     def test(self, test_file):
         # read test file
         test_file = self.load_file(test_file)
 
         # build attack range
-        #self.build()
+        self.build()
 
         # simulate attack
         self.simulate(test_file['target'], test_file['simulation_technique'])
@@ -97,8 +92,11 @@ class TerraformController(IEnvironmentController):
 
         #print(result)
 
+        # store attack data
+        self.store_attack_data(result, test_file)
+
         # destroy attack range
-        #self.destroy()
+        self.destroy()
 
         result_cond = False
         for result_obj in result:
@@ -117,6 +115,39 @@ class TerraformController(IEnvironmentController):
                 sys.exit("ERROR: reading {0}".format(file_path))
         return file
 
+
+    def store_attack_data(self, results, test_file):
+        target_public_ip = aws_service.get_single_instance_public_ip(test_file['target'], self.config)
+        if test_file['target'] == 'attack-range-windows-client':
+            runner = ansible_runner.run(private_data_dir='.attack_range/',
+                                   cmdline=str('-i ' + target_public_ip + ', '),
+                                   roles_path="../ansible/roles",
+                                   playbook='../ansible/playbooks/attack_data.yml',
+                                   extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http'},
+                                   verbosity=0)
+        else:
+            runner = ansible_runner.run(private_data_dir='.attack_range/',
+                               cmdline=str('-i ' + target_public_ip + ', '),
+                               roles_path="../ansible/roles",
+                               playbook='../ansible/playbooks/attack_data.yml',
+                               extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['win_password']},
+                               verbosity=0)
+
+        with tarfile.open('tmp/attack_data.tar.gz', "w:gz") as tar:
+            tar.add('tmp/attack_data.txt', arcname="attack_data.txt")
+
+        aws_service.upload_file_s3_bucket('tmp/attack_data.tar.gz', results, test_file)
+
+        if os.path.exists('tmp/attack_data.tar.gz'):
+            os.remove('tmp/attack_data.tar.gz')
+
+        if os.path.exists('tmp/attack_data.txt'):
+            os.remove('tmp/attack_data.txt')
+
+        if runner.status == "successful":
+            self.log.info("successfully stored attack data in S3 bucket")
+        else:
+            self.log.info("failed to store attack data in S3 bucket")
 
 
     def simulate(self, target, simulation_techniques):
@@ -181,19 +212,3 @@ class TerraformController(IEnvironmentController):
             print('Status Kubernetes\n')
             kubernetes_service.list_deployed_applications()
             print()
-
-
-    def list_searches(self):
-        instance = aws_service.get_instance_by_name("attack-range-splunk-server",self.config)
-        if instance['State']['Name'] == 'running':
-            response = splunk_sdk.list_searches(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(self.config['splunk_admin_password']))
-            if len(response) > 0:
-                objects = []
-                for object in response:
-                    objects.append([object.name])
-                print()
-                print('Available savedsearches in Splunk\n')
-                print(tabulate(objects, headers=['Name']))
-                print()
-        else:
-            log.error('ERROR: Splunk server is not running.')

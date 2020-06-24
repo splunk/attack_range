@@ -9,7 +9,7 @@
 - include: collect_windows_event_logs.yml
   when: install_dsp == "0"
 - include: install_nxlog.yml
-  when: install_dsp == "1"
+  when: (install_dsp == "1") or (automated_test_mode == "1")
 - include: collect_nxlog_logs.yml
   when: install_dsp == "1"
 
@@ -17,4 +17,3 @@
   win_command: splunk.exe restart
   args:
     chdir: C:\Program Files\SplunkUniversalForwarder\bin\
-
