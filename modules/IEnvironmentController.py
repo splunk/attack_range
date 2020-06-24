@@ -34,6 +34,10 @@ class IEnvironmentController(ABC):
         pass
 
     @abstractmethod
+    def test(self, test_file):
+        pass
+
+    @abstractmethod
     def list_machines(self):
         pass
 

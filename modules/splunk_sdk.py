@@ -5,6 +5,54 @@ import splunklib.client as client
 import splunklib.results as results
 
 
+def test_search(splunk_host, splunk_password, search, pass_condition, detection_name, log):
+
+    try:
+        service = client.connect(
+            host=splunk_host,
+            port=8089,
+            username='admin',
+            password=splunk_password
+        )
+    except Exception as e:
+        log.error("Unable to connect to Splunk instance: " + str(e))
+        return 1, {}
+
+
+    # search and replace \\ with \\\
+    #search = search.replace('\\','\\\\')
+
+    if search.startswith('|'):
+        search = search
+    else:
+        search = 'search ' + search
+
+    kwargs = {"exec_mode": "blocking",
+            "dispatch.earliest_time": "-60m",
+            "dispatch.latest_time": "now"}
+
+    splunk_search = search + ' ' + pass_condition
+
+    try:
+        job = service.jobs.create(splunk_search, **kwargs)
+    except Exception as e:
+        log.error("Unable to execute detection: " + str(e))
+        return 1, {}
+
+    test_results = dict()
+    test_results['diskUsage'] = job['diskUsage']
+    test_results['performance'] = job['performance']
+    test_results['runDuration'] = job['runDuration']
+
+    if int(job['resultCount']) != 1:
+        log.error("Test failed for detection: " + detection_name)
+        return 1, {}
+    else:
+        log.info("Test successful for detection: " + detection_name)
+        return 0, test_results
+
+
+
 def search(splunk_host, splunk_password, search_name, log):
 
     print('\nexecute savedsearch: ' + search_name + '\n')

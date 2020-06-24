@@ -4,6 +4,8 @@ from python_terraform import *
 from modules import aws_service, splunk_sdk, kubernetes_service
 from tabulate import tabulate
 import ansible_runner
+import yaml
+import time
 
 
 class TerraformController(IEnvironmentController):
@@ -60,9 +62,54 @@ class TerraformController(IEnvironmentController):
     def search(self, search_name):
         instance = aws_service.get_instance_by_name("attack-range-splunk-server",self.config)
         if instance['State']['Name'] == 'running':
-            splunk_sdk.search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(self.config['splunk_admin_password']), search_name, self.log)
+            splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'],str(self.config['splunk_admin_password']), '| tstats `security_content_summariesonly` count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where (Processes.process_name=reg.exe OR Processes.process_name=cmd.exe) Processes.process=*save* (Processes.process=*HKEY_LOCAL_MACHINE\\Security* OR Processes.process=*HKEY_LOCAL_MACHINE\\SAM* OR Processes.process=*HKEY_LOCAL_MACHINE\\System* OR Processes.process=*HKLM\\Security* OR Processes.process=*HKLM\\System* OR Processes.process=*HKLM\\SAM*) by Processes.user Processes.process_name Processes.process Processes.dest | `drop_dm_object_name(Processes)` | `security_content_ctime(firstTime)`| `security_content_ctime(lastTime)` | `attempted_credential_dump_from_registry_via_reg_exe_filter`', '| stats count | where count = 6', 'Test detection', self.log)
         else:
             self.log.error('ERROR: Splunk server is not running.')
+
+    def test(self, test_file):
+        # read test file
+        test_file = self.load_file(test_file)
+
+        # build attack range
+        #self.build()
+
+        # simulate attack
+        self.simulate(test_file['target'], test_file['simulation_technique'])
+
+        # wait
+        self.log.info('Wait for 600 seconds before running the detections.')
+        time.sleep(600)
+
+        # run detection
+        result = []
+
+        for detection_name in test_file['detections']:
+            detection_file_name = detection_name.replace('-','_').replace(' ','_').lower() + '.yml'
+            detection = self.load_file('../security-content/detections/' + detection_file_name)
+            result_obj = dict()
+            result_obj['detection'] = detection['name']
+            instance = aws_service.get_instance_by_name("attack-range-splunk-server",self.config)
+            if instance['State']['Name'] == 'running':
+                result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['splunk_admin_password']), detection['search'], test_file['pass_condition'], detection['name'], self.log)
+            else:
+                self.log.error('ERROR: Splunk server is not running.')
+            result.append(result_obj)
+
+        #print(result)
+
+        # destroy attack range
+        #self.destroy()
+
+
+    def load_file(self, file_path):
+        with open(file_path, 'r') as stream:
+            try:
+                file = list(yaml.safe_load_all(stream))[0]
+            except yaml.YAMLError as exc:
+                self.log.error(exc)
+                sys.exit("ERROR: reading {0}".format(file_path))
+        return file
+
 
 
     def simulate(self, target, simulation_techniques):
