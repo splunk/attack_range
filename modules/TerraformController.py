@@ -93,7 +93,8 @@ class TerraformController(IEnvironmentController):
         #print(result)
 
         # store attack data
-        self.store_attack_data(result, test_file)
+        if self.config['capture_attack_data'] == '1':
+            self.store_attack_data(result, test_file)
 
         # destroy attack range
         self.destroy()
