@@ -52,4 +52,4 @@ variable "splunk_admin_password" { }
 variable "splunk_stream_app" { }
 variable "s3_bucket_url" { }
 
-variable "automated_test_mode" { }
+variable "capture_attack_data" { }

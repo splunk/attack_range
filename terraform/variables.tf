@@ -111,7 +111,7 @@ variable "install_dsp" { }
 variable "dsp_client_cert_path" { }
 variable "dsp_node" { }
 
-variable "automated_test_mode" { }
+variable "capture_attack_data" { }
 
 
 # Phantom server

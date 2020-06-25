@@ -29,7 +29,7 @@ config.vm.define "attack-range-windows-server" do |config|
         windows_domain_controller_private_ip: '{{ windows_domain_controller_private_ip }}',
         run_demo: '{{ run_demo }}',
         demo_scenario: '{{ demo_scenario }}',
-        automated_test_mode: '{{ automated_test_mode }}'
+        capture_attack_data: '{{ capture_attack_data }}'
       }
       ansible.playbook = "../ansible/playbooks/windows_dc_client.yml"
       ansible.config_file = "../ansible/ansible.cfg"
