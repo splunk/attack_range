@@ -102,6 +102,10 @@ starting program loaded for B1 battle droid
         log.error('ERROR: Specify test file --test_file to execute.')
         sys.exit(1)
 
+    if mode != 'terraform' and action == 'test':
+        log.error('ERROR: test action only supported by terraform.')
+        sys.exit(1)
+
     if mode != 'packer' and (action == 'build_amis' or action == 'destroy_amis'):
         log.error('ERROR: action build_amis and destroy_amis can only be used with packer')
         sys.exit(1)

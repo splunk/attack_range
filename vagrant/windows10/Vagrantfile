@@ -24,7 +24,8 @@ config.vm.define "attack-range-win10" do |config|
         windows_server_join_domain: '{{ windows_client_join_domain }}',
         windows_domain_controller_private_ip: '{{ windows_domain_controller_private_ip }}',
         run_demo: '{{ run_demo }}',
-        demo_scenario: '{{ demo_scenario }}'
+        demo_scenario: '{{ demo_scenario }}',
+        automated_test_mode: '{{ automated_test_mode }}'
       }
       ansible.playbook = "../ansible/playbooks/windows_workstation.yml"
       ansible.config_file = "../ansible/ansible.cfg"

@@ -79,6 +79,8 @@ class VagrantController(IEnvironmentController):
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         v1.up()
 
+    def test(self, test_file):
+        pass    
 
     def simulate(self, target, simulation_techniques):
         # check targets running vagrant
