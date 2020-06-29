@@ -1,7 +1,7 @@
 
 from modules.IEnvironmentController import IEnvironmentController
 from python_terraform import *
-from modules import aws_service, splunk_sdk, kubernetes_service
+from modules import aws_service, splunk_sdk, kubernetes_service, github_service
 from tabulate import tabulate
 import ansible_runner
 import yaml
@@ -15,7 +15,7 @@ class TerraformController(IEnvironmentController):
     def __init__(self, config, log, packer_amis):
         super().__init__(config, log)
         custom_dict = self.config.copy()
-        rem_list = ['log_path', 'log_level', 'art_run_techniques', 'art_repository', 'art_branch', 'app', 'repo_name', 'repo_url']
+        rem_list = ['log_path', 'log_level', 'art_run_techniques', 'art_repository', 'art_branch', 'app', 'repo_name', 'repo_url', 'automated_testing', 'github_repo', 'github_token']
         [custom_dict.pop(key) for key in rem_list]
         custom_dict['ip_whitelist'] = [custom_dict['ip_whitelist']]
         if packer_amis:
@@ -65,46 +65,50 @@ class TerraformController(IEnvironmentController):
         # read test file
         test_file = self.load_file(test_file)
 
-        # build attack range
-        self.build()
+        github_service.create_issue('test_detection', self.config)
 
-        # simulate attack
-        self.simulate(test_file['target'], test_file['simulation_technique'])
-
-        # wait
-        self.log.info('Wait for 500 seconds before running the detections.')
-        time.sleep(500)
-
-        # run detection
-        result = []
-
-        for detection_name in test_file['detections']:
-            detection_file_name = detection_name.replace('-','_').replace(' ','_').lower() + '.yml'
-            detection = self.load_file('../security-content/detections/' + detection_file_name)
-            result_obj = dict()
-            result_obj['detection'] = detection['name']
-            instance = aws_service.get_instance_by_name("attack-range-splunk-server",self.config)
-            if instance['State']['Name'] == 'running':
-                result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['splunk_admin_password']), detection['search'], test_file['pass_condition'], detection['name'], self.log)
-            else:
-                self.log.error('ERROR: Splunk server is not running.')
-            result.append(result_obj)
-
-        #print(result)
-
-        # store attack data
-        if self.config['capture_attack_data'] == '1':
-            self.store_attack_data(result, test_file)
-
-        # destroy attack range
-        self.destroy()
-
-        result_cond = False
-        for result_obj in result:
-            if result_obj['error']:
-                self.log.error('Detection Testing failed: ' + result_obj['results']['detection_name'])
-            result_cond |= result_obj['error']
-        sys.exit(result_cond)
+        # # build attack range
+        # #self.build()
+        #
+        # # simulate attack
+        # self.simulate(test_file['target'], test_file['simulation_technique'])
+        #
+        # # wait
+        # self.log.info('Wait for 500 seconds before running the detections.')
+        # time.sleep(500)
+        #
+        # # run detection
+        # result = []
+        #
+        # for detection_name in test_file['detections']:
+        #     detection_file_name = detection_name.replace('-','_').replace(' ','_').lower() + '.yml'
+        #     detection = self.load_file('../security-content/detections/' + detection_file_name)
+        #     result_obj = dict()
+        #     result_obj['detection'] = detection['name']
+        #     instance = aws_service.get_instance_by_name("attack-range-splunk-server",self.config)
+        #     if instance['State']['Name'] == 'running':
+        #         result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['splunk_admin_password']), detection['search'], test_file['pass_condition'], detection['name'], self.log)
+        #     else:
+        #         self.log.error('ERROR: Splunk server is not running.')
+        #     result.append(result_obj)
+        #
+        # #print(result)
+        #
+        # # store attack data
+        # if self.config['capture_attack_data'] == '1':
+        #     self.store_attack_data(result, test_file)
+        #
+        # # destroy attack range
+        # #self.destroy()
+        #
+        # #result_cond = False
+        # for result_obj in result:
+        #     if result_obj['error']:
+        #         self.log.error('Detection Testing failed: ' + result_obj['results']['detection_name'])
+        #         if self.config['automated_testing'] == '1':
+        #             github_service.create_issue(result_obj['results']['detection_name'], self.config)
+        #     #result_cond |= result_obj['error']
+        # #sys.exit(result_cond)
 
 
     def load_file(self, file_path):
