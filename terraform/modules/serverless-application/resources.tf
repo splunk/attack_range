@@ -148,7 +148,7 @@ resource "aws_api_gateway_rest_api" "example" {
 
 resource "aws_api_gateway_stage" "prod" {
   count          = var.cloud_attack_range ? 1 : 0
-  depends_on    = ["aws_cloudwatch_log_group.rest_api[0]"]
+  depends_on    = [aws_cloudwatch_log_group.rest_api[0]]
   stage_name    = "prod"
   rest_api_id   = aws_api_gateway_rest_api.example[0].id
   deployment_id = aws_api_gateway_deployment.example[0].id
@@ -433,7 +433,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = var.cloudtrail_bucket
 
   queue {
-    queue_arn     = "${aws_sqs_queue.queue[0].arn}"
+    queue_arn     = aws_sqs_queue.queue[0].arn
     events        = ["s3:ObjectCreated:*"]
   }
 }
