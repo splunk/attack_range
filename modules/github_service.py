@@ -4,9 +4,9 @@ from github import Github
 def create_issue(detection_name, config):
     title = detection_name + " needs testing"
 
-    #g = Github("P4T12ICK", "GitLea:18731873")
     g = Github(config["github_token"])
     repo = g.get_repo(config["github_repo"])
+
 
     create_issue = True
     open_issues = repo.get_issues(state='open')
