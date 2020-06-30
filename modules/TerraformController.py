@@ -66,7 +66,7 @@ class TerraformController(IEnvironmentController):
         test_file = self.load_file(test_file)
 
         # build attack range
-        self.build()
+        #self.build()
 
         # simulate attack
         self.simulate(test_file['target'], test_file['simulation_technique'])
@@ -97,7 +97,7 @@ class TerraformController(IEnvironmentController):
             self.store_attack_data(result, test_file)
 
         # destroy attack range
-        self.destroy()
+        #self.destroy()
 
         #result_cond = False
         for result_obj in result:
