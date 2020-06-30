@@ -4,7 +4,6 @@
 version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@0.1.19
-  queue: eddiewebb/queue@volatile
   slack: circleci/slack@3.4.2
 
 dependencies:
@@ -117,12 +116,8 @@ workflows:
                 - master
                 - develop
     jobs:
-      - queue/block_workflow:
-          time: '30'
       - terraform-build-attack-destroy:
           filters:
             branches:
               only:
                 - develop
-          requires:
-            - queue/block_workflow
