@@ -1,0 +1,13 @@
+---
+
+- name: Stop nxlog
+  win_service:
+    name: nxlog
+    state: stopped
+
+- name: Fetch attack data
+  fetch:
+    src: 'C:\nxlog_out.txt'
+    dest: ../../tmp/attack_data.txt
+    validate_checksum: no
+    flat: yes

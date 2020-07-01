@@ -52,9 +52,9 @@ module "splunk-server" {
   api_gateway_id         = module.serverless-application.api_gateway_id
   region                 = var.region
   sqs_queue_url          = module.serverless-application.sqs_queue_url
-  install_dsp = var.install_dsp
+  install_dsp             = var.install_dsp
   dsp_client_cert_path    = var.dsp_client_cert_path
-  dsp_node = var.dsp_node
+  dsp_node                = var.dsp_node
 }
 
 module "phantom-server" {
@@ -94,6 +94,7 @@ module "windows-domain-controller" {
   windows_domain_controller_packer_ami = var.windows_domain_controller_packer_ami
   splunk_stream_app       = var.splunk_stream_app
   s3_bucket_url          = var.s3_bucket_url
+  capture_attack_data    = var.capture_attack_data
 }
 
 
@@ -125,6 +126,7 @@ module "windows-server" {
   s3_bucket_url          = var.s3_bucket_url
   run_demo               = var.run_demo
   demo_scenario          = var.demo_scenario
+  capture_attack_data    = var.capture_attack_data
 }
 
 module "windows-client" {
@@ -155,6 +157,7 @@ module "windows-client" {
   s3_bucket_url          = var.s3_bucket_url
   run_demo               = var.run_demo
   demo_scenario          = var.demo_scenario
+  capture_attack_data    = var.capture_attack_data
 }
 
 module "kali_machine" {

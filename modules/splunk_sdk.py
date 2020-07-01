@@ -41,12 +41,13 @@ def test_search(splunk_host, splunk_password, search, pass_condition, detection_
 
     test_results = dict()
     test_results['diskUsage'] = job['diskUsage']
-    test_results['performance'] = job['performance']
     test_results['runDuration'] = job['runDuration']
+    test_results['detection_name'] = detection_name
+    test_results['scanCount'] = job['scanCount']
 
     if int(job['resultCount']) != 1:
         log.error("Test failed for detection: " + detection_name)
-        return 1, {}
+        return 1, test_results
     else:
         log.info("Test successful for detection: " + detection_name)
         return 0, test_results

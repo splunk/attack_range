@@ -1,8 +1,11 @@
 import sys
 import re
 import boto3
+from botocore.exceptions import ClientError
 import uuid
 import time
+import yaml
+import os
 
 def get_instance_by_name(ec2_name, config):
     instances = get_all_instances(config)
@@ -112,6 +115,16 @@ def get_apigateway_endpoint(config):
             return item, 0
 
     return 'error', 1
+
+
+def upload_file_s3_bucket(file_name, results, test_file):
+
+    s3_client = boto3.client('s3')
+    response = s3_client.upload_file(file_name, 'attack-range-attack-data', str(test_file['simulation_technique'] + '/attack_data.tar.gz'))
+    with open('tmp/test_results.yml', 'w') as f:
+        yaml.dump(results, f)
+    response2 = s3_client.upload_file('tmp/test_results.yml', 'attack-range-automated-testing', str(test_file['simulation_technique'] + '/test_results.yml'))
+    os.remove('tmp/test_results.yml')
 
 
 ## Database operations ##
