@@ -109,12 +109,10 @@ workflows:
   build-attack-destroy:
     triggers:
       - schedule:
-          cron: "20 8 * * *"
+          cron: "0 4 * * *"
           filters:
             branches:
               only:
-                - master
                 - develop
-                - automated_detection_testing
     jobs:
       - terraform-build-attack-destroy
