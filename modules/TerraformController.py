@@ -136,10 +136,12 @@ class TerraformController(IEnvironmentController):
                                extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['win_password']},
                                verbosity=0)
 
+        aws_service.upload_file_s3_bucket('tmp/attack_data.txt', results, test_file, False)
+
         with tarfile.open('tmp/attack_data.tar.gz', "w:gz") as tar:
             tar.add('tmp/attack_data.txt', arcname="attack_data.txt")
 
-        aws_service.upload_file_s3_bucket('tmp/attack_data.tar.gz', results, test_file)
+        aws_service.upload_file_s3_bucket('tmp/attack_data.tar.gz', results, test_file, True)
 
         if os.path.exists('tmp/attack_data.tar.gz'):
             os.remove('tmp/attack_data.tar.gz')
