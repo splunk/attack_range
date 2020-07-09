@@ -78,14 +78,14 @@ class TerraformController(IEnvironmentController):
         # run detection
         result = []
 
-        for detection_name in test_file['detections']:
-            detection_file_name = detection_name.replace('-','_').replace(' ','_').lower() + '.yml'
+        for detection_obj in test_file['detections']:
+            detection_file_name = detection_obj['name'].replace('-','_').replace(' ','_').lower() + '.yml'
             detection = self.load_file('../security-content/detections/' + detection_file_name)
             result_obj = dict()
-            result_obj['detection'] = detection['name']
+            result_obj['detection'] = detection_obj['name']
             instance = aws_service.get_instance_by_name("attack-range-splunk-server",self.config)
             if instance['State']['Name'] == 'running':
-                result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['splunk_admin_password']), detection['search'], test_file['pass_condition'], detection['name'], self.log)
+                result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['splunk_admin_password']), detection['search'], detection_obj['pass_condition'], detection['name'], self.log)
             else:
                 self.log.error('ERROR: Splunk server is not running.')
             result.append(result_obj)
