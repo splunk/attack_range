@@ -1,22 +1,21 @@
-
 ---
 
-- name: Check if Atomic Red Team is installed
-  win_stat:
-    path: 'C:\AtomicRedTeam'
-  register: atr_folder
+# - name: Check we have installed Atomic Red Team
+#   win_stat:
+#     path: 'C:\AtomicRedTeam'
+#   register: atr_folder
 
 - name: Install NuGet Provider
   win_shell: |
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-  when: atr_folder.stat.exists == False
 
 - name: Install Atomic Red Team
   win_shell: |
     IEX (IWR https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1)
-    Install-AtomicRedTeam -getAtomics -Force
-  when: atr_folder.stat.exists == False
+    Install-AtomicRedTeam -Force
+    IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicsfolder.ps1' -UseBasicParsing)
+    Install-AtomicsFolder -Force -RepoOwner "{{ art_repository }}" -Branch "{{ art_branch }}"
 
 - set_fact:
     techniques: "{{ art_run_techniques.split(',') }}"

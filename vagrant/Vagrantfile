@@ -80,9 +80,12 @@ config.vm.define "attack-range-windows-domain-controller" do |config|
         splunk_indexer_ip: "10.0.1.12",
         win_password: 'I-l1ke-Attack-Range!',
         splunk_uf_win_url: 'https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi',
+        nxlog_url: 'https://nxlog.co/system/files/products/files/348/nxlog-ce-2.10.2150.msi',
+        install_dsp: '0',
         win_sysmon_url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/Sysmon.zip',
-        win_sysmon_template: 'SysmonConfig-TSwift.xml',
-        splunk_admin_password: 'I-l1ke-Attack-Range!'
+        win_sysmon_template: 'AttackRangeSysmon.xml',
+        splunk_admin_password: 'I-l1ke-Attack-Range!',
+        capture_attack_data: '0'
       }
       ansible.playbook = "../ansible/playbooks/windows_dc.yml"
       ansible.config_file = "../ansible/ansible.cfg"

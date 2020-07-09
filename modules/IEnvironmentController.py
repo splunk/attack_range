@@ -30,13 +30,9 @@ class IEnvironmentController(ABC):
         pass
 
     @abstractmethod
-    def search(self, search_name):
+    def test(self, test_file):
         pass
 
     @abstractmethod
     def list_machines(self):
-        pass
-
-    @abstractmethod
-    def list_searches(self):
         pass

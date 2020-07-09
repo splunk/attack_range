@@ -107,14 +107,14 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
   count      = var.cloud_attack_range ? 1 : 0
-  role       = "${aws_iam_role.lambda_exec[0].name}"
-  policy_arn = "${aws_iam_policy.lambda_logging[0].arn}"
+  role       = aws_iam_role.lambda_exec[0].name
+  policy_arn = aws_iam_policy.lambda_logging[0].arn
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_rds" {
   count      = var.cloud_attack_range ? 1 : 0
-  role       = "${aws_iam_role.lambda_exec[0].name}"
-  policy_arn = "${aws_iam_policy.lambda_dynamodb_access[0].arn}"
+  role       = aws_iam_role.lambda_exec[0].name
+  policy_arn = aws_iam_policy.lambda_dynamodb_access[0].arn
 }
 
 
@@ -128,8 +128,8 @@ resource "aws_cloudwatch_log_group" "rest_api" {
 
 resource "aws_api_gateway_method_settings" "s" {
   count       = var.cloud_attack_range ? 1 : 0
-  rest_api_id = "${aws_api_gateway_rest_api.example[0].id}"
-  stage_name  = "${aws_api_gateway_stage.prod[0].stage_name}"
+  rest_api_id = aws_api_gateway_rest_api.example[0].id
+  stage_name  = aws_api_gateway_stage.prod[0].stage_name
   method_path = "*/*"
 
   settings {
@@ -148,7 +148,7 @@ resource "aws_api_gateway_rest_api" "example" {
 
 resource "aws_api_gateway_stage" "prod" {
   count          = var.cloud_attack_range ? 1 : 0
-  depends_on    = ["aws_cloudwatch_log_group.rest_api[0]"]
+  depends_on    = [aws_cloudwatch_log_group.rest_api[0]]
   stage_name    = "prod"
   rest_api_id   = aws_api_gateway_rest_api.example[0].id
   deployment_id = aws_api_gateway_deployment.example[0].id
@@ -223,7 +223,7 @@ resource "aws_api_gateway_integration" "lambda" {
 
 resource "aws_api_gateway_account" "attack_range" {
   count       = var.cloud_attack_range ? 1 : 0
-  cloudwatch_role_arn = "${aws_iam_role.cloudwatch_attack_range[0].arn}"
+  cloudwatch_role_arn = aws_iam_role.cloudwatch_attack_range[0].arn
 }
 
 resource "aws_iam_role" "cloudwatch_attack_range" {
@@ -250,7 +250,7 @@ EOF
 resource "aws_iam_role_policy" "cloudwatch" {
   count       = var.cloud_attack_range ? 1 : 0
   name = "iam_policy_cloudwatch_${var.key_name}"
-  role = "${aws_iam_role.cloudwatch_attack_range[0].id}"
+  role = aws_iam_role.cloudwatch_attack_range[0].id
 
   policy = <<EOF
 {
@@ -433,7 +433,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = var.cloudtrail_bucket
 
   queue {
-    queue_arn     = "${aws_sqs_queue.queue[0].arn}"
+    queue_arn     = aws_sqs_queue.queue[0].arn
     events        = ["s3:ObjectCreated:*"]
   }
 }

@@ -52,6 +52,8 @@ variable "win_sysmon_url" { }
 variable "win_sysmon_template" { }
 variable "splunk_admin_password" { }
 
+variable "capture_attack_data" { }
+
 variable "splunk_stream_app" { }
 variable "s3_bucket_url" { }
 

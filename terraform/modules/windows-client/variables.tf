@@ -57,3 +57,5 @@ variable "s3_bucket_url" { }
 
 variable "run_demo" { }
 variable "demo_scenario" { }
+
+variable "capture_attack_data" { }

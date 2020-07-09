@@ -92,7 +92,7 @@ The main log sources for the serverless deployment are CloudWatch and CloudTrail
 Attack Range supports different actions:
 - Build Attack Range
 - Perform Attack Simulation
-- Search with Attack Range
+- Test with Attack Range
 - Destroy Attack Range
 - Stop Attack Range
 - Resume Attack Range
@@ -109,10 +109,10 @@ python attack_range.py -m terraform/vagrant -a build
 python attack_range.py -m terraform/vagrant -a simulate -st T1003.001 -t attack-range-windows-domain-controller
 ```
 
-### Search with Attack Range
-- Run a savedsearch and return the results
+### Test with Attack Range
+- Automated testing of detection (only for terraform):
 ```
-python attack_range.py -m terraform/vagrant -a search -sn search_name
+python attack_range.py -m terraform -a test -tf tests/credential_dumping_sam_test.yml
 ```
 
 ### Destroy Attack Range
