@@ -112,7 +112,7 @@ python attack_range.py -m terraform/vagrant -a simulate -st T1003.001 -t attack-
 ### Test with Attack Range
 - Automated testing of detection (only for terraform):
 ```
-python attack_range.py -m terraform -a test -tf tests/credential_dumping_sam_test.yml
+python attack_range.py -m terraform -a test -tf tests/T1003_001.yml
 ```
 
 ### Destroy Attack Range
