@@ -25,8 +25,9 @@
   when: stream_app.stat.exists == False
   notify: restart splunk
 
-- name: Change file ownership, group and permissions
-  file:
+# app installation may still be in progress
+- name: Wait for set_permissions.sh to exist
+  wait_for:
     path: /opt/splunk/etc/apps/Splunk_TA_stream/set_permissions.sh
     owner: root
     group: root
@@ -41,8 +42,9 @@
   become_user: root
   become_method: sudo
 
-- name: Delete local inputs.conf for Splunk Stream deployment Apps
-  file:
+# app installation may still be in progress
+- name: Wait for inputs.conf to exist
+  wait_for:
     path: /opt/splunk/etc/deployment-apps/Splunk_TA_stream/local/inputs.conf
     state: absent
   become: yes
