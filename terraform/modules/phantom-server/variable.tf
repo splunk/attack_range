@@ -18,7 +18,7 @@ variable "key_name" {
 
 variable "vpc_security_group_ids" { }
 
-variable "vpc_subnet_id" { }
+variable "ec2_subnet_id" { }
 
 variable "phantom_server" { }
 variable "phantom_server_private_ip" { }

@@ -1,0 +1,11 @@
+- name: Create folder directory for inputs configuration
+  win_file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - 'C:\Program Files\SplunkUniversalForwarder\etc\apps\nxlog_inputs_app\local'
+
+- name: Copy inputs.conf configuration
+  win_copy:
+    src: nxlog_inputs.conf
+    dest: 'C:\Program Files\SplunkUniversalForwarder\etc\apps\nxlog_inputs_app\local\inputs.conf'

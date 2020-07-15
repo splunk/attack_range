@@ -29,8 +29,7 @@ variable "windows_domain_controller_instance_packer" { }
 
 variable "vpc_security_group_ids" { }
 
-variable "vpc_subnet_id" { }
-variable "availability_zone" { }
+variable "ec2_subnet_id" { }
 
 variable "windows_client" { }
 
@@ -46,6 +45,8 @@ variable "windows_client_packer_ami" { }
 # Ansible vars
 # Windows server
 variable "splunk_uf_win_url" { }
+variable "nxlog_url" { }
+variable "install_dsp" { }
 variable "win_sysmon_url" { }
 variable "win_sysmon_template" { }
 variable "splunk_admin_password" { }
@@ -56,3 +57,5 @@ variable "s3_bucket_url" { }
 
 variable "run_demo" { }
 variable "demo_scenario" { }
+
+variable "capture_attack_data" { }

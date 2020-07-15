@@ -6,7 +6,7 @@ data "aws_ami" "latest-kali-linux" {
 
   filter {
       name   = "name"
-      values = ["Kali Linux 2019.*"]
+      values = ["Kali Linux 2020*"]
   }
 
   filter {
@@ -20,7 +20,7 @@ resource "aws_instance" "kali_machine" {
   ami           = data.aws_ami.latest-kali-linux[count.index].id
   instance_type = "t2.medium"
   key_name = var.key_name
-  subnet_id = var.vpc_subnet_id
+  subnet_id = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.kali_machine_private_ip
   tags = {
@@ -71,7 +71,7 @@ resource "aws_instance" "kali_machine_packer" {
   ami           = data.aws_ami.kali-machine-packer-ami[count.index].id
   instance_type = "t2.medium"
   key_name = var.key_name
-  subnet_id = var.vpc_subnet_id
+  subnet_id = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.kali_machine_private_ip
   tags = {

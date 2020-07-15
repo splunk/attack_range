@@ -17,7 +17,7 @@ resource "aws_instance" "windows_client" {
   ami           = data.aws_ami.windows-client-ami[count.index].id
   instance_type = "t2.2xlarge"
   key_name = var.key_name
-  subnet_id = var.vpc_subnet_id
+  subnet_id = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.windows_client_private_ip
   depends_on = [var.windows_domain_controller_instance]
@@ -62,7 +62,7 @@ resource "aws_instance" "windows_client" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ansible-playbook -i '${aws_instance.windows_client[count.index].public_ip},' playbooks/windows_workstation.yml --extra-vars 'splunk_indexer_ip=${var.splunk_server_private_ip} ansible_user=${var.win_username} ansible_password=${var.win_password} win_password=${var.win_password} splunk_uf_win_url=${var.splunk_uf_win_url} win_sysmon_url=${var.win_sysmon_url} win_sysmon_template=${var.win_sysmon_template} splunk_admin_password=${var.splunk_admin_password} windows_domain_controller_private_ip=${var.windows_domain_controller_private_ip} windows_server_join_domain=${var.windows_client_join_domain} splunk_stream_app=${var.splunk_stream_app} s3_bucket_url=${var.s3_bucket_url} run_demo=${var.run_demo} demo_scenario=${var.demo_scenario}'"
+    command = "ansible-playbook -i '${aws_instance.windows_client[count.index].public_ip},' playbooks/windows_workstation.yml --extra-vars 'splunk_indexer_ip=${var.splunk_server_private_ip} ansible_user=${var.win_username} ansible_password=${var.win_password} win_password=${var.win_password} splunk_uf_win_url=${var.splunk_uf_win_url} nxlog_url=${var.nxlog_url} install_dsp=${var.install_dsp} win_sysmon_url=${var.win_sysmon_url} win_sysmon_template=${var.win_sysmon_template} splunk_admin_password=${var.splunk_admin_password} windows_domain_controller_private_ip=${var.windows_domain_controller_private_ip} windows_server_join_domain=${var.windows_client_join_domain} splunk_stream_app=${var.splunk_stream_app} s3_bucket_url=${var.s3_bucket_url} run_demo=${var.run_demo} demo_scenario=${var.demo_scenario} capture_attack_data=${var.capture_attack_data}'"
   }
 
 }
@@ -93,7 +93,7 @@ resource "aws_instance" "windows_client_packer" {
   ami           = data.aws_ami.windows-client-packer-ami[count.index].id
   instance_type = "t2.2xlarge"
   key_name = var.key_name
-  subnet_id = var.vpc_subnet_id
+  subnet_id = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.windows_client_private_ip
   depends_on = [var.windows_domain_controller_instance]
@@ -138,7 +138,7 @@ resource "aws_instance" "windows_client_packer" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ansible-playbook -i '${aws_instance.windows_client_packer[count.index].public_ip},' playbooks/windows_workstation_packer_terraform.yml --extra-vars 'splunk_indexer_ip=${var.splunk_server_private_ip} ansible_user=${var.win_username} ansible_password=${var.win_password} win_password=${var.win_password} splunk_uf_win_url=${var.splunk_uf_win_url} win_sysmon_url=${var.win_sysmon_url} win_sysmon_template=${var.win_sysmon_template} splunk_admin_password=${var.splunk_admin_password} windows_domain_controller_private_ip=${var.windows_domain_controller_private_ip} windows_server_join_domain=${var.windows_client_join_domain} run_demo=${var.run_demo} demo_scenario=${var.demo_scenario}'"
+    command = "ansible-playbook -i '${aws_instance.windows_client_packer[count.index].public_ip},' playbooks/windows_workstation_packer_terraform.yml --extra-vars 'splunk_indexer_ip=${var.splunk_server_private_ip} ansible_user=${var.win_username} ansible_password=${var.win_password} win_password=${var.win_password} splunk_uf_win_url=${var.splunk_uf_win_url} nxlog_url=${var.nxlog_url} install_dsp=${var.install_dsp} win_sysmon_url=${var.win_sysmon_url} win_sysmon_template=${var.win_sysmon_template} splunk_admin_password=${var.splunk_admin_password} windows_domain_controller_private_ip=${var.windows_domain_controller_private_ip} windows_server_join_domain=${var.windows_client_join_domain} run_demo=${var.run_demo} demo_scenario=${var.demo_scenario}'"
   }
 
 }

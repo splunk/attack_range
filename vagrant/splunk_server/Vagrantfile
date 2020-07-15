@@ -28,6 +28,7 @@ config.vm.define "attack-range-splunk-server" do |config|
         splunk_stream_app: '{{ splunk_stream_app }}',
         splunk_python_app: '{{ splunk_python_app }}',
         install_es: '{{ install_es }}',
+        install_mltk: '{{ install_mltk }}',
         splunk_es_app: '{{ splunk_es_app }}',
         phantom_app: '{{ phantom_app }}',
         phantom_server: '{{ phantom_server }}',
@@ -40,7 +41,11 @@ config.vm.define "attack-range-splunk-server" do |config|
         timeline_custom_visualization: '{{ timeline_custom_visualization }}',
         install_mission_control: '{{ install_mission_control }}',
         mission_control_app: '{{ mission_control_app }}',
-        splunk_server_private_ip: '{{ splunk_server_private_ip }}'
+        install_dsp: '{{ install_dsp }}',
+        dsp_client_cert_path: '{{ dsp_client_cert_path }}',
+        dsp_node: '{{ dsp_node }}',
+        splunk_server_private_ip: '{{ splunk_server_private_ip }}',
+        cloud_attack_range: '0'
       }
   end
 

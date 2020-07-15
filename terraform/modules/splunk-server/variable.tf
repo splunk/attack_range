@@ -18,7 +18,7 @@ variable "key_name" {
 
 variable "vpc_security_group_ids" { }
 
-variable "vpc_subnet_id" { }
+variable "ec2_subnet_id" { }
 
 variable "splunk_server_private_ip" { }
 
@@ -63,7 +63,7 @@ variable "splunk_mltk_app" { }
 variable "splunk_bots_dataset" { }
 
 variable "install_es" { }
-
+variable "install_mltk" { }
 variable "splunk_es_app" { }
 
 variable "splunk_security_essentials_app" { }
@@ -74,5 +74,18 @@ variable "splunk_attack_range_dashboard" { }
 variable "timeline_custom_visualization" { }
 variable "install_mission_control" { }
 variable "mission_control_app" { }
+variable "install_dsp" { }
+variable "dsp_client_cert_path" { }
+variable "dsp_node" { }
 
 variable "splunk_stream_app" { }
+
+variable "splunk_aws_app" { }
+
+variable "cloud_attack_range" { }
+
+variable "api_gateway_id" { }
+
+variable "region" { }
+
+variable "sqs_queue_url" { }

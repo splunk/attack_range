@@ -28,8 +28,7 @@ variable "key_name" {
 
 variable "vpc_security_group_ids" { }
 
-variable "vpc_subnet_id" { }
-variable "availability_zone" { }
+variable "ec2_subnet_id" { }
 
 variable "windows_domain_controller" { }
 
@@ -44,9 +43,13 @@ variable "windows_domain_controller_packer_ami" { }
 # Ansible vars
 # Windows server
 variable "splunk_uf_win_url" { }
+variable "nxlog_url" { }
+variable "install_dsp" { }
 variable "win_sysmon_url" { }
 variable "win_sysmon_template" { }
 variable "splunk_admin_password" { }
 
 variable "splunk_stream_app" { }
 variable "s3_bucket_url" { }
+
+variable "capture_attack_data" { }

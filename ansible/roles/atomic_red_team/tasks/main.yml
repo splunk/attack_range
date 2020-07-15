@@ -1,2 +1,24 @@
-- include: install_art.yml
-- include: run_art_test.yml
+---
+
+# - name: Check we have installed Atomic Red Team
+#   win_stat:
+#     path: 'C:\AtomicRedTeam'
+#   register: atr_folder
+
+- name: Install NuGet Provider
+  win_shell: |
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+
+- name: Install Atomic Red Team
+  win_shell: |
+    IEX (IWR https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1)
+    Install-AtomicRedTeam -Force
+    IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicsfolder.ps1' -UseBasicParsing)
+    Install-AtomicsFolder -Force -RepoOwner "{{ art_repository }}" -Branch "{{ art_branch }}"
+
+- set_fact:
+    techniques: "{{ art_run_techniques.split(',') }}"
+
+- include_tasks: "run_art_test.yml"
+  with_items: "{{ techniques }}"

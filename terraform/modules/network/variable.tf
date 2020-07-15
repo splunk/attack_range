@@ -5,5 +5,6 @@ variable "ip_whitelist" {
   type        = list(string)
 }
 
-variable "availability_zone" { }
-variable "subnet_cidr" { }
+variable "key_name" {
+  description = "Desired name of AWS key pair"
+}

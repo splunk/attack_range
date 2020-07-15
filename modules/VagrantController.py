@@ -56,7 +56,7 @@ class VagrantController(IEnvironmentController):
         except:
             self.log.error("vagrant failed to build")
             sys.exit(1)
-            
+
         self.log.info("attack_range has been built using vagrant successfully")
         self.list_machines()
 
@@ -79,6 +79,8 @@ class VagrantController(IEnvironmentController):
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         v1.up()
 
+    def test(self, test_file):
+        pass    
 
     def simulate(self, target, simulation_techniques):
         # check targets running vagrant
@@ -119,11 +121,6 @@ class VagrantController(IEnvironmentController):
             log.error(target + ' not found as vagrant box.')
             sys.exit(1)
 
-    def search(self, search_name):
-        self.check_targets_running_vagrant("attack-range-splunk-server", self.log)
-        target_ip = self.get_ip_address_from_machine("attack-range-splunk-server")
-        splunk_sdk.search(target_ip,str(self.config['splunk_admin_password']), search_name, self.log)
-
 
     def list_machines(self):
         print()
@@ -136,17 +133,3 @@ class VagrantController(IEnvironmentController):
 
         print(tabulate(status, headers=['Name','Status','IP Address']))
         print()
-
-
-    def list_searches(self):
-        self.check_targets_running_vagrant("attack-range-splunk-server", self.log)
-        target_ip = self.get_ip_address_from_machine("attack-range-splunk-server")
-        response = splunk_sdk.list_searches(target_ip,str(self.config['splunk_admin_password']))
-        if len(response) > 0:
-            objects = []
-            for object in response:
-                objects.append([object.name])
-            print()
-            print('Available savedsearches in Splunk\n')
-            print(tabulate(objects, headers=['Name']))
-            print()
