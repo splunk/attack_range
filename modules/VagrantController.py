@@ -52,7 +52,7 @@ class VagrantController(IEnvironmentController):
         self.log.info("[action] > build\n")
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False, quiet_stderr=False)
         try:
-            v1.up(provision=True)
+            v1.up(provision=True, provider="virtualbox")
         except:
             self.log.error("vagrant failed to build")
             sys.exit(1)
