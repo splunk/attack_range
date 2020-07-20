@@ -67,6 +67,10 @@ class TerraformController(IEnvironmentController):
 
         # build attack range
         self.build()
+        
+        # wait
+        self.log.info('Wait for 300 seconds before running simulations.')
+        time.sleep(300)
 
         # simulate attack
         self.simulate(test_file['target'], test_file['simulation_technique'])
