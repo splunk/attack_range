@@ -29,6 +29,10 @@
 - name: Wait for set_permissions.sh to exist
   wait_for:
     path: /opt/splunk/etc/apps/Splunk_TA_stream/set_permissions.sh
+
+- name: Change file ownership, group and permissions
+  file:
+    path: /opt/splunk/etc/apps/Splunk_TA_stream/set_permissions.sh
     owner: root
     group: root
     mode: '0700'
@@ -46,16 +50,6 @@
 - name: Wait for inputs.conf to exist
   wait_for:
     path: /opt/splunk/etc/deployment-apps/Splunk_TA_stream/local/inputs.conf
-    state: absent
-  become: yes
-  become_user: splunk
-
-- name: Delete local inputs.conf for Splunk Stream deployment Apps
-  file:
-    path: /opt/splunk/etc/deployment-apps/Splunk_TA_stream/local/inputs.conf
-    state: absent
-  become: yes
-  become_user: splunk
 
 - name: Copy new inputs.conf configuration
   template:
