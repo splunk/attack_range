@@ -18,6 +18,14 @@
    - install
   file: path=/opt mode=777
 
+- name: Explicit DNS setup on 8.8.8.8
+  tags:
+   - install
+  shell: echo nameserver 8.8.8.8 >> /etc/resolv.conf
+  become: yes
+  become_user: root
+
+
 - name: checking if splunk is install
   tags: install
   stat: path=/opt/splunk
