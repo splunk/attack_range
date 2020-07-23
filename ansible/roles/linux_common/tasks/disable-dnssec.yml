@@ -1,0 +1,22 @@
+---
+
+- name: Create resolved.conf.d
+  file:
+    path: /etc/systemd/resolved.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Disable DNSSEC
+  template:
+    src: disable-dnssec.conf.j2
+    dest: /etc/systemd/resolved.conf.d/disable-dnssec.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Restart systemd-resolved
+  service:
+    name: systemd-resolved
+    state: restarted
