@@ -52,7 +52,7 @@ class VagrantController(IEnvironmentController):
         self.log.info("[action] > build\n")
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False, quiet_stderr=False)
         try:
-            v1.up(provision=True)
+            v1.up(provision=True, provider="virtualbox")
         except:
             self.log.error("vagrant failed to build")
             sys.exit(1)
@@ -97,11 +97,12 @@ class VagrantController(IEnvironmentController):
         # get ip address from machine
         self.check_targets_running_vagrant(target, self.log)
         target_ip = self.get_ip_address_from_machine(target)
+        print("{} {}".format(self.config['art_repository'], self.config['art_branch']))
         runner = ansible_runner.run(private_data_dir='.attack_range/',
                                cmdline=str('-i ' + target_ip + ', '),
                                roles_path="../ansible/roles",
                                playbook='../ansible/playbooks/atomic_red_team.yml',
-                               extravars={'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Vagrant', 'ansible_password': 'vagrant', 'ansible_port': 5985, 'ansible_winrm_scheme': 'http'},
+                               extravars={'art_branch': self.config['art_branch'], 'art_repository': self.config['art_repository'], 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Vagrant', 'ansible_password': 'vagrant', 'ansible_port': 5985, 'ansible_winrm_scheme': 'http'},
                                verbosity=0)
 
         if runner.status == "successful":
