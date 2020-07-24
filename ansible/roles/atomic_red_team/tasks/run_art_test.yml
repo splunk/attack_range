@@ -18,6 +18,15 @@
     Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
     Invoke-AtomicTest "{{ technique }}" -Confirm:$false -TimeoutSeconds 300 -ExecutionLogPath C:\AtomicRedTeam\atc_execution.csv
   register: output
+  when: var_str == 'no'
+
+- name: Run specified Atomic Red Team Technique
+  win_shell: |
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    {{ var_str }}
+    Invoke-AtomicTest "{{ technique }}" -InputArgs $myArgs -Confirm:$false -TimeoutSeconds 300 -ExecutionLogPath C:\AtomicRedTeam\atc_execution.csv
+  register: output
+  when: var_str != 'no'
 
 # - debug:
 #     var: output

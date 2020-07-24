@@ -97,7 +97,6 @@ class VagrantController(IEnvironmentController):
         # get ip address from machine
         self.check_targets_running_vagrant(target, self.log)
         target_ip = self.get_ip_address_from_machine(target)
-        print("{} {}".format(self.config['art_repository'], self.config['art_branch']))
         runner = ansible_runner.run(private_data_dir='.attack_range/',
                                cmdline=str('-i ' + target_ip + ', '),
                                roles_path="../ansible/roles",
