@@ -1,2 +1,3 @@
 ---
 - include: set-hostname.yml
+- include: disable-dnssec.yml
