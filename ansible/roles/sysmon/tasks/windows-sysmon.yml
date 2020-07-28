@@ -20,6 +20,11 @@
         creates: 'c:\Program Files\ansible\sysmon\sysmon.exe'
       when: not sysmondl.stat.exists
 
+    - name: add sysmon to PATH
+      win_path:
+        elements: 'c:\Program Files\ansible\sysmon'
+      when: not sysmondl.stat.exists
+
 - block:
     - name: Copy Sysmon template
       win_template:
