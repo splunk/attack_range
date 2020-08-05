@@ -23,3 +23,7 @@
 
 - include_tasks: "run_art_test.yml"
   with_items: "{{ techniques }}"
+  when: run_specific_atomic_tests == "False"
+
+- include_tasks: "run_specific_atomics.yml"
+  when: run_specific_atomic_tests == "True"

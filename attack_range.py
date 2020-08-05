@@ -27,6 +27,8 @@ if __name__ == "__main__":
                         help="target for attack simulation. For mode vagrant use name of the vbox. For mode terraform use the name of the aws EC2 name")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                         help="comma delimited list of MITRE ATT&CK technique ID to simulate in the attack_range, example: T1117, T1118, requires --simulation flag")
+    parser.add_argument("-sa", "--simulation_atomics", required=False, type=str, default="",
+                        help="specify dedicated Atomic Red Team atomics to simulate in the attack_range, example: Regsvr32 remote COM scriptlet execution for T1117")
     parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
                         help="path to the configuration file of the attack range")
     parser.add_argument("-tf", "--test_file", required=False, type=str, default="", help='test file for test command')
@@ -43,10 +45,10 @@ if __name__ == "__main__":
     target = args.target
     config = args.config
     simulation_techniques = args.simulation_technique
+    simulation_atomics = args.simulation_atomics
     list_machines = args.list_machines
     packer_amis = args.ami
     test_file = args.test_file
-
 
     print("""
 starting program loaded for B1 battle droid
@@ -137,6 +139,9 @@ starting program loaded for B1 battle droid
     else:
         simulation_techniques = config['art_run_techniques']
 
+    if not simulation_atomics:
+        simulation_atomics = 'no'
+
     if mode == 'terraform':
         controller = TerraformController(config, log, packer_amis)
     elif mode == 'vagrant':
@@ -165,7 +170,7 @@ starting program loaded for B1 battle droid
         controller.resume()
 
     if action == 'simulate':
-        controller.simulate(target, simulation_techniques)
+        controller.simulate(target, simulation_techniques, simulation_atomics)
 
     if action == 'test':
         controller.test(test_file)

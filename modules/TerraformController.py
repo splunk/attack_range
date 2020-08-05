@@ -67,13 +67,31 @@ class TerraformController(IEnvironmentController):
 
         # build attack range
         self.build()
-        
+
         # wait
         self.log.info('Wait for 300 seconds before running simulations.')
         time.sleep(300)
 
         # simulate attack
-        self.simulate(test_file['target'], test_file['simulation_technique'])
+        # create vars string for custom vars:
+        if 'vars' in test_file:
+            var_str = '$myArgs = @{ '
+            i = 0
+            for key, value in test_file['vars'].items():
+                if i==0:
+                    var_str += '"' + key + '" = "' + value + '"'
+                    i += 1
+                else:
+                    var_str += '; "' + key + '" = "' + value + '"'
+                    i += 1
+
+            var_str += ' }'
+            print(var_str)
+
+            self.simulate(test_file['target'], test_file['simulation_technique'], 'no', var_str)
+
+        else:
+            self.simulate(test_file['target'], test_file['simulation_technique'], 'no')
 
         # wait
         self.log.info('Wait for 500 seconds before running the detections.')
@@ -159,21 +177,32 @@ class TerraformController(IEnvironmentController):
             self.log.info("failed to store attack data in S3 bucket")
 
 
-    def simulate(self, target, simulation_techniques):
+    def simulate(self, target, simulation_techniques, simulation_atomics, var_str = 'no'):
         target_public_ip = aws_service.get_single_instance_public_ip(target, self.config)
+
+        # check if specific atomics are used then it's not allowed to multiple techniques
+        techniques_arr = simulation_techniques.split(',')
+        if (len(techniques_arr) > 1) and (simulation_atomics != 'no'):
+            self.log.error('ERROR: if simulation_atomics are used, only a single simulation_technique is allowed.')
+            sys.exit(1)
+
+        run_specific_atomic_tests = 'True'
+        if simulation_atomics == 'no':
+            run_specific_atomic_tests = 'False'
+
         if target == 'attack-range-windows-client':
             runner = ansible_runner.run(private_data_dir='.attack_range/',
                                    cmdline=str('-i ' + target_public_ip + ', '),
                                    roles_path="../ansible/roles",
                                    playbook='../ansible/playbooks/atomic_red_team.yml',
-                                   extravars={'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
+                                   extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                    verbosity=0)
         else:
             runner = ansible_runner.run(private_data_dir='.attack_range/',
                                cmdline=str('-i ' + target_public_ip + ', '),
                                roles_path="../ansible/roles",
                                playbook='../ansible/playbooks/atomic_red_team.yml',
-                               extravars={'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
+                               extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                verbosity=0)
 
         if runner.status == "successful":
