@@ -5,14 +5,9 @@
 - include: configure_inputs.yml
 - include: configure_indexes.yml
 - include: configure_web_conf.yml
-- include: configure_hec.yml
 - include: configure_server_conf.yml
 - include: create_serverclass.yml
-- include: install_aws_app.yml
-  when: cloud_attack_range == "1"
 - include: install_enterprise_security.yml
-- include: install_mc.yml
-  when: install_mission_control == "1"
 - include: install_botsv1_dataset.yml
   when: splunk_bots_dataset is regex("(1)(?!a)")
 - include: install_botsv1a_dataset.yml
@@ -23,8 +18,6 @@
   when: splunk_bots_dataset is regex("2a")
 - include: install_botsv3_dataset.yml
   when: splunk_bots_dataset is regex("3")
-- include: install_dsp.yml
-  when: install_dsp == "1"
 - include: install_escu_app.yml
 - include: install_asx_app.yml
 - include: install_sse_app.yml

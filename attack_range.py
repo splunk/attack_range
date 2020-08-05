@@ -6,7 +6,6 @@ from pathlib import Path
 from modules.CustomConfigParser import CustomConfigParser
 from modules.TerraformController import TerraformController
 from modules.VagrantController import VagrantController
-from modules.PackerController import PackerController
 
 
 # need to set this ENV var due to a OSX High Sierra forking bug

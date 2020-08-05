@@ -85,38 +85,6 @@ def change_ec2_state(instances, new_state, log):
                 log.info('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
 
 
-def deregister_images(images, config, log):
-    client = boto3.client('ec2')
-
-    for image in images:
-        response = client.describe_images(
-            Filters=[
-                {
-                    'Name': 'name',
-                    'Values': [
-                        str("packer-" + image + "-" + config['key_name']),
-                    ]
-                }
-            ]
-        )
-        if len(response['Images']):
-            image_obj = response['Images'][0]
-            client.deregister_image(ImageId=image_obj['ImageId'])
-            log.info('Successfully deregistered AMI ' +  image_obj['Name'] +  ' with AMI ID ' + image_obj['ImageId'] + ' .')
-        else:
-            log.info('Didn\'t find AMI: ' +  str("packer-" + image + "-" + config['key_name']) + ' .')
-
-
-def get_apigateway_endpoint(config):
-    client = boto3.client('apigateway')
-    response = client.get_rest_apis()
-    for item in response['items']:
-        if item['name'] == str('api_gateway_' + config['key_name']):
-            return item, 0
-
-    return 'error', 1
-
-
 def upload_file_s3_bucket(file_name, results, test_file, isArchive):
 
     s3_client = boto3.client('s3')
@@ -129,40 +97,3 @@ def upload_file_s3_bucket(file_name, results, test_file, isArchive):
         yaml.dump(results, f)
     response2 = s3_client.upload_file('tmp/test_results.yml', 'attack-range-automated-testing', str(test_file['simulation_technique'] + '/test_results.yml'))
     os.remove('tmp/test_results.yml')
-
-
-## Database operations ##
-
-def provision_db(config, log):
-
-    dynamodb = boto3.resource('dynamodb')
-    table_users = dynamodb.Table('Users-' + config['key_name'])
-
-    file = open("serverless_application/data/users.txt")
-    with table_users.batch_writer() as batch:
-        for line in file:
-            fields = line.split(";")
-            batch.put_item(
-                Item={
-                    'UserName': fields[0],
-                    'FirstName': fields[1],
-                    'LastName': fields[2],
-                    'Password': fields[3]
-                }
-            )
-
-    table_notes = dynamodb.Table('Notes-' + config['key_name'])
-
-    file = open("serverless_application/data/notes.txt")
-    with table_notes.batch_writer() as batch:
-        for line in file:
-            fields = line.split(";")
-            batch.put_item(
-                Item={
-                    'UserName': fields[0],
-                    'TimeStamp': str(time.time()),
-                    'IsPublic': fields[1],
-                    'Header': fields[2],
-                    'Text': fields[3]
-                }
-            )

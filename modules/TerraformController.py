@@ -1,7 +1,7 @@
 
 from modules.IEnvironmentController import IEnvironmentController
 from python_terraform import *
-from modules import aws_service, splunk_sdk, kubernetes_service, github_service
+from modules import aws_service, splunk_sdk, github_service
 from tabulate import tabulate
 import ansible_runner
 import yaml
@@ -28,7 +28,9 @@ class TerraformController(IEnvironmentController):
         custom_dict['windows_domain_controller_packer_ami'] = "packer-windows-domain-controller-" + self.config['key_name']
         custom_dict['windows_server_packer_ami'] = "packer-windows-server-" + self.config['key_name']
         custom_dict['windows_client_packer_ami'] = "packer-windows-client-" + self.config['key_name']
-        self.terraform = Terraform(working_dir='terraform',variables=custom_dict)
+        variables = dict()
+        variables['config'] = custom_dict
+        self.terraform = Terraform(working_dir='terraform',variables=variables)
 
 
     def build(self):

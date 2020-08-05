@@ -1,9 +1,0 @@
-[aws_sqs_based_s3://cloudtrail]
-aws_account = splunk_role_{{ key_name }}
-index = aws
-interval = 60
-s3_file_decoder = CloudTrail
-sourcetype = aws:cloudtrail
-sqs_batch_size = 10
-sqs_queue_region = {{ region }}
-sqs_queue_url = {{ sqs_queue_url }}
