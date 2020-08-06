@@ -35,7 +35,6 @@ config.vm.define "attack-range-win10" do |config|
   config.vm.provider "virtualbox" do |vb, override|
     vb.gui = true
     vb.name = "#{VM_NAME_WIN}"
-    vb.default_nic_type = "82545EM"
     vb.customize ["modifyvm", :id, "--memory", 2048]
     vb.customize ["modifyvm", :id, "--cpus", 1]
     vb.customize ["modifyvm", :id, "--vram", "32"]
