@@ -8,6 +8,86 @@
 - name: Fetch attack data
   fetch:
     src: 'C:\nxlog_out.txt'
-    dest: ../../tmp/attack_data.txt
+    dest: ../../attack_data/{{ folder }}/{{ hostname }}.json
     validate_checksum: no
     flat: yes
+
+- name: Start nxlog
+  win_service:
+    name: nxlog
+    state: started
+
+- name: Export Sysmon Logs
+  win_shell: WEVTUtil epl "Microsoft-Windows-Sysmon/Operational"  C:\sysmon.evtx
+
+- name: Fetch sysmon data
+  fetch:
+    src: 'C:\sysmon.evtx'
+    dest: ../../attack_data/{{ folder }}/{{ hostname }}_sysmon.evtx
+    validate_checksum: no
+    flat: yes
+
+- name: Remove file
+  win_file:
+    path: 'C:\sysmon.evtx'
+    state: absent
+
+- name: Export Windows Event Logs Security
+  win_shell: WEVTUtil epl "Security" C:\windows_event_logs_security.evtx
+
+- name: Fetch security data
+  fetch:
+    src: 'C:\windows_event_logs_security.evtx'
+    dest: ../../attack_data/{{ folder }}/{{ hostname }}_windows_event_logs_security.evtx
+    validate_checksum: no
+    flat: yes
+
+- name: Remove file
+  win_file:
+    path: 'C:\windows_event_logs_security.evtx'
+    state: absent
+
+- name: Export Windows Event Logs System
+  win_shell: WEVTUtil epl "System" C:\windows_event_logs_system.evtx
+
+- name: Fetch system data
+  fetch:
+    src: 'C:\windows_event_logs_system.evtx'
+    dest: ../../attack_data/{{ folder }}/{{ hostname }}_windows_event_logs_system.evtx
+    validate_checksum: no
+    flat: yes
+
+- name: Remove file
+  win_file:
+    path: 'C:\windows_event_logs_system.evtx'
+    state: absent
+
+- name: Export Windows Event Logs Application
+  win_shell: WEVTUtil epl "Application" C:\windows_event_logs_application.evtx
+
+- name: Fetch application data
+  fetch:
+    src: 'C:\windows_event_logs_application.evtx'
+    dest: ../../attack_data/{{ folder }}/{{ hostname }}_windows_event_logs_application.evtx
+    validate_checksum: no
+    flat: yes
+
+- name: Remove file
+  win_file:
+    path: 'C:\windows_event_logs_application.evtx'
+    state: absent
+
+- name: Export Windows Event Logs Powershell
+  win_shell: WEVTUtil epl "Microsoft-Windows-PowerShell/Operational" C:\windows_event_logs_powershell.evtx
+
+- name: Fetch powershell data
+  fetch:
+    src: 'C:\windows_event_logs_powershell.evtx'
+    dest: ../../attack_data/{{ folder }}/{{ hostname }}_windows_event_logs_powershell.evtx
+    validate_checksum: no
+    flat: yes
+
+- name: Remove file
+  win_file:
+    path: 'C:\windows_event_logs_powershell.evtx'
+    state: absent

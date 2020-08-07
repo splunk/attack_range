@@ -143,3 +143,7 @@ class VagrantController(IEnvironmentController):
 
         print(tabulate(status, headers=['Name','Status','IP Address']))
         print()
+
+
+    def dump_attack_data(self, dump_name):
+        pass

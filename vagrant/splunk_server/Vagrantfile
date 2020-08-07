@@ -39,13 +39,7 @@ config.vm.define "attack-range-splunk-server" do |config|
         status_indicator_custom_visualization: '{{ status_indicator_custom_visualization }}',
         splunk_attack_range_dashboard: '{{ splunk_attack_range_dashboard }}',
         timeline_custom_visualization: '{{ timeline_custom_visualization }}',
-        install_mission_control: '{{ install_mission_control }}',
-        mission_control_app: '{{ mission_control_app }}',
-        install_dsp: '{{ install_dsp }}',
-        dsp_client_cert_path: '{{ dsp_client_cert_path }}',
-        dsp_node: '{{ dsp_node }}',
-        splunk_server_private_ip: '{{ splunk_server_private_ip }}',
-        cloud_attack_range: '0'
+        splunk_server_private_ip: '{{ splunk_server_private_ip }}'
       }
   end
 

@@ -18,12 +18,22 @@
   when: splunk_bots_dataset is regex("2a")
 - include: install_botsv3_dataset.yml
   when: splunk_bots_dataset is regex("3")
-- include: install_escu_app.yml
-- include: install_asx_app.yml
-- include: install_sse_app.yml
-- include: install_attack_range_dashboard.yml
-- include: install_windows_ta.yml
-- include: install_cim_app.yml
-- include: install_sysmon_ta.yml
-- include: install_mltk_app.yml
+- include: install_app_from_s3.yml
+  with_items:
+    - "{{ splunk_windows_ta }}"
+    - "{{ timeline_custom_visualization }}"
+    - "{{ splunk_asx_app }}"
+    - "{{ status_indicator_custom_visualization }}"
+    - "{{ punchard_custom_visualization }}"
+    - "{{ punchard_custom_visualization }}"
+    - "{{ splunk_attack_range_dashboard }}"
+    - "{{ splunk_cim_app }}"
+    - "{{ splunk_escu_app }}"
+    - "{{ splunk_python_app }}"
+    - "{{ splunk_mltk_app }}"
+    - "{{ splunk_security_essentials_app }}"
+    - "{{ splunk_sysmon_ta }}"
+    - "{{ splunk_windows_ta }}"
+- include: configure_attack_range_dashboard.yml
+- include: configure_escu.yml
 - include: install_stream_app.yml

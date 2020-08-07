@@ -9,7 +9,7 @@
     url: "https://127.0.0.1:8089/services/apps/local"
     method: POST
     user: "admin"
-    password: "{{ config.splunk_admin_password }}"
+    password: "{{ splunk_admin_password }}"
     validate_certs: false
     body: "name=/tmp/es_app.tgz&update=true&filename=true"
     headers:
@@ -20,7 +20,7 @@
   notify: restart splunk
 
 - name: Run es post-install setup
-  command: "/opt/splunk/bin/splunk search '| essinstall' -auth admin:{{ config.splunk_admin_password }}"
+  command: "/opt/splunk/bin/splunk search '| essinstall' -auth admin:{{ splunk_admin_password }}"
   become: yes
   become_user: splunk
   when: install_es == "1"

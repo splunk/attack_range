@@ -31,14 +31,14 @@
 - name: download splunk
   tags: install
   get_url:
-    url: '{{ config.splunk_url }}'
+    url: '{{ splunk_url }}'
     dest: /opt/
   when: splunk_path.stat.exists == false
 
 - name: install splunk binary
   tags:
    - install
-  unarchive: remote_src=yes src=/opt/{{config.splunk_binary}} dest=/opt/ owner=splunk group=splunk creates=yes
+  unarchive: remote_src=yes src=/opt/{{splunk_binary}} dest=/opt/ owner=splunk group=splunk creates=yes
   become: yes
   become_user: splunk
   when: splunk_path.stat.exists == false
@@ -46,7 +46,7 @@
 - name: accept license and start splunk
   tags:
    - install
-  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{config.splunk_admin_password}}
+  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{splunk_admin_password}}
   become: yes
   become_user: splunk
   when: splunk_path.stat.exists == false
