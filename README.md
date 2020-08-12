@@ -68,43 +68,43 @@ Attack Range supports different actions:
 ### Build Attack Range
 - Build Attack Range
 ```
-python attack_range.py -m terraform-a build
+python attack_range.py -a build
 ```
 
 ### Perform Attack Simulation
 - Perform Attack Simulation
 ```
-python attack_range.py -m terraform -a simulate -st T1003.001 -t attack-range-windows-domain-controller
+python attack_range.py -a simulate -st T1003.001 -t attack-range-windows-domain-controller
 ```
 
 ### Test with Attack Range
-- Automated testing of detection (only for terraform):
+- Automated testing of detection:
 ```
-python attack_range.py -m terraform -a test -tf tests/T1003_001.yml
+python attack_range.py -a test -tf tests/T1003_001.yml
 ```
 
 ### Destroy Attack Range
 - Destroy Attack Range
 ```
-python attack_range.py -m terraform -a destroy
+python attack_range.py -a destroy
 ```
 
 ### Stop Attack Range
 - Stop Attack Range
 ```
-python attack_range.py -m terraform -a stop
+python attack_range.py -a stop
 ```
 
 ### Resume Attack Range
 - Resume Attack Range
 ```
-python attack_range.py -m terraform -a resume
+python attack_range.py -a resume
 ```
 
 ### Dump Log Data from Attack Range
 - Dump Log Data from Attack Range
 ```
-python attack_range.py -m terraform -a dump -dn data_dump
+python attack_range.py -a dump -dn data_dump
 ```
 
 
