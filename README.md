@@ -49,7 +49,9 @@ The following log sources are collected from the machines:
 
 
 ## Configuration 🏗
-For ☁️ using [Terraform and AWS](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Terraform)
+
+###[For Ubuntu 18.04](https://github.com/splunk/attack_range/wiki/Ubuntu-18.04-Terraform-Installation)
+####[For MacOS](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Terraform)
 
 ## Running 🏃‍♀️
 Attack Range supports different actions:
