@@ -1,30 +1,30 @@
-![](docs/range.png)
-# Splunk Attack Range
+# Splunk Attack Range ⚔️
 
 | branch | build status |
 | ---    | ---          |
 | develop| [![develop status](https://circleci.com/gh/splunk/attack_range/tree/develop.svg?style=svg&circle-token=67ad1fa7779c57d7e5bcfc42bd617baf607ec269)](https://circleci.com/gh/splunk/attack_range/tree/develop)|
 | master | [![master status](https://circleci.com/gh/splunk/attack_range/tree/master.svg?style=svg&circle-token=67ad1fa7779c57d7e5bcfc42bd617baf607ec269)](https://circleci.com/gh/splunk/attack_range/tree/master)|
 
-## Purpose
+## Purpose 🛡
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering. First, the user is able to build quickly a small lab infrastructure as close as possible to a production environment. Second, the Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. Third, it integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
 
 
-## Demo
-[:tv: A short demo (< 6 min)](https://www.youtube.com/watch?v=xIbln7OQ-Ak) which shows the basic functions of the attack range. It builds a testing enviroment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [ESCU](https://github.com/splunk/security-content) searches are used to detect the attack.
+## Demo 📺
+[A short demo (< 6 min)](https://www.youtube.com/watch?v=xIbln7OQ-Ak) which shows the basic functions of the attack range. It builds a testing enviroment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [ESCU](https://github.com/splunk/security-content) searches are used to detect the attack.
 
 [![Attack Range Demo](https://img.youtube.com/vi/xIbln7OQ-Ak/0.jpg)](https://www.youtube.com/watch?v=xIbln7OQ-Ak)
 
-## Deployment
+## Building 👷‍♂️
 
 Attack Range can be built in three different ways:
 
-- **local** using vagrant and virtualbox
-- in the **cloud** using terraform and AWS
+- **cloud** using terraform and AWS.
+- **locally** see the [attack\_range\_local](https://github.com/splunk/attack_range_local/) project for details
+- **serverless** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details 
 
 ![Logical Diagram](docs/attack_range_architecture1.png)
 
-## Architecture
+## Architecture 🏯
 
 ![Logical Diagram](docs/attack_range_architecture2.png)
 
@@ -50,12 +50,12 @@ The following log sources are collected from the machines:
 - Attack Simulation Logs from Atomic Red Team and Caldera (```index = attack```)
 
 
-## Configuration
-- local [Vagrant and Virtualbox](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Vagrant)
-- cloud [Terraform and AWS](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Terraform)
+## Configuration 🏗
+For ☁️ using [Terraform and AWS](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Terraform)
 
-## Running
+## Running 🏃‍♀️
 Attack Range supports different actions:
+
 - Build Attack Range
 - Perform Attack Simulation
 - Test with Attack Range
@@ -67,13 +67,13 @@ Attack Range supports different actions:
 ### Build Attack Range
 - Build Attack Range
 ```
-python attack_range.py -m terraform/vagrant -a build
+python attack_range.py -m terraform-a build
 ```
 
 ### Perform Attack Simulation
 - Perform Attack Simulation
 ```
-python attack_range.py -m terraform/vagrant -a simulate -st T1003.001 -t attack-range-windows-domain-controller
+python attack_range.py -m terraform-a simulate -st T1003.001 -t attack-range-windows-domain-controller
 ```
 
 ### Test with Attack Range
@@ -85,29 +85,29 @@ python attack_range.py -m terraform -a test -tf tests/T1003_001.yml
 ### Destroy Attack Range
 - Destroy Attack Range
 ```
-python attack_range.py -m terraform/vagrant -a destroy
+python attack_range.py -m terraform -a destroy
 ```
 
 ### Stop Attack Range
 - Stop Attack Range
 ```
-python attack_range.py -m terraform/vagrant -a stop
+python attack_range.py -m terraform -a stop
 ```
 
 ### Resume Attack Range
 - Resume Attack Range
 ```
-python attack_range.py -m terraform/vagrant -a resume
+python attack_range.py -m terraform -a resume
 ```
 
 ### Dump Log Data from Attack Range
 - Dump Log Data from Attack Range
 ```
-python attack_range.py -m terraform/vagrant -a dump -dn data_dump
+python attack_range.py -m terraform -a dump -dn data_dump
 ```
 
 
-## Features
+## Features 💍
 - [Splunk Server](https://github.com/splunk/attack_range/wiki/Splunk-Server)
   * Indexing of Microsoft Event Logs, PowerShell Logs, Sysmon Logs, DNS Logs, ...
   * Preconfigured with multiple TAs for field extractions
@@ -147,13 +147,7 @@ python attack_range.py -m terraform/vagrant -a dump -dn data_dump
   * ssh connection over configured ssh key
 
 
-## Planned features
-- Linux Server
-- Linux Client
-- macOS Client
-
-
-## Support
+## Support 📞
 Please use the [GitHub issue tracker](https://github.com/splunk/attack_range/issues) to submit bugs or request features.
 
 If you have questions or need support, you can:
@@ -162,8 +156,10 @@ If you have questions or need support, you can:
 * Join the [#security-research](https://splunk-usergroups.slack.com/messages/C1RH09ERM/) room in the [Splunk Slack channel](http://splunk-usergroups.slack.com)
 * If you are a Splunk Enterprise customer with a valid support entitlement contract and have a Splunk-related question, you can also open a support case on the https://www.splunk.com/ support portal
 
+## Contributing 🥰
+We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved.
 
-## Author
+## Author 
 * [Jose Hernandez](https://twitter.com/d1vious)
 * [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 
@@ -177,5 +173,3 @@ If you have questions or need support, you can:
 * [Dimitris Lambrou](https://twitter.com/etz69)
 * [Dave Herrald](https://twitter.com/daveherrald)
 
-## Contributing
-We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved.
