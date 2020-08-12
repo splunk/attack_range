@@ -84,19 +84,19 @@ starting program loaded for B1 battle droid
         log.info("version: {0}".format(VERSION))
         sys.exit(0)
 
-    if mode and action == 'simulate' and not target:
+    if action == 'simulate' and not target:
         log.error('ERROR: Specify target for attack simulation')
         sys.exit(1)
 
-    if mode and action == 'test' and not test_file:
+    if action == 'test' and not test_file:
         log.error('ERROR: Specify test file --test_file to execute.')
         sys.exit(1)
 
-    if mode != 'terraform' and action == 'test':
+    if action == 'test':
         log.error('ERROR: test action only supported by terraform.')
         sys.exit(1)
 
-    if mode != 'terraform' and action == 'dump':
+    if action == 'dump':
         log.error('ERROR: dump action only supported by terraform.')
         sys.exit(1)
 
