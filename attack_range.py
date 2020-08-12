@@ -92,14 +92,6 @@ starting program loaded for B1 battle droid
         log.error('ERROR: Specify test file --test_file to execute.')
         sys.exit(1)
 
-    if action == 'test':
-        log.error('ERROR: test action only supported by terraform.')
-        sys.exit(1)
-
-    if action == 'dump':
-        log.error('ERROR: dump action only supported by terraform.')
-        sys.exit(1)
-
 
     # lets give CLI priority over config file for pre-configured techniques
     if simulation_techniques:
