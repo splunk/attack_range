@@ -36,10 +36,11 @@ The virtualized deployment of Attack Range consists of:
 
 Which can be added/removed/configured using [attack_range.conf](attack_range.conf). More machines such as Phantom, Linux server, Linux client, MacOS clients are currently under development.
 
-An approxiamte **cost estimate** for running attack_range using `--mode terraform` on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates---mode-terraform).
+An approxiamte **cost estimate** for running attack_range on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates---mode-terraform).
 
 #### Logging
 The following log sources are collected from the machines:
+
 - Windows Event Logs (```index = win```)
 - Sysmon Logs (```index = win```)
 - Powershell Logs (```index = win```)
