@@ -22,7 +22,7 @@ Attack Range can be built in three different ways:
 - **locally** see the [attack\_range\_local](https://github.com/splunk/attack_range_local/) project for details
 - **serverless** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details 
 
-![Logical Diagram](https://docs.google.com/drawings/d/e/2PACX-1vS261Hh1kJT4VVJTI3L15nMLMikso0QIaQ7h5-6-ocGDD4egjg1JFzV9kgGdEY0I3BIyTqJ60RB_m5I/pub?w=1624&h=565)
+![Logical Diagram](docs/attack_range_architecture1.png)
 
 ## Architecture 🏯
 
