@@ -22,11 +22,8 @@ Attack Range can be built in three different ways:
 - **locally** see the [attack\_range\_local](https://github.com/splunk/attack_range_local/) project for details
 - **serverless** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details 
 
-![Logical Diagram](docs/attack_range_architecture1.png)
-
 ## Architecture 🏯
-
-![Logical Diagram](docs/attack_range_architecture2.png)
+![Logical Diagram](docs/attack_range_architecture1.png)
 
 The virtualized deployment of Attack Range consists of:
 
