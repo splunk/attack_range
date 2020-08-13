@@ -4,7 +4,6 @@
 version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@0.1.19
-  slack: circleci/slack@3.4.2
 
 dependencies:
   cache_directories:
@@ -91,19 +90,16 @@ jobs:
             cd terraform/
             terraform init
             cd ..
-            python attack_range.py --mode terraform --action build
-            python attack_range.py --mode terraform --action simulate --target attack-range-windows-domain-controller --simulation_technique T1003.002
-            python attack_range.py --mode terraform --action destroy
+            python attack_range.py --action build
+            python attack_range.py --action simulate --target attack-range-windows-domain-controller --simulation_technique T1003.002
+            python attack_range.py --action destroy
       - run:
           name: cleanup terraform on failures
           command: |
             cd attack_range
             source venv/bin/activate
-            python attack_range.py --mode terraform --action destroy
+            python attack_range.py --action destroy
           when: on_fail
-      - slack/status:
-          webhook: '${SLACK_WEBHOOK}'
-          fail_only: true
 workflows:
   version: 2.1
   build-attack-destroy:
