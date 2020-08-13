@@ -1,1 +1,0 @@
-my aws credentials; user=dave password=ChuckNorris123!
