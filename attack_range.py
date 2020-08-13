@@ -17,7 +17,7 @@ VERSION = 1
 if __name__ == "__main__":
     # grab arguments
     parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
-    parser.add_argument("-a", "--action", required=True, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'test', 'dump'],
+    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'test', 'dump'], default="",
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume/search allowed")
     parser.add_argument("-t", "--target", required=False,
                         help="target for attack simulation. Use the name of the aws EC2 name")
@@ -90,6 +90,10 @@ starting program loaded for B1 battle droid
 
     if action == 'test' and not test_file:
         log.error('ERROR: Specify test file --test_file to execute.')
+        sys.exit(1)
+
+    if action == "" and not list_machines:
+        log.error('ERROR: flag --action is needed.')
         sys.exit(1)
 
 

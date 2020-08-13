@@ -19,8 +19,8 @@ The Attack Range is a detection development platform, which solves three main ch
 Attack Range can be built in three different ways:
 
 - **cloud** using terraform and AWS.
-- **locally** see the [attack\_range\_local](https://github.com/splunk/attack_range_local/) project for details
-- **serverless** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details 
+- **locally** with vagrant and virtualbox see the [attack\_range\_local](https://github.com/splunk/attack_range_local/) project for details
+- **cloud-only** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details 
 
 ## Architecture 🏯
 ![Logical Diagram](docs/attack_range_architecture1.png)
@@ -160,7 +160,7 @@ If you have questions or need support, you can:
 ## Contributing 🥰
 We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved.
 
-## Author 
+## Author
 * [Jose Hernandez](https://twitter.com/d1vious)
 * [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 
@@ -173,4 +173,3 @@ We welcome feedback and contributions from the community! Please see our [contri
 * Rico Valdez
 * [Dimitris Lambrou](https://twitter.com/etz69)
 * [Dave Herrald](https://twitter.com/daveherrald)
-
