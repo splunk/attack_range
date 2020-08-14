@@ -1,3 +1,5 @@
+# ignore attack_range.conf that might include local custom changes
+attack_range.conf
 
 # ignore appbinaries directory we don't want this uploaded
 ansible/roles/*/files/splunk*.tgz
