@@ -146,7 +146,9 @@ python attack_range.py -a dump -dn data_dump
 - [Kali Linux](https://www.kali.org/)
   * Preconfigured Kali Linux machine for penetration testing
   * ssh connection over configured ssh key
-
+- Multiple instances of Attack Range can be launched utilizing the `-rn` parameter for  `attack_range.py`
+  * This will create instances tagged with `${range_name}-${instance_name}`
+  * Depending on how many instance you launch, you may need to increase your ElasticIP quota with the directions [here](https://docs.aws.amazon.com/servicequotas/latest/userguide/request-quota-increase.html)
 
 ## Support 📞
 Please use the [GitHub issue tracker](https://github.com/splunk/attack_range/issues) to submit bugs or request features.
@@ -173,3 +175,4 @@ We welcome feedback and contributions from the community! Please see our [contri
 * Rico Valdez
 * [Dimitris Lambrou](https://twitter.com/etz69)
 * [Dave Herrald](https://twitter.com/daveherrald)
+* Josef Kuepker
