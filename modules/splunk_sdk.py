@@ -120,3 +120,20 @@ def list_searches(splunk_host, splunk_password):
 
     # List the saved searches that are available to the current user
     return service.saved_searches
+
+
+def test():
+    service = client.connect(
+        host='52.29.172.70',
+        port=8089,
+        username='admin',
+        password='I-l1ke-Attack-Range!'
+    )
+
+    myindex = service.indexes["test"]
+    uploadme = "/opt/splunk/attack-range-windows-domain-controller_sysmon.xml"
+
+    kwargs = {"source": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"}
+
+    return_value = myindex.upload(uploadme)
+    print(return_value)

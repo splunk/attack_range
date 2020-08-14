@@ -1,0 +1,17 @@
+- name: Create local folder directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/DA-ESS-ContentUpdate/local/
+
+- name: copy macros.conf to splunk server
+  copy:
+    src: macros.conf
+    dest: /opt/splunk/etc/apps/DA-ESS-ContentUpdate/local/macros.conf
+    owner: splunk
+    group: splunk
+  notify: restart splunk
