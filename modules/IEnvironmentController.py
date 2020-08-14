@@ -36,3 +36,7 @@ class IEnvironmentController(ABC):
     @abstractmethod
     def list_machines(self):
         pass
+
+    @abstractmethod
+    def dump_attack_data(self, dump_name):
+        pass

@@ -1,11 +1,11 @@
 
 data "aws_ami" "windows-client-ami" {
-  count = var.windows_client == "1" && var.use_packer_amis=="0" ? 1 : 0
+  count = var.config.windows_client == "1" ? 1 : 0
   owners       = ["self"]
 
   filter {
     name   = "name"
-    values = [var.windows_client_os]
+    values = [var.config.windows_client_os]
   }
 
   most_recent = true
@@ -13,13 +13,13 @@ data "aws_ami" "windows-client-ami" {
 
 
 resource "aws_instance" "windows_client" {
-  count         = var.windows_client == "1" && var.use_packer_amis=="0" ? 1 : 0
+  count         = var.config.windows_client == "1" ? 1 : 0
   ami           = data.aws_ami.windows-client-ami[count.index].id
   instance_type = "t2.2xlarge"
-  key_name = var.key_name
+  key_name = var.config.key_name
   subnet_id = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip = var.windows_client_private_ip
+  private_ip = var.config.windows_client_private_ip
   depends_on = [var.windows_domain_controller_instance]
   tags = {
     Name = "attack-range-windows-client"
@@ -27,8 +27,8 @@ resource "aws_instance" "windows_client" {
 
   provisioner "remote-exec" {
     inline = [
-      "net user ${var.win_username} /active:yes",
-      "net user ${var.win_username} ${var.win_password}"
+      "net user ${var.config.win_username} /active:yes",
+      "net user ${var.config.win_username} ${var.config.win_password}"
       ]
 
     connection {
@@ -50,8 +50,8 @@ resource "aws_instance" "windows_client" {
 
     connection {
       type     = "winrm"
-      user     = var.win_username
-      password = var.win_password
+      user     = var.config.win_username
+      password = var.config.win_password
       host     = aws_instance.windows_client[count.index].public_ip
       port     = 5985
       insecure = true
@@ -62,88 +62,12 @@ resource "aws_instance" "windows_client" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ansible-playbook -i '${aws_instance.windows_client[count.index].public_ip},' playbooks/windows_workstation.yml --extra-vars 'splunk_indexer_ip=${var.splunk_server_private_ip} ansible_user=${var.win_username} ansible_password=${var.win_password} win_password=${var.win_password} splunk_uf_win_url=${var.splunk_uf_win_url} nxlog_url=${var.nxlog_url} install_dsp=${var.install_dsp} win_sysmon_url=${var.win_sysmon_url} win_sysmon_template=${var.win_sysmon_template} splunk_admin_password=${var.splunk_admin_password} windows_domain_controller_private_ip=${var.windows_domain_controller_private_ip} windows_server_join_domain=${var.windows_client_join_domain} splunk_stream_app=${var.splunk_stream_app} s3_bucket_url=${var.s3_bucket_url} run_demo=${var.run_demo} demo_scenario=${var.demo_scenario} capture_attack_data=${var.capture_attack_data}'"
+    command = "ansible-playbook -i '${aws_instance.windows_client[count.index].public_ip},' playbooks/windows_workstation.yml --extra-vars 'splunk_indexer_ip=${var.config.splunk_server_private_ip} ansible_user=${var.config.win_username} ansible_password=${var.config.win_password} win_password=${var.config.win_password} splunk_uf_win_url=${var.config.splunk_uf_win_url} nxlog_url=${var.config.nxlog_url} win_sysmon_url=${var.config.win_sysmon_url} win_sysmon_template=${var.config.win_sysmon_template} splunk_admin_password=${var.config.splunk_admin_password} windows_domain_controller_private_ip=${var.config.windows_domain_controller_private_ip} windows_server_join_domain=${var.config.windows_client_join_domain} splunk_stream_app=${var.config.splunk_stream_app} s3_bucket_url=${var.config.s3_bucket_url}'"
   }
 
 }
 
 resource "aws_eip" "windows_client_ip" {
-  count         = var.windows_client == "1" && var.use_packer_amis=="0" ? 1 : 0
+  count         = var.config.windows_client == "1" ? 1 : 0
   instance = aws_instance.windows_client[0].id
-}
-
-
-##### packer #######
-
-data "aws_ami" "windows-client-packer-ami" {
-  count = var.windows_client == "1" && var.use_packer_amis=="1" ? 1 : 0
-  owners       = ["self"]
-
-  filter {
-    name   = "name"
-    values = [var.windows_client_packer_ami]
-  }
-
-  most_recent = true
-}
-
-
-resource "aws_instance" "windows_client_packer" {
-  count         = var.windows_client == "1" && var.use_packer_amis=="1" ? 1 : 0
-  ami           = data.aws_ami.windows-client-packer-ami[count.index].id
-  instance_type = "t2.2xlarge"
-  key_name = var.key_name
-  subnet_id = var.ec2_subnet_id
-  vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip = var.windows_client_private_ip
-  depends_on = [var.windows_domain_controller_instance]
-  tags = {
-    Name = "attack-range-windows-client"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "net user ${var.win_username} /active:yes",
-      "net user ${var.win_username} ${var.win_password}"
-      ]
-
-    connection {
-      type     = "winrm"
-      user     = "admin"
-      password = "admin"
-      host     = aws_instance.windows_client_packer[count.index].public_ip
-      port     = 5985
-      insecure = true
-      https    = false
-      timeout  = "7m"
-    }
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "net user admin /active:no"
-      ]
-
-    connection {
-      type     = "winrm"
-      user     = var.win_username
-      password = var.win_password
-      host     = aws_instance.windows_client_packer[count.index].public_ip
-      port     = 5985
-      insecure = true
-      https    = false
-      timeout  = "7m"
-    }
-  }
-
-  provisioner "local-exec" {
-    working_dir = "../ansible"
-    command = "ansible-playbook -i '${aws_instance.windows_client_packer[count.index].public_ip},' playbooks/windows_workstation_packer_terraform.yml --extra-vars 'splunk_indexer_ip=${var.splunk_server_private_ip} ansible_user=${var.win_username} ansible_password=${var.win_password} win_password=${var.win_password} splunk_uf_win_url=${var.splunk_uf_win_url} nxlog_url=${var.nxlog_url} install_dsp=${var.install_dsp} win_sysmon_url=${var.win_sysmon_url} win_sysmon_template=${var.win_sysmon_template} splunk_admin_password=${var.splunk_admin_password} windows_domain_controller_private_ip=${var.windows_domain_controller_private_ip} windows_server_join_domain=${var.windows_client_join_domain} run_demo=${var.run_demo} demo_scenario=${var.demo_scenario}'"
-  }
-
-}
-
-resource "aws_eip" "windows_client_ip_packer" {
-  count         = var.windows_client == "1" && var.use_packer_amis=="1" ? 1 : 0
-  instance = aws_instance.windows_client_packer[0].id
 }

@@ -9,6 +9,10 @@ ansible/vars/vars.yml
 apps/*
 !apps/.gitkeep
 
+# attack data folder
+attack_data/*
+!attack_data/.gitkeep
+
 # log file
 attack_range.log
 .attack_range/artifacts
