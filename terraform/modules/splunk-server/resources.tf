@@ -26,7 +26,7 @@ resource "aws_instance" "splunk-server" {
   depends_on = [var.phantom_server_instance]
   root_block_device {
     volume_type = "gp2"
-    volume_size = "30"
+    volume_size = "60"
     delete_on_termination = "true"
   }
   tags = {
