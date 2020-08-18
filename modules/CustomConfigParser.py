@@ -20,9 +20,7 @@ class CustomConfigParser:
             sys.exit(1)
 
         if '0.0.0.0/0' in self.settings['ip_whitelist']:
-            print("ERROR - with configuration file at: {0}, the attack range is public and open to the world, please secure your attack_range servers by whitelisting only your public IP in this format: ip_whitelist= <X.X.X.X>/32".format(CONFIG_PATH))
-            sys.exit(1)
-
+            print("WARNING - with configuration file at: {0}, the attack range will be public and open to the world, it is recommended that users secure attack_range servers by whitelisting only the public IP address in this format: ip_whitelist= <X.X.X.X>/32".format(CONFIG_PATH))
              
 
         # Check for disallowed BOTS dataset combinations or syntax
