@@ -110,6 +110,5 @@ workflows:
             branches:
               only:
                 - develop
-                - master
     jobs:
       - terraform-build-attack-destroy
