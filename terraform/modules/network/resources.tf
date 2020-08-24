@@ -31,28 +31,35 @@ resource "aws_security_group" "default" {
   }
 
  ingress {
-    from_port   = 0
+    from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = [var.config.ip_whitelist]
   }
 
  ingress {
-    from_port   = 0
+    from_port   = 8000
     to_port     = 8000
+    protocol    = "tcp"
+    cidr_blocks = [var.config.ip_whitelist]
+  }
+
+   ingress {
+    from_port   = 5986
+    to_port     = 5986
     protocol    = "tcp"
     cidr_blocks = [var.config.ip_whitelist]
   }
   
  ingress {
-    from_port   = 0
+    from_port   = 3389
     to_port     = 3389
     protocol    = "tcp"
     cidr_blocks = [var.config.ip_whitelist]
   }
 
   ingress {
-    from_port   = 0
+    from_port   = 3389
     to_port     = 3389
     protocol    = "udp"
     cidr_blocks = [var.config.ip_whitelist]
