@@ -91,7 +91,7 @@ class TerraformController(IEnvironmentController):
             result_obj['detection'] = detection_obj['name']
             instance = aws_service.get_instance_by_name("attack-range-splunk-server",self.config)
             if instance['State']['Name'] == 'running':
-                result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['splunk_admin_password']), detection['search'], detection_obj['pass_condition'], detection['name'], self.log)
+                result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], self.log)
             else:
                 self.log.error('ERROR: Splunk server is not running.')
             result.append(result_obj)
@@ -144,14 +144,14 @@ class TerraformController(IEnvironmentController):
                                    cmdline=str('-i ' + target_public_ip + ', '),
                                    roles_path="../ansible/roles",
                                    playbook='../ansible/playbooks/atomic_red_team.yml',
-                                   extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
+                                   extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                    verbosity=0)
         else:
             runner = ansible_runner.run(private_data_dir='.attack_range/',
                                cmdline=str('-i ' + target_public_ip + ', '),
                                roles_path="../ansible/roles",
                                playbook='../ansible/playbooks/atomic_red_team.yml',
-                               extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
+                               extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                verbosity=0)
 
         if runner.status == "successful":
@@ -212,14 +212,14 @@ class TerraformController(IEnvironmentController):
                                        cmdline=str('-i ' + target_public_ip + ', '),
                                        roles_path="../ansible/roles",
                                        playbook='../ansible/playbooks/attack_data.yml',
-                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
+                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
             else:
                 runner = ansible_runner.run(private_data_dir='.attack_range/',
                                        cmdline=str('-i ' + target_public_ip + ', '),
                                        roles_path="../ansible/roles",
                                        playbook='../ansible/playbooks/attack_data.yml',
-                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'hostname': server_str, 'folder': dump_name},
+                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
 
         if self.config['sync_to_s3_bucket'] == '1':

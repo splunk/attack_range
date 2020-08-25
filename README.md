@@ -3,7 +3,6 @@
 | branch | build status |
 | ---    | ---          |
 | develop| [![develop status](https://circleci.com/gh/splunk/attack_range/tree/develop.svg?style=svg&circle-token=67ad1fa7779c57d7e5bcfc42bd617baf607ec269)](https://circleci.com/gh/splunk/attack_range/tree/develop)|
-| master | [![master status](https://circleci.com/gh/splunk/attack_range/tree/master.svg?style=svg&circle-token=67ad1fa7779c57d7e5bcfc42bd617baf607ec269)](https://circleci.com/gh/splunk/attack_range/tree/master)|
 
 ## Purpose 🛡
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering. First, the user is able to build quickly a small lab infrastructure as close as possible to a production environment. Second, the Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. Third, it integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
@@ -20,7 +19,7 @@ Attack Range can be built in three different ways:
 
 - **cloud** using terraform and AWS.
 - **locally** with vagrant and virtualbox see the [attack\_range\_local](https://github.com/splunk/attack_range_local/) project for details
-- **cloud-only** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details 
+- **serverless** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details 
 
 ## Architecture 🏯
 ![Logical Diagram](docs/attack_range_architecture1.png)
@@ -48,11 +47,11 @@ The following log sources are collected from the machines:
 - Attack Simulation Logs from Atomic Red Team and Caldera (```index = attack```)
 
 
-## Configuration 🏗
+## Installation 🏗
 
-### [For Ubuntu 18.04](https://github.com/splunk/attack_range/wiki/Ubuntu-18.04-Terraform-Installation)
+### [For Ubuntu 18.04](https://github.com/splunk/attack_range/wiki/Ubuntu-18.04-Installation)
 
-### [For MacOS](https://github.com/splunk/attack_range/wiki/Configure-Attack-Range-for-Terraform)
+### [For MacOS](https://github.com/splunk/attack_range/wiki/MacOS-Installation)
 
 ## Running 🏃‍♀️
 Attack Range supports different actions:
