@@ -7,5 +7,5 @@
 
 - name: Copy inputs.conf configuration
   win_copy:
-    src: win_event_log_inputs.conf
+    src: win_event_log_inputs_plain.conf
     dest: 'C:\Program Files\SplunkUniversalForwarder\etc\apps\win_inputs_app\local\inputs.conf'
