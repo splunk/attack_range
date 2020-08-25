@@ -56,6 +56,7 @@ The following log sources are collected from the machines:
 ## Running 🏃‍♀️
 Attack Range supports different actions:
 
+- Configuring Attack Range
 - Build Attack Range
 - Perform Attack Simulation
 - Test with Attack Range
@@ -63,6 +64,21 @@ Attack Range supports different actions:
 - Stop Attack Range
 - Resume Attack Range
 - Dump Log Data from Attack Range
+
+### Configuring Attack Range
+- Edit configuration
+```
+cp attack_range.conf.template attack_range.conf
+nano attack_range.conf
+```
+Save and exit.
+
+- Initialize Terraform
+```
+cd terraform
+terraform init
+cd ..
+```
 
 ### Build Attack Range
 - Build Attack Range
