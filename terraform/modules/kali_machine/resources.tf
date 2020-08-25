@@ -6,7 +6,7 @@ data "aws_ami" "latest-kali-linux" {
 
   filter {
       name   = "name"
-      values = ["Kali Linux 2020*"]
+      values = ["kali-linux-2020*"]
   }
 
   filter {
@@ -32,7 +32,7 @@ resource "aws_instance" "kali_machine" {
 
     connection {
       type        = "ssh"
-      user        = "ec2-user"
+      user        = "kali"
       host        = aws_instance.kali_machine[count.index].public_ip
       private_key = file(var.config.private_key_path)
     }

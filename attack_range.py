@@ -96,6 +96,10 @@ starting program loaded for B1 battle droid
         log.error('ERROR: flag --action is needed.')
         sys.exit(1)
 
+    if config['attack_range_password'] == 'Pl3ase-k1Ll-me:p':
+        log.error('ERROR: please change attack_range_password in attack_range.conf')
+        sys.exit(1)
+
 
     # lets give CLI priority over config file for pre-configured techniques
     if simulation_techniques:
