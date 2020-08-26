@@ -8,6 +8,9 @@ log_level = INFO
 # Sets the log level for the logging
 # Possible values: INFO, ERROR
 
+attack_range_password = Pl3ase-k1Ll-me:p
+# Master password for all administrative accounts
+# default Pl3ase-k1Ll-me:p
 
 [range_settings]
 key_name = attack-range-key-pair
@@ -15,6 +18,9 @@ key_name = attack-range-key-pair
 # for instructions visit: https://github.com/splunk/attack_range/wiki/Ubuntu-18.04-Installation
 
 ip_whitelist = 0.0.0.0/0
+# Blocks from which Attack Range machines can be reached.
+# This allow comma-separated blocks
+# ip_whitelist = 0.0.0.0/0,35.153.82.195/32
 
 private_key_path = ~/.ssh/id_rsa
 # Specify the path to your private SSH key
@@ -25,9 +31,6 @@ region = us-west-2
 
 
 [splunk_settings]
-splunk_admin_password = I-l1ke-Attack-Range!
-# Specify the password for the admin user in Splunk
-# It is recommended to change that value
 
 splunk_url = https://download.splunk.com/products/splunk/releases/8.0.5/linux/splunk-8.0.5-a1a6394cc5ae-Linux-x86_64.tgz
 # Specify the download URL of Splunk Enterprise
@@ -73,7 +76,7 @@ splunk_attack_range_dashboard = splunk_attack_range_reporting.spl
 
 timeline_custom_visualization = timeline-custom-visualization_140.tgz
 
-splunk_bots_dataset = 1a,2a,3
+splunk_bots_dataset = 0
 # A comma separated list of values indicating which of the open-source Boss
 # of the SOC (BOTS) datasets to install.
 # 0  - Do not install any Boss of the SOC datasets (default)
@@ -127,21 +130,12 @@ phantom_community_password = password
 # This must be changed to a real password
 # You can register under my.phantom.us
 
-phantom_admin_password = I-l1ke-Attack-Range!
-# Specify the password that will be used to login to the new Phantom instance as admin
-# It is recommended that you change this value
-
 phantom_app = phantom-app-for-splunk_305.tgz
 
 [windows_settings]
 win_username = Administrator
 # Specify the Administrator user in your windows machine
 # It is recommended to keep that value as it is
-
-win_password = I-l1ke-Attack-Range!
-# Specify the password for the Administrator User in Windows
-# It is recommended to change that value
-# The default windows password policy must be followed (at least three of uppercase letters, lowercase letters, numbers, and special characters)
 
 splunk_uf_win_url = https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi
 # Specify the download URL of the Splunk windows universal forwarder
@@ -152,6 +146,9 @@ win_sysmon_url = https://download.sysinternals.com/files/Sysmon.zip
 win_sysmon_template = AttackRangeSysmon.xml
 # Specify the sysmon template
 # Possible Values: SysmonConfig-moti.xml, SysmonConfig-Neo23x0-server.xml, SysmonConfig-Neo23x0-workstations.xml, SysmonConfig-TSwift.xml, SysmonConfig-Verbose.xml, SysmonConfigCustom.xml
+
+win_4688_cmd_line = 0
+# Enables cmd line logging of Windows Security Events 4688
 
 [enterprise_security]
 install_es = 0
@@ -209,9 +206,6 @@ art_branch =  local-master
 
 
 [caldera]
-caldera_password = I-l1ke-Attack-Range!
-# specify the caldera password for the user: admin
-
 
 [environment]
 # specify your Attack Range environment by enabling (1) or disabling (0) machines
@@ -220,7 +214,7 @@ phantom_server = 0
 # enable a phantom server
 # possible values: 1, 0
 
-windows_domain_controller = 0
+windows_domain_controller = 1
 # enable a windows domain controller
 # possible values: 1, 0
 
@@ -276,7 +270,7 @@ windows_server_os = Windows_Server-2016-English-Full-Base-*
 # specify the windows server operating System
 # currently only Windows_Server_2016 is supported
 
-windows_server_join_domain = 0
+windows_server_join_domain = 1
 # specify if the windows server should join the windows domain
 # possible values: 1, 0
 

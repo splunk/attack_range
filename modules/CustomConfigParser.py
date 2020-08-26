@@ -19,6 +19,10 @@ class CustomConfigParser:
             print("ERROR - with configuration file at: {0}, no special characters, spaces, single quotes allowed in key_name: {1}".format(CONFIG_PATH,self.settings['key_name']))
             sys.exit(1)
 
+        if '0.0.0.0/0' in self.settings['ip_whitelist']:
+            print("WARNING - with configuration file at: {0}, the attack range will be public and open to the world, it is recommended that users secure attack_range servers by whitelisting only the public IP address in this format: ip_whitelist= <X.X.X.X>/32".format(CONFIG_PATH))
+             
+
         # Check for disallowed BOTS dataset combinations or syntax
         if self.settings['splunk_bots_dataset'] != '0':
             allowed_bots_data_sets = ('1', '1a', '2', '2a', '3')

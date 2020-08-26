@@ -19,7 +19,7 @@ Attack Range can be built in three different ways:
 
 - **cloud** using terraform and AWS.
 - **locally** with vagrant and virtualbox see the [attack\_range\_local](https://github.com/splunk/attack_range_local/) project for details
-- **serverless** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details 
+- **serverless** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details
 
 ## Architecture 🏯
 ![Logical Diagram](docs/attack_range_architecture1.png)
@@ -56,6 +56,7 @@ The following log sources are collected from the machines:
 ## Running 🏃‍♀️
 Attack Range supports different actions:
 
+- Configuring Attack Range
 - Build Attack Range
 - Perform Attack Simulation
 - Test with Attack Range
