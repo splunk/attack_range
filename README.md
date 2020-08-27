@@ -173,3 +173,5 @@ We welcome feedback and contributions from the community! Please see our [contri
 * Rico Valdez
 * [Dimitris Lambrou](https://twitter.com/etz69)
 * [Dave Herrald](https://twitter.com/daveherrald)
+* Ignacio Bermudez Corrales
+* Peter Gael
