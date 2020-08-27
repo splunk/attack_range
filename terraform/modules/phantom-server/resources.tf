@@ -41,7 +41,9 @@ resource "aws_instance" "phantom-server" {
       type        = "ssh"
       user        = "centos"
       host        = aws_instance.phantom-server[0].public_ip
-      private_key = file(var.config.private_key_path)
+      agent       = var.config.use_ssh_agent == "1" ? true : false
+      agent_identity = var.config.use_ssh_agent == "1" ? var.config.private_key_path : null
+      private_key = var.config.use_ssh_agent == "1" ? null : file(var.config.private_key_path)
     }
   }
 

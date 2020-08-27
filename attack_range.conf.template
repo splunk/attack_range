@@ -25,6 +25,10 @@ ip_whitelist = 0.0.0.0/0
 private_key_path = ~/.ssh/id_rsa
 # Specify the path to your private SSH key
 
+use_ssh_agent = 1
+# Specify whether to load the key directly or via agent (required if encrypted)
+# possible values: 1, 0
+
 region = us-west-2
 # Specify the aws region in which you want to build the attack range
 # please ensure that aws_cli has the same region specified
