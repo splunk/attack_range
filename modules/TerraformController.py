@@ -221,7 +221,7 @@ class TerraformController(IEnvironmentController):
                 r = requests.post("https://%s:8089/servicesNS/admin/search/search/jobs/export" % target_public_ip,
                                   auth=('admin', self.config['attack_range_password']),
                                   data={'output_mode': 'raw',
-                                        'search': 'search sourcetype=WinEventLog'},
+                                        'search': 'search source=WinEventLog:Security New_Process_Name!="C:\\Program Files\\SplunkUniversalForwarder\\bin\\*"'},
                                   verify=False)
                 out = open("attack_data/"+dump_name+"/windows-sec-events.out", 'w')
                 out.write(r.text)
