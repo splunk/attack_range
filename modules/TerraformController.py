@@ -197,10 +197,10 @@ class TerraformController(IEnvironmentController):
         os.mkdir(folder)
 
         servers = ['splunk_server']
-        # if self.config['windows_domain_controller'] == '1':
-        #     servers.append('windows_domain_controller')
-        # if self.config['windows_server'] == '1':
-        #     servers.append('windows_server')
+        if self.config['windows_domain_controller'] == '1':
+            servers.append('windows_domain_controller')
+        if self.config['windows_server'] == '1':
+            servers.append('windows_server')
 
         # dump json and windows event logs from Windows servers
         for server in servers:
