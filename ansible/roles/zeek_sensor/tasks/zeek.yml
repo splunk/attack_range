@@ -1,0 +1,96 @@
+---
+- name: install /etc/systemd/system/capture-int.service to set ens5 settings at boot
+  become: true
+  copy:
+    src: capture-int.service
+    dest: /etc/systemd/system/capture-int.service
+    owner: root
+    group: root
+    mode: 0755
+    force: yes
+
+- name: systemctl daemon reload
+  become: true
+  command:  "systemctl daemon-reload"
+
+- name: systemctl to enable capture-int.service
+  become: true
+  command:  "systemctl enable capture-int.service"
+
+- name: systemctl to start capture-int.service
+  become: true
+  command:  "systemctl start capture-int.service"
+
+- name: Install Zeek Binary Repo Locations
+  become: true
+  shell: echo 'deb http://download.opensuse.org/repositories/security:/zeek/xUbuntu_18.04/ /' | sudo tee /etc/apt/sources.list.d/security:zeek.list
+
+- name: Install Zeek Repo Key
+  become: true
+  shell: curl -fsSL https://download.opensuse.org/repositories/security:zeek/xUbuntu_18.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/security:zeek.gpg > /dev/null
+
+- name: Run the equivalent of "apt-get update" as a separate step
+  become: true
+  apt:
+    update_cache: yes
+
+- name: Upgrade all packages to the latest version
+  become: true
+  apt:
+    name: "*"
+    state: latest
+
+- name: Install Zeek
+  become: true
+  apt:
+    name: zeek
+    update_cache: yes
+    state: latest
+
+####################################################################
+# Add Zeek to path
+####################################################################
+
+- name: Add Zeek to system-wide $PATH
+  become: true
+  copy:
+    dest: /etc/profile.d/zeek-path.sh
+    content: 'PATH=$PATH:/opt/zeek/bin'
+
+####################################################################
+# Configure Zeek
+####################################################################
+
+- name: Enable Zeek logging in JSON format
+  become: true
+  lineinfile:
+    path: '/opt/zeek/share/zeek/site/local.zeek'
+    line: '{{ item }}'
+  with_items:
+    - '# Enable Zeek logging in JSON format'
+    - 'redef LogAscii::json_timestamps = JSON::TS_ISO8601;'
+    - 'redef LogAscii::use_json = T;'
+
+- name: Create scripts directory for custom Zeek scripts
+  become: true
+  file:
+    path: '/opt/zeek/share/zeek/scripts'
+    state: directory
+
+- name: Change Interface from eth0 to ens5
+  become: true
+  replace:
+    path: /opt/zeek/etc/node.cfg
+    regexp: 'eth0'
+    replace: "ens5"
+
+####################################################################
+# Zeek deploy
+####################################################################
+- name: Run Zeek deploy
+  shell: '/opt/zeek/bin/zeekctl {{ item }}'
+  become: true
+  with_items:
+    - 'install'
+    - 'deploy'
+    - 'status'

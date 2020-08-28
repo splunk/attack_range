@@ -51,3 +51,13 @@ module "kali_machine" {
 	ec2_subnet_id          = module.networkModule.ec2_subnet_id
   config                 = var.config
 }
+
+module "zeek_sensor" {
+  source			           = "./modules/zeek_sensor"
+	vpc_security_group_ids = module.networkModule.sg_vpc_id
+	ec2_subnet_id          = module.networkModule.ec2_subnet_id
+  windows_domain_controller_instance = module.windows-domain-controller.windows_domain_controller_instance
+  windows_server_instance = module.windows-server.windows_server_instance
+  windows_client_instance = module.windows-client.windows_client_instance
+  config                 = var.config
+}

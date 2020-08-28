@@ -1,0 +1,63 @@
+---
+# This playbook install the Splunk Universal Forwarder
+
+- name: add splunk group
+  become: true
+  tags:
+   - install
+   - security
+  group: name=splunk state=present
+
+- name: add splunk user
+  become: true
+  tags:
+   - install
+   - security
+  user: name=splunk comment="Splunk service user" shell=/usr/sbin/nologin groups=splunk createhome=yes
+
+- name: make /opt writetable by splunk
+  become: true
+  tags:
+   - install
+  file: path=/opt mode=777
+
+- name: checking if splunk is install
+  tags: install
+  stat: path=/opt/splunkforwarder
+  register: splunk_path
+
+- name: is splunk UF installed?
+  tags: install
+  debug: msg='splunk is already installed under /opt/splunkforwarder'
+  when: splunk_path.stat.exists
+
+- name: Install splunk uf
+  become: true
+  apt: deb="{{ splunk_uf_url }}"
+  when: splunk_path.stat.exists == false
+
+- name: copy outputs.conf to forward data to splunk server
+  template:
+    src: outputs.conf.j2
+    dest: /opt/splunkforwarder/etc/system/local/outputs.conf
+
+- name: copy deploymentclient.conf to act as a deployment client of splunk
+  template:
+    src: deploymentclient.conf.j2
+    dest: /opt/splunkforwarder/etc/system/local/deploymentclient.conf
+
+- name: copy inputs.conf to capture zeek logs
+  copy:
+    src: inputs.conf
+    dest: /opt/splunkforwarder/etc/system/local/inputs.conf
+    owner: splunk
+    group: splunk
+    force: yes
+
+- name: splunk license acceptance
+  become: true
+  command:  "/opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt"
+
+- name: setup to start at boot
+  become: true
+  command: "/opt/splunkforwarder/bin/splunk enable boot-start"
