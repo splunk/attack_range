@@ -6,9 +6,10 @@ from tabulate import tabulate
 import ansible_runner
 import yaml
 import time
-import tarfile
 import os
 import glob
+import splunklib.client as client
+import splunklib.results as results
 
 
 class TerraformController(IEnvironmentController):
@@ -196,11 +197,11 @@ class TerraformController(IEnvironmentController):
         folder = "attack_data/" + dump_name
         os.mkdir(folder)
 
-        servers = []
-        if self.config['windows_domain_controller'] == '1':
-            servers.append('windows_domain_controller')
-        if self.config['windows_server'] == '1':
-            servers.append('windows_server')
+        servers = ['splunk_server']
+        # if self.config['windows_domain_controller'] == '1':
+        #     servers.append('windows_domain_controller')
+        # if self.config['windows_server'] == '1':
+        #     servers.append('windows_server')
 
         # dump json and windows event logs from Windows servers
         for server in servers:
@@ -214,6 +215,20 @@ class TerraformController(IEnvironmentController):
                                        playbook='../ansible/playbooks/attack_data.yml',
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
+            elif server_str == 'attack-range-splunk-server':
+                splunk = client.connect(host=target_public_ip,
+                                        port=8089,
+                                        username='admin',
+                                        password=self.config['attack_range_password'])
+                self.log.info("Extracting Windows Event Logs from Splunk Server")
+                r = splunk.jobs.export('search sourcetype=WinEventLog', params={'output_mode': 'raw'})
+                reader = results.ResultsReader(r)
+                out = open("attack_data/"+dump_name+"/windows-sec-events.out", 'w')
+                for e in reader:
+                    if isinstance(e, dict):
+                        out.write("%s\n\n\n\n\n" % e['_raw'])
+                out.close()
+                self.log.info("Extracting Windows Event Logs from Splunk Server [Completed]")
             else:
                 runner = ansible_runner.run(private_data_dir='.attack_range/',
                                        cmdline=str('-i ' + target_public_ip + ', '),
