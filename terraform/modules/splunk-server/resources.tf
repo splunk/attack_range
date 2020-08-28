@@ -17,7 +17,7 @@ data "aws_ami" "latest-ubuntu" {
 
 
 resource "aws_instance" "splunk-server" {
-  ami           = data.aws_ami.latest-ubuntu[count.index].id
+  ami           = data.aws_ami.latest-ubuntu.id
   instance_type = "t2.2xlarge"
   key_name = var.config.key_name
   subnet_id = var.ec2_subnet_id
@@ -39,7 +39,7 @@ resource "aws_instance" "splunk-server" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      host        = aws_instance.splunk-server[count.index].public_ip
+      host        = aws_instance.splunk-server.public_ip
       private_key = file(var.config.private_key_path)
     }
   }
