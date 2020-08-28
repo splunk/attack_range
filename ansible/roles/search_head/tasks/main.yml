@@ -34,6 +34,7 @@
     - "{{ splunk_security_essentials_app }}"
     - "{{ splunk_sysmon_ta }}"
     - "{{ splunk_windows_ta }}"
+    - "{{ splunk_zeek_ta }}"
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: install_stream_app.yml
