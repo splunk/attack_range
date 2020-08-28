@@ -8,8 +8,7 @@ import yaml
 import time
 import os
 import glob
-import splunklib.client as client
-import splunklib.results as results
+import requests
 
 
 class TerraformController(IEnvironmentController):
@@ -216,18 +215,16 @@ class TerraformController(IEnvironmentController):
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
             elif server_str == 'attack-range-splunk-server':
-                splunk = client.connect(host=target_public_ip,
-                                        port=8089,
-                                        username='admin',
-                                        password=self.config['attack_range_password'])
+                import urllib3
+                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
                 self.log.info("Extracting Windows Event Logs from Splunk Server")
-                r = splunk.jobs.export('search sourcetype=WinEventLog', params={'output_mode': 'raw'})
-                reader = results.ResultsReader(r)
+                r = requests.post("https://%s:8089/servicesNS/admin/search/search/jobs/export" % target_public_ip,
+                                  auth=('admin', self.config['attack_range_password']),
+                                  data={'output_mode': 'raw',
+                                        'search': 'search sourcetype=WinEventLog'},
+                                  verify=False)
                 out = open("attack_data/"+dump_name+"/windows-sec-events.out", 'w')
-                for e in reader:
-                    if isinstance(e, dict):
-                        out.write("%s\n\n\n\n\n" % e['_raw'])
-                out.close()
+                out.write(r.text)
                 self.log.info("Extracting Windows Event Logs from Splunk Server [Completed]")
             else:
                 runner = ansible_runner.run(private_data_dir='.attack_range/',
