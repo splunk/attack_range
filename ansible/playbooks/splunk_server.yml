@@ -1,5 +1,5 @@
 - hosts: all
-  gather_facts: True
+  gather_facts: False
   become: true
   vars:
     hostname: splunk-server

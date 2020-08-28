@@ -18,7 +18,7 @@ data "aws_ami" "latest-kali-linux" {
 resource "aws_instance" "kali_machine" {
   count = var.config.kali_machine == "1" ? 1 : 0
   ami           = data.aws_ami.latest-kali-linux[count.index].id
-  instance_type = var.config.kali_machine_instance_type
+  instance_type = "t2.medium"
   key_name = var.config.key_name
   subnet_id = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
