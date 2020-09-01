@@ -113,7 +113,7 @@ class TerraformController(IEnvironmentController):
                 if self.config['automated_testing'] == '1':
                     github_service.create_issue(result_obj['results']['detection_name'], self.config)
             #result_cond |= result_obj['error']
-        sys.exit(0)
+
 
 
     def load_file(self, file_path):
