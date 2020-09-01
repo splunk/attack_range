@@ -13,8 +13,7 @@ os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
 
 VERSION = 1
 
-
-if __name__ == "__main__":
+def main(args):
     # grab arguments
     parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
     parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'test', 'dump'], default="",
@@ -137,6 +136,10 @@ starting program loaded for B1 battle droid
 
     if action == 'dump':
         controller.dump_attack_data(dump_name)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
 
 
 # rnfgre rtt ol C4G12VPX
