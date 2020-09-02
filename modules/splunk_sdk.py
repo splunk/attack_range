@@ -3,6 +3,7 @@ from time import sleep
 import splunklib.results as results
 import splunklib.client as client
 import splunklib.results as results
+import requests
 
 
 def test_search(splunk_host, splunk_password, search, pass_condition, detection_name, log):
@@ -137,3 +138,14 @@ def test():
 
     return_value = myindex.upload(uploadme)
     print(return_value)
+
+
+def export_search(host, s, password, export_mode="raw", out=sys.stdout, username="admin", port=8089):
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    r = requests.post("https://%s:8089/servicesNS/admin/search/search/jobs/export" % host,
+                      auth=(username, password),
+                      data={'output_mode': export_mode,
+                            'search': s},
+                      verify=False)
+    out.write(r.text)

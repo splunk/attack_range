@@ -8,7 +8,6 @@ import yaml
 import time
 import os
 import glob
-import requests
 
 
 class TerraformController(IEnvironmentController):
@@ -196,6 +195,12 @@ class TerraformController(IEnvironmentController):
         folder = "attack_data/" + dump_name
         os.mkdir(folder)
 
+        dump_searches = [
+            {'dump': "attack_data/"+dump_name+"/windows-sec-events.out",
+             'search':'search source=WinEventLog:Security New_Process_Name!="C:\\Program Files\\SplunkUniversalForwarder\\bin\\*"',
+             'info': "Extracting Windows Event Logs from Splunk Server"},
+        ]
+
         servers = ['splunk_server']
         if self.config['windows_domain_controller'] == '1':
             servers.append('windows_domain_controller')
@@ -215,17 +220,15 @@ class TerraformController(IEnvironmentController):
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
             elif server_str == 'attack-range-splunk-server':
-                import urllib3
-                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-                self.log.info("Extracting Windows Event Logs from Splunk Server")
-                r = requests.post("https://%s:8089/servicesNS/admin/search/search/jobs/export" % target_public_ip,
-                                  auth=('admin', self.config['attack_range_password']),
-                                  data={'output_mode': 'raw',
-                                        'search': 'search source=WinEventLog:Security New_Process_Name!="C:\\Program Files\\SplunkUniversalForwarder\\bin\\*"'},
-                                  verify=False)
-                out = open("attack_data/"+dump_name+"/windows-sec-events.out", 'w')
-                out.write(r.text)
-                self.log.info("Extracting Windows Event Logs from Splunk Server [Completed]")
+                for dump in dump_searches:
+                    self.log.info(dump['info'])
+                    out = open(dump['dump'], 'w')
+                    splunk_sdk.export_search(target_public_ip,
+                                             s=dump['search'],
+                                             password=self.config['attack_range_password'],
+                                             out=out)
+                    out.close()
+                    self.log.info("%s [Completed]" % dump['info'])
             else:
                 runner = ansible_runner.run(private_data_dir='.attack_range/',
                                        cmdline=str('-i ' + target_public_ip + ', '),
