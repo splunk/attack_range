@@ -196,7 +196,7 @@ class TerraformController(IEnvironmentController):
         os.mkdir(folder)
 
         dump_searches = [
-            {'dump': "attack_data/"+dump_name+"/windows-sec-events.out",
+            {'dump': "windows-sec-events.out",
              'search':'search source=WinEventLog:Security New_Process_Name!="C:\\Program Files\\SplunkUniversalForwarder\\bin\\*"',
              'info': "Extracting Windows Event Logs from Splunk Server"},
         ]
@@ -222,7 +222,7 @@ class TerraformController(IEnvironmentController):
             elif server_str == 'attack-range-splunk-server':
                 for dump in dump_searches:
                     self.log.info(dump['info'])
-                    out = open(dump['dump'], 'w')
+                    out = open("attack_data/%s/%s" % (dump_name, dump['dump']), 'w')
                     splunk_sdk.export_search(target_public_ip,
                                              s=dump['search'],
                                              password=self.config['attack_range_password'],
