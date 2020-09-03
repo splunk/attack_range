@@ -181,18 +181,6 @@ s3_bucket_attack_data = attack-range-attack-data
 # S3 bucket to sync attack data from dump command
 
 
-[automated_testing]
-automated_testing = 0
-# Specify if Attack Range should open issues for failed tests in your GitHub repository
-
-github_repo = splunk/security-content
-# Specify your GitHub repository
-
-github_token =
-# Specify our personal GitHub Access Token to create issues
-
-
-
 [simulation]
 art_run_techniques = T1003.001
 # Specify the run technique of atomic_red_team

@@ -106,14 +106,8 @@ class TerraformController(IEnvironmentController):
         # destroy attack range
         self.destroy()
 
-        #result_cond = False
-        for result_obj in result:
-            if result_obj['error']:
-                self.log.error('Detection Testing failed: ' + result_obj['results']['detection_name'])
-                if self.config['automated_testing'] == '1':
-                    github_service.create_issue(result_obj['results']['detection_name'], self.config)
-            #result_cond |= result_obj['error']
-
+        # return results
+        return result
 
 
     def load_file(self, file_path):

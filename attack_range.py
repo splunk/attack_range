@@ -132,7 +132,7 @@ starting program loaded for B1 battle droid
         controller.simulate(target, simulation_techniques, simulation_atomics)
 
     if action == 'test':
-        controller.test(test_file)
+        return controller.test(test_file)
 
     if action == 'dump':
         controller.dump_attack_data(dump_name)
