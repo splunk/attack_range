@@ -54,8 +54,8 @@ class TerraformController(IEnvironmentController):
         self.build()
 
         # wait
-        self.log.info('Wait for 300 seconds before running simulations.')
-        time.sleep(300)
+        self.log.info('Wait for 200 seconds before running simulations.')
+        time.sleep(200)
 
         # simulate attack
         # create vars string for custom vars:
@@ -79,8 +79,8 @@ class TerraformController(IEnvironmentController):
             self.simulate(test_file['target'], test_file['simulation_technique'], 'no')
 
         # wait
-        self.log.info('Wait for 500 seconds before running the detections.')
-        time.sleep(500)
+        self.log.info('Wait for 200 seconds before running the detections.')
+        time.sleep(200)
 
         # run detection
         result = []
