@@ -17,12 +17,12 @@ data "aws_ami" "latest-windows-server-2016" {
 
 
 resource "aws_instance" "windows_domain_controller" {
-  count                  = var.config.windows_domain_controller == "1" ? 1 : 0
-  ami                    = data.aws_ami.latest-windows-server-2016[count.index].id
-  instance_type          = "t2.2xlarge"
-  key_name               = var.config.key_name
-  subnet_id              = var.ec2_subnet_id
-  private_ip             = var.config.windows_domain_controller_private_ip
+  count         = var.config.windows_domain_controller == "1" ? 1 : 0
+  ami           = data.aws_ami.latest-windows-server-2016[count.index].id
+  instance_type = var.config.windows_domain_controller_zeek_capture == "1" ? "m5.2xlarge" : "t2.2xlarge"
+  key_name = var.config.key_name
+  subnet_id = var.ec2_subnet_id
+  private_ip = var.config.windows_domain_controller_private_ip
   vpc_security_group_ids = [var.vpc_security_group_ids]
   tags = {
     Name = "${var.config.range_name}-attack-range-windows-domain-controller"

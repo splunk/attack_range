@@ -32,6 +32,7 @@ The virtualized deployment of Attack Range consists of:
 - A Kali Machine
 - Splunk Server
 - Phantom Server
+- Zeek Sensor
 
 Which can be added/removed/configured using [attack_range.conf](attack_range.conf). More machines such as Phantom, Linux server, Linux client, MacOS clients are currently under development.
 
@@ -176,3 +177,4 @@ We welcome feedback and contributions from the community! Please see our [contri
 * [Dimitris Lambrou](https://twitter.com/etz69)
 * [Dave Herrald](https://twitter.com/daveherrald)
 * Josef Kuepker
+* Shannon Davis
