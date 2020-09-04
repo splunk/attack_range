@@ -60,6 +60,8 @@ jobs:
           command: |
             cd attack_range
             source venv/bin/activate
+            cp attack_range.conf.template attack_range.conf
+            sed -i "s/attack_range_password = .*$/attack_range_password = Pl3ase-k1Ll-me:p123/g" attack_range.conf
             python attack_range.py --version
 
       - aws-cli/setup:
@@ -82,6 +84,8 @@ jobs:
           command: |
             cd attack_range
             source venv/bin/activate
+            cp attack_range.conf.template attack_range.conf
+            sed -i "s/attack_range_password = .*$/attack_range_password = Pl3ase-k1Ll-me:p123/g" attack_range.conf
             # change attack_range default ssh keys
             sed -i "s/key_name = .*$/key_name = attack-range-ci-job/g" attack_range.conf
             sed -i "s/region = us-west-2/region = us-east-2/g" attack_range.conf
