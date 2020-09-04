@@ -109,7 +109,7 @@ workflows:
   build-attack-destroy:
     triggers:
       - schedule:
-          cron: "30 11 * * *"
+          cron: "15 13 * * *"
           filters:
             branches:
               only:
