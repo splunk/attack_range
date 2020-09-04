@@ -40,7 +40,6 @@ def test_search(splunk_host, splunk_password, search, pass_condition, detection_
         return 1, {}
 
     test_results = dict()
-    print(job.keys())
     test_results['diskUsage'] = job['diskUsage']
     test_results['runDuration'] = job['runDuration']
     test_results['detection_name'] = detection_name

@@ -1,0 +1,41 @@
+
+PLAY [all] *********************************************************************
+
+TASK [atomic_red_team : Install NuGet Provider] ********************************
+[0;33mchanged: [18.192.81.244][0m
+
+TASK [atomic_red_team : Install Atomic Red Team] *******************************
+[0;33mchanged: [18.192.81.244][0m
+
+TASK [atomic_red_team : set_fact] **********************************************
+[0;32mok: [18.192.81.244][0m
+
+TASK [atomic_red_team : include_tasks] *****************************************
+[0;36mincluded: /Users/pbareib/Documents/Projects/attack_range/ansible/roles/atomic_red_team/tasks/run_art_test.yml for 18.192.81.244[0m
+
+TASK [atomic_red_team : set_fact] **********************************************
+[0;32mok: [18.192.81.244][0m
+
+TASK [atomic_red_team : debug] *************************************************
+[0;32mok: [18.192.81.244] => {[0m
+[0;32m    "technique": "T1003.001"[0m
+[0;32m}[0m
+
+TASK [atomic_red_team : Get requirements for Atomic Red Team Technique] ********
+[0;33mchanged: [18.192.81.244][0m
+
+TASK [atomic_red_team : Run specified Atomic Red Team Technique] ***************
+[0;33mchanged: [18.192.81.244][0m
+
+TASK [atomic_red_team : Run specified Atomic Red Team Technique] ***************
+[0;36mskipping: [18.192.81.244][0m
+
+TASK [atomic_red_team : Cleanup after execution] *******************************
+[0;33mchanged: [18.192.81.244][0m
+
+TASK [atomic_red_team : include_tasks] *****************************************
+[0;36mskipping: [18.192.81.244][0m
+
+PLAY RECAP *********************************************************************
+[0;33m18.192.81.244[0m              : [0;32mok=9   [0m [0;33mchanged=5   [0m unreachable=0    failed=0    [0;36mskipped=2   [0m rescued=0    ignored=0   
+
