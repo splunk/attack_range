@@ -20,8 +20,6 @@ if __name__ == "__main__":
         description="starts a attack range ready to collect attack data into splunk")
     parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'test', 'dump'], default="",
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume/search allowed")
-    parser.add_argument("-rn", "--range_name", required=False,
-                        help="name of the range you would like to manages")
     parser.add_argument("-t", "--target", required=False,
                         help="target for attack simulation. Use the name of the aws EC2 name")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
@@ -45,7 +43,6 @@ if __name__ == "__main__":
     action = args.action
     target = args.target
     config = args.config
-    range_name = args.range_name
     simulation_techniques = args.simulation_technique
     simulation_atomics = args.simulation_atomics
     list_machines = args.list_machines
@@ -103,18 +100,10 @@ starting program loaded for B1 battle droid
         log.error('ERROR: flag --action is needed.')
         sys.exit(1)
 
-<<<<<<< HEAD
+
     if config['attack_range_password'] == 'Pl3ase-k1Ll-me:p':
         log.error('ERROR: please change attack_range_password in attack_range.conf')
         sys.exit(1)
-
-=======
-    # replace with custom range_name (-rn) if specified
-    if range_name:
-        config["range_name"] = range_name
-    else:
-        pass
->>>>>>> 45a8793f5613f54b317ef7fd5064338e0510dfd1
 
     # lets give CLI priority over config file for pre-configured techniques
     if simulation_techniques:

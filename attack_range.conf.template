@@ -33,7 +33,9 @@ range_name = default
 # Specify a unique name for the assets in a region
 # Setting this allows you to deploy additional ranges with the same key_name
 # An example would be for user1 and user2 testing in seperate environments
-#or user1 testing multiple use cases
+# or user1 testing multiple use cases.
+# we suggest to use multiple attack_range.conf files when you deploy multiple
+# attack ranges.
 
 
 [splunk_settings]

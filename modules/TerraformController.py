@@ -17,13 +17,11 @@ class TerraformController(IEnvironmentController):
     def __init__(self, config, log):
         super().__init__(config, log)
         statefile = self.config['range_name'] + ".terraform.tfstate"
-        config["statepath"] = os.path.join(
-            'state', statefile)
+        config["statepath"] = os.path.join('state', statefile)
         custom_dict = self.config.copy()
         variables = dict()
         variables['config'] = custom_dict
-        self.terraform = Terraform(
-            working_dir='terraform', variables=variables, parallelism=15 ,state=config["statepath"])
+        self.terraform = Terraform(working_dir='terraform', variables=variables, parallelism=15 ,state=config["statepath"])
 
     def build(self):
         self.log.info("[action] > build\n")
@@ -157,7 +155,6 @@ class TerraformController(IEnvironmentController):
 
         if target == 'attack-range-windows-client':
             runner = ansible_runner.run(private_data_dir='.attack_range/',
-<<<<<<< HEAD
                                    cmdline=str('-i ' + target_public_ip + ', '),
                                    roles_path="../ansible/roles",
                                    playbook='../ansible/playbooks/atomic_red_team.yml',
@@ -170,24 +167,6 @@ class TerraformController(IEnvironmentController):
                                playbook='../ansible/playbooks/atomic_red_team.yml',
                                extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                verbosity=0)
-=======
-                                        cmdline=str(
-                                            '-i ' + target_public_ip + ', '),
-                                        roles_path="../ansible/roles",
-                                        playbook='../ansible/playbooks/atomic_red_team.yml',
-                                        extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator',
-                                                   'ansible_password': self.config['win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
-                                        verbosity=0)
-        else:
-            runner = ansible_runner.run(private_data_dir='.attack_range/',
-                                        cmdline=str(
-                                            '-i ' + target_public_ip + ', '),
-                                        roles_path="../ansible/roles",
-                                        playbook='../ansible/playbooks/atomic_red_team.yml',
-                                        extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques,
-                                                   'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
-                                        verbosity=0)
->>>>>>> 45a8793f5613f54b317ef7fd5064338e0510dfd1
 
         if runner.status == "successful":
             self.log.info("successfully executed technique ID {0} against target: {1}".format(
@@ -236,19 +215,17 @@ class TerraformController(IEnvironmentController):
 
         servers = []
         if self.config['windows_domain_controller'] == '1':
-            servers.append('windows_domain_controller')
+            servers.append('windows-domain-controller')
         if self.config['windows_server'] == '1':
-            servers.append('windows_server')
+            servers.append('windows-server')
 
         # dump json and windows event logs from Windows servers
         for server in servers:
-            server_str = ("attack-range-" + server).replace("_", "-")
-            target_public_ip = aws_service.get_single_instance_public_ip(
-                server_str, self.config)
+            server_str = (self.config['range_name'] + "-attack-range-" + server).replace("_", "-")
+            target_public_ip = aws_service.get_single_instance_public_ip(server_str, self.config)
 
             if server_str == 'attack-range-windows-client':
                 runner = ansible_runner.run(private_data_dir='.attack_range/',
-<<<<<<< HEAD
                                        cmdline=str('-i ' + target_public_ip + ', '),
                                        roles_path="../ansible/roles",
                                        playbook='../ansible/playbooks/attack_data.yml',
@@ -261,24 +238,7 @@ class TerraformController(IEnvironmentController):
                                        playbook='../ansible/playbooks/attack_data.yml',
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
-=======
-                                            cmdline=str(
-                                                '-i ' + target_public_ip + ', '),
-                                            roles_path="../ansible/roles",
-                                            playbook='../ansible/playbooks/attack_data.yml',
-                                            extravars={'ansible_user': 'Administrator', 'ansible_password': self.config[
-                                                'win_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
-                                            verbosity=0)
-            else:
-                runner = ansible_runner.run(private_data_dir='.attack_range/',
-                                            cmdline=str(
-                                                '-i ' + target_public_ip + ', '),
-                                            roles_path="../ansible/roles",
-                                            playbook='../ansible/playbooks/attack_data.yml',
-                                            extravars={
-                                                'ansible_user': 'Administrator', 'ansible_password': self.config['win_password'], 'hostname': server_str, 'folder': dump_name},
-                                            verbosity=0)
->>>>>>> 45a8793f5613f54b317ef7fd5064338e0510dfd1
+
 
         if self.config['sync_to_s3_bucket'] == '1':
             for file in glob.glob(folder + "/*"):
