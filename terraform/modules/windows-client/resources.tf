@@ -1,7 +1,7 @@
 
 data "aws_ami" "windows-client-ami" {
-  count = var.config.windows_client == "1" ? 1 : 0
-  owners       = ["self"]
+  count  = var.config.windows_client == "1" ? 1 : 0
+  owners = ["self"]
 
   filter {
     name   = "name"
@@ -19,10 +19,10 @@ resource "aws_instance" "windows_client" {
   key_name = var.config.key_name
   subnet_id = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip = var.config.windows_client_private_ip
-  depends_on = [var.windows_domain_controller_instance]
+  private_ip             = var.config.windows_client_private_ip
+  depends_on             = [var.windows_domain_controller_instance]
   tags = {
-    Name = "attack-range-windows-client"
+    Name = "${var.config.range_name}-attack-range-windows-client"
   }
 
   provisioner "remote-exec" {
@@ -46,7 +46,7 @@ resource "aws_instance" "windows_client" {
   provisioner "remote-exec" {
     inline = [
       "net user admin /active:no"
-      ]
+    ]
 
     connection {
       type     = "winrm"
@@ -68,6 +68,6 @@ resource "aws_instance" "windows_client" {
 }
 
 resource "aws_eip" "windows_client_ip" {
-  count         = var.config.windows_client == "1" ? 1 : 0
+  count    = var.config.windows_client == "1" ? 1 : 0
   instance = aws_instance.windows_client[0].id
 }

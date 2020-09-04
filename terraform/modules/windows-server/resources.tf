@@ -1,17 +1,17 @@
 
 data "aws_ami" "latest-windows-server-2016" {
-  count = var.config.windows_server == "1" ? 1 : 0
+  count       = var.config.windows_server == "1" ? 1 : 0
   most_recent = true
-  owners = ["801119661308"] # Canonical
+  owners      = ["801119661308"] # Canonical
 
   filter {
-      name   = "name"
-      values = [var.config.windows_server_os]
+    name   = "name"
+    values = [var.config.windows_server_os]
   }
 
   filter {
-      name   = "virtualization-type"
-      values = ["hvm"]
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }
 
@@ -23,10 +23,10 @@ resource "aws_instance" "windows_server" {
   key_name = var.config.key_name
   subnet_id = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip = var.config.windows_server_private_ip
-  depends_on = [var.windows_domain_controller_instance]
+  private_ip             = var.config.windows_server_private_ip
+  depends_on             = [var.windows_domain_controller_instance]
   tags = {
-    Name = "attack-range-windows-server"
+    Name = "${var.config.range_name}-attack-range-windows-server"
   }
   user_data = <<EOF
 <powershell>
@@ -58,6 +58,6 @@ EOF
 }
 
 resource "aws_eip" "windows_server_ip_client" {
-  count         = var.config.windows_server == "1" ? 1 : 0
+  count    = var.config.windows_server == "1" ? 1 : 0
   instance = aws_instance.windows_server[0].id
 }

@@ -23,7 +23,7 @@ resource "aws_instance" "zeek_sensor" {
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip = var.config.zeek_sensor_private_ip
   tags = {
-    Name = "attack-range-zeek_sensor"
+    Name = "${var.config.range_name}-attack-range-zeek_sensor"
   }
 
   provisioner "remote-exec" {

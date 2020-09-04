@@ -2,35 +2,35 @@
 
 data "aws_ami" "latest-ubuntu" {
   most_recent = true
-  owners = ["099720109477"] # Canonical
+  owners      = ["099720109477"] # Canonical
 
   filter {
-      name   = "name"
-      values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
   }
 
   filter {
-      name   = "virtualization-type"
-      values = ["hvm"]
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }
 
 
 resource "aws_instance" "splunk-server" {
-  ami           = data.aws_ami.latest-ubuntu.id
-  instance_type = "t2.2xlarge"
-  key_name = var.config.key_name
-  subnet_id = var.ec2_subnet_id
+  ami                    = data.aws_ami.latest-ubuntu.id
+  instance_type          = "t2.2xlarge"
+  key_name               = var.config.key_name
+  subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip = var.config.splunk_server_private_ip
-  depends_on = [var.phantom_server_instance]
+  private_ip             = var.config.splunk_server_private_ip
+  depends_on             = [var.phantom_server_instance]
   root_block_device {
     volume_type = "gp2"
     volume_size = "60"
     delete_on_termination = "true"
   }
   tags = {
-    Name = "attack-range-splunk-server"
+    Name = "${var.config.range_name}-attack-range-splunk-server"
   }
 
   provisioner "remote-exec" {

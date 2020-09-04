@@ -1,17 +1,17 @@
 
 data "aws_ami" "latest-windows-server-2016" {
-  count = var.config.windows_domain_controller == "1" ? 1 : 0
+  count       = var.config.windows_domain_controller == "1" ? 1 : 0
   most_recent = true
-  owners = ["801119661308"] # Canonical
+  owners      = ["801119661308"] # Canonical
 
   filter {
-      name   = "name"
-      values = [var.config.windows_domain_controller_os]
+    name   = "name"
+    values = [var.config.windows_domain_controller_os]
   }
 
   filter {
-      name   = "virtualization-type"
-      values = ["hvm"]
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }
 
@@ -25,7 +25,7 @@ resource "aws_instance" "windows_domain_controller" {
   private_ip = var.config.windows_domain_controller_private_ip
   vpc_security_group_ids = [var.vpc_security_group_ids]
   tags = {
-    Name = "attack-range-windows-domain-controller"
+    Name = "${var.config.range_name}-attack-range-windows-domain-controller"
   }
   user_data = <<EOF
 <powershell>
@@ -57,6 +57,6 @@ EOF
 }
 
 resource "aws_eip" "windows_server_ip" {
-  count         = var.config.windows_domain_controller == "1" ? 1 : 0
+  count    = var.config.windows_domain_controller == "1" ? 1 : 0
   instance = aws_instance.windows_domain_controller[0].id
 }
