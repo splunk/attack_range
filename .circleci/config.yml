@@ -95,7 +95,7 @@ jobs:
             terraform init
             cd ..
             python attack_range.py --action build
-            python attack_range.py --action simulate --target attack-range-windows-domain-controller --simulation_technique T1003.002
+            python attack_range.py --action simulate --target default-attack-range-windows-domain-controller --simulation_technique T1003.002
             python attack_range.py --action destroy
       - run:
           name: cleanup terraform on failures
