@@ -29,6 +29,12 @@ region = us-west-2
 # Specify the aws region in which you want to build the attack range
 # please ensure that aws_cli has the same region specified
 
+range_name = default
+# Specify a unique name for the assets in a region
+# Setting this allows you to deploy additional ranges with the same key_name
+# An example would be for user1 and user2 testing in seperate environments
+#or user1 testing multiple use cases
+
 
 [splunk_settings]
 
