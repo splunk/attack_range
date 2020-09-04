@@ -49,17 +49,20 @@ resource "aws_eip" "zeek_ip" {
 }
 
 resource "aws_ec2_traffic_mirror_target" "zeek_target" {
+  count = var.config.zeek_sensor == "1" ? 1 : 0
   description          = "VPC Tap for Zeek"
   network_interface_id = aws_instance.zeek_sensor[0].primary_network_interface_id
 }
 
 resource "aws_ec2_traffic_mirror_filter" "zeek_filter" {
+  count = var.config.zeek_sensor == "1" ? 1 : 0
   description = "Zeek Mirror Filter - Allow All"
 }
 
 resource "aws_ec2_traffic_mirror_filter_rule" "zeek_outbound" {
+  count = var.config.zeek_sensor == "1" ? 1 : 0
   description = "Zeek Outbound Rule"
-  traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter.id
+  traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter[0].id
   destination_cidr_block = "0.0.0.0/0"
   source_cidr_block = "0.0.0.0/0"
   rule_number = 1
@@ -68,8 +71,9 @@ resource "aws_ec2_traffic_mirror_filter_rule" "zeek_outbound" {
 }
 
 resource "aws_ec2_traffic_mirror_filter_rule" "zeek_inbound" {
+  count = var.config.zeek_sensor == "1" ? 1 : 0
   description = "Zeek Inbound Rule"
-  traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter.id
+  traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter[0].id
   destination_cidr_block = "0.0.0.0/0"
   source_cidr_block = "0.0.0.0/0"
   rule_number = 1
@@ -78,21 +82,21 @@ resource "aws_ec2_traffic_mirror_filter_rule" "zeek_inbound" {
 }
 
 resource "aws_ec2_traffic_mirror_session" "zeek_windows_dc_session" {
-  count         = var.config.windows_domain_controller_zeek_capture == "1" ? 1 : 0
+  count         = var.config.windows_domain_controller_zeek_capture == "1" && var.config.zeek_sensor == "1" ? 1 : 0
   description              = "Zeek Mirror Session for Windows Domain Controller"
   depends_on = [var.windows_domain_controller_instance]
-  traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter.id
-  traffic_mirror_target_id = aws_ec2_traffic_mirror_target.zeek_target.id
+  traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter[0].id
+  traffic_mirror_target_id = aws_ec2_traffic_mirror_target.zeek_target[0].id
   network_interface_id     = var.windows_domain_controller_instance[0].primary_network_interface_id
   session_number           = 100
 }
 
 resource "aws_ec2_traffic_mirror_session" "zeek_windows_server_session" {
-  count         = var.config.windows_server_zeek_capture == "1" ? 1 : 0
+  count         = var.config.windows_server_zeek_capture == "1" && var.config.zeek_sensor == "1" ? 1 : 0
   description              = "Zeek Mirror Session for Windows Server"
   depends_on = [var.windows_server_instance]
-  traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter.id
-  traffic_mirror_target_id = aws_ec2_traffic_mirror_target.zeek_target.id
+  traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter[0].id
+  traffic_mirror_target_id = aws_ec2_traffic_mirror_target.zeek_target[0].id
   network_interface_id     = var.windows_server_instance[0].primary_network_interface_id
   session_number           = 200
 }
