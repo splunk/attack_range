@@ -16,7 +16,8 @@ VERSION = 1
 
 if __name__ == "__main__":
     # grab arguments
-    parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
+    parser = argparse.ArgumentParser(
+        description="starts a attack range ready to collect attack data into splunk")
     parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'test', 'dump'], default="",
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume/search allowed")
     parser.add_argument("-t", "--target", required=False,
@@ -29,8 +30,10 @@ if __name__ == "__main__":
                         help="name for the dumped attack data")
     parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
                         help="path to the configuration file of the attack range")
-    parser.add_argument("-tf", "--test_file", required=False, type=str, default="", help='test file for test command')
-    parser.add_argument("-lm", "--list_machines", required=False, default=False, action="store_true", help="prints out all available machines")
+    parser.add_argument("-tf", "--test_file", required=False,
+                        type=str, default="", help='test file for test command')
+    parser.add_argument("-lm", "--list_machines", required=False, default=False,
+                        action="store_true", help="prints out all available machines")
     parser.add_argument("-v", "--version", default=False, action="store_true", required=False,
                         help="shows current attack_range version")
 
@@ -67,7 +70,8 @@ starting program loaded for B1 battle droid
     # parse config
     attack_range_config = Path(config)
     if attack_range_config.is_file():
-        print("attack_range is using config at path {0}".format(attack_range_config))
+        print("attack_range is using config at path {0}".format(
+            attack_range_config))
         configpath = str(attack_range_config)
     else:
         print("ERROR: attack_range failed to find a config file")
@@ -96,10 +100,10 @@ starting program loaded for B1 battle droid
         log.error('ERROR: flag --action is needed.')
         sys.exit(1)
 
+
     if config['attack_range_password'] == 'Pl3ase-k1Ll-me:p':
         log.error('ERROR: please change attack_range_password in attack_range.conf')
         sys.exit(1)
-
 
     # lets give CLI priority over config file for pre-configured techniques
     if simulation_techniques:

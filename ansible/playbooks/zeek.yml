@@ -1,0 +1,5 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  roles:
+    - zeek_sensor

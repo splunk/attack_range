@@ -1,8 +1,8 @@
 
 data "aws_ami" "latest-kali-linux" {
-  count = var.config.kali_machine == "1" ? 1 : 0
+  count       = var.config.kali_machine == "1" ? 1 : 0
   most_recent = true
-  owners = ["679593333241"] # owned by AWS marketplace
+  owners      = ["679593333241"] # owned by AWS marketplace
 
   filter {
       name   = "name"
@@ -10,21 +10,21 @@ data "aws_ami" "latest-kali-linux" {
   }
 
   filter {
-      name   = "virtualization-type"
-      values = ["hvm"]
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }
 
 resource "aws_instance" "kali_machine" {
-  count = var.config.kali_machine == "1" ? 1 : 0
-  ami           = data.aws_ami.latest-kali-linux[count.index].id
-  instance_type = "t2.medium"
-  key_name = var.config.key_name
-  subnet_id = var.ec2_subnet_id
+  count                  = var.config.kali_machine == "1" ? 1 : 0
+  ami                    = data.aws_ami.latest-kali-linux[count.index].id
+  instance_type          = "t2.medium"
+  key_name               = var.config.key_name
+  subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip = var.config.kali_machine_private_ip
+  private_ip             = var.config.kali_machine_private_ip
   tags = {
-    Name = "attack-range-kali_machine"
+    Name = "${var.config.range_name}-attack-range-kali_machine"
   }
 
   provisioner "remote-exec" {
@@ -43,6 +43,6 @@ resource "aws_instance" "kali_machine" {
 }
 
 resource "aws_eip" "kali_ip" {
-  count = var.config.kali_machine == "1" ? 1 : 0
-  instance      = aws_instance.kali_machine[0].id
+  count    = var.config.kali_machine == "1" ? 1 : 0
+  instance = aws_instance.kali_machine[0].id
 }

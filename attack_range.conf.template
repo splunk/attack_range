@@ -33,6 +33,14 @@ region = us-west-2
 # Specify the aws region in which you want to build the attack range
 # please ensure that aws_cli has the same region specified
 
+range_name = default
+# Specify a unique name for the assets in a region
+# Setting this allows you to deploy additional ranges with the same key_name
+# An example would be for user1 and user2 testing in seperate environments
+# or user1 testing multiple use cases.
+# we suggest to use multiple attack_range.conf files when you deploy multiple
+# attack ranges.
+
 
 [splunk_settings]
 
@@ -71,6 +79,9 @@ splunk_stream_app = splunk-stream_720.tgz
 
 splunk_security_essentials_app = splunk-security-essentials_312.tgz
 # Specify the Splunk SSE App
+
+splunk_zeek_ta = splunk-add-on-for-zeek-aka-bro_400.tgz
+# Specify the Splunk Zeek TA
 
 punchard_custom_visualization = punchcard-custom-visualization_140.tgz
 
@@ -208,9 +219,6 @@ art_repository = splunk
 art_branch =  local-master
 # Specify new branch of the Atomic Red Team repository, which you want to use.
 
-
-[caldera]
-
 [environment]
 # specify your Attack Range environment by enabling (1) or disabling (0) machines
 
@@ -233,6 +241,10 @@ kali_machine = 0
 windows_client = 0
 # enable a windows client
 # this is only possible for vagrant in the moment
+# possible values: 1, 0
+
+zeek_sensor = 0
+# enable a zeek zeek_sensor
 # possible values: 1, 0
 
 
@@ -262,6 +274,10 @@ windows_domain_controller_os = Windows_Server-2016-English-Full-Base-*
 # specify the windows domain controller operating System
 # currently only Windows_Server_2016 is supported
 
+windows_domain_controller_zeek_capture = 0
+#specify if you want to capture wire data from the Windows Domain Controller
+# possible values: 1, 0
+
 
 [windows_server]
 # customize the windows server
@@ -276,6 +292,10 @@ windows_server_os = Windows_Server-2016-English-Full-Base-*
 
 windows_server_join_domain = 1
 # specify if the windows server should join the windows domain
+# possible values: 1, 0
+
+windows_server_zeek_capture = 0
+#specify if you want to capture wire data from the Windows server
 # possible values: 1, 0
 
 
@@ -302,3 +322,20 @@ windows_client_os = import-ami-0e5a092cc20dbb992
 windows_client_join_domain = 0
 # specify if the windows client should join the windows domain
 # possible values: 1, 0
+
+windows_client_zeek_capture = 0
+#specify if you want to capture wire data from the Windows client
+# possible values: 1, 0
+
+[zeek_sensor]
+# customize the zeek sensor
+
+splunk_uf_linux_deb_url = https://download.splunk.com/products/universalforwarder/releases/8.0.5/linux/splunkforwarder-8.0.5-a1a6394cc5ae-linux-2.6-amd64.deb
+# Specify the download URL of the Splunk Linux (debian based) universal forwarder
+
+splunk_uf_binary = splunkforwarder-8.0.5-a1a6394cc5ae-linux-2.6-amd64.deb
+# Specify the name of the Splunk binary installer
+
+zeek_sensor_private_ip = 10.0.1.18
+# specify the zeek sensor private ip
+# for mode terraform should be in subnet: 10.0.1.0/24
