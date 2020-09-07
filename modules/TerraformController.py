@@ -220,14 +220,14 @@ class TerraformController(IEnvironmentController):
                 runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
                                        cmdline=str('-i ' + target_public_ip + ', '),
                                        roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
+                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
             else:
                 runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
                                        cmdline=str('-i ' + target_public_ip + ', '),
                                        roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
+                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
 
