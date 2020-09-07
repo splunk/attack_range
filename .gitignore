@@ -173,3 +173,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#state directories
+terraform/state/*
+!terraform/state/state.md

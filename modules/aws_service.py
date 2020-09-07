@@ -21,7 +21,8 @@ def get_single_instance_public_ip(ec2_name, config):
 
 def get_all_instances(config):
     key_name = config['key_name']
-    client = boto3.client('ec2')
+    region = config['region']
+    client = boto3.client('ec2', region_name=region)
     response = client.describe_instances(
         Filters=[
             {
@@ -36,7 +37,7 @@ def get_all_instances(config):
             if instance['State']['Name']!='terminated':
                 if len(instance['Tags']) > 0:
                     str = instance['Tags'][0]['Value']
-                    if str.startswith('attack-range'):
+                    if str.startswith(config['range_name'] + '-attack-range'):
                         instances.append(instance)
 
     return instances
@@ -45,7 +46,8 @@ def get_all_instances(config):
 def get_splunk_instance_ip(config):
     all_instances = get_all_instances(config)
     for instance in all_instances:
-        if instance['Tags'][0]['Value'] == 'attack-range-splunk-server':
+        instance_tag = config['range_name'] + '-attack-range-splunk-server'
+        if instance['Tags'][0]['Value'] == instance_tag:
             return instance['NetworkInterfaces'][0]['PrivateIpAddresses'][0]['Association']['PublicIp']
 
 
@@ -59,9 +61,9 @@ def check_ec2_instance_state(ec2_name, state, config):
     return (instance['State']['Name'] == state)
 
 
-def change_ec2_state(instances, new_state, log):
-
-    client = boto3.client('ec2')
+def change_ec2_state(instances, new_state, log, config):
+    region = config['region']
+    client = boto3.client('ec2', region_name=region)
 
     if len(instances) == 0:
         log.error(ec2_name + ' not found as AWS EC2 instance.')
@@ -86,8 +88,8 @@ def change_ec2_state(instances, new_state, log):
 
 
 # def upload_file_s3_bucket(file_name, results, test_file, isArchive):
-#
-#     s3_client = boto3.client('s3')
+#     region = config['region']
+#     s3_client = boto3.client('s3', region_name=region)
 #     if isArchive:
 #         response = s3_client.upload_file(file_name, 'attack-range-attack-data', str(test_file['simulation_technique'] + '/attack_data.tar.gz'))
 #     else:
@@ -99,9 +101,12 @@ def change_ec2_state(instances, new_state, log):
 #     os.remove('tmp/test_results.yml')
 
 def upload_file_s3_bucket(s3_bucket, file_path, S3_file_path):
-    s3_client = boto3.client('s3')
+    region = config['region']
+    s3_client = boto3.client('s3', region_name=region)
     response = s3_client.upload_file(file_path, s3_bucket, S3_file_path)
 
 
 def upload_test_results_s3_bucket(s3_bucket, test_file, test_result_file_path):
+    region = config['region']
+    s3_client = boto3.client('s3', region_name=region)
     response = s3_client.upload_file(test_result_file_path, s3_bucket, str(test_file['simulation_technique'] + '/test_results.yml'))
