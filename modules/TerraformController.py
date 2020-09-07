@@ -217,24 +217,22 @@ class TerraformController(IEnvironmentController):
             target_public_ip = aws_service.get_single_instance_public_ip(server_str, self.config)
 
             if server_str == 'attack-range-windows-client':
-                runner = ansible_runner.run(private_data_dir='.attack_range/',
+                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
                                        cmdline=str('-i ' + target_public_ip + ', '),
-                                       roles_path="../ansible/roles",
-                                       playbook='../ansible/playbooks/attack_data.yml',
+                                       roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
             else:
-                runner = ansible_runner.run(private_data_dir='.attack_range/',
+                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
                                        cmdline=str('-i ' + target_public_ip + ', '),
-                                       roles_path="../ansible/roles",
-                                       playbook='../ansible/playbooks/attack_data.yml',
+                                       roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
 
 
         if self.config['sync_to_s3_bucket'] == '1':
             for file in glob.glob(folder + "/*"):
-                self.log.info(
-                    "upload attack data to S3 bucket. This can take some time")
-                aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, str(
-                    dump_name + '/' + os.path.basename(file)))
+                self.log.info("upload attack data to S3 bucket. This can take some time")
+                aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, str(dump_name + '/' + os.path.basename(file)))
