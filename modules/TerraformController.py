@@ -195,12 +195,6 @@ class TerraformController(IEnvironmentController):
         folder = "attack_data/" + dump_name
         os.mkdir(folder)
 
-        dump_searches = [
-            {'dump': "windows-sec-events.out",
-             'search':'search source=WinEventLog:Security New_Process_Name!="C:\\Program Files\\SplunkUniversalForwarder\\bin\\*"',
-             'info': "Extracting Windows Event Logs from Splunk Server"},
-        ]
-
         servers = ['splunk_server']
         if self.config['windows_domain_controller'] == '1':
             servers.append('windows_domain_controller')
@@ -219,16 +213,17 @@ class TerraformController(IEnvironmentController):
                                        playbook='../ansible/playbooks/attack_data.yml',
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
-            elif server_str == 'attack-range-splunk-server':
-                for dump in dump_searches:
-                    self.log.info(dump['info'])
-                    out = open("attack_data/%s/%s" % (dump_name, dump['dump']), 'w')
-                    splunk_sdk.export_search(target_public_ip,
-                                             s=dump['search'],
-                                             password=self.config['attack_range_password'],
-                                             out=out)
-                    out.close()
-                    self.log.info("%s [Completed]" % dump['info'])
+            elif server_str == 'attack-range-splunk-server' and self.config.has_key('dump_out'):
+                dump_out = self.config['dump_out']
+                dump_info = "Dumping Splunk Search to %s " % dump_out
+                self.log.info(dump_info)
+                out = open("attack_data/%s/%s" % (dump_name, dump_out), 'w')
+                splunk_sdk.export_search(target_public_ip,
+                                         s="%s earliest=%s" % (self.config['dump_search'], self.config['dump_time']),
+                                         password=self.config['attack_range_password'],
+                                         out=out)
+                out.close()
+                self.log.info("%s [Completed]" % dump_info)
             else:
                 runner = ansible_runner.run(private_data_dir='.attack_range/',
                                        cmdline=str('-i ' + target_public_ip + ', '),
