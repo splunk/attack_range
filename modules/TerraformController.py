@@ -21,7 +21,9 @@ class TerraformController(IEnvironmentController):
         custom_dict = self.config.copy()
         variables = dict()
         variables['config'] = custom_dict
-        self.terraform = Terraform(working_dir='terraform', variables=variables, parallelism=15 ,state=config["statepath"])
+        self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform'),variables=variables, parallelism=15 ,state=config["statepath"])
+        self.terraform.init()
+
 
     def build(self):
         self.log.info("[action] > build\n")
@@ -61,8 +63,8 @@ class TerraformController(IEnvironmentController):
         self.build()
 
         # wait
-        self.log.info('Wait for 300 seconds before running simulations.')
-        time.sleep(300)
+        self.log.info('Wait for 200 seconds before running simulations.')
+        time.sleep(200)
 
         # simulate attack
         # create vars string for custom vars:
@@ -88,17 +90,15 @@ class TerraformController(IEnvironmentController):
                           test_file['simulation_technique'], 'no')
 
         # wait
-        self.log.info('Wait for 500 seconds before running the detections.')
-        time.sleep(500)
+        self.log.info('Wait for 200 seconds before running the detections.')
+        time.sleep(200)
 
         # run detection
         result = []
 
         for detection_obj in test_file['detections']:
-            detection_file_name = detection_obj['name'].replace(
-                '-', '_').replace(' ', '_').lower() + '.yml'
-            detection = self.load_file(
-                '../security-content/detections/' + detection_file_name)
+            detection_file_name = detection_obj['name'].replace('-','_').replace(' ','_').lower() + '.yml'
+            detection = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/detections/' + detection_file_name))
             result_obj = dict()
             result_obj['detection'] = detection_obj['name']
             instance = aws_service.get_instance_by_name(
@@ -118,16 +118,8 @@ class TerraformController(IEnvironmentController):
         # destroy attack range
         self.destroy()
 
-        #result_cond = False
-        for result_obj in result:
-            if result_obj['error']:
-                self.log.error('Detection Testing failed: ' +
-                               result_obj['results']['detection_name'])
-                if self.config['automated_testing'] == '1':
-                    github_service.create_issue(
-                        result_obj['results']['detection_name'], self.config)
-            #result_cond |= result_obj['error']
-        sys.exit(0)
+        # return results
+        return {'technique': test_file['simulation_technique'], 'results': result }
 
     def load_file(self, file_path):
         with open(file_path, 'r') as stream:
@@ -154,17 +146,17 @@ class TerraformController(IEnvironmentController):
             run_specific_atomic_tests = 'False'
 
         if target == 'attack-range-windows-client':
-            runner = ansible_runner.run(private_data_dir='.attack_range/',
+            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
                                    cmdline=str('-i ' + target_public_ip + ', '),
-                                   roles_path="../ansible/roles",
-                                   playbook='../ansible/playbooks/atomic_red_team.yml',
+                                   roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                   playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
                                    extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                    verbosity=0)
         else:
-            runner = ansible_runner.run(private_data_dir='.attack_range/',
+            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
                                cmdline=str('-i ' + target_public_ip + ', '),
-                               roles_path="../ansible/roles",
-                               playbook='../ansible/playbooks/atomic_red_team.yml',
+                               roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                               playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
                                extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                verbosity=0)
 
@@ -211,7 +203,7 @@ class TerraformController(IEnvironmentController):
         self.log.info("Dump log data")
 
         folder = "attack_data/" + dump_name
-        os.mkdir(folder)
+        os.mkdir(os.path.join(os.path.dirname(__file__), '../' + folder))
 
         servers = []
         if self.config['windows_domain_controller'] == '1':
@@ -225,24 +217,22 @@ class TerraformController(IEnvironmentController):
             target_public_ip = aws_service.get_single_instance_public_ip(server_str, self.config)
 
             if server_str == 'attack-range-windows-client':
-                runner = ansible_runner.run(private_data_dir='.attack_range/',
+                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
                                        cmdline=str('-i ' + target_public_ip + ', '),
-                                       roles_path="../ansible/roles",
-                                       playbook='../ansible/playbooks/attack_data.yml',
+                                       roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
             else:
-                runner = ansible_runner.run(private_data_dir='.attack_range/',
+                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
                                        cmdline=str('-i ' + target_public_ip + ', '),
-                                       roles_path="../ansible/roles",
-                                       playbook='../ansible/playbooks/attack_data.yml',
+                                       roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
 
 
         if self.config['sync_to_s3_bucket'] == '1':
-            for file in glob.glob(folder + "/*"):
-                self.log.info(
-                    "upload attack data to S3 bucket. This can take some time")
-                aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, str(
-                    dump_name + '/' + os.path.basename(file)))
+            for file in glob.glob(os.path.join(os.path.dirname(__file__), '../' + folder + '/*')):
+                self.log.info("upload attack data to S3 bucket. This can take some time")
+                aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, str(dump_name + '/' + os.path.basename(file)), self.config)
