@@ -213,7 +213,7 @@ class TerraformController(IEnvironmentController):
                                        playbook='../ansible/playbooks/attack_data.yml',
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
-            elif server_str == 'attack-range-splunk-server' and self.config.has_key('dump_out'):
+            elif server_str == 'attack-range-splunk-server' and self.config['dump_out'] != "":
                 dump_out = self.config['dump_out']
                 dump_info = "Dumping Splunk Search to %s " % dump_out
                 self.log.info(dump_info)
