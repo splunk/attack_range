@@ -100,13 +100,13 @@ def change_ec2_state(instances, new_state, log, config):
 #     response2 = s3_client.upload_file('tmp/test_results.yml', 'attack-range-automated-testing', str(test_file['simulation_technique'] + '/test_results.yml'))
 #     os.remove('tmp/test_results.yml')
 
-def upload_file_s3_bucket(s3_bucket, file_path, S3_file_path):
+def upload_file_s3_bucket(s3_bucket, file_path, S3_file_path, config):
     region = config['region']
     s3_client = boto3.client('s3', region_name=region)
     response = s3_client.upload_file(file_path, s3_bucket, S3_file_path)
 
 
-def upload_test_results_s3_bucket(s3_bucket, test_file, test_result_file_path):
+def upload_test_results_s3_bucket(s3_bucket, test_file, test_result_file_path, config):
     region = config['region']
     s3_client = boto3.client('s3', region_name=region)
     response = s3_client.upload_file(test_result_file_path, s3_bucket, str(test_file['simulation_technique'] + '/test_results.yml'))

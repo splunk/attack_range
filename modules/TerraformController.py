@@ -203,7 +203,7 @@ class TerraformController(IEnvironmentController):
         self.log.info("Dump log data")
 
         folder = "attack_data/" + dump_name
-        os.mkdir(folder)
+        os.mkdir(os.path.join(os.path.dirname(__file__), '../' + folder))
 
         servers = []
         if self.config['windows_domain_controller'] == '1':
@@ -233,6 +233,6 @@ class TerraformController(IEnvironmentController):
 
 
         if self.config['sync_to_s3_bucket'] == '1':
-            for file in glob.glob(folder + "/*"):
+            for file in glob.glob(os.path.join(os.path.dirname(__file__), '../' + folder + '/*')):
                 self.log.info("upload attack data to S3 bucket. This can take some time")
-                aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, str(dump_name + '/' + os.path.basename(file)))
+                aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, str(dump_name + '/' + os.path.basename(file)), self.config)

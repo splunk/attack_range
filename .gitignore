@@ -18,6 +18,7 @@ attack_data/*
 # log file
 attack_range.log
 .attack_range/artifacts
+artifacts
 
 ## Terraform ignores
 # Local .terraform directories
