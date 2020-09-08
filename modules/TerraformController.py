@@ -21,7 +21,7 @@ class TerraformController(IEnvironmentController):
         custom_dict = self.config.copy()
         variables = dict()
         variables['config'] = custom_dict
-        self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform'),variables=variables)
+        self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform'),variables=variables, parallelism=15 ,state=config["statepath"])
         self.terraform.init()
 
 
