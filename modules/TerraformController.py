@@ -215,11 +215,12 @@ class TerraformController(IEnvironmentController):
                                        verbosity=0)
             elif server_str == 'attack-range-splunk-server' and self.config['dump_out'] != "":
                 dump_out = self.config['dump_out']
+                dump_search = "search %s earliest=%s" % (self.config['dump_search'], self.config['dump_time'])
                 dump_info = "Dumping Splunk Search to %s " % dump_out
                 self.log.info(dump_info)
                 out = open("attack_data/%s/%s" % (dump_name, dump_out), 'w')
                 splunk_sdk.export_search(target_public_ip,
-                                         s="%s earliest=%s" % (self.config['dump_search'], self.config['dump_time']),
+                                         s=dump_search,
                                          password=self.config['attack_range_password'],
                                          out=out)
                 out.close()
