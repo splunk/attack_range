@@ -26,8 +26,8 @@ private_key_path = ~/.ssh/id_rsa
 # Specify the path to your private SSH key
 
 use_ssh_agent = 0
-# Specify whether to load the key directly or via agent (required if encrypted)
-# possible values: 1, 0
+# Specify whether to access the above ssh private key directly (use_ssh_agent=0)
+# or via ssh-agent (required if your key is password protected, use_ssh_agent=1)
 
 region = us-west-2
 # Specify the aws region in which you want to build the attack range
