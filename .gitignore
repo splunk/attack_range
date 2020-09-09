@@ -13,6 +13,7 @@ apps/*
 
 # attack data folder
 attack_data/*
+!attack_data/dumps.yml
 !attack_data/.gitkeep
 
 # log file
