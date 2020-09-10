@@ -117,7 +117,7 @@ python attack_range.py -a replay -dn data_dump [--dump NAME_OF_DUMP]
 - default will dump all enabled dumps described in `attack_data/dumps.yml`
 - with optional argument `--dump` you can specify which dump to replay
 ```angular2
-python attack_range.py -a replay -dn data_dump windows_sec_events
+python attack_range.py -a replay -dn data_dump --dump windows_sec_events
 ```
 
 ## Features 💍

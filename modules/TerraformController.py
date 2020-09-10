@@ -266,4 +266,4 @@ class TerraformController(IEnvironmentController):
                                                 cmdline=cmdline,
                                                 roles_path="../ansible/roles",
                                                 playbook="../ansible/playbooks/attack_replay.yml",
-                                                extravars=d, verbosity=3)
+                                                extravars=d)
