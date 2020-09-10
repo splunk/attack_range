@@ -249,3 +249,21 @@ class TerraformController(IEnvironmentController):
             for file in glob.glob(os.path.join(os.path.dirname(__file__), '../' + folder + '/*')):
                 self.log.info("upload attack data to S3 bucket. This can take some time")
                 aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, str(dump_name + '/' + os.path.basename(file)), self.config)
+
+
+    def replay_attack_data(self, dump_name, dump):
+        with open('attack_data/dumps.yml') as dump_fh:
+            for d in yaml.full_load(dump_fh):
+                if (d['name'] == dump or dump is None) and d['enabled']:
+                    splunk_ip = aws_service.get_single_instance_public_ip("attack-range-splunk-server", self.config)
+                    # Upload the replay logs to the Splunk server
+                    d['dump_name'] = dump_name
+                    d['ansible_user'] = 'ubuntu'
+                    d['ansible_ssh_private_key_file'] = self.config['private_key_path']
+                    d['splunk_password'] = self.config['attack_range_password']
+                    cmdline = "-i %s, -u ubuntu -c paramiko" % (splunk_ip)
+                    runner = ansible_runner.run(private_data_dir='.attack_range/',
+                                                cmdline=cmdline,
+                                                roles_path="../ansible/roles",
+                                                playbook="../ansible/playbooks/attack_replay.yml",
+                                                extravars=d, verbosity=3)
