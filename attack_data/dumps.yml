@@ -1,0 +1,13 @@
+- name: windows_sec_events
+  out: windows-sec-events.out
+  search: source=WinEventLog:Security New_Process_Name!="C:\\Program Files\\SplunkUniversalForwarder\\bin\\*"
+  sourcetype: WinEventLog
+  time: -2h
+  enabled: True
+
+- name: stream_http_events
+  out: stream_http_events.log
+  search: 'index=main sourcetype=stream:http'
+  sourcetype: 'stream:http'
+  time: -24h
+  enabled: False
