@@ -5,9 +5,9 @@
   time: -2h
   enabled: True
 
-- name: example
-  out: streams
-  search: source=Example Dummy Events
-  sourcetype: WinEventLog
-  time: -15m
+- name: stream_http_events
+  out: stream_http_events.log
+  search: 'index=main sourcetype=stream:http'
+  sourcetype: 'stream:http'
+  time: -24h
   enabled: False
