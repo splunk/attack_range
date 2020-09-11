@@ -38,7 +38,7 @@ class IEnvironmentController(ABC):
         pass
 
     @abstractmethod
-    def dump_attack_data(self, dump_name):
+    def dump_attack_data(self, dump_name, last_sim):
         pass
 
     @abstractmethod
