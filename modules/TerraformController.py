@@ -106,8 +106,6 @@ class TerraformController(IEnvironmentController):
                 self.log.error('ERROR: Splunk server is not running.')
             result.append(result_obj)
 
-        # print(result)
-
         # store attack data
         if self.config['capture_attack_data'] == '1':
             self.dump_attack_data(test_file['simulation_technique'])
@@ -132,6 +130,8 @@ class TerraformController(IEnvironmentController):
     def simulate(self, target, simulation_techniques, simulation_atomics, var_str='no'):
         target_public_ip = aws_service.get_single_instance_public_ip(
             target, self.config)
+
+        start_time = time.time()
 
         # check if specific atomics are used then it's not allowed to multiple techniques
         techniques_arr = simulation_techniques.split(',')
@@ -166,10 +166,6 @@ class TerraformController(IEnvironmentController):
             else:
                 stdout_lines = runner.get_fact_cache(target_public_ip)['output_art_var']['stdout_lines']
 
-            # for debug purpose
-            # for line in stdout_lines:
-            #     print(line)
-
             i = 0
             for line in stdout_lines:
                 match = re.search(r'Executing test: (.*)', line)
@@ -185,6 +181,8 @@ class TerraformController(IEnvironmentController):
                         output.append(msg)
                 i += 1
 
+            with open("/tmp/attack-range-%s-last-sim.tmp" % self.config['range_name']) as last_sim:
+                last_sim.write("%s" % start_time)
             return output
         else:
             self.log.error("failed to executed technique ID {0} against target: {1}".format(
