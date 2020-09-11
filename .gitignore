@@ -19,6 +19,7 @@ attack_data/*
 # log file
 attack_range.log
 .attack_range/artifacts
+artifacts
 
 ## Terraform ignores
 # Local .terraform directories
@@ -174,3 +175,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#state directories
+terraform/state/*
+!terraform/state/state.md
