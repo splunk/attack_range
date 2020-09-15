@@ -249,7 +249,7 @@ class TerraformController(IEnvironmentController):
                                        extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
                                        verbosity=0)
             elif server_str == str(self.config['range_name'] + '-attack-range-splunk-server'):
-                with open('attack_data/dumps.yml') as dumps:
+                with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dumps:
                     for dump in yaml.full_load(dumps):
                         if dump['enabled']:
                             dump_out = dump['out']
