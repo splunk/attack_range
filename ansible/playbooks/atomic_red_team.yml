@@ -1,5 +1,5 @@
 - hosts: all
-  gather_facts: False
+  gather_facts: True
   vars:
     ansible_connection: winrm
     ansible_port: 5986
