@@ -254,7 +254,7 @@ class TerraformController(IEnvironmentController):
                     for dump in yaml.full_load(dumps):
                         if dump['enabled']:
                             dump_out = dump['out']
-                            dump_search = "search %s earliest=%s" % (dump['search'], dump['time'])
+                            dump_search = "search %s earliest=%s | sort _time" % (dump['search'], dump['time'])
                             dump_info = "Dumping Splunk Search to %s " % dump_out
                             self.log.info(dump_info)
                             out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_out), 'wb')
