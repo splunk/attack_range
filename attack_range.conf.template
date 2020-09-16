@@ -185,6 +185,8 @@ install_mltk = 0
 
 [attack_data_dump]
 capture_attack_data = 0
+capture_attack_data_json = 0
+capture_attack_data_evtx = 0
 
 nxlog_url = https://nxlog.co/system/files/products/files/348/nxlog-ce-2.10.2150.msi
 # url to download the nxlog application for collecting and sending event logs in json format

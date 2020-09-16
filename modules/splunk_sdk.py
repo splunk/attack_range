@@ -155,4 +155,5 @@ def export_search(host, s, password, export_mode="raw", out=sys.stdout, username
                       data={'output_mode': export_mode,
                             'search': s},
                       verify=False)
-    out.write(r.text)
+    output = str(r.text.encode('utf-8').strip())
+    out.write(output)
