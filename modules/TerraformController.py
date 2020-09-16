@@ -176,7 +176,7 @@ class TerraformController(IEnvironmentController):
                 if match is not None:
                     #print(match.group(1))
                     if re.match(r'Done executing test', stdout_lines[i+1]):
-                        msg = 'Failed Execution of test ' + match.group(1)
+                        msg = 'Return value unclear for test ' + match.group(1)
                         self.log.info(msg)
                         output.append(msg)
                     else:
@@ -242,12 +242,13 @@ class TerraformController(IEnvironmentController):
             target_public_ip = aws_service.get_single_instance_public_ip(server_str, self.config)
 
             if server_str == str(self.config['range_name'] +'-attack-range-windows-client'):
-                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
-                                       cmdline=str('-i ' + target_public_ip + ', '),
-                                       roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
-                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
-                                       verbosity=0)
+                if self.config['capture_attack_data_evtx'] == '1' or self.config['capture_attack_data_json'] == '1':
+                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+                                           cmdline=str('-i ' + target_public_ip + ', '),
+                                           roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                           playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
+                                           extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name, 'capture_attack_data_json': self.config['capture_attack_data_json'], 'capture_attack_data_evtx': self.config['capture_attack_data_evtx']},
+                                           verbosity=0)
             elif server_str == str(self.config['range_name'] + '-attack-range-splunk-server'):
                 with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dumps:
                     for dump in yaml.full_load(dumps):
@@ -264,12 +265,13 @@ class TerraformController(IEnvironmentController):
                             out.close()
                             self.log.info("%s [Completed]" % dump_info)
             else:
-                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
-                                       cmdline=str('-i ' + target_public_ip + ', '),
-                                       roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
-                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name},
-                                       verbosity=0)
+                if self.config['capture_attack_data_evtx'] == '1' or self.config['capture_attack_data_json'] == '1':
+                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+                                           cmdline=str('-i ' + target_public_ip + ', '),
+                                           roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                           playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
+                                           extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name, 'capture_attack_data_json': self.config['capture_attack_data_json'], 'capture_attack_data_evtx': self.config['capture_attack_data_evtx']},
+                                           verbosity=0)
 
 
         if self.config['sync_to_s3_bucket'] == '1':
