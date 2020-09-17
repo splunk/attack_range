@@ -257,7 +257,7 @@ class TerraformController(IEnvironmentController):
                             dump_search = "search %s earliest=%s" % (dump['search'], dump['time'])
                             dump_info = "Dumping Splunk Search to %s " % dump_out
                             self.log.info(dump_info)
-                            out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_out), 'w')
+                            out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_out), 'wb')
                             splunk_sdk.export_search(target_public_ip,
                                                      s=dump_search,
                                                      password=self.config['attack_range_password'],
