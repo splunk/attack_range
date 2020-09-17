@@ -5,10 +5,25 @@
 #     path: 'C:\AtomicRedTeam'
 #   register: atr_folder
 
+- name: Enable strong dotnet crypto
+  win_regedit:
+    key: "{{ item }}"
+    value: SchUseStrongCrypto
+    datatype: dword
+    data: 1
+  with_items:
+    - "HKLM:\\SOFTWARE\\Microsoft\\.NetFramework\\v4.0.30319"
+    - "HKLM:\\SOFTWARE\\Wow6432Node\\Microsoft\\.NetFramework\\v4.0.30319"
+
+- name: Check installed providers
+  win_shell: Get-PackageProvider
+  register: providers
+  changed_when: false
+
 - name: Install NuGet Provider
   win_shell: |
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+  when: providers.stdout is not search("NuGet")
 
 - name: Install Atomic Red Team
   win_shell: |
