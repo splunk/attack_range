@@ -17,5 +17,6 @@
     body:
       name: /tmp/{{ out }}
       sourcetype: "{{ sourcetype }}"
-      rename-source: attack-range-replay
+      rename-source: "{{ source }}"
+      index: "{{ index }}"
     status_code: 201

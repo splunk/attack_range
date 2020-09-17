@@ -1,34 +1,54 @@
 - name: sysmon_events
-  out: windows-sysmon.log
-  search: source=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
-  sourcetype: xmlwineventlog
-  time: -2h
+  dump_parameters:
+    out: windows-sysmon.log
+    search: source=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
+    time: -2h
+  replay_parameters:
+    source: XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
+    sourcetype: xmlwineventlog
+    index: test
   enabled: True
 
 - name: windows_security_events
-  out: windows-security.log
-  search: source=WinEventLog:Security
-  sourcetype: WinEventLog
-  time: -2h
+  dump_parameters:
+    out: windows-security.log
+    search: source=WinEventLog:Security
+    time: -2h
+  replay_parameters:
+    source: WinEventLog:Security
+    sourcetype: WinEventLog
+    index: test
   enabled: True
 
 - name: windows_system_events
-  out: windows-system.log
-  search: source=WinEventLog:system
-  sourcetype: WinEventLog
-  time: -2h
+  dump_parameters:
+    out: windows-system.log
+    search: source=WinEventLog:system
+    time: -2h
+  replay_parameters:
+    source: WinEventLog:System
+    sourcetype: WinEventLog
+    index: test
   enabled: True
 
 - name: powershell_events
-  out: windows-powershell.log
-  search: source=WinEventLog:Microsoft-Windows-PowerShell/Operational
-  sourcetype: wineventlog
-  time: -2h
+  dump_parameters:
+    out: windows-powershell.log
+    search: source=WinEventLog:Microsoft-Windows-PowerShell/Operational
+    time: -2h
+  replay_parameters:
+    source: WinEventLog:Microsoft-Windows-PowerShell/Operational
+    sourcetype: wineventlog
+    index: test
   enabled: True
 
 - name: stream_http_events
-  out: stream_http_events.log
-  search: 'index=main sourcetype=stream:http'
-  sourcetype: 'stream:http'
-  time: -24h
+  dump_parameters:
+    out: stream_http_events.log
+    search: 'index=main sourcetype=stream:http'
+    time: -24h
+  replay_parameters:
+    source: stream
+    sourcetype: stream:http
+    index: test
   enabled: False
