@@ -9,6 +9,7 @@ import time
 import os
 import glob
 import sys
+import re
 
 
 class TerraformController(IEnvironmentController):
@@ -80,12 +81,10 @@ class TerraformController(IEnvironmentController):
             var_str += ' }'
             print(var_str)
 
-            self.simulate(
-                test_file['target'], test_file['simulation_technique'], 'no', var_str)
+            output = self.simulate(test_file['target'], test_file['simulation_technique'], 'no', var_str)
 
         else:
-            self.simulate(test_file['target'],
-                          test_file['simulation_technique'], 'no')
+            output = self.simulate(test_file['target'],test_file['simulation_technique'], 'no')
 
         # wait
         self.log.info('Wait for 200 seconds before running the detections.')
@@ -117,7 +116,9 @@ class TerraformController(IEnvironmentController):
         self.destroy()
 
         # return results
-        return {'technique': test_file['simulation_technique'], 'results': result }
+        print(output)
+        return {'technique': test_file['simulation_technique'], 'results': result , 'simulation_output': output}
+
 
     def load_file(self, file_path):
         with open(file_path, 'r') as stream:
@@ -159,12 +160,38 @@ class TerraformController(IEnvironmentController):
                                verbosity=0)
 
         if runner.status == "successful":
-            self.log.info("successfully executed technique ID {0} against target: {1}".format(
-                simulation_techniques, target))
+            output = []
+            if 'output_art' in runner.get_fact_cache(target_public_ip):
+                stdout_lines = runner.get_fact_cache(target_public_ip)['output_art']['stdout_lines']
+            else:
+                stdout_lines = runner.get_fact_cache(target_public_ip)['output_art_var']['stdout_lines']
+
+            # for debug purpose
+            # for line in stdout_lines:
+            #     print(line)
+
+            i = 0
+            for line in stdout_lines:
+                match = re.search(r'Executing test: (.*)', line)
+                if match is not None:
+                    #print(match.group(1))
+                    if re.match(r'Done executing test', stdout_lines[i+1]):
+                        msg = 'Return value unclear for test ' + match.group(1)
+                        self.log.info(msg)
+                        output.append(msg)
+                    else:
+                        msg = 'Successful Execution of test ' + match.group(1)
+                        self.log.info(msg)
+                        output.append(msg)
+                i += 1
+
+            return output
         else:
             self.log.error("failed to executed technique ID {0} against target: {1}".format(
                 simulation_techniques, target))
             sys.exit(1)
+
+
 
     def list_machines(self):
         instances = aws_service.get_all_instances(self.config)
@@ -215,21 +242,22 @@ class TerraformController(IEnvironmentController):
             target_public_ip = aws_service.get_single_instance_public_ip(server_str, self.config)
 
             if server_str == str(self.config['range_name'] +'-attack-range-windows-client'):
-                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
-                                       cmdline=str('-i ' + target_public_ip + ', '),
-                                       roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
-                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
-                                       verbosity=0)
+                if self.config['capture_attack_data_evtx'] == '1' or self.config['capture_attack_data_json'] == '1':
+                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+                                           cmdline=str('-i ' + target_public_ip + ', '),
+                                           roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                           playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
+                                           extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name, 'capture_attack_data_json': self.config['capture_attack_data_json'], 'capture_attack_data_evtx': self.config['capture_attack_data_evtx']},
+                                           verbosity=0)
             elif server_str == str(self.config['range_name'] + '-attack-range-splunk-server'):
-                with open('attack_data/dumps.yml') as dumps:
+                with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dumps:
                     for dump in yaml.full_load(dumps):
                         if dump['enabled']:
                             dump_out = dump['out']
-                            dump_search = "search %s earliest=%s" % (dump['search'], dump['time'])
+                            dump_search = "search %s earliest=%s | sort _time" % (dump['search'], dump['time'])
                             dump_info = "Dumping Splunk Search to %s " % dump_out
                             self.log.info(dump_info)
-                            out = open("attack_data/%s/%s" % (dump_name, dump_out), 'w')
+                            out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_out), 'wb')
                             splunk_sdk.export_search(target_public_ip,
                                                      s=dump_search,
                                                      password=self.config['attack_range_password'],
@@ -237,12 +265,13 @@ class TerraformController(IEnvironmentController):
                             out.close()
                             self.log.info("%s [Completed]" % dump_info)
             else:
-                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
-                                       cmdline=str('-i ' + target_public_ip + ', '),
-                                       roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
-                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name},
-                                       verbosity=0)
+                if self.config['capture_attack_data_evtx'] == '1' or self.config['capture_attack_data_json'] == '1':
+                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+                                           cmdline=str('-i ' + target_public_ip + ', '),
+                                           roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                           playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
+                                           extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name, 'capture_attack_data_json': self.config['capture_attack_data_json'], 'capture_attack_data_evtx': self.config['capture_attack_data_evtx']},
+                                           verbosity=0)
 
 
         if self.config['sync_to_s3_bucket'] == '1':

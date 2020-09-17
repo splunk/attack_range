@@ -4,6 +4,7 @@
   win_service:
     name: nxlog
     state: stopped
+  when: capture_attack_data_json == '1'
 
 - name: Fetch attack data
   fetch:
@@ -11,11 +12,13 @@
     dest: ../../attack_data/{{ folder }}/{{ hostname }}.json
     validate_checksum: no
     flat: yes
+  when: capture_attack_data_json == '1'
 
 - name: Start nxlog
   win_service:
     name: nxlog
     state: started
+  when: capture_attack_data_json == '1'
 
 - name: Export Sysmon Logs
   win_shell: WEVTUtil epl "Microsoft-Windows-Sysmon/Operational"  C:\sysmon.evtx
@@ -26,14 +29,17 @@
     dest: ../../attack_data/{{ folder }}/{{ hostname }}_sysmon.evtx
     validate_checksum: no
     flat: yes
+  when: capture_attack_data_evtx == '1'
 
 - name: Remove file
   win_file:
     path: 'C:\sysmon.evtx'
     state: absent
+  when: capture_attack_data_evtx == '1'
 
 - name: Export Windows Event Logs Security
   win_shell: WEVTUtil epl "Security" C:\windows_event_logs_security.evtx
+  when: capture_attack_data_evtx == '1'
 
 - name: Fetch security data
   fetch:
@@ -41,14 +47,17 @@
     dest: ../../attack_data/{{ folder }}/{{ hostname }}_windows_event_logs_security.evtx
     validate_checksum: no
     flat: yes
+  when: capture_attack_data_evtx == '1'
 
 - name: Remove file
   win_file:
     path: 'C:\windows_event_logs_security.evtx'
     state: absent
+  when: capture_attack_data_evtx == '1'
 
 - name: Export Windows Event Logs System
   win_shell: WEVTUtil epl "System" C:\windows_event_logs_system.evtx
+  when: capture_attack_data_evtx == '1'
 
 - name: Fetch system data
   fetch:
@@ -56,14 +65,17 @@
     dest: ../../attack_data/{{ folder }}/{{ hostname }}_windows_event_logs_system.evtx
     validate_checksum: no
     flat: yes
+  when: capture_attack_data_evtx == '1'
 
 - name: Remove file
   win_file:
     path: 'C:\windows_event_logs_system.evtx'
     state: absent
+  when: capture_attack_data_evtx == '1'
 
 - name: Export Windows Event Logs Application
   win_shell: WEVTUtil epl "Application" C:\windows_event_logs_application.evtx
+  when: capture_attack_data_evtx == '1'
 
 - name: Fetch application data
   fetch:
@@ -71,14 +83,17 @@
     dest: ../../attack_data/{{ folder }}/{{ hostname }}_windows_event_logs_application.evtx
     validate_checksum: no
     flat: yes
+  when: capture_attack_data_evtx == '1'
 
 - name: Remove file
   win_file:
     path: 'C:\windows_event_logs_application.evtx'
     state: absent
+  when: capture_attack_data_evtx == '1'
 
 - name: Export Windows Event Logs Powershell
   win_shell: WEVTUtil epl "Microsoft-Windows-PowerShell/Operational" C:\windows_event_logs_powershell.evtx
+  when: capture_attack_data_evtx == '1'
 
 - name: Fetch powershell data
   fetch:
@@ -86,8 +101,10 @@
     dest: ../../attack_data/{{ folder }}/{{ hostname }}_windows_event_logs_powershell.evtx
     validate_checksum: no
     flat: yes
+  when: capture_attack_data_evtx == '1'
 
 - name: Remove file
   win_file:
     path: 'C:\windows_event_logs_powershell.evtx'
     state: absent
+  when: capture_attack_data_evtx == '1'
