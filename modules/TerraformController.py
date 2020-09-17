@@ -253,8 +253,8 @@ class TerraformController(IEnvironmentController):
                 with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dumps:
                     for dump in yaml.full_load(dumps):
                         if dump['enabled']:
-                            dump_out = dump['out']
-                            dump_search = "search %s earliest=%s | sort _time" % (dump['search'], dump['time'])
+                            dump_out = dump['dump_parameters']['out']
+                            dump_search = "search %s earliest=%s | sort _time" % (dump['dump_parameters']['search'], dump['dump_parameters']['time'])
                             dump_info = "Dumping Splunk Search to %s " % dump_out
                             self.log.info(dump_info)
                             out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_out), 'wb')
@@ -278,3 +278,27 @@ class TerraformController(IEnvironmentController):
             for file in glob.glob(os.path.join(os.path.dirname(__file__), '../' + folder + '/*')):
                 self.log.info("upload attack data to S3 bucket. This can take some time")
                 aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, str(dump_name + '/' + os.path.basename(file)), self.config)
+
+
+    def replay_attack_data(self, dump_name, dump):
+        with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dump_fh:
+            for d in yaml.full_load(dump_fh):
+                if (d['name'] == dump or dump is None) and d['enabled']:
+                    splunk_ip = aws_service.get_single_instance_public_ip(self.config['range_name'] + "-attack-range-splunk-server", self.config)
+                    # Upload the replay logs to the Splunk server
+                    ansible_vars = {}
+                    ansible_vars['dump_name'] = dump_name
+                    ansible_vars['ansible_user'] = 'ubuntu'
+                    ansible_vars['ansible_ssh_private_key_file'] = self.config['private_key_path']
+                    ansible_vars['splunk_password'] = self.config['attack_range_password']
+                    ansible_vars['out'] = d['dump_parameters']['out']
+                    ansible_vars['sourcetype'] = d['replay_parameters']['sourcetype']
+                    ansible_vars['source'] = d['replay_parameters']['source']
+                    ansible_vars['index'] = d['replay_parameters']['index']
+
+                    cmdline = "-i %s, -u ubuntu -c paramiko" % (splunk_ip)
+                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+                                                cmdline=cmdline,
+                                                roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                                playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_replay.yml'),
+                                                extravars=ansible_vars)

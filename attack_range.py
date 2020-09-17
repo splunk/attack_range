@@ -15,10 +15,9 @@ VERSION = 1
 
 def main(args):
     # grab arguments
-    parser = argparse.ArgumentParser(
-        description="starts a attack range ready to collect attack data into splunk")
-    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'test', 'dump'], default="",
-                        help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume/search allowed")
+    parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
+    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'test', 'dump', 'replay'], default="",
+                        help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume/test/dump/replay allowed")
     parser.add_argument("-t", "--target", required=False,
                         help="target for attack simulation. Use the name of the aws EC2 name")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
@@ -27,6 +26,8 @@ def main(args):
                         help="specify dedicated Atomic Red Team atomics to simulate in the attack_range, example: Regsvr32 remote COM scriptlet execution for T1117")
     parser.add_argument("-dn", "--dump_name", required=False,
                         help="name for the dumped attack data")
+    parser.add_argument("--dump", required=False,
+                        help="name of the dump as defined in attack_data/dumps.yml")
     parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
                         help="path to the configuration file of the attack range")
     parser.add_argument("-tf", "--test_file", required=False,
@@ -47,6 +48,7 @@ def main(args):
     list_machines = args.list_machines
     test_file = args.test_file
     dump_name = args.dump_name
+    dump = args.dump
 
     print("""
 starting program loaded for B1 battle droid
@@ -141,6 +143,8 @@ starting program loaded for B1 battle droid
     if action == 'dump':
         controller.dump_attack_data(dump_name)
 
+    if action == 'replay':
+        controller.replay_attack_data(dump_name, dump)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

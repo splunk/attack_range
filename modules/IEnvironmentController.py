@@ -40,3 +40,7 @@ class IEnvironmentController(ABC):
     @abstractmethod
     def dump_attack_data(self, dump_name):
         pass
+
+    @abstractmethod
+    def replay_attack_data(self, dump_name, dump):
+        pass
