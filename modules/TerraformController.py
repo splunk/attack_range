@@ -106,8 +106,6 @@ class TerraformController(IEnvironmentController):
                 self.log.error('ERROR: Splunk server is not running.')
             result.append(result_obj)
 
-        # print(result)
-
         # store attack data
         if self.config['capture_attack_data'] == '1':
             self.dump_attack_data(test_file['simulation_technique'])
@@ -132,6 +130,8 @@ class TerraformController(IEnvironmentController):
     def simulate(self, target, simulation_techniques, simulation_atomics, var_str='no'):
         target_public_ip = aws_service.get_single_instance_public_ip(
             target, self.config)
+
+        start_time = time.time()
 
         # check if specific atomics are used then it's not allowed to multiple techniques
         techniques_arr = simulation_techniques.split(',')
@@ -166,10 +166,6 @@ class TerraformController(IEnvironmentController):
             else:
                 stdout_lines = runner.get_fact_cache(target_public_ip)['output_art_var']['stdout_lines']
 
-            # for debug purpose
-            # for line in stdout_lines:
-            #     print(line)
-
             i = 0
             for line in stdout_lines:
                 match = re.search(r'Executing test: (.*)', line)
@@ -185,6 +181,10 @@ class TerraformController(IEnvironmentController):
                         output.append(msg)
                 i += 1
 
+            with open(os.path.join(os.path.dirname(__file__),
+                                   "../attack_data/.%s-last-sim.tmp" % self.config['range_name']),
+                      'w') as last_sim:
+                last_sim.write("%s" % start_time)
             return output
         else:
             self.log.error("failed to executed technique ID {0} against target: {1}".format(
@@ -217,7 +217,7 @@ class TerraformController(IEnvironmentController):
             print("ERROR: Can't find configured EC2 Attack Range Instances in AWS.")
         print()
 
-    def dump_attack_data(self, dump_name):
+    def dump_attack_data(self, dump_name, last_sim):
 
         # copy json from nxlog
         # copy raw data using powershell
@@ -254,7 +254,16 @@ class TerraformController(IEnvironmentController):
                     for dump in yaml.full_load(dumps):
                         if dump['enabled']:
                             dump_out = dump['dump_parameters']['out']
-                            dump_search = "search %s earliest=%s | sort _time" % (dump['dump_parameters']['search'], dump['dump_parameters']['time'])
+                            if last_sim:
+                                # if last_sim is set, then it overrides time in dumps.yml
+                                # and starts dumping from last simulation
+                                with open(os.path.join(os.path.dirname(__file__),
+                                                       "../attack_data/.%s-last-sim.tmp" % self.config['range_name']),
+                                          'r') as ls:
+                                    sim_ts = float(ls.readline())
+                                    dump['dump_parameters']['time'] = "-%ds" % int(time.time() - sim_ts)
+                            dump_search = "search %s earliest=%s | sort _time" \
+                                          % (dump['dump_parameters']['search'], dump['dump_parameters']['time'])
                             dump_info = "Dumping Splunk Search to %s " % dump_out
                             self.log.info(dump_info)
                             out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_out), 'wb')
