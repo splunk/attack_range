@@ -255,7 +255,9 @@ class TerraformController(IEnvironmentController):
                             if last_sim:
                                 # if last_sim is set, then it overrides time in dumps.yml
                                 # and starts dumping from last simulation
-                                with open("/tmp/attack-range-%s-last-sim.tmp" % self.config['range_name'], 'r') as ls:
+                                with open(os.path.join(os.path.dirname(__file__),
+                                                       "../attack_data/.%s-last-sim.tmp" % self.config['range_name']),
+                                          'r') as ls:
                                     sim_ts = float(ls.readline())
                                     dump['dump_parameters']['time'] = "-%ds" % int(time.time() - sim_ts)
                             dump_search = "search %s earliest=%s | sort _time" \
