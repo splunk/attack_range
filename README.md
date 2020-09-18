@@ -21,6 +21,12 @@ Attack Range can be built in three different ways:
 - **locally** with vagrant and virtualbox see the [attack\_range\_local](https://github.com/splunk/attack_range_local/) project for details
 - **serverless** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details
 
+## Installation 🏗
+
+### [For Ubuntu 18.04](https://github.com/splunk/attack_range/wiki/Ubuntu-18.04-Installation)
+
+### [For MacOS](https://github.com/splunk/attack_range/wiki/MacOS-Installation)
+
 ## Architecture 🏯
 ![Logical Diagram](docs/attack_range_architecture1.png)
 
@@ -46,13 +52,6 @@ The following log sources are collected from the machines:
 - Powershell Logs (```index = win```)
 - Network Logs with Splunk Stream (```index = main```)
 - Attack Simulation Logs from Atomic Red Team and Caldera (```index = attack```)
-
-
-## Installation 🏗
-
-### [For Ubuntu 18.04](https://github.com/splunk/attack_range/wiki/Ubuntu-18.04-Installation)
-
-### [For MacOS](https://github.com/splunk/attack_range/wiki/MacOS-Installation)
 
 ## Running 🏃‍♀️
 Attack Range supports different actions:
