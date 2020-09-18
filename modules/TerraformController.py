@@ -181,7 +181,9 @@ class TerraformController(IEnvironmentController):
                         output.append(msg)
                 i += 1
 
-            with open("/tmp/attack-range-%s-last-sim.tmp" % self.config['range_name'], 'w') as last_sim:
+            with open(os.path.join(os.path.dirname(__file__),
+                                   "../attack_data/.%s-last-sim.tmp" % self.config['range_name']),
+                      'w') as last_sim:
                 last_sim.write("%s" % start_time)
             return output
         else:
