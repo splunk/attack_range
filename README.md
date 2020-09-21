@@ -75,7 +75,7 @@ python attack_range.py -a build
 ### Perform Attack Simulation
 - Perform Attack Simulation
 ```
-python attack_range.py -a simulate -st T1003.001 -t attack-range-windows-domain-controller
+python attack_range.py -a simulate -st T1003.001 -t default-attack-range-windows-domain-controller
 ```
 
 ### Test with Attack Range
