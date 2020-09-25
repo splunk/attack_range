@@ -118,7 +118,7 @@ def test(args):
 def main():
     # grab arguments
     parser = argparse.ArgumentParser(
-        description="starts a attack range ready to collect attack data into splunk")
+        description="Use `attack_range.py action -h` to get help with any Attack Range action")
     parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
                         help="path to the configuration file of the attack range")
     parser.add_argument("-v", "--version", default=False, action="version", version="version: {0}".format(VERSION),
