@@ -82,7 +82,12 @@ def simulate(args):
 
 def dump(args):
     controller, _, _ = init(args)
-    controller.dump_attack_data(args.dump_name)
+    controller.dump_attack_data(args.dump_name, args.last_sim)
+
+
+def replay(args):
+    controller, _, _ = init(args)
+    controller.replay_attack_data(args.dump_name, args.dump)
 
 
 def build(args):
@@ -130,6 +135,7 @@ def main():
     show_parser = actions_parser.add_parser("show", help="list machines")
     test_parser = actions_parser.add_parser("test")
     dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
+    replay_parser = actions_parser.add_parser("replay", help="replay dumps into the Splunk Enterprise server")
 
     # Build arguments
     build_parser.set_defaults(func=build)
@@ -157,7 +163,16 @@ def main():
     # Dump  Arguments
     dump_parser.add_argument("-dn", "--dump_name", required=True,
                              help="name for the dumped attack data")
+    dump_parser.add_argument("--last-sim", required=False, action='store_true',
+                             help="overrides dumps.yml time and dumps from the start of previous simulation")
     dump_parser.set_defaults(func=dump)
+
+    # Replay Arguments
+    replay_parser.add_argument("-dn", "--dump_name", required=True,
+                               help="name for the dumped attack data")
+    replay_parser.add_argument("--dump", required=False,
+                        help="name of the dump as defined in attack_data/dumps.yml")
+    replay_parser.set_defaults(func=replay)
 
     # Test Arguments
     test_parser.add_argument("-tf", "--test_file", required=True,

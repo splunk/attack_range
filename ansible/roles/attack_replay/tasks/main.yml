@@ -1,0 +1,22 @@
+---
+
+- name: Upload replay
+  copy:
+    src: ../../attack_data/{{ dump_name }}/{{ out }}
+    dest: /tmp/{{ out }}
+
+- name: Call oneshot import
+  uri:
+    url: https://localhost:8089/services/data/inputs/oneshot
+    validate_certs: no
+    method: POST
+    user: admin
+    password: "{{ splunk_password }}"
+    force_basic_auth: yes
+    body_format: form-urlencoded
+    body:
+      name: /tmp/{{ out }}
+      sourcetype: "{{ sourcetype }}"
+      rename-source: "{{ source }}"
+      index: "{{ index }}"
+    status_code: 201

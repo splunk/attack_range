@@ -165,6 +165,10 @@ win_sysmon_template = AttackRangeSysmon.xml
 win_4688_cmd_line = 0
 # Enables cmd line logging of Windows Security Events 4688
 
+verbose_win_security_logging = 0
+# Enable verbose windows security logging
+
+
 [enterprise_security]
 install_es = 0
 # Specify whether install Splunk Enterprise Security or not.
@@ -185,6 +189,13 @@ install_mltk = 0
 
 [attack_data_dump]
 capture_attack_data = 0
+# capture attack data during the test command
+
+capture_attack_data_json = 0
+# additionally capture the data in json format from nxlog
+
+capture_attack_data_evtx = 0
+# additionally capture the raw evtx files from Windows Event Logs
 
 nxlog_url = https://nxlog.co/system/files/products/files/348/nxlog-ce-2.10.2150.msi
 # url to download the nxlog application for collecting and sending event logs in json format

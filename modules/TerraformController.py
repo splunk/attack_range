@@ -9,6 +9,7 @@ import time
 import os
 import glob
 import sys
+import re
 
 
 class TerraformController(IEnvironmentController):
@@ -80,12 +81,10 @@ class TerraformController(IEnvironmentController):
             var_str += ' }'
             print(var_str)
 
-            self.simulate(
-                test_file['target'], test_file['simulation_technique'], 'no', var_str)
+            output = self.simulate(test_file['target'], test_file['simulation_technique'], 'no', var_str)
 
         else:
-            self.simulate(test_file['target'],
-                          test_file['simulation_technique'], 'no')
+            output = self.simulate(test_file['target'],test_file['simulation_technique'], 'no')
 
         # wait
         self.log.info('Wait for 200 seconds before running the detections.')
@@ -107,8 +106,6 @@ class TerraformController(IEnvironmentController):
                 self.log.error('ERROR: Splunk server is not running.')
             result.append(result_obj)
 
-        # print(result)
-
         # store attack data
         if self.config['capture_attack_data'] == '1':
             self.dump_attack_data(test_file['simulation_technique'])
@@ -117,7 +114,9 @@ class TerraformController(IEnvironmentController):
         self.destroy()
 
         # return results
-        return {'technique': test_file['simulation_technique'], 'results': result }
+        print(output)
+        return {'technique': test_file['simulation_technique'], 'results': result , 'simulation_output': output}
+
 
     def load_file(self, file_path):
         with open(file_path, 'r') as stream:
@@ -131,6 +130,8 @@ class TerraformController(IEnvironmentController):
     def simulate(self, target, simulation_techniques, simulation_atomics, var_str='no'):
         target_public_ip = aws_service.get_single_instance_public_ip(
             target, self.config)
+
+        start_time = time.time()
 
         # check if specific atomics are used then it's not allowed to multiple techniques
         techniques_arr = simulation_techniques.split(',')
@@ -159,12 +160,38 @@ class TerraformController(IEnvironmentController):
                                verbosity=0)
 
         if runner.status == "successful":
-            self.log.info("successfully executed technique ID {0} against target: {1}".format(
-                simulation_techniques, target))
+            output = []
+            if 'output_art' in runner.get_fact_cache(target_public_ip):
+                stdout_lines = runner.get_fact_cache(target_public_ip)['output_art']['stdout_lines']
+            else:
+                stdout_lines = runner.get_fact_cache(target_public_ip)['output_art_var']['stdout_lines']
+
+            i = 0
+            for line in stdout_lines:
+                match = re.search(r'Executing test: (.*)', line)
+                if match is not None:
+                    #print(match.group(1))
+                    if re.match(r'Done executing test', stdout_lines[i+1]):
+                        msg = 'Return value unclear for test ' + match.group(1)
+                        self.log.info(msg)
+                        output.append(msg)
+                    else:
+                        msg = 'Successful Execution of test ' + match.group(1)
+                        self.log.info(msg)
+                        output.append(msg)
+                i += 1
+
+            with open(os.path.join(os.path.dirname(__file__),
+                                   "../attack_data/.%s-last-sim.tmp" % self.config['range_name']),
+                      'w') as last_sim:
+                last_sim.write("%s" % start_time)
+            return output
         else:
             self.log.error("failed to executed technique ID {0} against target: {1}".format(
                 simulation_techniques, target))
             sys.exit(1)
+
+
 
     def list_machines(self):
         instances = aws_service.get_all_instances(self.config)
@@ -190,7 +217,7 @@ class TerraformController(IEnvironmentController):
             print("ERROR: Can't find configured EC2 Attack Range Instances in AWS.")
         print()
 
-    def dump_attack_data(self, dump_name):
+    def dump_attack_data(self, dump_name, last_sim):
 
         # copy json from nxlog
         # copy raw data using powershell
@@ -215,21 +242,31 @@ class TerraformController(IEnvironmentController):
             target_public_ip = aws_service.get_single_instance_public_ip(server_str, self.config)
 
             if server_str == str(self.config['range_name'] +'-attack-range-windows-client'):
-                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
-                                       cmdline=str('-i ' + target_public_ip + ', '),
-                                       roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
-                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name},
-                                       verbosity=0)
+                if self.config['capture_attack_data_evtx'] == '1' or self.config['capture_attack_data_json'] == '1':
+                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+                                           cmdline=str('-i ' + target_public_ip + ', '),
+                                           roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                           playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
+                                           extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name, 'capture_attack_data_json': self.config['capture_attack_data_json'], 'capture_attack_data_evtx': self.config['capture_attack_data_evtx']},
+                                           verbosity=0)
             elif server_str == str(self.config['range_name'] + '-attack-range-splunk-server'):
-                with open('attack_data/dumps.yml') as dumps:
+                with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dumps:
                     for dump in yaml.full_load(dumps):
                         if dump['enabled']:
-                            dump_out = dump['out']
-                            dump_search = "search %s earliest=%s" % (dump['search'], dump['time'])
+                            dump_out = dump['dump_parameters']['out']
+                            if last_sim:
+                                # if last_sim is set, then it overrides time in dumps.yml
+                                # and starts dumping from last simulation
+                                with open(os.path.join(os.path.dirname(__file__),
+                                                       "../attack_data/.%s-last-sim.tmp" % self.config['range_name']),
+                                          'r') as ls:
+                                    sim_ts = float(ls.readline())
+                                    dump['dump_parameters']['time'] = "-%ds" % int(time.time() - sim_ts)
+                            dump_search = "search %s earliest=%s | sort _time" \
+                                          % (dump['dump_parameters']['search'], dump['dump_parameters']['time'])
                             dump_info = "Dumping Splunk Search to %s " % dump_out
                             self.log.info(dump_info)
-                            out = open("attack_data/%s/%s" % (dump_name, dump_out), 'w')
+                            out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_out), 'wb')
                             splunk_sdk.export_search(target_public_ip,
                                                      s=dump_search,
                                                      password=self.config['attack_range_password'],
@@ -237,15 +274,40 @@ class TerraformController(IEnvironmentController):
                             out.close()
                             self.log.info("%s [Completed]" % dump_info)
             else:
-                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
-                                       cmdline=str('-i ' + target_public_ip + ', '),
-                                       roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                       playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
-                                       extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name},
-                                       verbosity=0)
+                if self.config['capture_attack_data_evtx'] == '1' or self.config['capture_attack_data_json'] == '1':
+                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+                                           cmdline=str('-i ' + target_public_ip + ', '),
+                                           roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                           playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
+                                           extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name, 'capture_attack_data_json': self.config['capture_attack_data_json'], 'capture_attack_data_evtx': self.config['capture_attack_data_evtx']},
+                                           verbosity=0)
 
 
         if self.config['sync_to_s3_bucket'] == '1':
             for file in glob.glob(os.path.join(os.path.dirname(__file__), '../' + folder + '/*')):
                 self.log.info("upload attack data to S3 bucket. This can take some time")
                 aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, str(dump_name + '/' + os.path.basename(file)), self.config)
+
+
+    def replay_attack_data(self, dump_name, dump):
+        with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dump_fh:
+            for d in yaml.full_load(dump_fh):
+                if (d['name'] == dump or dump is None) and d['enabled']:
+                    splunk_ip = aws_service.get_single_instance_public_ip(self.config['range_name'] + "-attack-range-splunk-server", self.config)
+                    # Upload the replay logs to the Splunk server
+                    ansible_vars = {}
+                    ansible_vars['dump_name'] = dump_name
+                    ansible_vars['ansible_user'] = 'ubuntu'
+                    ansible_vars['ansible_ssh_private_key_file'] = self.config['private_key_path']
+                    ansible_vars['splunk_password'] = self.config['attack_range_password']
+                    ansible_vars['out'] = d['dump_parameters']['out']
+                    ansible_vars['sourcetype'] = d['replay_parameters']['sourcetype']
+                    ansible_vars['source'] = d['replay_parameters']['source']
+                    ansible_vars['index'] = d['replay_parameters']['index']
+
+                    cmdline = "-i %s, -u ubuntu -c paramiko" % (splunk_ip)
+                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+                                                cmdline=cmdline,
+                                                roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                                playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_replay.yml'),
+                                                extravars=ansible_vars)
