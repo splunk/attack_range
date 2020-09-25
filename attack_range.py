@@ -17,22 +17,22 @@ VERSION = 1
 def init(args):
     config = args.config
     print("""
-    starting program loaded for B1 battle droid
-              ||/__'`.
-              |//()'-.:
-              |-.||
-              |o(o)
-              |||\\\  .==._
-              |||(o)==::'
-               `|T  ""
-                ()
-                |\\
-                ||\\
-                ()()
-                ||//
-                |//
-               .'=`=.
-        """)
+starting program loaded for B1 battle droid
+          ||/__'`.
+          |//()'-.:
+          |-.||
+          |o(o)
+          |||\\\  .==._
+          |||(o)==::'
+           `|T  ""
+            ()
+            |\\
+            ||\\
+            ()()
+            ||//
+            |//
+           .'=`=.
+    """)
 
     # parse config
     attack_range_config = Path(config)
