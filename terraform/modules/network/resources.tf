@@ -85,6 +85,13 @@ resource "aws_security_group" "default" {
     cidr_blocks = split(",", var.config.ip_whitelist)
   }
 
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = split(",", var.config.ip_whitelist)
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
