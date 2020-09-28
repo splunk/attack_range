@@ -138,7 +138,7 @@ starting program loaded for B1 battle droid
         controller.resume()
 
     if action == 'simulate':
-        controller.simulate(target, simulation_techniques, simulation_atomics)
+        return controller.simulate(target, simulation_techniques, simulation_atomics)
 
     if action == 'test':
         return controller.test(test_file)
