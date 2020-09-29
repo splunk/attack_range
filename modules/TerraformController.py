@@ -145,14 +145,14 @@ class TerraformController(IEnvironmentController):
             run_specific_atomic_tests = 'False'
 
         if target == 'attack-range-windows-client':
-            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                    cmdline=str('-i ' + target_public_ip + ', '),
                                    roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
                                    playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
                                    extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                    verbosity=0)
         else:
-            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                cmdline=str('-i ' + target_public_ip + ', '),
                                roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
                                playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
@@ -243,7 +243,7 @@ class TerraformController(IEnvironmentController):
 
             if server_str == str(self.config['range_name'] +'-attack-range-windows-client'):
                 if self.config['capture_attack_data_evtx'] == '1' or self.config['capture_attack_data_json'] == '1':
-                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                            cmdline=str('-i ' + target_public_ip + ', '),
                                            roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
                                            playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
@@ -275,7 +275,7 @@ class TerraformController(IEnvironmentController):
                             self.log.info("%s [Completed]" % dump_info)
             else:
                 if self.config['capture_attack_data_evtx'] == '1' or self.config['capture_attack_data_json'] == '1':
-                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                            cmdline=str('-i ' + target_public_ip + ', '),
                                            roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
                                            playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
@@ -306,7 +306,7 @@ class TerraformController(IEnvironmentController):
                     ansible_vars['index'] = d['replay_parameters']['index']
 
                     cmdline = "-i %s, -u ubuntu -c paramiko" % (splunk_ip)
-                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../../attack_range/'),
+                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                                 cmdline=cmdline,
                                                 roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
                                                 playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_replay.yml'),
