@@ -18,7 +18,7 @@ data "aws_ami" "latest-ubuntu" {
 
 resource "aws_instance" "splunk-server" {
   ami                    = data.aws_ami.latest-ubuntu.id
-  instance_type          = "t2.2xlarge"
+  instance_type          = var.config.splunk_ec2_instance_type
   key_name               = var.config.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
@@ -26,7 +26,7 @@ resource "aws_instance" "splunk-server" {
   depends_on             = [var.phantom_server_instance]
   root_block_device {
     volume_type = "gp2"
-    volume_size = "60"
+    volume_size = var.config.splunk_ec2_volume_size
     delete_on_termination = "true"
   }
   tags = {

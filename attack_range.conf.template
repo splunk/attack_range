@@ -44,6 +44,12 @@ range_name = default
 
 [splunk_settings]
 
+splunk_ec2_instance_type = t2.2xlarge
+# Specify the Splunk ec2 instance type
+
+splunk_ec2_volume_size = 60
+# Specify the Splunk storage volume size
+
 splunk_url = https://download.splunk.com/products/splunk/releases/8.0.5/linux/splunk-8.0.5-a1a6394cc5ae-Linux-x86_64.tgz
 # Specify the download URL of Splunk Enterprise
 
@@ -135,6 +141,13 @@ splunk_bots_dataset = 0
 #
 
 [phantom_settings]
+
+phantom_ec2_instance_type = t3a.xlarge
+# Specify the Phantom ec2 instance type
+
+phantom_ec2_volume_size = 30
+# Specify the Phantom storage volume size
+
 phantom_community_username = user
 # Specify the username needed to login to my.phantom.us to download Phantom
 # This must be changed to a real username

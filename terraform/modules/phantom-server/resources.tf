@@ -20,14 +20,14 @@ data "aws_ami" "latest-centos" {
 resource "aws_instance" "phantom-server" {
   count                  = var.config.phantom_server == "1" ? 1 : 0
   ami                    = data.aws_ami.latest-centos[count.index].id
-  instance_type          = "t3a.xlarge"
+  instance_type          = var.config.phantom_ec2_instance_type
   key_name               = var.config.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip             = var.config.phantom_server_private_ip
   root_block_device {
     volume_type           = "gp2"
-    volume_size           = "30"
+    volume_size           = var.config.phantom_ec2_volume_size
     delete_on_termination = "true"
   }
   tags = {
