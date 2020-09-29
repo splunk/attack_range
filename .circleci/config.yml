@@ -94,15 +94,15 @@ jobs:
             cd terraform/
             terraform init
             cd ..
-            python attack_range.py --action build
-            python attack_range.py --action simulate --target default-attack-range-windows-domain-controller --simulation_technique T1003.002
-            python attack_range.py --action destroy
+            python attack_range.py build
+            python attack_range.py simulate --target default-attack-range-windows-domain-controller --simulation_technique T1003.002
+            python attack_range.py destroy
       - run:
           name: cleanup terraform on failures
           command: |
             cd attack_range
             source venv/bin/activate
-            python attack_range.py --action destroy
+            python attack_range.py destroy
           when: on_fail
 workflows:
   version: 2.1
