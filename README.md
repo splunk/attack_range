@@ -65,58 +65,65 @@ Attack Range supports different actions:
 - Resume Attack Range
 - Dump Log Data from Attack Range
 
+
 ### Build Attack Range
 - Build Attack Range
 ```
-python attack_range.py -a build
+python attack_range.py build
+```
+
+### Show Attack Range Infrastructure
+- Show Attack Range Infrastructure
+```
+python attack_range.py show
 ```
 
 ### Perform Attack Simulation
 - Perform Attack Simulation
 ```
-python attack_range.py -a simulate -st T1003.001 -t default-attack-range-windows-domain-controller
+python attack_range.py simulate -st T1003.001 -t default-attack-range-windows-domain-controller
 ```
 
 ### Test with Attack Range
 - Automated testing of detection:
 ```
-python attack_range.py -a test -tf tests/T1003_001.yml
+python attack_range.py test -tf tests/T1003_001.yml
 ```
 
 ### Destroy Attack Range
 - Destroy Attack Range
 ```
-python attack_range.py -a destroy
+python attack_range.py destroy
 ```
 
 ### Stop Attack Range
 - Stop Attack Range
 ```
-python attack_range.py -a stop
+python attack_range.py stop
 ```
 
 ### Resume Attack Range
 - Resume Attack Range
 ```
-python attack_range.py -a resume
+python attack_range.py resume
 ```
 
 ### Dump Log Data from Attack Range
 - Dump Log Data from Attack Range
 ```
-python attack_range.py -a dump -dn data_dump
+python attack_range.py dump -dn data_dump
 ```
 
 
 ### Replay Dumps into Attack Range Splunk Server
 - Replay previously saved dumps from Attack Range
-```angular2
-python attack_range.py -a replay -dn data_dump [--dump NAME_OF_DUMP]
+```
+python attack_range.py replay -dn data_dump [--dump NAME_OF_DUMP]
 ```
 - default will dump all enabled dumps described in `attack_data/dumps.yml`
 - with optional argument `--dump` you can specify which dump to replay
-```angular2
-python attack_range.py -a replay -dn data_dump --dump windows_sec_events
+```
+python attack_range.py replay -dn data_dump --dump windows_sec_events
 ```
 
 ## Features 💍

@@ -13,46 +13,9 @@ os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
 
 VERSION = 1
 
-def main(args):
-    # grab arguments
-    parser = argparse.ArgumentParser(description="starts a attack range ready to collect attack data into splunk")
-    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'test', 'dump', 'replay'], default="",
-                        help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume/test/dump/replay allowed")
-    parser.add_argument("-t", "--target", required=False,
-                        help="target for attack simulation. Use the name of the aws EC2 name")
-    parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
-                        help="comma delimited list of MITRE ATT&CK technique ID to simulate in the attack_range, example: T1117, T1118, requires --simulation flag")
-    parser.add_argument("-sa", "--simulation_atomics", required=False, type=str, default="",
-                        help="specify dedicated Atomic Red Team atomics to simulate in the attack_range, example: Regsvr32 remote COM scriptlet execution for T1117")
-    parser.add_argument("-dn", "--dump_name", required=False,
-                        help="name for the dumped attack data")
-    parser.add_argument("--dump", required=False,
-                        help="name of the dump as defined in attack_data/dumps.yml")
-    parser.add_argument("--last-sim", required=False, action='store_true',
-                        help="overrides dumps.yml time and dumps from the start of previous simulation")
-    parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
-                        help="path to the configuration file of the attack range")
-    parser.add_argument("-tf", "--test_file", required=False,
-                        type=str, default="", help='test file for test command')
-    parser.add_argument("-lm", "--list_machines", required=False, default=False,
-                        action="store_true", help="prints out all available machines")
-    parser.add_argument("-v", "--version", default=False, action="store_true", required=False,
-                        help="shows current attack_range version")
 
-    # parse them
-    args = parser.parse_args()
-    ARG_VERSION = args.version
-    action = args.action
-    target = args.target
+def init(args):
     config = args.config
-    simulation_techniques = args.simulation_technique
-    simulation_atomics = args.simulation_atomics
-    list_machines = args.list_machines
-    test_file = args.test_file
-    dump_name = args.dump_name
-    dump = args.dump
-    last_sim = args.last_sim
-
     print("""
 starting program loaded for B1 battle droid
           ||/__'`.
@@ -88,27 +51,24 @@ starting program loaded for B1 battle droid
     log = logger.setup_logging(config['log_path'], config['log_level'])
     log.info("INIT - attack_range v" + str(VERSION))
 
-    if ARG_VERSION:
-        log.info("version: {0}".format(VERSION))
-        sys.exit(0)
-
-    if action == 'simulate' and not target:
-        log.error('ERROR: Specify target for attack simulation')
-        sys.exit(1)
-
-    if action == 'test' and not test_file:
-        log.error('ERROR: Specify test file --test_file to execute.')
-        sys.exit(1)
-
-    if action == "" and not list_machines:
-        log.error('ERROR: flag --action is needed.')
-        sys.exit(1)
-
-
     if config['attack_range_password'] == 'Pl3ase-k1Ll-me:p':
         log.error('ERROR: please change attack_range_password in attack_range.conf')
         sys.exit(1)
 
+    return TerraformController(config, log), config, log
+
+
+def show(args):
+    controller, _, _ = init(args)
+    if args.machines:
+        controller.list_machines()
+
+
+def simulate(args):
+    controller, config, _ = init(args)
+    target = args.target
+    simulation_techniques = args.simulation_technique
+    simulation_atomics = args.simulation_atomics
     # lets give CLI priority over config file for pre-configured techniques
     if simulation_techniques:
         pass
@@ -117,40 +77,119 @@ starting program loaded for B1 battle droid
 
     if not simulation_atomics:
         simulation_atomics = 'no'
+    controller.simulate(target, simulation_techniques, simulation_atomics)
 
-    # default to terraform
-    controller = TerraformController(config, log)
 
-    if list_machines:
-        controller.list_machines()
-        sys.exit(0)
+def dump(args):
+    controller, _, _ = init(args)
+    controller.dump_attack_data(args.dump_name, args.last_sim)
 
-    if action == 'build':
-        controller.build()
 
-    if action == 'destroy':
-        controller.destroy()
+def replay(args):
+    controller, _, _ = init(args)
+    controller.replay_attack_data(args.dump_name, args.dump)
 
-    if action == 'stop':
-        controller.stop()
 
-    if action == 'resume':
-        controller.resume()
+def build(args):
+    controller, _, _ = init(args)
+    controller.build()
 
-    if action == 'simulate':
-        return controller.simulate(target, simulation_techniques, simulation_atomics)
 
-    if action == 'test':
-        return controller.test(test_file)
+def destroy(args):
+    controller, _, _ = init(args)
+    controller.destroy()
 
-    if action == 'dump':
-        controller.dump_attack_data(dump_name, last_sim)
 
-    if action == 'replay':
-        controller.replay_attack_data(dump_name, dump)
+def stop(args):
+    controller, _, _ = init(args)
+    controller.stop()
+
+
+def resume(args):
+    controller, _, _ = init(args)
+    controller.resume()
+
+
+def test(args):
+    controller, _, _ = init(args)
+    controller.test(args.test_file)
+
+
+def main():
+    # grab arguments
+    parser = argparse.ArgumentParser(
+        description="Use `attack_range.py action -h` to get help with any Attack Range action")
+    parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
+                        help="path to the configuration file of the attack range")
+    parser.add_argument("-v", "--version", default=False, action="version", version="version: {0}".format(VERSION),
+                        help="shows current attack_range version")
+    parser.set_defaults(func=lambda _: parser.print_help())
+
+    actions_parser = parser.add_subparsers(title="Attack Range actions", dest="action")
+
+    build_parser = actions_parser.add_parser("build", help="Builds attack range instances")
+    simulate_parser = actions_parser.add_parser("simulate", help="Simulates attack techniques")
+    destroy_parser = actions_parser.add_parser("destroy", help="destroy attack range instances")
+    stop_parser = actions_parser.add_parser("stop", help="stops attack range instances")
+    resume_parser = actions_parser.add_parser("resume", help="resumes previously stopped attack range instances")
+    show_parser = actions_parser.add_parser("show", help="list machines")
+    test_parser = actions_parser.add_parser("test")
+    dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
+    replay_parser = actions_parser.add_parser("replay", help="replay dumps into the Splunk Enterprise server")
+
+    # Build arguments
+    build_parser.set_defaults(func=build)
+
+    # Destroy arguments
+    destroy_parser.set_defaults(func=destroy)
+
+    # Stop arguments
+    stop_parser.set_defaults(func=stop)
+
+    # Resume arguments
+    resume_parser.set_defaults(func=resume)
+
+    # Simulation arguments
+    simulate_parser.add_argument("-t", "--target", required=True,
+                                 help="target for attack simulation. Use the name of the aws EC2 name")
+    simulate_parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
+                                 help="comma delimited list of MITRE ATT&CK technique ID to simulate in the "
+                                      "attack_range, example: T1117, T1118, requires --simulation flag")
+    simulate_parser.add_argument("-sa", "--simulation_atomics", required=False, type=str, default="",
+                                 help="specify dedicated Atomic Red Team atomics to simulate in the attack_range, "
+                                      "example: Regsvr32 remote COM scriptlet execution for T1117")
+    simulate_parser.set_defaults(func=simulate)
+
+    # Dump  Arguments
+    dump_parser.add_argument("-dn", "--dump_name", required=True,
+                             help="name for the dumped attack data")
+    dump_parser.add_argument("--last-sim", required=False, action='store_true',
+                             help="overrides dumps.yml time and dumps from the start of previous simulation")
+    dump_parser.set_defaults(func=dump)
+
+    # Replay Arguments
+    replay_parser.add_argument("-dn", "--dump_name", required=True,
+                               help="name for the dumped attack data")
+    replay_parser.add_argument("--dump", required=False,
+                        help="name of the dump as defined in attack_data/dumps.yml")
+    replay_parser.set_defaults(func=replay)
+
+    # Test Arguments
+    test_parser.add_argument("-tf", "--test_file", required=True,
+                             type=str, default="", help='test file for test command')
+    test_parser.set_defaults(func=test)
+
+    # Show arguments
+    show_parser.add_argument("-m", "--machines", required=False, default=False,
+                             action="store_true", help="prints out all available machines")
+    show_parser.set_defaults(func=show, machines=True)
+
+    # # parse them
+    args = parser.parse_args()
+    args.func(args)
+
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
-
+    main()
 
 # rnfgre rtt ol C4G12VPX
