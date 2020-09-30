@@ -186,7 +186,7 @@ def main(args):
 
     # # parse them
     args = parser.parse_args()
-    args.func(args)
+    return args.func(args)
 
 
 if __name__ == "__main__":
