@@ -115,7 +115,7 @@ def test(args):
     controller.test(args.test_file)
 
 
-def main():
+def main(args):
     # grab arguments
     parser = argparse.ArgumentParser(
         description="Use `attack_range.py action -h` to get help with any Attack Range action")
@@ -190,6 +190,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
 
 # rnfgre rtt ol C4G12VPX
