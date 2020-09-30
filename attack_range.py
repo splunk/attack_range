@@ -77,7 +77,7 @@ def simulate(args):
 
     if not simulation_atomics:
         simulation_atomics = 'no'
-    controller.simulate(target, simulation_techniques, simulation_atomics)
+    return controller.simulate(target, simulation_techniques, simulation_atomics)
 
 
 def dump(args):
@@ -112,7 +112,7 @@ def resume(args):
 
 def test(args):
     controller, _, _ = init(args)
-    controller.test(args.test_file)
+    return controller.test(args.test_file)
 
 
 def main(args):
