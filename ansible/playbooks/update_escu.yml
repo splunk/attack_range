@@ -1,0 +1,4 @@
+- hosts: all
+  gather_facts: False
+  roles:
+    - update_escu

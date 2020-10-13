@@ -100,6 +100,24 @@ class TerraformController(IEnvironmentController):
         else:
             simulation = True
 
+        # update ESCU
+        if self.config['update_escu_app'] == '1':
+            # upload package
+            splunk_ip = aws_service.get_single_instance_public_ip(self.config['range_name'] + "-attack-range-splunk-server", self.config)
+            # Upload the replay logs to the Splunk server
+            ansible_vars = {}
+            ansible_vars['ansible_user'] = 'ubuntu'
+            ansible_vars['ansible_ssh_private_key_file'] = self.config['private_key_path']
+            ansible_vars['splunk_password'] = self.config['attack_range_password']
+            ansible_vars['security_content_path'] = self.config['security_content_path']
+
+            cmdline = "-i %s, -u ubuntu -c paramiko" % (splunk_ip)
+            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                        cmdline=cmdline,
+                                        roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                        playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/update_escu.yml'),
+                                        extravars=ansible_vars)
+
 
         if simulation:
 

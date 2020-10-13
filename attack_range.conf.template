@@ -207,6 +207,14 @@ s3_bucket_attack_data = attack-range-attack-data
 # S3 bucket to sync attack data from dump command
 
 
+[testing]
+update_escu_app = 0
+# update the ESCU app with a local security content version
+
+security_content_path = ../security-content
+# path to local security content project
+
+
 [simulation]
 art_run_techniques = T1003.001
 # Specify the run technique of atomic_red_team
