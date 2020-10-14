@@ -158,6 +158,7 @@ class TerraformController(IEnvironmentController):
             detection = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/detections/' + detection_file_name))
             result_obj = dict()
             result_obj['detection'] = detection_obj['name']
+            result_obj['detection_file'] = detection_obj['file']
             instance = aws_service.get_instance_by_name(
                 self.config['range_name'] + "-attack-range-splunk-server", self.config)
             if instance['State']['Name'] == 'running':
