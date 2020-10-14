@@ -6,7 +6,7 @@ import splunklib.results as results
 import requests
 
 
-def test_search(splunk_host, splunk_password, search, pass_condition, detection_name, log):
+def test_search(splunk_host, splunk_password, search, pass_condition, detection_name, detection_file, log):
     try:
         service = client.connect(
             host=splunk_host,
@@ -42,6 +42,7 @@ def test_search(splunk_host, splunk_password, search, pass_condition, detection_
     test_results['diskUsage'] = job['diskUsage']
     test_results['runDuration'] = job['runDuration']
     test_results['detection_name'] = detection_name
+    test_results['detection_file'] = detection_file
     test_results['scanCount'] = job['scanCount']
 
     if int(job['resultCount']) != 1:

@@ -1,6 +1,7 @@
 name: Credential Dumping sam test
 detections:
   - name: Attempted Credential Dump From Registry via Reg exe
+    file: endpoint/attempted_credential_dump_from_registry_via_reg_exe.yml
     pass_condition: '| stats count | where count > 0'
 description: Test credential dumping detections
 target: default-attack-range-windows-domain-controller
