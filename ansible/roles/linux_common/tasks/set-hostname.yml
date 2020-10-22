@@ -2,4 +2,4 @@
 
 - name: Change the hostname
   hostname:
-    name: "{{ hostname }}-{{ 9999999 | random }}"
+    name: "aws-{{ hostname }}-{{ 9999 | random }}"

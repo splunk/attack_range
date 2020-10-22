@@ -37,7 +37,7 @@ def get_all_instances(config):
             if instance['State']['Name']!='terminated':
                 if len(instance['Tags']) > 0:
                     str = instance['Tags'][0]['Value']
-                    if str.startswith(config['range_name'] + '-attack-range'):
+                    if str.startswith('aws-' + config['range_name']):
                         instances.append(instance)
 
     return instances
@@ -46,7 +46,7 @@ def get_all_instances(config):
 def get_splunk_instance_ip(config):
     all_instances = get_all_instances(config)
     for instance in all_instances:
-        instance_tag = config['range_name'] + '-attack-range-splunk-server'
+        instance_tag = 'aws' + config['range_name'] + '-splunk'
         if instance['Tags'][0]['Value'] == instance_tag:
             return instance['NetworkInterfaces'][0]['PrivateIpAddresses'][0]['Association']['PublicIp']
 

@@ -22,7 +22,7 @@ resource "aws_instance" "windows_client" {
   private_ip             = var.config.windows_client_private_ip
   depends_on             = [var.windows_domain_controller_instance]
   tags = {
-    Name = "${var.config.range_name}-attack-range-windows-client"
+    Name = "aws-${var.config.range_name}-windows-client"
   }
 
   provisioner "remote-exec" {
@@ -61,7 +61,7 @@ resource "aws_instance" "windows_client" {
   }
 
   provisioner "local-exec" {
-    working_dir = "../ansible"
+    working_dir = "../../ansible"
     command = "ansible-playbook -i '${aws_instance.windows_client[count.index].public_ip},' playbooks/windows_workstation.yml --extra-vars 'splunk_indexer_ip=${var.config.splunk_server_private_ip} ansible_user=${var.config.win_username} ansible_password=${var.config.attack_range_password} win_password=${var.config.attack_range_password} splunk_uf_win_url=${var.config.splunk_uf_win_url} nxlog_url=${var.config.nxlog_url} win_sysmon_url=${var.config.win_sysmon_url} win_sysmon_template=${var.config.win_sysmon_template} splunk_admin_password=${var.config.attack_range_password} windows_domain_controller_private_ip=${var.config.windows_domain_controller_private_ip} windows_server_join_domain=${var.config.windows_client_join_domain} splunk_stream_app=${var.config.splunk_stream_app} s3_bucket_url=${var.config.s3_bucket_url} verbose_win_security_logging=${var.config.verbose_win_security_logging}'"
   }
 

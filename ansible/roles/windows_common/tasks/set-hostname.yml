@@ -2,4 +2,4 @@
 
 - name: Change the hostname
   win_hostname:
-    name: "{{ hostname }}-{{ 999 | random }}"
+    name: "aws-{{ hostname }}-{{ 999 | random }}"

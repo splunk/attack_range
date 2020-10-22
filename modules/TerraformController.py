@@ -19,11 +19,11 @@ class TerraformController(IEnvironmentController):
     def __init__(self, config, log):
         super().__init__(config, log)
         statefile = self.config['range_name'] + ".terraform.tfstate"
-        config["statepath"] = os.path.join('state', statefile)
+        self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/aws/state', statefile)
         custom_dict = self.config.copy()
         variables = dict()
         variables['config'] = custom_dict
-        self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform'),variables=variables, parallelism=15 ,state=config["statepath"])
+        self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/aws'),variables=variables, parallelism=15 ,state=config["statepath"])
 
 
     def build(self):
@@ -40,11 +40,14 @@ class TerraformController(IEnvironmentController):
         return_code, stdout, stderr = self.terraform.destroy(
             capture_output='yes', no_color=IsNotFlagged)
         self.log.info("Destroyed with return code: " + str(return_code))
-        statepath = "terraform/" + self.config["statepath"]
-        statebakpath = "terraform/" + self.config["statepath"] + ".backup"
+        statepath = self.config["statepath"]
+        statebakpath = self.config["statepath"] + ".backup"
         if os.path.exists(statepath) and return_code==0:
-            os.remove(statepath)
-            os.remove(statebakpath)
+            try:
+                os.remove(statepath)
+                os.remove(statebakpath)
+            except Exception as e:
+                self.log.error("not able to delete state file")
         self.log.info(
             "attack_range has been destroy using terraform successfully")
 
@@ -78,7 +81,7 @@ class TerraformController(IEnvironmentController):
                 r = requests.get(url, allow_redirects=True)
                 open(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + data['file_name']), 'wb').write(r.content)
 
-                splunk_ip = aws_service.get_single_instance_public_ip(self.config['range_name'] + "-attack-range-splunk-server", self.config)
+                splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
                 # Upload the replay logs to the Splunk server
                 ansible_vars = {}
                 ansible_vars['dump_name'] = folder_name
@@ -103,7 +106,7 @@ class TerraformController(IEnvironmentController):
         # update ESCU
         if self.config['update_escu_app'] == '1':
             # upload package
-            splunk_ip = aws_service.get_single_instance_public_ip(self.config['range_name'] + "-attack-range-splunk-server", self.config)
+            splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
             # Upload the replay logs to the Splunk server
             ansible_vars = {}
             ansible_vars['ansible_user'] = 'ubuntu'
@@ -160,7 +163,7 @@ class TerraformController(IEnvironmentController):
             result_obj['detection'] = detection_obj['name']
             result_obj['detection_file'] = detection_obj['file']
             instance = aws_service.get_instance_by_name(
-                self.config['range_name'] + "-attack-range-splunk-server", self.config)
+                "aws-" + self.config['range_name'] + "-splunk", self.config)
             if instance['State']['Name'] == 'running':
                 result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
             else:
@@ -204,7 +207,7 @@ class TerraformController(IEnvironmentController):
         if simulation_atomics == 'no':
             run_specific_atomic_tests = 'False'
 
-        if target == 'attack-range-windows-client':
+        if target == "aws-" + self.config['range_name'] + "-windows-client":
             runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                    cmdline=str('-i ' + target_public_ip + ', '),
                                    roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
@@ -290,18 +293,18 @@ class TerraformController(IEnvironmentController):
         folder = "attack_data/" + dump_name
         os.mkdir(os.path.join(os.path.dirname(__file__), '../' + folder))
 
-        servers = ['splunk_server']
+        servers = ['splunk']
         if self.config['windows_domain_controller'] == '1':
-            servers.append('windows-domain-controller')
+            servers.append('windows-dc')
         if self.config['windows_server'] == '1':
             servers.append('windows-server')
 
         # dump json and windows event logs from Windows servers
         for server in servers:
-            server_str = (self.config['range_name'] + "-attack-range-" + server).replace("_", "-")
+            server_str = ("aws-" + self.config['range_name'] + "-" + server)
             target_public_ip = aws_service.get_single_instance_public_ip(server_str, self.config)
 
-            if server_str == str(self.config['range_name'] +'-attack-range-windows-client'):
+            if server_str == str("aws-" + self.config['range_name'] + "-windows-client"):
                 if self.config['capture_attack_data_evtx'] == '1' or self.config['capture_attack_data_json'] == '1':
                     runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                            cmdline=str('-i ' + target_public_ip + ', '),
@@ -309,7 +312,7 @@ class TerraformController(IEnvironmentController):
                                            playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
                                            extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name, 'capture_attack_data_json': self.config['capture_attack_data_json'], 'capture_attack_data_evtx': self.config['capture_attack_data_evtx']},
                                            verbosity=0)
-            elif server_str == str(self.config['range_name'] + '-attack-range-splunk-server'):
+            elif server_str == str("aws-" + self.config['range_name'] + "-splunk"):
                 with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dumps:
                     for dump in yaml.full_load(dumps):
                         if dump['enabled']:
@@ -353,7 +356,7 @@ class TerraformController(IEnvironmentController):
         with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dump_fh:
             for d in yaml.full_load(dump_fh):
                 if (d['name'] == dump or dump is None) and d['enabled']:
-                    splunk_ip = aws_service.get_single_instance_public_ip(self.config['range_name'] + "-attack-range-splunk-server", self.config)
+                    splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
                     # Upload the replay logs to the Splunk server
                     ansible_vars = {}
                     ansible_vars['dump_name'] = dump_name

@@ -12,6 +12,17 @@ attack_range_password = Pl3ase-k1Ll-me:p
 # Master password for all administrative accounts
 # default Pl3ase-k1Ll-me:p
 
+cloud_provider = aws
+# Comma separated list of cloud provider to deploy the Attack Range
+# example_1: aws
+# example_2: aws, azure
+# example_3: azure
+
+splunk_cloud_provider = aws
+# Only in case you specified multiple cloud providers.
+# Specify the cloud provider for the instances Splunk and Phantom (optional)
+# The instances splunk and phantom (optional) are deployed only once into the specified cloud provider.
+
 [range_settings]
 key_name = attack-range-key-pair
 # please configure your ssh key name on aws
@@ -33,7 +44,7 @@ region = us-west-2
 # Specify the aws region in which you want to build the attack range
 # please ensure that aws_cli has the same region specified
 
-range_name = default
+range_name = ar
 # Specify a unique name for the assets in a region
 # Setting this allows you to deploy additional ranges with the same key_name
 # An example would be for user1 and user2 testing in seperate environments

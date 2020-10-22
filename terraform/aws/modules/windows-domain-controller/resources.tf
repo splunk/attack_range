@@ -25,7 +25,7 @@ resource "aws_instance" "windows_domain_controller" {
   private_ip = var.config.windows_domain_controller_private_ip
   vpc_security_group_ids = [var.vpc_security_group_ids]
   tags = {
-    Name = "${var.config.range_name}-attack-range-windows-domain-controller"
+    Name = "aws-${var.config.range_name}-windows-dc"
   }
   user_data = <<EOF
 <powershell>
@@ -50,7 +50,7 @@ EOF
   }
 
   provisioner "local-exec" {
-    working_dir = "../ansible"
+    working_dir = "../../ansible"
     command = "ansible-playbook -i '${aws_instance.windows_domain_controller[count.index].public_ip},' playbooks/windows_dc.yml --extra-vars 'splunk_indexer_ip=${var.config.splunk_server_private_ip} ansible_user=${var.config.win_username} ansible_password=${var.config.attack_range_password} win_password=${var.config.attack_range_password} splunk_uf_win_url=${var.config.splunk_uf_win_url} nxlog_url=${var.config.nxlog_url} win_sysmon_url=${var.config.win_sysmon_url} win_sysmon_template=${var.config.win_sysmon_template} splunk_admin_password=${var.config.attack_range_password} splunk_stream_app=${var.config.splunk_stream_app} s3_bucket_url=${var.config.s3_bucket_url} win_4688_cmd_line=${var.config.win_4688_cmd_line} verbose_win_security_logging=${var.config.verbose_win_security_logging}'"
   }
 
