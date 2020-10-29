@@ -1,7 +1,7 @@
 
 from modules.IEnvironmentController import IEnvironmentController
 from python_terraform import *
-from modules import aws_service, splunk_sdk, github_service
+from modules import aws_service, splunk_sdk, github_service, azure_service
 from tabulate import tabulate
 import ansible_runner
 import yaml
@@ -19,11 +19,17 @@ class TerraformController(IEnvironmentController):
     def __init__(self, config, log):
         super().__init__(config, log)
         statefile = self.config['range_name'] + ".terraform.tfstate"
-        self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/aws/state', statefile)
+        if self.config['cloud_provider'] == 'aws':
+            self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/aws/state', statefile)
+        elif self.config['cloud_provider'] == 'azure':
+            self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/azure/state', statefile)
         custom_dict = self.config.copy()
         variables = dict()
         variables['config'] = custom_dict
-        self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/aws'),variables=variables, parallelism=15 ,state=config["statepath"])
+        if self.config['cloud_provider'] == 'aws':
+            self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/aws'),variables=variables, parallelism=15 ,state=config["statepath"])
+        elif self.config['cloud_provider'] == 'azure':
+            self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/azure'),variables=variables, parallelism=15 ,state=config["statepath"])
 
 
     def build(self):
@@ -52,12 +58,18 @@ class TerraformController(IEnvironmentController):
             "attack_range has been destroy using terraform successfully")
 
     def stop(self):
-        instances = aws_service.get_all_instances(self.config)
-        aws_service.change_ec2_state(instances, 'stopped', self.log, self.config)
+        if self.config['cloud_provider'] == 'aws':
+            instances = aws_service.get_all_instances(self.config)
+            aws_service.change_ec2_state(instances, 'stopped', self.log, self.config)
+        elif self.config['cloud_provider'] == 'azure':
+            azure_service.change_instance_state(self.config, 'stopped', self.log)
 
     def resume(self):
-        instances = aws_service.get_all_instances(self.config)
-        aws_service.change_ec2_state(instances, 'running', self.log, self.config)
+        if self.config['cloud_provider'] == 'aws':
+            instances = aws_service.get_all_instances(self.config)
+            aws_service.change_ec2_state(instances, 'running', self.log, self.config)
+        elif self.config['cloud_provider'] == 'azure':
+            azure_service.change_instance_state(self.config, 'running', self.log)
 
     def test(self, test_file):
         # read test file
@@ -65,7 +77,6 @@ class TerraformController(IEnvironmentController):
 
         # build attack range
         self.build()
-
 
         random_number = str(randrange(10000))
         folder_name = "attack_data_" + random_number
@@ -81,7 +92,11 @@ class TerraformController(IEnvironmentController):
                 r = requests.get(url, allow_redirects=True)
                 open(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + data['file_name']), 'wb').write(r.content)
 
-                splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
+                if self.config['cloud_provider'] == 'aws':
+                    splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
+                elif self.config['cloud_provider'] == 'azure':
+                    splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
+
                 # Upload the replay logs to the Splunk server
                 ansible_vars = {}
                 ansible_vars['dump_name'] = folder_name
@@ -106,7 +121,10 @@ class TerraformController(IEnvironmentController):
         # update ESCU
         if self.config['update_escu_app'] == '1':
             # upload package
-            splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
+            if self.config['cloud_provider'] == 'aws':
+                splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
+            elif self.config['cloud_provider'] == 'azure':
+                splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
             # Upload the replay logs to the Splunk server
             ansible_vars = {}
             ansible_vars['ansible_user'] = 'ubuntu'
@@ -162,12 +180,19 @@ class TerraformController(IEnvironmentController):
             result_obj = dict()
             result_obj['detection'] = detection_obj['name']
             result_obj['detection_file'] = detection_obj['file']
-            instance = aws_service.get_instance_by_name(
-                "aws-" + self.config['range_name'] + "-splunk", self.config)
-            if instance['State']['Name'] == 'running':
-                result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
-            else:
-                self.log.error('ERROR: Splunk server is not running.')
+            if self.config['cloud_provider'] == 'aws':
+                instance = aws_service.get_instance_by_name(
+                    "aws-" + self.config['range_name'] + "-splunk", self.config)
+                if instance['State']['Name'] == 'running':
+                    result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
+                else:
+                    self.log.error('ERROR: Splunk server is not running.')
+            elif self.config['cloud_provider'] == 'azure':
+                instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
+                if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
+                    result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
+
+
             result.append(result_obj)
 
         # store attack data
@@ -191,8 +216,14 @@ class TerraformController(IEnvironmentController):
         return file
 
     def simulate(self, target, simulation_techniques, simulation_atomics, var_str='no'):
-        target_public_ip = aws_service.get_single_instance_public_ip(
-            target, self.config)
+        if self.config['cloud_provider'] == 'aws':
+            target_public_ip = aws_service.get_single_instance_public_ip(target, self.config)
+            ansible_user = 'Administrator'
+            ansible_port = 5986
+        elif self.config['cloud_provider'] == 'azure':
+            target_public_ip = azure_service.get_instance(self.config, target, self.log)['public_ip']
+            ansible_user = 'AzureAdmin'
+            ansible_port = 5985
 
         start_time = time.time()
 
@@ -212,14 +243,14 @@ class TerraformController(IEnvironmentController):
                                    cmdline=str('-i ' + target_public_ip + ', '),
                                    roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
                                    playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
-                                   extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
+                                   extravars={'ansible_port': 5985, 'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                    verbosity=0)
         else:
             runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                cmdline=str('-i ' + target_public_ip + ', '),
                                roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
                                playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
-                               extravars={'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
+                               extravars={'ansible_port': ansible_port, 'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
                                verbosity=0)
 
         if runner.status == "successful":
@@ -257,19 +288,32 @@ class TerraformController(IEnvironmentController):
 
 
     def list_machines(self):
-        instances = aws_service.get_all_instances(self.config)
-        response = []
-        instances_running = False
-        for instance in instances:
-            if instance['State']['Name'] == 'running':
-                instances_running = True
-                response.append([instance['Tags'][0]['Value'], instance['State']['Name'],
-                                 instance['NetworkInterfaces'][0]['Association']['PublicIp']])
-            else:
-                response.append([instance['Tags'][0]['Value'],
-                                 instance['State']['Name']])
+        if self.config['cloud_provider'] == 'aws':
+            instances = aws_service.get_all_instances(self.config)
+            response = []
+            instances_running = False
+            for instance in instances:
+                if instance['State']['Name'] == 'running':
+                    instances_running = True
+                    response.append([instance['Tags'][0]['Value'], instance['State']['Name'],
+                                     instance['NetworkInterfaces'][0]['Association']['PublicIp']])
+                else:
+                    response.append([instance['Tags'][0]['Value'],
+                                     instance['State']['Name']])
+
+        elif self.config['cloud_provider'] == 'azure':
+            instances = azure_service.get_all_instances(self.config)
+            response = []
+            instances_running = False
+            for instance in instances:
+                if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
+                    instances_running = True
+                    response.append([instance['vm_obj'].name, instance['vm_obj'].instance_view.statuses[1].display_status, instance['public_ip']])
+                else:
+                    response.append([instance['vm_obj'].name, instance['vm_obj'].instance_view.statuses[1].display_status])
+
         print()
-        print('Status EC2 Machines\n')
+        print('Status Virtual Machines\n')
         if len(response) > 0:
             if instances_running:
                 print(tabulate(response, headers=[
@@ -277,73 +321,50 @@ class TerraformController(IEnvironmentController):
             else:
                 print(tabulate(response, headers=['Name', 'Status']))
         else:
-            print("ERROR: Can't find configured EC2 Attack Range Instances in AWS.")
+            print("ERROR: Can't find configured Attack Range Instances")
         print()
 
-    def dump_attack_data(self, dump_name, last_sim):
 
-        # copy json from nxlog
-        # copy raw data using powershell
-        # copy indexes
-        # packet capture with netsh
-        # see https://medium.com/threat-hunters-forge/mordor-pcaps-part-1-capturing-network-packets-from-windows-endpoints-with-network-shell-e117b84ec971
+    def dump_attack_data(self, dump_name, last_sim):
 
         self.log.info("Dump log data")
 
         folder = "attack_data/" + dump_name
         os.mkdir(os.path.join(os.path.dirname(__file__), '../' + folder))
 
-        servers = ['splunk']
-        if self.config['windows_domain_controller'] == '1':
-            servers.append('windows-dc')
-        if self.config['windows_server'] == '1':
-            servers.append('windows-server')
-
-        # dump json and windows event logs from Windows servers
-        for server in servers:
-            server_str = ("aws-" + self.config['range_name'] + "-" + server)
+        server_str = ("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'])
+        if self.config['cloud_provider'] == 'aws':
             target_public_ip = aws_service.get_single_instance_public_ip(server_str, self.config)
+            ansible_user = 'Administrator'
+            ansible_port = 5986
+        elif self.config['cloud_provider'] == 'azure':
+            target_public_ip = azure_service.get_instance(self.config, server_str, self.log)['public_ip']
+            ansible_user = 'AzureAdmin'
+            ansible_port = 5985
 
-            if server_str == str("aws-" + self.config['range_name'] + "-windows-client"):
-                if self.config['capture_attack_data_evtx'] == '1' or self.config['capture_attack_data_json'] == '1':
-                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
-                                           cmdline=str('-i ' + target_public_ip + ', '),
-                                           roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                           playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
-                                           extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'hostname': server_str, 'folder': dump_name, 'capture_attack_data_json': self.config['capture_attack_data_json'], 'capture_attack_data_evtx': self.config['capture_attack_data_evtx']},
-                                           verbosity=0)
-            elif server_str == str("aws-" + self.config['range_name'] + "-splunk"):
-                with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dumps:
-                    for dump in yaml.full_load(dumps):
-                        if dump['enabled']:
-                            dump_out = dump['dump_parameters']['out']
-                            if last_sim:
-                                # if last_sim is set, then it overrides time in dumps.yml
-                                # and starts dumping from last simulation
-                                with open(os.path.join(os.path.dirname(__file__),
-                                                       "../attack_data/.%s-last-sim.tmp" % self.config['range_name']),
-                                          'r') as ls:
-                                    sim_ts = float(ls.readline())
-                                    dump['dump_parameters']['time'] = "-%ds" % int(time.time() - sim_ts)
-                            dump_search = "search %s earliest=%s | sort _time" \
-                                          % (dump['dump_parameters']['search'], dump['dump_parameters']['time'])
-                            dump_info = "Dumping Splunk Search to %s " % dump_out
-                            self.log.info(dump_info)
-                            out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_out), 'wb')
-                            splunk_sdk.export_search(target_public_ip,
-                                                     s=dump_search,
-                                                     password=self.config['attack_range_password'],
-                                                     out=out)
-                            out.close()
-                            self.log.info("%s [Completed]" % dump_info)
-            else:
-                if self.config['capture_attack_data_evtx'] == '1' or self.config['capture_attack_data_json'] == '1':
-                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
-                                           cmdline=str('-i ' + target_public_ip + ', '),
-                                           roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                           playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_data.yml'),
-                                           extravars={'ansible_user': 'Administrator', 'ansible_password': self.config['attack_range_password'], 'hostname': server_str, 'folder': dump_name, 'capture_attack_data_json': self.config['capture_attack_data_json'], 'capture_attack_data_evtx': self.config['capture_attack_data_evtx']},
-                                           verbosity=0)
+        with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dumps:
+            for dump in yaml.full_load(dumps):
+                if dump['enabled']:
+                    dump_out = dump['dump_parameters']['out']
+                    if last_sim:
+                        # if last_sim is set, then it overrides time in dumps.yml
+                        # and starts dumping from last simulation
+                        with open(os.path.join(os.path.dirname(__file__),
+                                               "../attack_data/.%s-last-sim.tmp" % self.config['range_name']),
+                                  'r') as ls:
+                            sim_ts = float(ls.readline())
+                            dump['dump_parameters']['time'] = "-%ds" % int(time.time() - sim_ts)
+                    dump_search = "search %s earliest=%s | sort _time" \
+                                  % (dump['dump_parameters']['search'], dump['dump_parameters']['time'])
+                    dump_info = "Dumping Splunk Search to %s " % dump_out
+                    self.log.info(dump_info)
+                    out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_out), 'wb')
+                    splunk_sdk.export_search(target_public_ip,
+                                             s=dump_search,
+                                             password=self.config['attack_range_password'],
+                                             out=out)
+                    out.close()
+                    self.log.info("%s [Completed]" % dump_info)
 
 
         if self.config['sync_to_s3_bucket'] == '1':
@@ -356,7 +377,11 @@ class TerraformController(IEnvironmentController):
         with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dump_fh:
             for d in yaml.full_load(dump_fh):
                 if (d['name'] == dump or dump is None) and d['enabled']:
-                    splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
+                    if self.config['cloud_provider'] == 'aws':
+                        splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
+                    elif self.config['cloud_provider'] == 'azure':
+                        splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
+                    #splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
                     # Upload the replay logs to the Splunk server
                     ansible_vars = {}
                     ansible_vars['dump_name'] = dump_name

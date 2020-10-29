@@ -1,4 +1,4 @@
-# This file contains possible settings you can use to configure Attack Range
+This file contains possible settings you can use to configure Attack Range
 
 [global]
 log_path = attack_range.log
@@ -13,15 +13,20 @@ attack_range_password = Pl3ase-k1Ll-me:p
 # default Pl3ase-k1Ll-me:p
 
 cloud_provider = aws
-# Comma separated list of cloud provider to deploy the Attack Range
+# cloud provider to deploy the Attack Range
 # example_1: aws
-# example_2: aws, azure
-# example_3: azure
+# example_2: azure
 
-splunk_cloud_provider = aws
-# Only in case you specified multiple cloud providers.
-# Specify the cloud provider for the instances Splunk and Phantom (optional)
-# The instances splunk and phantom (optional) are deployed only once into the specified cloud provider.
+[aws]
+instance_type_ec2 = t2.2xlarge
+# instance type for the aws ec2 instances
+
+[azure]
+azure_subscription_id = xxx
+# only for cloud_provider azure
+
+instance_type_vms = Standard_D4_v4
+# instance type for azure vms
 
 [range_settings]
 key_name = attack-range-key-pair
@@ -36,15 +41,20 @@ ip_whitelist = 0.0.0.0/0
 private_key_path = ~/.ssh/id_rsa
 # Specify the path to your private SSH key
 
+public_key_path = ~/.ssh/id_rsa.pub
+# Only for Azure needed
+
 use_ssh_agent = 0
 # Specify whether to access the above ssh private key directly (use_ssh_agent=0)
 # or via ssh-agent (required if your key is password protected, use_ssh_agent=1)
 
 region = us-west-2
-# Specify the aws region in which you want to build the attack range
-# please ensure that aws_cli has the same region specified
+# Specify the region in which you want to build the attack range
+# for aws cloud: please ensure that aws_cli has the same region specified
+# example aws: us-west-2
+# example azure: West Europe
 
-range_name = ar
+range_name = default
 # Specify a unique name for the assets in a region
 # Setting this allows you to deploy additional ranges with the same key_name
 # An example would be for user1 and user2 testing in seperate environments
@@ -158,11 +168,8 @@ phantom_community_password = password
 
 phantom_app = phantom-app-for-splunk_305.tgz
 
-[windows_settings]
-win_username = Administrator
-# Specify the Administrator user in your windows machine
-# It is recommended to keep that value as it is
 
+[windows_settings]
 splunk_uf_win_url = https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi
 # Specify the download URL of the Splunk windows universal forwarder
 
@@ -191,25 +198,9 @@ splunk_es_app = splunk-enterprise-security_620.spl
 # Spefify the name of the Splunk Enterprise Security file, which you saved into the apps folder.
 
 
-[mltk]
-install_mltk = 0
-# Specify whether install Splunk MLTK or not.
-# After installing MLTK, Splunk is available under https://[ip]:8000
-# possible values: 1, 0
-
-
 [attack_data_dump]
 capture_attack_data = 0
 # capture attack data during the test command
-
-capture_attack_data_json = 0
-# additionally capture the data in json format from nxlog
-
-capture_attack_data_evtx = 0
-# additionally capture the raw evtx files from Windows Event Logs
-
-nxlog_url = https://nxlog.co/system/files/products/files/348/nxlog-ce-2.10.2150.msi
-# url to download the nxlog application for collecting and sending event logs in json format
 
 sync_to_s3_bucket = 0
 # sync attack data from dump command to s3 bucket
@@ -337,7 +328,7 @@ windows_client_os = import-ami-0e5a092cc20dbb992
 # specify the ami name
 # instructions to upload your own Windows 10 ami: https://github.com/splunk/attack_range/wiki/Upload-Windows-10-AMI-to-AWS
 
-windows_client_join_domain = 0
+windows_client_join_domain = 1
 # specify if the windows client should join the windows domain
 # possible values: 1, 0
 

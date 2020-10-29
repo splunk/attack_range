@@ -29,7 +29,7 @@
     - "{{ splunk_attack_range_dashboard }}"
     - "{{ splunk_cim_app }}"
     - "{{ splunk_escu_app }}"
-    - "{{ splunk_python_app }}"
+    - "{{ splunk_python_app }}"
     - "{{ splunk_mltk_app }}"
     - "{{ splunk_security_essentials_app }}"
     - "{{ splunk_sysmon_ta }}"

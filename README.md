@@ -17,18 +17,21 @@ The Attack Range is a detection development platform, which solves three main ch
 
 Attack Range can be built in three different ways:
 
-- **cloud** using terraform and AWS.
+- **cloud** using terraform and AWS or Azure.
 - **locally** with vagrant and virtualbox see the [attack\_range\_local](https://github.com/splunk/attack_range_local/) project for details
 - **serverless** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details
 
 ## Installation 🏗
 
-### [For Ubuntu 18.04](https://github.com/splunk/attack_range/wiki/Ubuntu-18.04-Installation)
+### [AWS and Ubuntu 18.04](https://github.com/splunk/attack_range/wiki/AWS:-Ubuntu-18.04-Installation)
 
-### [For MacOS](https://github.com/splunk/attack_range/wiki/MacOS-Installation)
+### [AWS and MacOS](https://github.com/splunk/attack_range/wiki/AWS:-MacOS-Installation)
+
+### [Azure and MacOS](https://github.com/splunk/attack_range/wiki/Azure:-MacOS-Installation)
+
 
 ## Architecture 🏯
-![Logical Diagram](docs/attack_range_architecture1.png)
+![Logical Diagram](docs/attack_range_architecture.png)
 
 The virtualized deployment of Attack Range consists of:
 
@@ -166,7 +169,6 @@ python attack_range.py replay -dn data_dump --dump windows_sec_events
   * ssh connection over configured ssh key
 - Multiple instances of Attack Range can be launched utilizing the `-rn` parameter for  `attack_range.py`
   * This will create instances tagged with `${range_name}-${instance_name}`
-  * Depending on how many instance you launch, you may need to increase your ElasticIP quota with the directions [here](https://docs.aws.amazon.com/servicequotas/latest/userguide/request-quota-increase.html)
 
 ## Support 📞
 Please use the [GitHub issue tracker](https://github.com/splunk/attack_range/issues) to submit bugs or request features.

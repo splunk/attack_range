@@ -19,7 +19,7 @@ data "aws_ami" "latest-windows-server-2016" {
 resource "aws_instance" "windows_server" {
   count         = var.config.windows_server == "1" ? 1 : 0
   ami           = data.aws_ami.latest-windows-server-2016[count.index].id
-  instance_type = var.config.windows_server_zeek_capture == "1" ? "m5.2xlarge" : "t2.2xlarge"
+  instance_type = var.config.windows_server_zeek_capture == "1" ? "m5.2xlarge" : var.config.instance_type_ec2
   key_name = var.config.key_name
   subnet_id = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
@@ -30,7 +30,7 @@ resource "aws_instance" "windows_server" {
   }
   user_data = <<EOF
 <powershell>
-$admin = [adsi]("WinNT://./${var.config.win_username}, user")
+$admin = [adsi]("WinNT://./Administrator, user")
 $admin.PSBase.Invoke("SetPassword", "${var.config.attack_range_password}")
 Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1'))
 </powershell>
@@ -41,7 +41,7 @@ EOF
 
     connection {
       type     = "winrm"
-      user     = var.config.win_username
+      user     = "Administrator"
       password = var.config.attack_range_password
       host     = aws_instance.windows_server[count.index].public_ip
       port     = 5986
@@ -52,7 +52,7 @@ EOF
 
   provisioner "local-exec" {
     working_dir = "../../ansible"
-    command = "ansible-playbook -i '${aws_instance.windows_server[count.index].public_ip},' playbooks/windows_dc_client.yml --extra-vars 'splunk_indexer_ip=${var.config.splunk_server_private_ip} ansible_user=${var.config.win_username} ansible_password=${var.config.attack_range_password} win_password=${var.config.attack_range_password} splunk_uf_win_url=${var.config.splunk_uf_win_url} nxlog_url=${var.config.nxlog_url} win_sysmon_url=${var.config.win_sysmon_url} win_sysmon_template=${var.config.win_sysmon_template} splunk_admin_password=${var.config.attack_range_password} windows_domain_controller_private_ip=${var.config.windows_domain_controller_private_ip} windows_server_join_domain=${var.config.windows_server_join_domain} splunk_stream_app=${var.config.splunk_stream_app} s3_bucket_url=${var.config.s3_bucket_url} win_4688_cmd_line=${var.config.win_4688_cmd_line} verbose_win_security_logging=${var.config.verbose_win_security_logging}'"
+    command = "ansible-playbook -i '${aws_instance.windows_server[count.index].public_ip},' playbooks/windows_dc_client.yml --extra-vars 'splunk_indexer_ip=${var.config.splunk_server_private_ip} ansible_user=Administrator ansible_password=${var.config.attack_range_password} win_password=${var.config.attack_range_password} splunk_uf_win_url=${var.config.splunk_uf_win_url} win_sysmon_url=${var.config.win_sysmon_url} win_sysmon_template=${var.config.win_sysmon_template} splunk_admin_password=${var.config.attack_range_password} windows_domain_controller_private_ip=${var.config.windows_domain_controller_private_ip} windows_server_join_domain=${var.config.windows_server_join_domain} splunk_stream_app=${var.config.splunk_stream_app} s3_bucket_url=${var.config.s3_bucket_url} win_4688_cmd_line=${var.config.win_4688_cmd_line} verbose_win_security_logging=${var.config.verbose_win_security_logging}'"
   }
 
 }

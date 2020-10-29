@@ -23,7 +23,10 @@ artifacts
 
 ## Terraform ignores
 # Local .terraform directories
-terraform/.terraform/
+terraform/aws/.terraform/
+terraform/azure/.terraform/
+terraform/aws/state/
+terraform/azure/state/
 
 # .tfstate files
 *.tfstate

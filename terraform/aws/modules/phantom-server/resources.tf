@@ -20,7 +20,7 @@ data "aws_ami" "latest-centos" {
 resource "aws_instance" "phantom-server" {
   count                  = var.config.phantom_server == "1" ? 1 : 0
   ami                    = data.aws_ami.latest-centos[count.index].id
-  instance_type          = "t3a.xlarge"
+  instance_type          = var.config.instance_type_ec2
   key_name               = var.config.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]

@@ -51,8 +51,15 @@ starting program loaded for B1 battle droid
     log = logger.setup_logging(config['log_path'], config['log_level'])
     log.info("INIT - attack_range v" + str(VERSION))
 
+    if config['cloud_provider'] == 'azure':
+        os.environ["AZURE_SUBSCRIPTION_ID"] = config['azure_subscription_id']
+
     if config['attack_range_password'] == 'Pl3ase-k1Ll-me:p':
         log.error('ERROR: please change attack_range_password in attack_range.conf')
+        sys.exit(1)
+
+    if config['cloud_provider'] == 'azure' and config['zeek_sensor'] == '1':
+        log.error('ERROR: zeek sensor only available for aws in the moment. Plase change zeek_sensor to 0 and try again.')
         sys.exit(1)
 
     return TerraformController(config, log), config, log
