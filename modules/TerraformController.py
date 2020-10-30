@@ -175,7 +175,7 @@ class TerraformController(IEnvironmentController):
         self.destroy()
 
         # return results
-        return {'technique': test_file['simulation_technique'], 'results': result , 'simulation_output': output}
+        return {'results': result , 'simulation_output': output}
 
 
     def load_file(self, file_path):
