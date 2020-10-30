@@ -167,10 +167,6 @@ class TerraformController(IEnvironmentController):
                 self.log.error('ERROR: Splunk server is not running.')
             result.append(result_obj)
 
-        # store attack data
-        if self.config['capture_attack_data'] == '1':
-            self.dump_attack_data(test_file['simulation_technique'])
-
         # destroy attack range
         self.destroy()
 
