@@ -147,8 +147,8 @@ class TerraformController(IEnvironmentController):
                 output = self.simulate(test_file['target'],test_file['simulation_technique'], 'no')
 
         # wait
-        self.log.info('Wait for 200 seconds before running the detections.')
-        time.sleep(200)
+        self.log.info('Wait for 400 seconds before running the detections.')
+        time.sleep(400)
 
         # run detection
         result = []
