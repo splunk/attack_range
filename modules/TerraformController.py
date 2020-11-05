@@ -168,6 +168,8 @@ class TerraformController(IEnvironmentController):
             result.append(result_obj)
 
         # destroy attack range
+        self.log.info('Wait for 900 seconds before destroying it.')
+        time.sleep(900)
         self.destroy()
 
         # return results
