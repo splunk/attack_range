@@ -1,4 +1,4 @@
-#This file contains possible settings you can use to configure Attack Range
+# This file contains possible settings you can use to configure Attack Range
 
 [global]
 log_path = attack_range.log
@@ -24,6 +24,7 @@ instance_type_ec2 = t2.2xlarge
 [azure]
 azure_subscription_id = xxx
 # only for cloud_provider azure
+# for instructions visit: https://docs.microsoft.com/en-us/azure/media-services/latest/how-to-set-azure-subscription?tabs=portal
 
 instance_type_vms = Standard_D4_v4
 # instance type for azure vms
@@ -40,6 +41,7 @@ ip_whitelist = 0.0.0.0/0
 
 private_key_path = ~/.ssh/id_rsa
 # Specify the path to your private SSH key
+# required for both AWS and Azure
 
 public_key_path = ~/.ssh/id_rsa.pub
 # Only for Azure needed
