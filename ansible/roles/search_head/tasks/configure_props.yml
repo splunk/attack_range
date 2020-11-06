@@ -1,0 +1,7 @@
+
+- name: Copy new props.conf configuration
+  template:
+    src: props.conf.j2
+    dest: /opt/splunk/etc/system/local/props.conf
+    owner: splunk
+    group: splunk

@@ -195,15 +195,11 @@ class TerraformController(IEnvironmentController):
 
             result.append(result_obj)
 
-        # store attack data
-        if self.config['capture_attack_data'] == '1':
-            self.dump_attack_data(test_file['simulation_technique'])
-
         # destroy attack range
         self.destroy()
 
         # return results
-        return {'technique': test_file['simulation_technique'], 'results': result , 'simulation_output': output}
+        return {'results': result , 'simulation_output': output}
 
 
     def load_file(self, file_path):
