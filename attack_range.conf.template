@@ -1,4 +1,4 @@
-This file contains possible settings you can use to configure Attack Range
+#This file contains possible settings you can use to configure Attack Range
 
 [global]
 log_path = attack_range.log
