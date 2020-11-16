@@ -350,7 +350,7 @@ class TerraformController(IEnvironmentController):
                                   'r') as ls:
                             sim_ts = float(ls.readline())
                             dump['dump_parameters']['time'] = "-%ds" % int(time.time() - sim_ts)
-                    dump_search = "search %s earliest=%s | sort _time" \
+                    dump_search = "search %s earliest=%s | sort 0 _time" \
                                   % (dump['dump_parameters']['search'], dump['dump_parameters']['time'])
                     dump_info = "Dumping Splunk Search to %s " % dump_out
                     self.log.info(dump_info)

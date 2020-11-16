@@ -154,6 +154,7 @@ def export_search(host, s, password, export_mode="raw", out=sys.stdout, username
     r = requests.post("https://%s:%d/servicesNS/admin/search/search/jobs/export" % (host, port),
                       auth=(username, password),
                       data={'output_mode': export_mode,
-                            'search': s},
+                            'search': s,
+                            'max_count': 1000000},
                       verify=False)
     out.write(r.text.encode('utf-8'))
