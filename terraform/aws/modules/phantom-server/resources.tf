@@ -31,7 +31,7 @@ resource "aws_instance" "phantom-server" {
     delete_on_termination = "true"
   }
   tags = {
-    Name = "aws-${var.config.range_name}-phantom"
+    Name = "ar-phantom-${var.config.range_name}-${var.config.key_name}"
   }
 
   provisioner "remote-exec" {

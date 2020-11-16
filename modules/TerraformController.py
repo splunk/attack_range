@@ -93,7 +93,7 @@ class TerraformController(IEnvironmentController):
                 open(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + data['file_name']), 'wb').write(r.content)
 
                 if self.config['cloud_provider'] == 'aws':
-                    splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
+                    splunk_ip = aws_service.get_single_instance_public_ip('ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
                 elif self.config['cloud_provider'] == 'azure':
                     splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
 
@@ -122,7 +122,7 @@ class TerraformController(IEnvironmentController):
         if self.config['update_escu_app'] == '1':
             # upload package
             if self.config['cloud_provider'] == 'aws':
-                splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
+                splunk_ip = aws_service.get_single_instance_public_ip('ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
             elif self.config['cloud_provider'] == 'azure':
                 splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
             # Upload the replay logs to the Splunk server
@@ -182,7 +182,7 @@ class TerraformController(IEnvironmentController):
             result_obj['detection_file'] = detection_obj['file']
             if self.config['cloud_provider'] == 'aws':
                 instance = aws_service.get_instance_by_name(
-                    "aws-" + self.config['range_name'] + "-splunk", self.config)
+                    'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
                 if instance['State']['Name'] == 'running':
                     result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
                 else:
@@ -234,7 +234,7 @@ class TerraformController(IEnvironmentController):
         if simulation_atomics == 'no':
             run_specific_atomic_tests = 'False'
 
-        if target == "aws-" + self.config['range_name'] + "-windows-client":
+        if target == "ar-win-client-" + self.config['range_name'] + "-" + self.config['key_name']:
             runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                    cmdline=str('-i ' + target_public_ip + ', '),
                                    roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),

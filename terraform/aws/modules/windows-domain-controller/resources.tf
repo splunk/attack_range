@@ -25,7 +25,7 @@ resource "aws_instance" "windows_domain_controller" {
   private_ip = var.config.windows_domain_controller_private_ip
   vpc_security_group_ids = [var.vpc_security_group_ids]
   tags = {
-    Name = "aws-${var.config.range_name}-windows-dc"
+    Name = "ar-win-dc-${var.config.range_name}-${var.config.key_name}"
   }
   user_data = <<EOF
 <powershell>

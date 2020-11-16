@@ -26,7 +26,7 @@ resource "aws_instance" "windows_server" {
   private_ip             = var.config.windows_server_private_ip
   depends_on             = [var.windows_domain_controller_instance]
   tags = {
-    Name = "aws-${var.config.range_name}-windows-server"
+    Name = "ar-win-server-${var.config.range_name}-${var.config.key_name}"
   }
   user_data = <<EOF
 <powershell>

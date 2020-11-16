@@ -22,7 +22,7 @@ resource "aws_instance" "windows_client" {
   private_ip             = var.config.windows_client_private_ip
   depends_on             = [var.windows_domain_controller_instance]
   tags = {
-    Name = "aws-${var.config.range_name}-windows-client"
+    Name = "ar-win-client-${var.config.range_name}-${var.config.key_name}"
   }
 
   provisioner "remote-exec" {
