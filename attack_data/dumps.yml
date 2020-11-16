@@ -2,7 +2,7 @@
   dump_parameters:
     out: windows-sysmon.log
     search: source=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
-    time: -2h
+    time: -24h
   replay_parameters:
     source: XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
     sourcetype: xmlwineventlog
@@ -13,7 +13,7 @@
   dump_parameters:
     out: windows-security.log
     search: source=WinEventLog:Security
-    time: -2h
+    time: -24h
   replay_parameters:
     source: WinEventLog:Security
     sourcetype: WinEventLog
@@ -24,7 +24,7 @@
   dump_parameters:
     out: windows-system.log
     search: source=WinEventLog:system
-    time: -2h
+    time: -24h
   replay_parameters:
     source: WinEventLog:System
     sourcetype: WinEventLog
@@ -35,7 +35,7 @@
   dump_parameters:
     out: windows-powershell.log
     search: source=WinEventLog:Microsoft-Windows-PowerShell/Operational
-    time: -2h
+    time: -24h
   replay_parameters:
     source: WinEventLog:Microsoft-Windows-PowerShell/Operational
     sourcetype: wineventlog
