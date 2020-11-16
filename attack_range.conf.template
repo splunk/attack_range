@@ -46,10 +46,6 @@ private_key_path = ~/.ssh/id_rsa
 public_key_path = ~/.ssh/id_rsa.pub
 # Only for Azure needed
 
-use_ssh_agent = 0
-# Specify whether to access the above ssh private key directly (use_ssh_agent=0)
-# or via ssh-agent (required if your key is password protected, use_ssh_agent=1)
-
 region = us-west-2
 # Specify the region in which you want to build the attack range
 # for aws cloud: please ensure that aws_cli has the same region specified

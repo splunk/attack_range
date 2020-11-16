@@ -34,9 +34,7 @@ resource "aws_instance" "kali_machine" {
       type        = "ssh"
       user        = "kali"
       host        = aws_instance.kali_machine[count.index].public_ip
-      agent       = var.config.use_ssh_agent == "1" ? true : false
-      agent_identity = var.config.use_ssh_agent == "1" ? var.config.private_key_path : null
-      private_key = var.config.use_ssh_agent == "1" ? null : file(var.config.private_key_path)
+      private_key = file(var.config.private_key_path)
     }
   }
 

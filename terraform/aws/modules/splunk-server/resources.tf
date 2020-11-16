@@ -40,9 +40,7 @@ resource "aws_instance" "splunk-server" {
       type        = "ssh"
       user        = "ubuntu"
       host        = aws_instance.splunk-server.public_ip
-      agent       = var.config.use_ssh_agent == "1" ? true : false
-      agent_identity = var.config.use_ssh_agent == "1" ? var.config.private_key_path : null
-      private_key = var.config.use_ssh_agent == "1" ? null : file(var.config.private_key_path)
+      private_key = file(var.config.private_key_path)
     }
   }
 

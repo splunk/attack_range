@@ -108,7 +108,7 @@ class TerraformController(IEnvironmentController):
                 ansible_vars['source'] = data['source']
                 ansible_vars['index'] = 'test'
 
-                cmdline = "-i %s, -u ubuntu -c paramiko" % (splunk_ip)
+                cmdline = "-i %s, -u ubuntu" % (splunk_ip)
                 runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                             cmdline=cmdline,
                                             roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
@@ -132,7 +132,7 @@ class TerraformController(IEnvironmentController):
             ansible_vars['splunk_password'] = self.config['attack_range_password']
             ansible_vars['security_content_path'] = self.config['security_content_path']
 
-            cmdline = "-i %s, -u ubuntu -c paramiko" % (splunk_ip)
+            cmdline = "-i %s, -u ubuntu" % (splunk_ip)
             runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                         cmdline=cmdline,
                                         roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
@@ -389,7 +389,6 @@ class TerraformController(IEnvironmentController):
                     ansible_vars['source'] = d['replay_parameters']['source']
                     ansible_vars['index'] = d['replay_parameters']['index']
 
-                    #cmdline = "-i %s, -u ubuntu -c paramiko" % (splunk_ip)
                     cmdline = "-i %s, -u ubuntu" % (splunk_ip)
                     runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                                 cmdline=cmdline,

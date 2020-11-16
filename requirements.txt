@@ -44,7 +44,6 @@ ntlm-auth==1.4.0
 oauthlib==3.1.0
 packaging==19.2
 packer.py==0.3.0
-paramiko==2.7.1
 path==13.1.0
 path.py==12.4.0
 pexpect==4.7.0
