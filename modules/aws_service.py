@@ -37,7 +37,7 @@ def get_all_instances(config):
             if instance['State']['Name']!='terminated':
                 if len(instance['Tags']) > 0:
                     str = instance['Tags'][0]['Value']
-                    if str.startswith(config['range_name'] + '-attack-range'):
+                    if (config['range_name'] in str) and (config['key_name'] in str):
                         instances.append(instance)
 
     return instances
@@ -46,7 +46,7 @@ def get_all_instances(config):
 def get_splunk_instance_ip(config):
     all_instances = get_all_instances(config)
     for instance in all_instances:
-        instance_tag = config['range_name'] + '-attack-range-splunk-server'
+        instance_tag = 'ar-splunk-' + config['range_name'] + '-' + config['key_name']
         if instance['Tags'][0]['Value'] == instance_tag:
             return instance['NetworkInterfaces'][0]['PrivateIpAddresses'][0]['Association']['PublicIp']
 

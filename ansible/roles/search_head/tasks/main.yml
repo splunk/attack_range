@@ -4,6 +4,7 @@
 - include: splunk.yml
 - include: configure_inputs.yml
 - include: configure_indexes.yml
+- include: configure_limits.yml
 - include: configure_web_conf.yml
 - include: configure_server_conf.yml
 - include: configure_props.yml
@@ -30,7 +31,7 @@
     - "{{ splunk_attack_range_dashboard }}"
     - "{{ splunk_cim_app }}"
     - "{{ splunk_escu_app }}"
-    - "{{ splunk_python_app }}"
+    - "{{ splunk_python_app }}"
     - "{{ splunk_mltk_app }}"
     - "{{ splunk_security_essentials_app }}"
     - "{{ splunk_sysmon_ta }}"

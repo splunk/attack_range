@@ -1,1 +1,0 @@
-This directory contains the state files for multiple deployments.
