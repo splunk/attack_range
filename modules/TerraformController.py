@@ -1,7 +1,7 @@
 
 from modules.IEnvironmentController import IEnvironmentController
 from python_terraform import *
-from modules import aws_service, splunk_sdk, github_service, azure_service
+from modules import aws_service, splunk_sdk, github_service
 from tabulate import tabulate
 import ansible_runner
 import yaml
