@@ -52,3 +52,14 @@
     sourcetype: stream:http
     index: test
   enabled: False
+
+- name: aws_cloudtrail_events
+  dump_parameters:
+    out: aws_cloudtrail_events.json
+    search: 'index=* sourcetype=aws:cloudtrail'
+    time: -24h
+  replay_parameters:
+    source: aws:cloudtrail
+    sourcetype: aws:cloudtrail
+    index: test
+  enabled: True
