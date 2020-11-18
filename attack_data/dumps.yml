@@ -59,7 +59,7 @@
     search: 'index=* sourcetype=aws:cloudtrail'
     time: -24h
   replay_parameters:
-    source: aws:cloudtrail
+    source: aws_cloudtrail
     sourcetype: aws:cloudtrail
     index: test
   enabled: True
