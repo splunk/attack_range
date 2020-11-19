@@ -62,5 +62,4 @@
     source: aws_cloudtrail
     sourcetype: aws:cloudtrail
     index: test
-  enabled: True
-
+  enabled: False
