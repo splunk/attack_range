@@ -1,3 +1,4 @@
+ability_refresh: 60
 api_key_blue: {{ caldera_password }}
 api_key_red: {{ caldera_password }}
 app.contact.gist: API_KEY
@@ -11,16 +12,29 @@ encryption_key: {{ caldera_password }}
 exfil_dir: /tmp
 host: 0.0.0.0
 plugins:
-- terminal
-- stockpile
+- access
+- atomic
 - compass
+- debrief
+- fieldmanual
+- gameboard
 - manx
 - response
-- gameboard
+- sandcat
+- stockpile
 - training
-- access
 port: 8888
 reports_dir: /tmp
+requirements:
+  go:
+    command: go version
+    type: installed_program
+    version: 1.11
+  python:
+    attr: version
+    module: sys
+    type: python_module
+    version: 3.6.1
 users:
   blue:
     blue: {{ caldera_password }}
