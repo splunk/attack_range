@@ -76,7 +76,7 @@ class TerraformController(IEnvironmentController):
         test_file = self.load_file(test_file)
 
         # build attack range
-        self.build()
+        # self.build()
 
         random_number = str(randrange(10000))
         folder_name = "attack_data_" + random_number
@@ -84,6 +84,7 @@ class TerraformController(IEnvironmentController):
 
         simulation = False
         output = 'loaded attack data'
+
         if 'attack_data'in test_file:
             for data in test_file['attack_data']:
                 dumps_yml = self.load_file(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml'))
@@ -171,8 +172,29 @@ class TerraformController(IEnvironmentController):
         self.log.info('Wait for 200 seconds before running the detections.')
         time.sleep(200)
 
-        # run detection
+        # run baselines if present in the test files
         result = []
+        if 'baselines' in test_file:
+            for baseline_obj in test_file['baselines']:
+                baseline_file_name = baseline_obj['file']
+                baseline = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/' + baseline_file_name))
+                result_obj = dict()
+                result_obj['baseline'] = baseline_obj['name']
+                result_obj['baseline_file'] = baseline_obj['file']
+                if self.config['cloud_provider'] == 'aws':
+                    instance = aws_service.get_instance_by_name(
+                        'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
+                    if instance['State']['Name'] == 'running':
+                        result_obj['error'], result_obj['results'] = splunk_sdk.test_baseline_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], self.log)
+                    else:
+                        self.log.error('ERROR: Splunk server is not running.')
+                elif self.config['cloud_provider'] == 'azure':
+                    instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
+                    if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
+                        result_obj['error'], result_obj['results'] = splunk_sdk.test_baseline_search(instance['public_ip'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], self.log)
+
+                self.log.info('Running baselines now. Wait for 200 seconds before running detections.')
+                time.sleep(200)
 
         for detection_obj in test_file['detections']:
             detection_file_name = detection_obj['file']
@@ -184,19 +206,21 @@ class TerraformController(IEnvironmentController):
                 instance = aws_service.get_instance_by_name(
                     'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
                 if instance['State']['Name'] == 'running':
-                    result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
+                    result_obj['error'], result_obj['results'] = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
                 else:
                     self.log.error('ERROR: Splunk server is not running.')
             elif self.config['cloud_provider'] == 'azure':
                 instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
                 if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
-                    result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
+                    result_obj['error'], result_obj['results'] = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
+
+            self.log.info('Running Detections now.')
 
 
             result.append(result_obj)
 
         # destroy attack range
-        self.destroy()
+        # self.destroy()
 
         # return results
         return {'results': result , 'simulation_output': output}
@@ -378,7 +402,7 @@ class TerraformController(IEnvironmentController):
                     elif self.config['cloud_provider'] == 'azure':
                         splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
                     #splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
-                    # Upload the replay logs to the Splunk server
+                    # Upload the s logs to the Splunk server
                     ansible_vars = {}
                     ansible_vars['dump_name'] = dump_name
                     ansible_vars['ansible_user'] = 'ubuntu'
