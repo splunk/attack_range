@@ -27,7 +27,6 @@
     - "{{ splunk_asx_app }}"
     - "{{ status_indicator_custom_visualization }}"
     - "{{ punchard_custom_visualization }}"
-    - "{{ punchard_custom_visualization }}"
     - "{{ splunk_attack_range_dashboard }}"
     - "{{ splunk_cim_app }}"
     - "{{ splunk_escu_app }}"
@@ -35,7 +34,7 @@
     - "{{ splunk_mltk_app }}"
     - "{{ splunk_security_essentials_app }}"
     - "{{ splunk_sysmon_ta }}"
-    - "{{ splunk_windows_ta }}"
+    - "{{ splunk_aws_ta }}"
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: install_stream_app.yml
