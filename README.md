@@ -167,8 +167,7 @@ python attack_range.py replay -dn data_dump --dump windows_sec_events
 - [Kali Linux](https://www.kali.org/)
   * Preconfigured Kali Linux machine for penetration testing
   * ssh connection over configured ssh key
-- Multiple instances of Attack Range can be launched utilizing the `-rn` parameter for  `attack_range.py`
-  * This will create instances tagged with `${range_name}-${instance_name}`
+
 
 ## Support 📞
 Please use the [GitHub issue tracker](https://github.com/splunk/attack_range/issues) to submit bugs or request features.
