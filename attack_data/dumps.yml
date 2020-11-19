@@ -56,8 +56,8 @@
 - name: aws_cloudtrail_events
   dump_parameters:
     out: aws_cloudtrail_events.json
-    search: 'index=* sourcetype=aws:cloudtrail'
-    time: -24h
+    search: 'index=main sourcetype=aws:cloudtrail'
+    time: -60d
   replay_parameters:
     source: aws_cloudtrail
     sourcetype: aws:cloudtrail
