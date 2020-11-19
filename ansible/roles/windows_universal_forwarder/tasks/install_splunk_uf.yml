@@ -1,11 +1,4 @@
 
-- name: Nslooup splunk.common
-  win_command: 'nslookup download.splunk.com'
-  register: output
-
-# - name: Debug nslookup
-#   debug:
-#     var: output
 
 - name: Download Splunk UF from Splunk website
   win_shell: |

@@ -1,0 +1,17 @@
+---
+
+- name: Enable Command Line Audit for Windows Sec. Events 4688
+  ignore_errors: yes
+  when: win_4688_cmd_line == "1"
+  win_regedit:
+    key: "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit"
+    value: ProcessCreationIncludeCmdLine_Enabled
+    datatype: dword
+    data: 1
+
+- name: Enable New Process Creation. Events 4688
+  ignore_errors: yes
+  when: win_4688_cmd_line == "1"
+  win_audit_policy_system:
+    subcategory: Process Creation
+    audit_type: success, failure

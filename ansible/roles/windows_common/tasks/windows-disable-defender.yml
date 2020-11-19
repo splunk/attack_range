@@ -18,7 +18,7 @@
     name: DisableRealtimeMonitoring
     type: dword
     data: 1
-  when: ansible_distribution == "Microsoft Windows 10 Enterprise Evaluation"
+  when: ansible_distribution | regex_search("Microsoft Windows 10 Enterprise")
 
 # - name: Disable Windows Defender in Windows Server windows_domain_controller
 #   win_shell: 'Set-MpPreference -DisableRealtimeMonitoring 1'

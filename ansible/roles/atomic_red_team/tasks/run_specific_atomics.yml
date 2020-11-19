@@ -20,7 +20,12 @@
   win_shell: |
     Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
     Invoke-AtomicTest "{{ art_run_techniques }}" -TestName "{{ test }}" -Confirm:$false -TimeoutSeconds 300 -ExecutionLogPath C:\AtomicRedTeam\atc_execution.csv
-  register: output
+  register: output_art
+
+- name: Save output atomic red team
+  set_fact:
+    output_art: "{{ output_art }}"
+    cacheable: yes
 
 # - debug:
 #     var: output

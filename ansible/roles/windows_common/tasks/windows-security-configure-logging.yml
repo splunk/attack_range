@@ -1,0 +1,145 @@
+---
+
+- name: Enable Windows Security Logging "Account Logon"
+  win_audit_policy_system:
+    subcategory: Credential Validation
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Account Logon"
+  win_audit_policy_system:
+    subcategory: Kerberos Authentication Service
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Account Logon"
+  win_audit_policy_system:
+    subcategory: Kerberos Service Ticket Operations
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Account Management"
+  win_audit_policy_system:
+    subcategory: User Account Management
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Account Management"
+  win_audit_policy_system:
+    subcategory: Security Group Management
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Account Management"
+  win_audit_policy_system:
+    subcategory: Distribution Group Management
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Account Management"
+  win_audit_policy_system:
+    subcategory: Computer Account Management
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Detailed Tracking"
+  win_audit_policy_system:
+    subcategory: Process Creation
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Detailed Tracking"
+  win_audit_policy_system:
+    subcategory: Process Termination
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Detailed Tracking"
+  win_audit_policy_system:
+    subcategory: Directory Service Access
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Logon Logoff"
+  win_audit_policy_system:
+    subcategory: Account Lockout
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Logon Logoff"
+  win_audit_policy_system:
+    subcategory: Logoff
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Logon Logoff"
+  win_audit_policy_system:
+    subcategory: Logon
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Logon Logoff"
+  win_audit_policy_system:
+    subcategory: Special Logon
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Object Access"
+  win_audit_policy_system:
+    subcategory: Detailed File Share
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Object Access"
+  win_audit_policy_system:
+    subcategory: File Share
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Object Access"
+  win_audit_policy_system:
+    subcategory: Filtering Platform Connection
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Object Access"
+  win_audit_policy_system:
+    subcategory: Kernel Object
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Object Access"
+  win_audit_policy_system:
+    subcategory: Other Object Access Events
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Object Access"
+  win_audit_policy_system:
+    subcategory: Registry
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Object Access"
+  win_audit_policy_system:
+    subcategory: Removable Storage
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Object Access"
+  win_audit_policy_system:
+    subcategory: SAM
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "Privilege Use"
+  win_audit_policy_system:
+    subcategory: Sensitive Privilege Use
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'
+
+- name: Enable Windows Security Logging "System"
+  win_audit_policy_system:
+    subcategory: Security State Change
+    audit_type: success, failure
+  when: verbose_win_security_logging == '1'

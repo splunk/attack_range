@@ -1,0 +1,21 @@
+---
+
+- name: Delete ESCU APP
+  file:
+    state: absent
+    path: "/opt/splunk/etc/apps/DA-ESS-ContentUpdate"
+  become: yes
+
+- name: Upload ESCU APP
+  copy:
+    src: ../../{{ security_content_path }}/package/
+    dest: "/opt/splunk/etc/apps/DA-ESS-ContentUpdate"
+    owner: splunk
+    group: splunk
+  become: yes
+
+- name: restart splunk
+  service:
+    name: splunkd
+    state: restarted
+  become: yes

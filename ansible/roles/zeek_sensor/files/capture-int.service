@@ -1,0 +1,12 @@
+[Unit]
+Description=Bring up an interface in promiscuous mode and mtu settings during boot
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/ip link set ens5 promisc on
+TimeoutStartSec=0
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
