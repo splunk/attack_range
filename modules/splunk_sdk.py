@@ -27,7 +27,7 @@ def test_baseline_search(splunk_host, splunk_password, search, pass_condition, b
 
     kwargs = {"exec_mode": "blocking",
               "dispatch.earliest_time": "-60d",
-              "dispatch.latest_time": "-30d"}
+              "dispatch.latest_time": "-1d"}
 
     splunk_search = search + ' ' + pass_condition
 
