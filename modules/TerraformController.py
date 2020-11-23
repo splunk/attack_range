@@ -89,48 +89,6 @@ class TerraformController(IEnvironmentController):
 
         simulation = False
         output = 'loaded attack data'
-        
-
-
-        #Manipulate timestamps before uploading
-
-
-        if 'baselines' in test_file:
-            for data in test_file['attack_data']:
-
-                url = data['data']
-                r = requests.get(url, allow_redirects=True)
-                open(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + data['file_name']), 'wb').write(r.content)
-
-                time.sleep(5)
-
-                path =  os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + data['file_name'])
-                path =  path.replace('modules/../','')
-
-                f = open(path, "r")
-                now = datetime.now()
-                now = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                now = datetime.strptime(now,"%Y-%m-%dT%H:%M:%S.%fZ")
-
-
-                first_line = f.readline()
-                d = json.loads(first_line)
-                latest_event  = datetime.strptime(d["eventTime"],"%Y-%m-%dT%H:%M:%S.%fZ")
-                difference = now - latest_event
-                f.close()
-
-                for line in fileinput.input(path, inplace=True):
-
-                    d = json.loads(line)
-                    original_time = datetime.strptime(d["eventTime"],"%Y-%m-%dT%H:%M:%S.%fZ")
-                    new_time = (difference + original_time)
-
-                    original_time = original_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                    new_time = new_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                    print (line.replace(original_time, new_time),end ='')
-
-
-
 
         if 'attack_data'in test_file:
             for data in test_file['attack_data']:
@@ -139,6 +97,38 @@ class TerraformController(IEnvironmentController):
                 url = data['data']
                 r = requests.get(url, allow_redirects=True)
                 open(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + data['file_name']), 'wb').write(r.content)
+
+                if data['update_timestamp'] == True:
+                    self.log.info('Updating timestamps in attack_data before replaying')
+
+                    time.sleep(5)
+
+                    path =  os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + data['file_name'])
+                    path =  path.replace('modules/../','')
+
+                    f = open(path, "r")
+                    now = datetime.now()
+                    now = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                    now = datetime.strptime(now,"%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+                    first_line = f.readline()
+                    d = json.loads(first_line)
+                    latest_event  = datetime.strptime(d["eventTime"],"%Y-%m-%dT%H:%M:%S.%fZ")
+                    difference = now - latest_event
+                    f.close()
+
+                    for line in fileinput.input(path, inplace=True):
+
+                        d = json.loads(line)
+                        original_time = datetime.strptime(d["eventTime"],"%Y-%m-%dT%H:%M:%S.%fZ")
+                        new_time = (difference + original_time)
+
+                        original_time = original_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                        new_time = new_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                        print (line.replace(original_time, new_time),end ='')
+
+                    time.sleep(5)
 
                 if self.config['cloud_provider'] == 'aws':
                     splunk_ip = aws_service.get_single_instance_public_ip('ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
@@ -215,14 +205,13 @@ class TerraformController(IEnvironmentController):
             else:
                 output = self.simulate(test_file['target'],test_file['simulation_technique'], 'no')
 
-        # wait
-        self.log.info('Wait for 200 seconds before running the detections.')
-        time.sleep(200)
 
         # run baselines if present in the test files
         result = []
         if 'baselines' in test_file:
             for baseline_obj in test_file['baselines']:
+                self.log.info('Wait for 200 seconds before running the baselines.')
+                time.sleep(200)
                 baseline_file_name = baseline_obj['file']
                 baseline = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/' + baseline_file_name))
                 result_obj = dict()
@@ -240,8 +229,10 @@ class TerraformController(IEnvironmentController):
                     if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
                         result_obj['error'], result_obj['results'] = splunk_sdk.test_baseline_search(instance['public_ip'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], self.log)
 
-                self.log.info('Running baselines now. Wait for 200 seconds before running detections.')
-                time.sleep(200)
+                # self.log.info('Running baselines now. Wait for 200 seconds before running detections.')
+                
+        self.log.info('Wait for 20 seconds before running the detections.')
+        time.sleep(20)
 
         for detection_obj in test_file['detections']:
             detection_file_name = detection_obj['file']
@@ -265,12 +256,13 @@ class TerraformController(IEnvironmentController):
 
 
             result.append(result_obj)
+            output = 'Running detection searches complete'
 
         # destroy attack range
         # self.destroy()
 
-        return results
-        return {'results': result , 'simulation_output': output}
+        return result
+        return {'result': result , 'simulation_output': output}
 
 
     def load_file(self, file_path):
