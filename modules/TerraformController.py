@@ -98,6 +98,8 @@ class TerraformController(IEnvironmentController):
                 r = requests.get(url, allow_redirects=True)
                 open(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + data['file_name']), 'wb').write(r.content)
 
+                # Update timestamps before replay
+
                 if data['update_timestamp'] == True:
                     self.log.info('Updating timestamps in attack_data before replaying')
 
@@ -229,7 +231,6 @@ class TerraformController(IEnvironmentController):
                     if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
                         result_obj['error'], result_obj['results'] = splunk_sdk.test_baseline_search(instance['public_ip'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], self.log)
 
-                # self.log.info('Running baselines now. Wait for 200 seconds before running detections.')
                 
         self.log.info('Wait for 20 seconds before running the detections.')
         time.sleep(20)
@@ -245,6 +246,7 @@ class TerraformController(IEnvironmentController):
                     'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
                 if instance['State']['Name'] == 'running':
                     result_obj['error'], result_obj['results'] = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
+                    self.log.info('Running Detections now.')
                 else:
                     self.log.error('ERROR: Splunk server is not running.')
             elif self.config['cloud_provider'] == 'azure':
@@ -252,11 +254,13 @@ class TerraformController(IEnvironmentController):
                 if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
                     result_obj['error'], result_obj['results'] = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
 
-            self.log.info('Running Detections now.')
+                    self.log.info('Running Detections now.')
 
 
             result.append(result_obj)
-            output = 'Running detection searches complete'
+        output = 'Running Detections - Complete'
+
+        self.log.info('Running Detections - Complete')
 
         # destroy attack range
         # self.destroy()
