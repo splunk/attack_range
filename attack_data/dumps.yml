@@ -18,7 +18,7 @@
     source: WinEventLog:Security
     sourcetype: WinEventLog
     index: test
-  enabled: False
+  enabled: True
 
 - name: windows_system_events
   dump_parameters:
@@ -29,7 +29,7 @@
     source: WinEventLog:System
     sourcetype: WinEventLog
     index: test
-  enabled: False
+  enabled: True
 
 - name: powershell_events
   dump_parameters:

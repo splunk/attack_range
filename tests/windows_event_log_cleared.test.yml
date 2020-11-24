@@ -1,0 +1,18 @@
+name: Windows Event Log Cleared Unit Test
+tests:
+- name: Windows Event Log Cleared
+  file: endpoint/windows_event_log_cleared.yml
+  pass_condition: '| stats count | where count > 0'
+  earliest_time: '-24h'
+  latest_time: 'now'
+  attack_data:
+  - file_name: windows-security.log
+    data: https://attack-range-attack-data.s3-us-west-2.amazonaws.com/T1070.001/windows-security.log
+    source: WinEventLog:Security
+    sourcetype: WinEventLog
+    update_timestamp: True
+  - file_name: windows-system.log
+    data: https://attack-range-attack-data.s3-us-west-2.amazonaws.com/T1070.001/windows-system.log
+    source: WinEventLog:System
+    sourcetype: WinEventLog
+    update_timestamp: True
