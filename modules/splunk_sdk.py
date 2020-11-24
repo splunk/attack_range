@@ -5,7 +5,7 @@ import splunklib.client as client
 import splunklib.results as results
 import requests
 
-def test_baseline_search(splunk_host, splunk_password, search, pass_condition, baseline_name, baseline_file, log):
+def test_baseline_search(splunk_host, splunk_password, search, pass_condition, baseline_name, baseline_file, earliest_time, latest_time, log):
     try:
         service = client.connect(
             host=splunk_host,
@@ -26,8 +26,8 @@ def test_baseline_search(splunk_host, splunk_password, search, pass_condition, b
         search = 'search ' + search
 
     kwargs = {"exec_mode": "blocking",
-              "dispatch.earliest_time": "-30d",
-              "dispatch.latest_time": "-1d"}
+              "dispatch.earliest_time": earliest_time,
+              "dispatch.latest_time": latest_time}
 
     splunk_search = search + ' ' + pass_condition
 
@@ -46,12 +46,15 @@ def test_baseline_search(splunk_host, splunk_password, search, pass_condition, b
 
     if int(job['resultCount']) != 1:
         log.error("Test failed for baseline: " + baseline_name)
-        return 1, test_results
+        test_results['error'] = True
+        return test_results
     else:
         log.info("Test successful for baseline: " + baseline_name)
-        return 0, test_results
+        test_results['error'] = False
+        return test_results
 
-def test_detection_search(splunk_host, splunk_password, search, pass_condition, detection_name, detection_file, log):
+
+def test_detection_search(splunk_host, splunk_password, search, pass_condition, detection_name, detection_file, earliest_time, latest_time, log):
     try:
         service = client.connect(
             host=splunk_host,
@@ -92,10 +95,12 @@ def test_detection_search(splunk_host, splunk_password, search, pass_condition, 
 
     if int(job['resultCount']) != 1:
         log.error("Test failed for detection: " + detection_name)
-        return 1, test_results
+        test_results['error'] = True
+        return test_results
     else:
         log.info("Test successful for detection: " + detection_name)
-        return 0, test_results
+        test_results['error'] = False
+        return test_results
 
 
 def search(splunk_host, splunk_password, search_name, log):

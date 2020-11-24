@@ -199,17 +199,6 @@ splunk_es_app = splunk-enterprise-security_620.spl
 # Spefify the name of the Splunk Enterprise Security file, which you saved into the apps folder.
 
 
-[attack_data_dump]
-capture_attack_data = 0
-# capture attack data during the test command
-
-sync_to_s3_bucket = 0
-# sync attack data from dump command to s3 bucket
-
-s3_bucket_attack_data = attack-range-attack-data
-# S3 bucket to sync attack data from dump command
-
-
 [testing]
 update_escu_app = 0
 # update the ESCU app with a local security content version

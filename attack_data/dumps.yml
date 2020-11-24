@@ -7,7 +7,7 @@
     source: XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
     sourcetype: xmlwineventlog
     index: test
-  enabled: False
+  enabled: True
 
 - name: windows_security_events
   dump_parameters:
@@ -62,4 +62,4 @@
     source: aws_cloudtrail
     sourcetype: aws:cloudtrail
     index: test
-  enabled: True
+  enabled: False
