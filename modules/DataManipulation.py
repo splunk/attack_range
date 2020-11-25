@@ -4,6 +4,7 @@ from datetime import timedelta
 import fileinput
 import os
 import re
+import io
 
 class DataManipulation:
 
@@ -23,7 +24,7 @@ class DataManipulation:
         path =  os.path.join(os.path.dirname(__file__), '../attack_data/' + file_path)
         path =  path.replace('modules/../','')
 
-        f = open(path, "r")
+        f = io.open(path, "r", encoding="utf-8")
         self.now = datetime.now()
         self.now = self.now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         self.now = datetime.strptime(self.now,"%Y-%m-%dT%H:%M:%S.%fZ")
@@ -38,7 +39,7 @@ class DataManipulation:
 
         result = re.sub("\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2} AM|PM", self.replacement_function, data)
 
-        with open(path, "w") as f:
+        with io.open(path, "w", encoding='utf8') as f:
             f.write(result)
 
 
