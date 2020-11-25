@@ -1,7 +1,8 @@
 
 from modules.IEnvironmentController import IEnvironmentController
 from python_terraform import *
-from modules import aws_service, splunk_sdk, github_service, azure_service, data_manipulation
+from modules import aws_service, splunk_sdk, github_service, azure_service
+from modules.DataManipulation import DataManipulation
 from tabulate import tabulate
 import ansible_runner
 import yaml
@@ -11,7 +12,6 @@ import glob
 import sys
 import re
 import requests
-from random import randrange
 import json
 from datetime import datetime
 from datetime import timedelta
@@ -81,16 +81,16 @@ class TerraformController(IEnvironmentController):
         test_file = self.load_file(test_file)
 
         # build attack range
-        #self.build()
+        self.build()
 
-        random_number = str(randrange(10000))
-        folder_name = "attack_data_" + random_number
+        epoch_time = str(int(time.time()))
+        folder_name = "attack_data_" + epoch_time
         os.mkdir(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name))
 
         output = 'loaded attack data'
 
-        # if self.config['update_escu_app'] == '1':
-        #     self.update_ESCU_app()
+        if self.config['update_escu_app'] == '1':
+            self.update_ESCU_app()
 
         result_tests = []
 
@@ -104,61 +104,62 @@ class TerraformController(IEnvironmentController):
                 # Update timestamps before replay
                 if 'update_timestamp' in attack_data:
                     if attack_data['update_timestamp'] == True:
+                        data_manipulation = DataManipulation()
                         data_manipulation.manipulate_timestamp(folder_name + '/' + attack_data['file_name'], self.log, attack_data['sourcetype'], attack_data['source'])
 
-            #     self.replay_attack_data(folder_name, None, {'sourcetype': attack_data['sourcetype'], 'source': attack_data['source'], 'out': attack_data['file_name']})
-            #
-            # self.log.info('Wait for 200 seconds')
-            # time.sleep(200)
-            #
-            # if 'baselines' in test:
-            #     results_baselines = []
-            #     for baseline_obj in test['baselines']:
-            #         baseline_file_name = baseline_obj['file']
-            #         baseline = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/' + baseline_file_name))
-            #         result_obj = dict()
-            #         result_obj['baseline'] = baseline_obj['name']
-            #         result_obj['baseline_file'] = baseline_obj['file']
-            #         if self.config['cloud_provider'] == 'aws':
-            #             instance = aws_service.get_instance_by_name(
-            #                 'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
-            #             if instance['State']['Name'] == 'running':
-            #                 result = splunk_sdk.test_baseline_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], baseline_obj['earliest_time'], baseline_obj['latest_time'], self.log)
-            #                 results_baselines.append(result)
-            #             else:
-            #                 self.log.error('ERROR: Splunk server is not running.')
-            #         elif self.config['cloud_provider'] == 'azure':
-            #             instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
-            #             if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
-            #                 result = splunk_sdk.test_baseline_search(instance['public_ip'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], baseline_obj['earliest_time'], baseline_obj['latest_time'], self.log)
-            #                 results_baselines.append(result)
-            #     result_test['baselines_result'] = results_baselines
-            #
-            # detection_file_name = test['file']
-            # detection = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/detections/' + detection_file_name))
-            # if self.config['cloud_provider'] == 'aws':
-            #     instance = aws_service.get_instance_by_name(
-            #         'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
-            #     if instance['State']['Name'] == 'running':
-            #         result_detection = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
-            #         self.log.info('Running Detections now.')
-            #     else:
-            #         self.log.error('ERROR: Splunk server is not running.')
-            # elif self.config['cloud_provider'] == 'azure':
-            #     instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
-            #     if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
-            #         result_detection = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
-            #         self.log.info('Running Detections now.')
-            #
-            # result_detection['detection_name'] = test['name']
-            # result_detection['detection_file'] = test['file']
-            # result_test['detection_result'] = result_detection
-            # result_tests.append(result_test)
+                self.replay_attack_data(folder_name, None, {'sourcetype': attack_data['sourcetype'], 'source': attack_data['source'], 'out': attack_data['file_name']})
+
+            self.log.info('Wait for 200 seconds')
+            time.sleep(200)
+
+            if 'baselines' in test:
+                results_baselines = []
+                for baseline_obj in test['baselines']:
+                    baseline_file_name = baseline_obj['file']
+                    baseline = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/' + baseline_file_name))
+                    result_obj = dict()
+                    result_obj['baseline'] = baseline_obj['name']
+                    result_obj['baseline_file'] = baseline_obj['file']
+                    if self.config['cloud_provider'] == 'aws':
+                        instance = aws_service.get_instance_by_name(
+                            'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
+                        if instance['State']['Name'] == 'running':
+                            result = splunk_sdk.test_baseline_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], baseline_obj['earliest_time'], baseline_obj['latest_time'], self.log)
+                            results_baselines.append(result)
+                        else:
+                            self.log.error('ERROR: Splunk server is not running.')
+                    elif self.config['cloud_provider'] == 'azure':
+                        instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
+                        if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
+                            result = splunk_sdk.test_baseline_search(instance['public_ip'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], baseline_obj['earliest_time'], baseline_obj['latest_time'], self.log)
+                            results_baselines.append(result)
+                result_test['baselines_result'] = results_baselines
+
+            detection_file_name = test['file']
+            detection = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/detections/' + detection_file_name))
+            if self.config['cloud_provider'] == 'aws':
+                instance = aws_service.get_instance_by_name(
+                    'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
+                if instance['State']['Name'] == 'running':
+                    result_detection = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
+                    self.log.info('Running Detections now.')
+                else:
+                    self.log.error('ERROR: Splunk server is not running.')
+            elif self.config['cloud_provider'] == 'azure':
+                instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
+                if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
+                    result_detection = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
+                    self.log.info('Running Detections now.')
+
+            result_detection['detection_name'] = test['name']
+            result_detection['detection_file'] = test['file']
+            result_test['detection_result'] = result_detection
+            result_tests.append(result_test)
 
         self.log.info('Running Detections - Complete')
 
         # destroy attack range
-        # self.destroy()
+        self.destroy()
 
         return result_tests
 
