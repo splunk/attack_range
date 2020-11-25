@@ -57,7 +57,7 @@ class DataManipulation:
         path =  os.path.join(os.path.dirname(__file__), '../attack_data/' + file_path)
         path =  path.replace('modules/../','')
 
-        f = open(path, "r")
+        f = io.open(path, "r", encoding="utf-8")
         now = datetime.now()
         now = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         now = datetime.strptime(now,"%Y-%m-%dT%H:%M:%S.%fZ")
