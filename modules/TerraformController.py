@@ -2,6 +2,7 @@
 from modules.IEnvironmentController import IEnvironmentController
 from python_terraform import *
 from modules import aws_service, splunk_sdk, github_service, azure_service
+from modules.DataManipulation import DataManipulation
 from tabulate import tabulate
 import ansible_runner
 import yaml
@@ -11,7 +12,11 @@ import glob
 import sys
 import re
 import requests
-from random import randrange
+import json
+from datetime import datetime
+from datetime import timedelta
+import fileinput
+
 
 
 class TerraformController(IEnvironmentController):
@@ -78,128 +83,85 @@ class TerraformController(IEnvironmentController):
         # build attack range
         self.build()
 
-        random_number = str(randrange(10000))
-        folder_name = "attack_data_" + random_number
+        epoch_time = str(int(time.time()))
+        folder_name = "attack_data_" + epoch_time
         os.mkdir(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name))
 
-        simulation = False
         output = 'loaded attack data'
-        if 'attack_data'in test_file:
-            for data in test_file['attack_data']:
-                dumps_yml = self.load_file(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml'))
 
-                url = data['data']
-                r = requests.get(url, allow_redirects=True)
-                open(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + data['file_name']), 'wb').write(r.content)
-
-                if self.config['cloud_provider'] == 'aws':
-                    splunk_ip = aws_service.get_single_instance_public_ip('ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
-                elif self.config['cloud_provider'] == 'azure':
-                    splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
-
-                # Upload the replay logs to the Splunk server
-                ansible_vars = {}
-                ansible_vars['dump_name'] = folder_name
-                ansible_vars['ansible_user'] = 'ubuntu'
-                ansible_vars['ansible_ssh_private_key_file'] = self.config['private_key_path']
-                ansible_vars['splunk_password'] = self.config['attack_range_password']
-                ansible_vars['out'] = data['file_name']
-                ansible_vars['sourcetype'] = data['sourcetype']
-                ansible_vars['source'] = data['source']
-                ansible_vars['index'] = 'test'
-
-                cmdline = "-i %s, -u ubuntu" % (splunk_ip)
-                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
-                                            cmdline=cmdline,
-                                            roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                            playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_replay.yml'),
-                                            extravars=ansible_vars)
-
-        else:
-            simulation = True
-
-        # update ESCU
         if self.config['update_escu_app'] == '1':
-            # upload package
-            if self.config['cloud_provider'] == 'aws':
-                splunk_ip = aws_service.get_single_instance_public_ip('ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
-            elif self.config['cloud_provider'] == 'azure':
-                splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
-            # Upload the replay logs to the Splunk server
-            ansible_vars = {}
-            ansible_vars['ansible_user'] = 'ubuntu'
-            ansible_vars['ansible_ssh_private_key_file'] = self.config['private_key_path']
-            ansible_vars['splunk_password'] = self.config['attack_range_password']
-            ansible_vars['security_content_path'] = self.config['security_content_path']
+            self.update_ESCU_app()
 
-            cmdline = "-i %s, -u ubuntu" % (splunk_ip)
-            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
-                                        cmdline=cmdline,
-                                        roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                        playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/update_escu.yml'),
-                                        extravars=ansible_vars)
+        result_tests = []
 
+        for test in test_file['tests']:
+            result_test = {}
+            for attack_data in test['attack_data']:
+                url = attack_data['data']
+                r = requests.get(url, allow_redirects=True)
+                open(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + attack_data['file_name']), 'wb').write(r.content)
 
-        if simulation:
+                # Update timestamps before replay
+                if 'update_timestamp' in attack_data:
+                    if attack_data['update_timestamp'] == True:
+                        data_manipulation = DataManipulation()
+                        data_manipulation.manipulate_timestamp(folder_name + '/' + attack_data['file_name'], self.log, attack_data['sourcetype'], attack_data['source'])
 
-            # wait
-            self.log.info('Wait for 200 seconds before running simulations.')
+                self.replay_attack_data(folder_name, None, {'sourcetype': attack_data['sourcetype'], 'source': attack_data['source'], 'out': attack_data['file_name']})
+
+            self.log.info('Wait for 200 seconds')
             time.sleep(200)
 
-            # simulate attack
-            # create vars string for custom vars:
-            if 'vars' in test_file:
-                var_str = '$myArgs = @{ '
-                i = 0
-                for key, value in test_file['vars'].items():
-                    if i == 0:
-                        var_str += '"' + key + '" = "' + value + '"'
-                        i += 1
-                    else:
-                        var_str += '; "' + key + '" = "' + value + '"'
-                        i += 1
+            if 'baselines' in test:
+                results_baselines = []
+                for baseline_obj in test['baselines']:
+                    baseline_file_name = baseline_obj['file']
+                    baseline = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/' + baseline_file_name))
+                    result_obj = dict()
+                    result_obj['baseline'] = baseline_obj['name']
+                    result_obj['baseline_file'] = baseline_obj['file']
+                    if self.config['cloud_provider'] == 'aws':
+                        instance = aws_service.get_instance_by_name(
+                            'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
+                        if instance['State']['Name'] == 'running':
+                            result = splunk_sdk.test_baseline_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], baseline_obj['earliest_time'], baseline_obj['latest_time'], self.log)
+                            results_baselines.append(result)
+                        else:
+                            self.log.error('ERROR: Splunk server is not running.')
+                    elif self.config['cloud_provider'] == 'azure':
+                        instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
+                        if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
+                            result = splunk_sdk.test_baseline_search(instance['public_ip'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], baseline_obj['earliest_time'], baseline_obj['latest_time'], self.log)
+                            results_baselines.append(result)
+                result_test['baselines_result'] = results_baselines
 
-                var_str += ' }'
-                print(var_str)
-
-                output = self.simulate(test_file['target'], test_file['simulation_technique'], 'no', var_str)
-
-            else:
-                output = self.simulate(test_file['target'],test_file['simulation_technique'], 'no')
-
-        # wait
-        self.log.info('Wait for 200 seconds before running the detections.')
-        time.sleep(200)
-
-        # run detection
-        result = []
-
-        for detection_obj in test_file['detections']:
-            detection_file_name = detection_obj['file']
+            detection_file_name = test['file']
             detection = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/detections/' + detection_file_name))
-            result_obj = dict()
-            result_obj['detection'] = detection_obj['name']
-            result_obj['detection_file'] = detection_obj['file']
             if self.config['cloud_provider'] == 'aws':
                 instance = aws_service.get_instance_by_name(
                     'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
                 if instance['State']['Name'] == 'running':
-                    result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
+                    result_detection = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
+                    self.log.info('Running Detections now.')
                 else:
                     self.log.error('ERROR: Splunk server is not running.')
             elif self.config['cloud_provider'] == 'azure':
                 instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
                 if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
-                    result_obj['error'], result_obj['results'] = splunk_sdk.test_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], detection_obj['pass_condition'], detection['name'], detection_obj['file'], self.log)
+                    result_detection = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
+                    self.log.info('Running Detections now.')
 
+            result_detection['detection_name'] = test['name']
+            result_detection['detection_file'] = test['file']
+            result_test['detection_result'] = result_detection
+            result_tests.append(result_test)
 
-            result.append(result_obj)
+        self.log.info('Running Detections - Complete')
 
         # destroy attack range
         self.destroy()
 
-        # return results
-        return {'results': result , 'simulation_output': output}
+        return result_tests
 
 
     def load_file(self, file_path):
@@ -210,6 +172,7 @@ class TerraformController(IEnvironmentController):
                 self.log.error(exc)
                 sys.exit("ERROR: reading {0}".format(file_path))
         return file
+
 
     def simulate(self, target, simulation_techniques, simulation_atomics, var_str='no'):
         if self.config['cloud_provider'] == 'aws':
@@ -322,7 +285,6 @@ class TerraformController(IEnvironmentController):
 
 
     def dump_attack_data(self, dump_name, last_sim):
-
         self.log.info("Dump log data")
 
         folder = "attack_data/" + dump_name
@@ -363,35 +325,56 @@ class TerraformController(IEnvironmentController):
                     self.log.info("%s [Completed]" % dump_info)
 
 
-        if self.config['sync_to_s3_bucket'] == '1':
-            for file in glob.glob(os.path.join(os.path.dirname(__file__), '../' + folder + '/*')):
-                self.log.info("upload attack data to S3 bucket. This can take some time")
-                aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, str(dump_name + '/' + os.path.basename(file)), self.config)
+    def replay_attack_data(self, dump_name, dump, replay_parameters = None):
+        if self.config['cloud_provider'] == 'aws':
+            splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
+        elif self.config['cloud_provider'] == 'azure':
+            splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
+
+        if replay_parameters == None:
+            with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dump_fh:
+                for d in yaml.full_load(dump_fh):
+                    if (d['name'] == dump or dump is None) and d['enabled']:
+                        self.replay_attack_dataset(splunk_ip, dump_name, d['replay_parameters']['index'], d['replay_parameters']['sourcetype'], d['replay_parameters']['source'], d['dump_parameters']['out'])
+        else:
+            self.replay_attack_dataset(splunk_ip, dump_name, 'test', replay_parameters['sourcetype'], replay_parameters['source'], replay_parameters['out'])
 
 
-    def replay_attack_data(self, dump_name, dump):
-        with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dump_fh:
-            for d in yaml.full_load(dump_fh):
-                if (d['name'] == dump or dump is None) and d['enabled']:
-                    if self.config['cloud_provider'] == 'aws':
-                        splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
-                    elif self.config['cloud_provider'] == 'azure':
-                        splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
-                    #splunk_ip = aws_service.get_single_instance_public_ip("aws-" + self.config['range_name'] + "-splunk", self.config)
-                    # Upload the replay logs to the Splunk server
-                    ansible_vars = {}
-                    ansible_vars['dump_name'] = dump_name
-                    ansible_vars['ansible_user'] = 'ubuntu'
-                    ansible_vars['ansible_ssh_private_key_file'] = self.config['private_key_path']
-                    ansible_vars['splunk_password'] = self.config['attack_range_password']
-                    ansible_vars['out'] = d['dump_parameters']['out']
-                    ansible_vars['sourcetype'] = d['replay_parameters']['sourcetype']
-                    ansible_vars['source'] = d['replay_parameters']['source']
-                    ansible_vars['index'] = d['replay_parameters']['index']
+    def replay_attack_dataset(self, splunk_ip, dump_name, index, sourcetype, source, out):
+        ansible_vars = {}
+        ansible_vars['dump_name'] = dump_name
+        ansible_vars['ansible_user'] = 'ubuntu'
+        ansible_vars['ansible_ssh_private_key_file'] = self.config['private_key_path']
+        ansible_vars['splunk_password'] = self.config['attack_range_password']
+        ansible_vars['out'] = out
+        ansible_vars['sourcetype'] = sourcetype
+        ansible_vars['source'] = source
+        ansible_vars['index'] = index
 
-                    cmdline = "-i %s, -u ubuntu" % (splunk_ip)
-                    runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
-                                                cmdline=cmdline,
-                                                roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                                playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_replay.yml'),
-                                                extravars=ansible_vars)
+        cmdline = "-i %s, -u ubuntu" % (splunk_ip)
+        runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                    cmdline=cmdline,
+                                    roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                    playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_replay.yml'),
+                                    extravars=ansible_vars)
+
+    def update_ESCU_app(self):
+        self.log.info("Update ESCU App. This can take some time")
+        # upload package
+        if self.config['cloud_provider'] == 'aws':
+            splunk_ip = aws_service.get_single_instance_public_ip('ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
+        elif self.config['cloud_provider'] == 'azure':
+            splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
+        # Upload the replay logs to the Splunk server
+        ansible_vars = {}
+        ansible_vars['ansible_user'] = 'ubuntu'
+        ansible_vars['ansible_ssh_private_key_file'] = self.config['private_key_path']
+        ansible_vars['splunk_password'] = self.config['attack_range_password']
+        ansible_vars['security_content_path'] = self.config['security_content_path']
+
+        cmdline = "-i %s, -u ubuntu" % (splunk_ip)
+        runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                    cmdline=cmdline,
+                                    roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                    playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/update_escu.yml'),
+                                    extravars=ansible_vars)
