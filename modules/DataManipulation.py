@@ -30,17 +30,21 @@ class DataManipulation:
         self.now = datetime.strptime(self.now,"%Y-%m-%dT%H:%M:%S.%fZ")
 
         # read raw logs
-        print('data manipulation')
+        regex = r'\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2} [AP]M'
         data = f.read()
-        lst_matches = re.findall(r"\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2} AM|PM", data)
-        latest_event  = datetime.strptime(lst_matches[-1],"%m/%d/%Y %I:%M:%S %p")
-        self.difference = self.now - latest_event
-        f.close()
+        lst_matches = re.findall(regex, data)
+        if len(lst_matches) > 0:
+            latest_event  = datetime.strptime(lst_matches[-1],"%m/%d/%Y %I:%M:%S %p")
+            self.difference = self.now - latest_event
+            f.close()
 
-        result = re.sub("\d{2}/\d{2}/\d{4} \d{2}:\d{2}:\d{2} AM|PM", self.replacement_function, data)
+            result = re.sub(regex, self.replacement_function, data)
 
-        with io.open(path, "w", encoding='utf8') as f:
-            f.write(result)
+            with io.open(path, "w", encoding='utf8') as f:
+                f.write(result)
+        else:
+            f.close()
+            return
 
 
     def replacement_function(self, match):
