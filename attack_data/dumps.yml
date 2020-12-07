@@ -18,6 +18,7 @@
     source: WinEventLog:Security
     sourcetype: WinEventLog
     index: test
+    update_timestamp: True
   enabled: True
 
 - name: windows_system_events
@@ -29,6 +30,7 @@
     source: WinEventLog:System
     sourcetype: WinEventLog
     index: test
+    update_timestamp: True
   enabled: True
 
 - name: powershell_events
@@ -62,4 +64,5 @@
     source: aws_cloudtrail
     sourcetype: aws:cloudtrail
     index: test
+    update_timestamp: True
   enabled: False
