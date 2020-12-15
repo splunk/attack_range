@@ -337,6 +337,7 @@ class TerraformController(IEnvironmentController):
                     if (d['name'] == dump or dump is None) and d['enabled']:
                         if 'update_timestamp' in d['replay_parameters']:
                             if d['replay_parameters']['update_timestamp'] == True:
+                                print('d1')
                                 data_manipulation = DataManipulation()
                                 data_manipulation.manipulate_timestamp(os.path.join(dump_name, d['dump_parameters']['out']), self.log, d['replay_parameters']['sourcetype'], d['replay_parameters']['source'])
                         self.replay_attack_dataset(splunk_ip, dump_name, d['replay_parameters']['index'], d['replay_parameters']['sourcetype'], d['replay_parameters']['source'], d['dump_parameters']['out'])

@@ -34,13 +34,15 @@ class DataManipulation:
         data = f.read()
         lst_matches = re.findall(regex, data)
         if len(lst_matches) > 0:
+            print('d2')
             latest_event  = datetime.strptime(lst_matches[-1],"%m/%d/%Y %I:%M:%S %p")
             self.difference = self.now - latest_event
             f.close()
 
             result = re.sub(regex, self.replacement_function, data)
 
-            with io.open(path, "w", encoding='utf8') as f:
+            with io.open(path, "w+", encoding='utf8') as f:
+                print(path)
                 f.write(result)
         else:
             f.close()
