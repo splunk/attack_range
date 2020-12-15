@@ -399,7 +399,9 @@
 		<!--DATA: UtcTime, ProcessGuid, ProcessId, Image, ImageLoaded, Hashes, Signed, Signature, SignatureStatus-->
 	<RuleGroup name="" groupRelation="or">
 		<ImageLoad onmatch="include">
-			<!--NOTE: Using "include" with no rules means nothing in this section will be logged-->
+			<ImageLoaded condition="contains">cryptdll.dll</ImageLoaded>
+			<ImageLoaded condition="contains">SolarWinds.Orion.Core.BusinessLayer.dll</ImageLoaded>
+			<ImageLoaded condition="contains">netsetupsvc.dll</ImageLoaded>
 		</ImageLoad>
 	</RuleGroup>
 
@@ -521,6 +523,9 @@
 			<TargetFilename condition="end with">.ppt</TargetFilename> <!--Legacy Office files are often used for attacks-->
 			<TargetFilename condition="end with">.rtf</TargetFilename> <!--RTF files often 0day malware vectors when opened by Office-->
 			<TargetFilename condition="end with">.txt</TargetFilename> <!--RTF files often 0day malware vectors when opened by Office-->
+			<TargetFilename condition="end with">.lnk</TargetFilename>
+			<TargetFilename condition="end with">netsetupsvc.dll</TargetFilename>
+			<TargetFilename condition="end with">SolarWinds.Orion.Core.BusinessLayer.dll</TargetFilename>
 		</FileCreate>
 	</RuleGroup>
 
@@ -705,6 +710,7 @@
 			<!--Suspicious sources-->
 			<Image name="Suspicious,ImageBeginWithBackslash" condition="begin with">\</Image> <!--Devices and VSC shouldn't be executing changes | Credit: @SBousseaden @ionstorm @neu5ron @PerchedSystems [ https://twitter.com/SwiftOnSecurity/status/1133167323991486464 ] -->
 			<TargetObject condition="begin with">HKLM\SYSTEM\CurrentControlSet\Services</TargetObject>
+			<TargetObject name="powershell-policy" condition="contains">Software\Microsoft\Powershell\1\ShellIds</TargetObject>
 		</RegistryEvent>
 	</RuleGroup>
 
