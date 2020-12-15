@@ -77,4 +77,4 @@
     sourcetype: o365:management:activity
     index: test
     update_timestamp: False
-  enabled: False
+  enabled: True

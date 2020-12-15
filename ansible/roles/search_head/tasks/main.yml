@@ -35,6 +35,7 @@
     - "{{ splunk_security_essentials_app }}"
     - "{{ splunk_sysmon_ta }}"
     - "{{ splunk_aws_ta }}"
+    - "{{ splunk_office_365_ta }}"
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: install_stream_app.yml
