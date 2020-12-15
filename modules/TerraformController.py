@@ -165,7 +165,7 @@ class TerraformController(IEnvironmentController):
 
 
     def load_file(self, file_path):
-        with open(file_path, 'r') as stream:
+        with open(file_path, 'r', encoding="utf-8") as stream:
             try:
                 file = list(yaml.safe_load_all(stream))[0]
             except yaml.YAMLError as exc:
