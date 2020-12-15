@@ -105,6 +105,8 @@ splunk_security_essentials_app = splunk-security-essentials_312.tgz
 splunk_zeek_ta = splunk-add-on-for-zeek-aka-bro_400.tgz
 # Specify the Splunk Zeek TA
 
+splunk_office_365_ta = splunk-add-on-for-microsoft-office-365_202.tgz
+
 punchard_custom_visualization = punchcard-custom-visualization_140.tgz
 
 status_indicator_custom_visualization = status-indicator-custom-visualization_140.tgz
