@@ -1,0 +1,6 @@
+- name: Donwload Badblood from gitGet requirements for Atomic Red Team Technique
+  win_shell: |
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    Invoke-AtomicTest "{{ technique }}" -GetPrereqs
+  register: requirements
+

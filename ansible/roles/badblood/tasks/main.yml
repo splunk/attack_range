@@ -1,0 +1,7 @@
+---
+
+- include: install_badblood.yml
+  when: windowns_domain_controller_badblood == "1"
+
+- include: run_badblood.yml
+  when: windowns_domain_controller_badblood == "1"
