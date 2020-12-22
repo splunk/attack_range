@@ -1,3 +1,4 @@
+---
 - name: download badblood from github
   win_get_url:
     url: "https://github.com/davidprowe/BadBlood/archive/master.zip"
@@ -16,5 +17,6 @@
 
 - name: copy custom headless installer
   win_copy:
-    src: 'c:\badblood.zip'
-    dest: 'c:\badblood'
+    force: yes
+    src: 'invoke-badblood.ps1'
+    dest: 'c:\badblood\Invoke-BadBlood.ps1'
