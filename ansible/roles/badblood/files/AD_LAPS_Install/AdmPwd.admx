@@ -1,0 +1,63 @@
+<policyDefinitions revision="1.0" schemaVersion="1.0">
+  <policyNamespaces>
+    <target prefix="fullarmor" namespace="FullArmor.Policies.C9E1D975_EA58_48C3_958E_3BC214D89A2E" />
+    <using prefix="windows" namespace="Microsoft.Policies.Windows" />
+  </policyNamespaces>
+  <supersededAdm fileName="" />
+  <resources minRequiredRevision="1.0" />
+  <supportedOn>
+    <definitions>
+      <definition name="SUPPORTED_WindowsVista" displayName="$(string.SUPPORTED_WindowsVista)" />
+    </definitions>
+  </supportedOn>
+  <categories>
+    <category name="CAT_AdmPwd" displayName="$(string.CAT_AdmPwd)" />
+  </categories>
+  <policies>
+    <policy name="POL_AdmPwd_Enabled" class="Machine" displayName="$(string.POL_AdmPwd_Enabled)" explainText="$(string.POL_AdmPwd_Enabled_Help)" key="Software\Policies\Microsoft Services\AdmPwd" valueName="AdmPwdEnabled" clientExtension="{D76B9641-3288-4f75-942D-087DE603E3EA}">
+      <parentCategory ref="CAT_AdmPwd" />
+      <supportedOn ref="SUPPORTED_WindowsVista" />
+    </policy>
+    <policy name="POL_AdmPwd" class="Machine" displayName="$(string.POL_AdmPwd)" explainText="$(string.POL_AdmPwd_Help)" presentation="$(presentation.POL_AdmPwd)" key="Software\Policies\Microsoft Services\AdmPwd">
+      <parentCategory ref="CAT_AdmPwd" />
+      <supportedOn ref="SUPPORTED_WindowsVista" />
+      <elements>
+        <enum id="ELM_AdmPwd_PasswordComplexity" key="Software\Policies\Microsoft Services\AdmPwd" valueName="PasswordComplexity" clientExtension="{D76B9641-3288-4f75-942D-087DE603E3EA}">
+          <item displayName="$(string.ITM_AdmPwd_PwdComplexity_1)">
+            <value>
+              <decimal value="1" />
+            </value>
+          </item>
+          <item displayName="$(string.ITM_AdmPwd_PwdComplexity_2)">
+            <value>
+              <decimal value="2" />
+            </value>
+          </item>
+          <item displayName="$(string.ITM_AdmPwd_PwdComplexity_3)">
+            <value>
+              <decimal value="3" />
+            </value>
+          </item>
+          <item displayName="$(string.ITM_AdmPwd_PwdComplexity_4)">
+            <value>
+              <decimal value="4" />
+            </value>
+          </item>
+        </enum>
+        <decimal id="ELM_AdmPwd_PasswordLength" key="Software\Policies\Microsoft Services\AdmPwd" valueName="PasswordLength" minValue="8" maxValue="64" clientExtension="{D76B9641-3288-4f75-942D-087DE603E3EA}" />
+        <decimal id="ELM_AdmPwd_PasswordAgeDays" key="Software\Policies\Microsoft Services\AdmPwd" valueName="PasswordAgeDays" minValue="1" maxValue="365" clientExtension="{D76B9641-3288-4f75-942D-087DE603E3EA}" />
+      </elements>
+    </policy>
+    <policy name="POL_AdmPwd_AdminName" class="Machine" displayName="$(string.POL_AdmPwd_AdminName)" explainText="$(string.POL_AdmPwd_AdminName_Help)" presentation="$(presentation.POL_AdmPwd_AdminName)" key="Software\Policies\Microsoft Services\AdmPwd">
+      <parentCategory ref="CAT_AdmPwd" />
+      <supportedOn ref="SUPPORTED_WindowsVista" />
+      <elements>
+        <text id="TXT_AdminAccountName" key="Software\Policies\Microsoft Services\AdmPwd" valueName="AdminAccountName" maxLength="64" clientExtension="{D76B9641-3288-4f75-942D-087DE603E3EA}" />
+      </elements>
+    </policy>
+    <policy name="POL_AdmPwd_DontAllowPwdExpirationBehindPolicy" class="Machine" displayName="$(string.POL_AdmPwd_DontAllowPwdExpirationBehindPolicy)" explainText="$(string.POL_AdmPwd_DontAllowPwdExpirationBehindPolicy_Help)" key="Software\Policies\Microsoft Services\AdmPwd" valueName="PwdExpirationProtectionEnabled" clientExtension="{D76B9641-3288-4f75-942D-087DE603E3EA}">
+      <parentCategory ref="CAT_AdmPwd" />
+      <supportedOn ref="SUPPORTED_WindowsVista" />
+    </policy>
+  </policies>
+</policyDefinitions>

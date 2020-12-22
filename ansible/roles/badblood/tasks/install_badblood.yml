@@ -1,6 +1,10 @@
-- name: Donwload Badblood from gitGet requirements for Atomic Red Team Technique
+- name: Run Badblood
   win_shell: |
-    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
-    Invoke-AtomicTest "{{ technique }}" -GetPrereqs
+    #This will import the module
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force  # Not sure the path to put here for the ansible dir
+    # This will invoke it
+    Invoke-BadBlood
+    # Else, we could just run the script and it's done
+    # <path>\invoke-badblood.ps1
   register: requirements
 

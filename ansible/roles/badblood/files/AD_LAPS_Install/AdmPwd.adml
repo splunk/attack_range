@@ -1,0 +1,66 @@
+<policyDefinitionResources revision="1.0" schemaVersion="1.0">
+  <displayName>
+  </displayName>
+  <description>
+  </description>
+  <resources>
+    <stringTable>
+      <string id="CAT_AdmPwd">LAPS</string>
+      <string id="POL_AdmPwd_Enabled">Enable local admin password management</string>
+      <string id="POL_AdmPwd_Enabled_Help">
+Enables management of password for local administrator account
+
+If you enable this setting, local administrator password is managed
+
+If you disable or not configure this setting, local administrator password is NOT managed
+      </string>
+      <string id="POL_AdmPwd">Password Settings</string>
+      <string id="POL_AdmPwd_Help">
+Configures password parameters
+
+Password complexity: which characters are used when generating a new password
+  Default: Large letters + small letters + numbers + special characters
+
+Password length
+  Minimum: 8 characters
+  Maximum: 64 characters
+  Default: 14 characters
+
+Password age in days
+  Minimum: 1 day
+  Maximum: 365 days
+  Default: 30 days
+      </string>
+      <string id="SUPPORTED_WindowsVista">At least Microsoft Windows Vista or Windows Server 2003 family</string>
+      <string id="ITM_AdmPwd_PwdComplexity_1">Large letters</string>
+      <string id="ITM_AdmPwd_PwdComplexity_2">Large letters + small letters</string>
+      <string id="ITM_AdmPwd_PwdComplexity_3">Large letters + small letters + numbers</string>
+      <string id="ITM_AdmPwd_PwdComplexity_4">Large letters + small letters + numbers + specials</string>
+      <string id="POL_AdmPwd_AdminName">Name of administrator account to manage</string>
+      <string id="POL_AdmPwd_AdminName_Help">
+Administrator account name: name of the local account you want to manage password for.
+  DO NOT configure when you use built-in admin account. Built-in admin account is auto-detected by well-known SID, even when renamed
+
+  DO configure when you use custom local admin account
+      </string>
+      <string id="POL_AdmPwd_DontAllowPwdExpirationBehindPolicy">Do not allow password expiration time longer than required by policy</string>
+      <string id="POL_AdmPwd_DontAllowPwdExpirationBehindPolicy_Help">
+When you enable this setting, planned password expiration longer than password age dictated by "Password Settings" policy is NOT allowed. When such expiration is detected, password is changed immediately and password expiration is set according to policy.
+
+When you disable or not configure this setting, password expiration time may be longer than required by "Password Settings" policy.
+      </string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="POL_AdmPwd">
+        <dropdownList refId="ELM_AdmPwd_PasswordComplexity" defaultItem="3">Password Complexity</dropdownList>
+        <decimalTextBox refId="ELM_AdmPwd_PasswordLength" defaultValue="14">Password Length</decimalTextBox>
+        <decimalTextBox refId="ELM_AdmPwd_PasswordAgeDays" defaultValue="30">Password Age (Days)</decimalTextBox>
+      </presentation>
+      <presentation id="POL_AdmPwd_AdminName">
+        <textBox refId="TXT_AdminAccountName">
+          <label>Administrator account name</label>
+        </textBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>
