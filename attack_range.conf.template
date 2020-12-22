@@ -316,38 +316,6 @@ kali_machine_private_ip = 10.0.1.16
 [windows_client]
 # customize the windows client
 
-
-[windows_server]
-# customize the windows server
-
-windows_server_private_ip = 10.0.1.15
-# specify the windows server private ip
-# should be in subnet: 10.0.1.0/24
-
-windows_server_os = Windows_Server-2016-English-Full-Base-*
-# specify the windows server operating System
-# currently only Windows_Server_2016 is supported
-
-windows_server_join_domain = 1
-# specify if the windows server should join the windows domain
-# possible values: 1, 0
-
-windows_server_zeek_capture = 0
-#specify if you want to capture wire data from the Windows server
-# possible values: 1, 0
-
-
-[kali_machine]
-# customize the kali machine
-
-kali_machine_private_ip = 10.0.1.16
-# specify the kali machine private ip
-# should be in subnet: 10.0.1.0/24
-
-
-[windows_client]
-# customize the windows client
-
 windows_client_private_ip = 10.0.1.17
 # specify the windows client private ip
 # should be in subnet: 10.0.1.0/24

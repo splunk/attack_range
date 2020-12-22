@@ -1,6 +1,20 @@
-- name: Donwload Badblood from gitGet requirements for Atomic Red Team Technique
-  win_shell: |
-    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
-    Invoke-AtomicTest "{{ technique }}" -GetPrereqs
-  register: requirements
+- name: download badblood from github
+  win_get_url:
+    url: "https://github.com/davidprowe/BadBlood/archive/master.zip"
+    dest: 'c:\badblood.zip'
+    timeout: 60
 
+- name: unzip badblood
+  win_unzip:
+    src: 'c:\badblood.zip'
+    dest: 'c:\badblood'
+    creates: 'c:\badblood\Invoke-BadBlood.ps1'
+
+  ansible.windows.win_copy:
+    src: /srv/myfiles/foo.conf
+    dest: C:\Temp\renamed-foo.conf
+
+- name: copy custom headless installer
+  win_copy:
+    src: 'c:\badblood.zip'
+    dest: 'c:\badblood'
