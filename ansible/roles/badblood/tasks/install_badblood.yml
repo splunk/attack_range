@@ -11,10 +11,6 @@
     dest: 'c:\badblood'
     creates: 'c:\badblood\Invoke-BadBlood.ps1'
 
-  ansible.windows.win_copy:
-    src: /srv/myfiles/foo.conf
-    dest: C:\Temp\renamed-foo.conf
-
 - name: copy custom headless installer
   win_copy:
     force: yes
