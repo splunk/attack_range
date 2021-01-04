@@ -17,4 +17,4 @@
   win_copy:
     force: yes
     src: 'invoke-badblood.ps1'
-    dest: 'C:\badblood\Invoke-BadBlood.ps1'
+    dest: 'C:\badblood\BadBlood-master\Invoke-BadBlood.ps1'

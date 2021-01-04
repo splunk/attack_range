@@ -2,6 +2,6 @@
 - name: run badblood
   win_shell: |
     #This will import the module
-    Import-Module "C:\badblood\Invoke-BadBlood.ps1"
+    Import-Module "C:\badblood\BadBlood-master\Invoke-BadBlood.ps1"
     Invoke-BadBlood
   register: requirements
