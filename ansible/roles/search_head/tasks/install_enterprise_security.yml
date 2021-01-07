@@ -19,8 +19,14 @@
   when: install_es == "1"
   notify: restart splunk
 
-- name: Run es post-install setup
-  command: "/opt/splunk/bin/splunk search '| essinstall' -auth admin:{{ splunk_admin_password }}"
+- name: Run es post-install setup for ES version before 6.4.0
+  command: "/opt/splunk/bin/splunk search '| essinstall ' -auth admin:{{ splunk_admin_password }}"
   become: yes
   become_user: splunk
-  when: install_es == "1"
+  when: install_es == "1" and {{ splunk_es_app_version | int }} < 640
+
+- name: Run es post-install setup
+  command: "/opt/splunk/bin/splunk search '| essinstall --ssl_enablement auto' -auth admin:{{ splunk_admin_password }}"
+  become: yes
+  become_user: splunk
+  when: install_es == "1" and {{ splunk_es_app_version | int }} >= 640
