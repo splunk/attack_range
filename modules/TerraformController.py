@@ -29,9 +29,8 @@ class TerraformController(IEnvironmentController):
         elif self.config['cloud_provider'] == 'azure':
             self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/azure/state', statefile)
 
-        if self.config['install_es'] == '1':
-            self.config['splunk_es_app_version'] = re.findall(r'\d+', self.config['splunk_es_app'])[0]
-            
+        self.config['splunk_es_app_version'] = re.findall(r'\d+', self.config['splunk_es_app'])[0]
+
         custom_dict = self.config.copy()
         variables = dict()
         variables['config'] = custom_dict
