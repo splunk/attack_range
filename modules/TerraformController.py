@@ -28,13 +28,18 @@ class TerraformController(IEnvironmentController):
             self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/aws/state', statefile)
         elif self.config['cloud_provider'] == 'azure':
             self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/azure/state', statefile)
+
+        self.config['splunk_es_app_version'] = re.findall(r'\d+', self.config['splunk_es_app'])[0]
+
         custom_dict = self.config.copy()
         variables = dict()
         variables['config'] = custom_dict
+
         if self.config['cloud_provider'] == 'aws':
             self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/aws'),variables=variables, parallelism=15 ,state=config["statepath"])
         elif self.config['cloud_provider'] == 'azure':
             self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/azure'),variables=variables, parallelism=15 ,state=config["statepath"])
+
 
 
     def build(self):

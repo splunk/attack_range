@@ -1,4 +1,4 @@
 
 output "windows_client_instance" {
-  value = "${aws_instance.windows_client}"
+  value = aws_instance.windows_client
 }
