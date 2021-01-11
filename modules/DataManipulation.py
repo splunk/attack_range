@@ -34,7 +34,6 @@ class DataManipulation:
         data = f.read()
         lst_matches = re.findall(regex, data)
         if len(lst_matches) > 0:
-            print('d2')
             latest_event  = datetime.strptime(lst_matches[-1],"%m/%d/%Y %I:%M:%S %p")
             self.difference = self.now - latest_event
             f.close()
@@ -42,7 +41,6 @@ class DataManipulation:
             result = re.sub(regex, self.replacement_function, data)
 
             with io.open(path, "w+", encoding='utf8') as f:
-                print(path)
                 f.write(result)
         else:
             f.close()
@@ -64,23 +62,41 @@ class DataManipulation:
         path =  path.replace('modules/../','')
 
         f = io.open(path, "r", encoding="utf-8")
-        now = datetime.now()
-        now = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        now = datetime.strptime(now,"%Y-%m-%dT%H:%M:%S.%fZ")
 
+        try:
+            first_line = f.readline()
+            d = json.loads(first_line)
+            latest_event  = datetime.strptime(d["eventTime"],"%Y-%m-%dT%H:%M:%S.%fZ")
 
-        first_line = f.readline()
-        d = json.loads(first_line)
-        latest_event  = datetime.strptime(d["eventTime"],"%Y-%m-%dT%H:%M:%S.%fZ")
+            now = datetime.now()
+            now = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            now = datetime.strptime(now,"%Y-%m-%dT%H:%M:%S.%fZ")
+        except ValueError:
+            first_line = f.readline()
+            d = json.loads(first_line)
+            latest_event  = datetime.strptime(d["eventTime"],"%Y-%m-%dT%H:%M:%SZ")
+
+            now = datetime.now()
+            now = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+            now = datetime.strptime(now,"%Y-%m-%dT%H:%M:%SZ")
+
         difference = now - latest_event
         f.close()
 
         for line in fileinput.input(path, inplace=True):
+            try:
+                d = json.loads(line)
+                original_time = datetime.strptime(d["eventTime"],"%Y-%m-%dT%H:%M:%S.%fZ")
+                new_time = (difference + original_time)
 
-            d = json.loads(line)
-            original_time = datetime.strptime(d["eventTime"],"%Y-%m-%dT%H:%M:%S.%fZ")
-            new_time = (difference + original_time)
+                original_time = original_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                new_time = new_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                print (line.replace(original_time, new_time),end ='')
+            except ValueError:
+                d = json.loads(line)
+                original_time = datetime.strptime(d["eventTime"],"%Y-%m-%dT%H:%M:%SZ")
+                new_time = (difference + original_time)
 
-            original_time = original_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-            new_time = new_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-            print (line.replace(original_time, new_time),end ='')
+                original_time = original_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+                new_time = new_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+                print (line.replace(original_time, new_time),end ='')
