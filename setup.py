@@ -33,13 +33,12 @@ def load_config_template(CONFIG_TEMPLATE):
     return config
 
 def get_random_password():
-    random_source = string.ascii_letters + string.digits + string.punctuation
+    random_source = string.ascii_letters + string.digits
     password = random.choice(string.ascii_lowercase)
     password += random.choice(string.ascii_uppercase)
     password += random.choice(string.digits)
-    password += random.choice(string.punctuation)
 
-    for i in range(6):
+    for i in range(16):
         password += random.choice(random_source)
 
     password_list = list(password)
@@ -56,6 +55,21 @@ def main(args):
     args = parser.parse_args()
     config = args.config
 
+    # check dependencies are installed
+    if sys.platform == "linux" or sys.platform == "linux2":
+        print("checking dependecies are installed")
+    # linux
+    elif sys.platform == "darwin":
+    # OS X
+        print("checking dependecies are installed")
+    else:
+        print("ERROR, you might be trying to setup attack_range in an unsupported operating system, today only Linux and MacOS are supported")
+
+
+    print(sys.platform)
+
+
+
     # parse config
     attack_range_config = Path(config)
     if attack_range_config.is_file():
@@ -70,27 +84,41 @@ def main(args):
 
         answers = prompt(questions)
         if answers['continue']:
-            print("continuing with attack_range configuration...")
+            print("> continuing with attack_range configuration...")
         else:
-            print("exiting, to create a unique configuration file in another location use the --config flag")
+            print("> exiting, to create a unique configuration file in another location use the --config flag")
             parser.print_help()
             sys.exit(0)
-        print(answers)  # use the answers as input for your app
+
         configpath = str(attack_range_config)
 
     print("""
-        /-----^\\
-       /==     |
-   +-o/   ==B) |
-      /__/-----|
-         =====
-         ( \ \ \\
-          \ \ \ \\
-           ( ) ( )
-           / /  \ \\
-         / /     | |
-         /        |
-       _^^oo    _^^oo
+           ________________
+         |'-.--._ _________:
+         |  /    |  __    __\\\\
+         | |  _  | [\\_\\= [\\_\\
+         | |.' '. \\.........|
+         | ( <)  ||:       :|_
+          \\ '._.' | :.....: |_(o
+           '-\\_   \\ .------./
+           _   \\   ||.---.||  _
+          / \\  '-._|/\\n~~\\n' | \\\\
+         (| []=.--[===[()]===[) |
+         <\\_/  \\_______/ _.' /_/
+         ///            (_/_/
+         |\\\\            [\\\\
+         ||:|           | I|
+         |::|           | I|
+         ||:|           | I|
+         ||:|           : \\:
+         |\\:|            \\I|
+         :/\\:            ([])
+         ([])             [|
+          ||              |\\_
+         _/_\\_            [ -'-.__
+    snd <]   \\>            \\_____.>
+          \\__/
+
 starting configuration for AT-ST mech walker
     """)
 
@@ -133,7 +161,7 @@ starting configuration for AT-ST mech walker
     else:
         configuration._sections['azure']['azure_subscription_id'] = 'xxxXXX'
 
-    print("configuring attack_range settings")
+    print("> configuring attack_range settings")
     # get external IP for default suggestion on whitelist question
     external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
     questions = [
@@ -199,7 +227,7 @@ starting configuration for AT-ST mech walker
         configuration._sections['range_settings']['region'] = 'us-west-2'
     configuration._sections['range_settings']['range_name'] = answers['range_name']
 
-    print("configuring attack_range environment")
+    print("> configuring attack_range environment")
     questions = [
         {
             'type': 'confirm',
@@ -227,29 +255,49 @@ starting configuration for AT-ST mech walker
         },
         {
             'type': 'confirm',
+            'message': 'should we build zeek sensors',
+            'name': 'zeek_sensor',
+            'default': False,
+        },
+        {
+            'type': 'confirm',
             'message': 'should we build a phantom server',
             'name': 'phantom_server',
             'default': False,
         },
         {
-            'type': 'confirm',
-            'message': 'should we build zeek sensors',
-            'name': 'zeek_sensor',
-            'default': False,
+            'type': 'input',
+            'message': 'phantom community username (my.phantom.us), required for phantom server',
+            'name': 'phantom_community_username',
+            'when': lambda answers: answers['phantom_server'],
+            'default': 'user',
+        },
+        {
+            'type': 'input',
+            'message': 'phantom community password (my.phantom.us), required for phantom server',
+            'name': 'phantom_community_password',
+            'when': lambda answers: answers['phantom_server'],
+            'default': 'password',
         },
     ]
     answers = prompt(questions)
-    print(answers)
-    configuration._sections['environment']['phantom_server'] = answers['phantom_server']
-    configuration._sections['environment']['windows_domain_controller'] = answers['windows_domain_controller']
-    configuration._sections['environment']['windows_server'] = answers['windows_server']
-    configuration._sections['environment']['kali_machine'] = answers['kali_machine']
-    configuration._sections['environment']['windows_client'] = answers['windows_client']
-    configuration._sections['environment']['zeek_sensor'] = answers['zeek_sensor']
-    
+    enabled = lambda x : 1 if x else 0
+    configuration._sections['environment']['phantom_server'] = enabled(answers['phantom_server'])
+    if 'phantom_community_username' in answers:
+        configuration._sections['environment']['phantom_community_username'] = answers['phantom_community_username']
+    if 'phantom_community_password' in answers:
+        configuration._sections['environment']['phantom_community_password'] = answers['phantom_community_password']
+    configuration._sections['environment']['windows_domain_controller'] = enabled(answers['windows_domain_controller'])
+    configuration._sections['environment']['windows_server'] = enabled(answers['windows_server'])
+    configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
+    configuration._sections['environment']['windows_client'] = enabled(answers['windows_client'])
+    configuration._sections['environment']['zeek_sensor'] = enabled(answers['zeek_sensor'])
+
     # write config file
     with open(attack_range_config, 'w') as configfile:
         configuration.write(configfile)
-
+    print("> attack_range configuration file was written to: {0} .. run `python attack_range.py build` to create a new attack_range".format(Path(attack_range_config).resolve()))
+    print("> setup has finished successfully ... exiting")
+    sys.exit(0)
 if __name__ == "__main__":
     main(sys.argv[1:])
