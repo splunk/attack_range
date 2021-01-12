@@ -176,7 +176,7 @@ phantom_app = phantom-app-for-splunk_305.tgz
 splunk_uf_win_url = https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi
 # Specify the download URL of the Splunk windows universal forwarder
 
-win_sysmon_url = https://download.sysinternals.com/files/Sysmon.zip
+win_sysmon_url = https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/Sysmon.zip
 # Specify the download URL of sysmon
 
 win_sysmon_template = AttackRangeSysmon.xml
