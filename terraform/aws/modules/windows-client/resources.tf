@@ -39,7 +39,7 @@ resource "aws_instance" "windows_client" {
       port     = 5985
       insecure = true
       https    = false
-      timeout  = "7m"
+      timeout  = "10m"
     }
   }
 
