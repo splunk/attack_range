@@ -32,7 +32,11 @@ resource "aws_instance" "windows_server" {
 <powershell>
 $admin = [adsi]("WinNT://./Administrator, user")
 $admin.PSBase.Invoke("SetPassword", "${var.config.attack_range_password}")
-Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1'))
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$Url = 'https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1'
+$PSFile = 'C:\ConfigureRemotingForAnsible.ps1'
+Invoke-WebRequest -Uri $Url -OutFile $PSFile
+C:\ConfigureRemotingForAnsible.ps1
 </powershell>
 EOF
 
@@ -47,6 +51,7 @@ EOF
       port     = 5986
       insecure = true
       https    = true
+      timeout  = "10m"
     }
   }
 
