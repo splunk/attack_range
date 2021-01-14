@@ -47,6 +47,7 @@ EOF
       port     = 5986
       insecure = true
       https    = true
+      timeout  = "10m"
     }
   }
 
