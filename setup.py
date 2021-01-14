@@ -14,6 +14,10 @@ import random
 import string
 import boto3
 from botocore.config import Config
+import getpass
+import time
+import os
+
 
 
 CONFIG_TEMPLATE = 'attack_range.conf.template'
@@ -37,6 +41,19 @@ def get_random_password():
     random.SystemRandom().shuffle(password_list)
     password = ''.join(password_list)
     return password
+
+def create_key_pair(client):
+    # create new ssh key new_key_pair
+    epoch_time = str(int(time.time()))
+    ssh_key_name = getpass.getuser() + "-" + epoch_time[-5:] + ".key"
+    # create ssh keys
+    response = client.create_key_pair(KeyName=ssh_key_name)
+    with open(ssh_key_name, "w") as ssh_key:
+        ssh_key.write(response['KeyMaterial'])
+    os.chmod(ssh_key_name, 0o600)
+
+    return ssh_key_name
+
 
 def main(args):
     # grab args
@@ -132,9 +149,9 @@ starting configuration for AT-ST mech walker
     ]
     answers = prompt(questions)
     if answers['cloud_provider'] == 'aws':
-        session = boto3.Session()
-        if session.region_name:
-            aws_configured_region = session.region_name
+        aws_session = boto3.Session()
+        if aws_session.region_name:
+            aws_configured_region = aws_session.region_name
         else:
             print("ERROR aws region not configured, please run `aws configure` to setup awscli")
             sys.exit(1)
@@ -204,21 +221,25 @@ starting configuration for AT-ST mech walker
     ]
     answers = prompt(questions)
     if answers['new_key_pair']:
-        print("newkeypair")
-        client = boto3.client('ec2', region_name=answers['region'])
-    configuration._sections['range_settings']['key_name'] = answers['key_name']
-    configuration._sections['range_settings']['ip_whitelist'] = answers['ip_whitelist']
-    configuration._sections['range_settings']['private_key_path'] = answers['private_key_path']
+        # create new ssh key new_key_pair
+        new_key_name = create_key_pair(aws_session.client('ec2', region_name=answers['region']))
+        new_key_path = Path(new_key_name).resolve()
+        configuration._sections['range_settings']['key_name'] = new_key_name
+        configuration._sections['range_settings']['private_key_path'] = str(new_key_path)
+        print("> new aws ssh created: {}".format(new_key_path))
+    else:
+        configuration._sections['range_settings']['key_name'] = answers['key_name']
+        configuration._sections['range_settings']['private_key_path'] = answers['private_key_path']
 
     if 'public_key_path' in answers:
         configuration._sections['range_settings']['public_key_path'] = answers['public_key_path']
     else:
         configuration._sections['range_settings']['public_key_path'] = '~/.ssh/id_rsa.pub'
-
     if 'region' in answers:
         configuration._sections['range_settings']['region'] = answers['region']
     else:
         configuration._sections['range_settings']['region'] = 'us-west-2'
+    configuration._sections['range_settings']['ip_whitelist'] = answers['ip_whitelist']
     configuration._sections['range_settings']['range_name'] = answers['range_name']
 
     print("> configuring attack_range environment")
