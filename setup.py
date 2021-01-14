@@ -149,12 +149,42 @@ starting configuration for AT-ST mech walker
     # get external IP for default suggestion on whitelist question
     external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
     questions = [
-
+        {   # new key pair?
+            'type': 'confirm',
+            'message': 'generate a new ssh key pair for this range',
+            'name': 'new_key_pair',
+            'default': True,
+        },
         {
             # get api_key
             'type': 'input',
             'message': 'enter ssh key name',
             'name': 'key_name',
+            'when': lambda answers: answers['new_key_pair'] == False,
+        },
+        {
+            # get private_key_path
+            'type': 'input',
+            'message': 'enter private key path for machine access',
+            'name': 'private_key_path',
+            'default': "~/.ssh/id_rsa",
+            'when': lambda answers: answers['new_key_pair'] == False,
+        },
+        {
+            # get public_key_path
+            'type': 'input',
+            'message': 'enter public key path for machine access',
+            'name': 'public_key_path',
+            'default': "~/.ssh/id_rsa.pub",
+            'when': lambda answers: answers['new_key_pair'] == False,
+        },
+        {
+            # get region
+            'type': 'input',
+            'message': 'enter aws region to build in.',
+            'name': 'region',
+            'default': aws_configured_region,
+            'when': lambda  answers: configuration._sections['global']['cloud_provider'] == 'aws',
         },
         {
             # get whitelist
@@ -164,38 +194,18 @@ starting configuration for AT-ST mech walker
             'default': external_ip + "/32"
         },
         {
-            # get private_key_path
-            'type': 'input',
-            'message': 'enter private key path for machine access',
-            'name': 'private_key_path',
-            'default': "~/.ssh/id_rsa"
-        },
-        {
-            # get public_key_path
-            'type': 'input',
-            'message': 'enter public key path for machine access',
-            'name': 'public_key_path',
-            'default': "~/.ssh/id_rsa.pub",
-            'when': lambda  answers: configuration._sections['global']['cloud_provider'] == 'azure',
-        },
-        {
-            # get region
-            'type': 'input',
-            'message': 'enter aws region to build in.',
-            'name': 'region',
-            'default': "us-west-2",
-            'when': lambda  answers: configuration._sections['global']['cloud_provider'] == 'aws',
-        },
-        {
             # get range name
             'type': 'input',
-            'message': 'enter attack_range name, multiple can be build on the same region under different names.',
+            'message': 'enter attack_range name, multiple can be build under different names in the same region',
             'name': 'range_name',
             'default': "default",
         },
 
     ]
     answers = prompt(questions)
+    if answers['new_key_pair']:
+        print("newkeypair")
+        client = boto3.client('ec2', region_name=answers['region'])
     configuration._sections['range_settings']['key_name'] = answers['key_name']
     configuration._sections['range_settings']['ip_whitelist'] = answers['ip_whitelist']
     configuration._sections['range_settings']['private_key_path'] = answers['private_key_path']
