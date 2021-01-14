@@ -12,24 +12,16 @@ from PyInquirer import prompt, Separator
 import configparser
 import random
 import string
+import boto3
+from botocore.config import Config
 
 
 CONFIG_TEMPLATE = 'attack_range.conf.template'
 
 def load_config_template(CONFIG_TEMPLATE):
-    """Provided a config file path and a collections of type dict,
-    will return that collections with all the settings in it"""
     settings = {}
     config = configparser.RawConfigParser()
     config.read(CONFIG_TEMPLATE)
-    for section in config.sections():
-        for key in config[section]:
-            try:
-                settings[key] = config.get(section, key)
-            except Exception as e:
-                print(
-                    "ERROR - reading configuration template: {0} at {0} failed with error {1}".format(CONFIG_TEMPLATE, e))
-                sys.exit(1)
     return config
 
 def get_random_password():
@@ -54,21 +46,6 @@ def main(args):
                         help="path to where you want to store the configuration file of attack_range")
     args = parser.parse_args()
     config = args.config
-
-    # check dependencies are installed
-    if sys.platform == "linux" or sys.platform == "linux2":
-        print("checking dependecies are installed")
-    # linux
-    elif sys.platform == "darwin":
-    # OS X
-        print("checking dependecies are installed")
-    else:
-        print("ERROR, you might be trying to setup attack_range in an unsupported operating system, today only Linux and MacOS are supported")
-
-
-    print(sys.platform)
-
-
 
     # parse config
     attack_range_config = Path(config)
@@ -139,21 +116,28 @@ starting configuration for AT-ST mech walker
             ],
         },
         {
-            # get range password
-            'type': 'input',
-            'message': 'enter a master password for your attack_range',
-            'name': 'attack_range_password',
-            'default': get_random_password(),
-        },
-        {
             # get api_key
             'type': 'input',
             'message': 'enter azure subscription id',
             'name': 'azure_subscription_id',
             'when': lambda answers: answers['cloud_provider'] == 'azure',
         },
+        {
+            # get range password
+            'type': 'input',
+            'message': 'enter a master password for your attack_range',
+            'name': 'attack_range_password',
+            'default': get_random_password(),
+        },
     ]
     answers = prompt(questions)
+    if answers['cloud_provider'] == 'aws':
+        session = boto3.Session()
+        if session.region_name:
+            aws_configured_region = session.region_name
+        else:
+            print("ERROR aws region not configured, please run `aws configure` to setup awscli")
+            sys.exit(1)
     configuration._sections['global']['cloud_provider'] = answers['cloud_provider']
     configuration._sections['global']['attack_range_password'] = answers['attack_range_password']
     if 'azure_subscription_id' in answers:
