@@ -18,8 +18,6 @@ import getpass
 import time
 import os
 
-
-
 CONFIG_TEMPLATE = 'attack_range.conf.template'
 
 def load_config_template(CONFIG_TEMPLATE):
@@ -54,17 +52,23 @@ def create_key_pair(client):
 
     return ssh_key_name
 
+def check_for_generated_keys(answers):
+    keys = []
+    for file in os.listdir("."):
+        if file.endswith(".key"):
+            keys.append(Path(file).resolve())
+    if len(keys) > 0:
+        return True
+    return False
 
-def main(args):
-    # grab args
-    parser = argparse.ArgumentParser(
-        description="Use `setup.py` is a tool used to install and configure attack_range")
-    parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
-                        help="path to where you want to store the configuration file of attack_range")
-    args = parser.parse_args()
-    config = args.config
+def get_generated_keys():
+    keys = []
+    for file in os.listdir("."):
+        if file.endswith(".key"):
+            keys.append(Path(file).resolve())
+    return keys
 
-    # parse config
+def new(config):
     attack_range_config = Path(config)
     if attack_range_config.is_file():
         questions = [
@@ -165,27 +169,23 @@ starting configuration for AT-ST mech walker
     print("> configuring attack_range settings")
     # get external IP for default suggestion on whitelist question
     external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+
+    keys = get_generated_keys()
+
     questions = [
+        {   # reuse key pair?
+            'type': 'confirm',
+            'message': 'detected existing key in {0}, would you like to use it'.format(keys[0]),
+            'name': 'reuse_keys',
+            'default': True,
+            'when': check_for_generated_keys,
+        },
         {   # new key pair?
             'type': 'confirm',
             'message': 'generate a new ssh key pair for this range',
             'name': 'new_key_pair',
             'default': True,
-        },
-        {
-            # get api_key
-            'type': 'input',
-            'message': 'enter ssh key name',
-            'name': 'key_name',
-            'when': lambda answers: answers['new_key_pair'] == False,
-        },
-        {
-            # get private_key_path
-            'type': 'input',
-            'message': 'enter private key path for machine access',
-            'name': 'private_key_path',
-            'default': "~/.ssh/id_rsa",
-            'when': lambda answers: answers['new_key_pair'] == False,
+            'when': lambda answers: answers['reuse_keys'] == False,
         },
         {
             # get public_key_path
@@ -193,7 +193,7 @@ starting configuration for AT-ST mech walker
             'message': 'enter public key path for machine access',
             'name': 'public_key_path',
             'default': "~/.ssh/id_rsa.pub",
-            'when': lambda answers: answers['new_key_pair'] == False,
+            'when': lambda answers: configuration._sections['global']['cloud_provider'] == 'azure',
         },
         {
             # get region
@@ -220,16 +220,19 @@ starting configuration for AT-ST mech walker
 
     ]
     answers = prompt(questions)
-    if answers['new_key_pair']:
+    if answers['reuse_keys']:
+        print(keys[0])
+        configuration._sections['range_settings']['key_name'] = keys[0]
+        configuration._sections['range_settings']['private_key_path'] = str(keys[0])
+        print("> included ssh key: {}".format(keys[0]))
+
+    if 'new_key_pair' in answers:
         # create new ssh key new_key_pair
         new_key_name = create_key_pair(aws_session.client('ec2', region_name=answers['region']))
         new_key_path = Path(new_key_name).resolve()
         configuration._sections['range_settings']['key_name'] = new_key_name
         configuration._sections['range_settings']['private_key_path'] = str(new_key_path)
         print("> new aws ssh created: {}".format(new_key_path))
-    else:
-        configuration._sections['range_settings']['key_name'] = answers['key_name']
-        configuration._sections['range_settings']['private_key_path'] = answers['private_key_path']
 
     if 'public_key_path' in answers:
         configuration._sections['range_settings']['public_key_path'] = answers['public_key_path']
@@ -311,8 +314,6 @@ starting configuration for AT-ST mech walker
     # write config file
     with open(attack_range_config, 'w') as configfile:
         configuration.write(configfile)
-    print("> attack_range configuration file was written to: {0} .. run `python attack_range.py build` to create a new attack_range".format(Path(attack_range_config).resolve()))
+    print("> configuration file was written to: {0}, run `python attack_range.py build` to create a new attack_range".format(Path(attack_range_config).resolve()))
     print("> setup has finished successfully ... exiting")
     sys.exit(0)
-if __name__ == "__main__":
-    main(sys.argv[1:])
