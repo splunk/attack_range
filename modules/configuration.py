@@ -170,12 +170,17 @@ starting configuration for AT-ST mech walker
     # get external IP for default suggestion on whitelist question
     external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
+    # get the latest key generated
     keys = get_generated_keys()
+    if len(keys) > 0:
+        latest_key = keys[0]
+    else:
+        latest_key = ''
 
     questions = [
         {   # reuse key pair?
             'type': 'confirm',
-            'message': 'detected existing key in {0}, would you like to use it'.format(keys[0]),
+            'message': 'detected existing key in {0}, would you like to use it'.format(latest_key),
             'name': 'reuse_keys',
             'default': True,
             'when': check_for_generated_keys,
@@ -185,7 +190,7 @@ starting configuration for AT-ST mech walker
             'message': 'generate a new ssh key pair for this range',
             'name': 'new_key_pair',
             'default': True,
-            'when': lambda answers: answers['reuse_keys'] == False,
+            'when': lambda keys: len(keys) == 0,
         },
         {
             # get public_key_path
@@ -220,17 +225,17 @@ starting configuration for AT-ST mech walker
 
     ]
     answers = prompt(questions)
-    if answers['reuse_keys']:
-        print(keys[0])
-        configuration._sections['range_settings']['key_name'] = keys[0]
-        configuration._sections['range_settings']['private_key_path'] = str(keys[0])
-        print("> included ssh key: {}".format(keys[0]))
+    if 'reuse_keys' in answers:
+        key_name = os.path.basename(os.path.normpath(latest_key))
+        configuration._sections['range_settings']['key_name'] = str(key_name)[:-4]
+        configuration._sections['range_settings']['private_key_path'] = str(latest_key)
+        print("> included ssh key: {}".format(latest_key))
 
     if 'new_key_pair' in answers:
         # create new ssh key new_key_pair
         new_key_name = create_key_pair(aws_session.client('ec2', region_name=answers['region']))
         new_key_path = Path(new_key_name).resolve()
-        configuration._sections['range_settings']['key_name'] = new_key_name
+        configuration._sections['range_settings']['key_name'] = new_key_name[:-4]
         configuration._sections['range_settings']['private_key_path'] = str(new_key_path)
         print("> new aws ssh created: {}".format(new_key_path))
 
