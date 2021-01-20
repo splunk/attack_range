@@ -45,7 +45,7 @@ def create_key_pair(client):
     epoch_time = str(int(time.time()))
     ssh_key_name = getpass.getuser() + "-" + epoch_time[-5:] + ".key"
     # create ssh keys
-    response = client.create_key_pair(KeyName=ssh_key_name)
+    response = client.create_key_pair(KeyName=str(ssh_key_name)[:-4])
     with open(ssh_key_name, "w") as ssh_key:
         ssh_key.write(response['KeyMaterial'])
     os.chmod(ssh_key_name, 0o600)
@@ -191,6 +191,43 @@ starting configuration for AT-ST mech walker
             'default': True,
             'when': lambda keys: len(keys) == 0,
         },
+    ]
+
+    # check if we should generate a key pair
+    answers = prompt(questions)
+    if 'reuse_keys' in answers:
+        if answers['reuse_keys']:
+            key_name = os.path.basename(os.path.normpath(latest_key))
+            configuration._sections['range_settings']['key_name'] = str(key_name)[:-4]
+            configuration._sections['range_settings']['private_key_path'] = str(latest_key)
+            print("> included ssh key: {}".format(latest_key))
+
+    if 'new_key_pair' in answers:
+        if answers['new_key_pair']:
+            # create new ssh key new_key_pair
+            new_key_name = create_key_pair(aws_session.client('ec2', region_name=aws_configured_region))
+            new_key_path = Path(new_key_name).resolve()
+            configuration._sections['range_settings']['key_name'] = new_key_name[:-4]
+            configuration._sections['range_settings']['private_key_path'] = str(new_key_path)
+            print("> new aws ssh created: {}".format(new_key_path))
+
+    questions = [
+        {
+            # get api_key
+            'type': 'input',
+            'message': 'enter ssh key name',
+            'name': 'key_name',
+            'default': 'attack-range-key-pair',
+            'when': lambda answers: configuration._sections['range_settings']['key_name'] == 'attack-range-key-pair',
+        },
+        {
+            # get private_key_path
+            'type': 'input',
+            'message': 'enter private key path for machine access',
+            'name': 'private_key_path',
+            'default': "~/.ssh/id_rsa",
+            'when': lambda answers: configuration._sections['range_settings']['key_name'] == 'attack-range-key-pair',
+        },
         {
             # get public_key_path
             'type': 'input',
@@ -223,21 +260,16 @@ starting configuration for AT-ST mech walker
         },
 
     ]
+
     answers = prompt(questions)
-    if 'reuse_keys' in answers:
-        key_name = os.path.basename(os.path.normpath(latest_key))
-        configuration._sections['range_settings']['key_name'] = str(key_name)[:-4]
-        configuration._sections['range_settings']['private_key_path'] = str(latest_key)
-        print("> included ssh key: {}".format(latest_key))
-
-    if 'new_key_pair' in answers:
-        # create new ssh key new_key_pair
-        new_key_name = create_key_pair(aws_session.client('ec2', region_name=answers['region']))
-        new_key_path = Path(new_key_name).resolve()
-        configuration._sections['range_settings']['key_name'] = new_key_name[:-4]
-        configuration._sections['range_settings']['private_key_path'] = str(new_key_path)
-        print("> new aws ssh created: {}".format(new_key_path))
-
+    if 'key_name' in answers:
+        configuration._sections['range_settings']['key_name'] = answers['key_name']
+    else:
+        print("> using aws ssh key name: {}".format(configuration._sections['range_settings']['key_name']))
+    if 'private_key_path' in answers:
+        configuration._sections['range_settings']['private_key_path'] = answers['private_key_path']
+    else:
+        print("> using aws ssh private key: {}".format(configuration._sections['range_settings']['private_key_path']))
     if 'public_key_path' in answers:
         configuration._sections['range_settings']['public_key_path'] = answers['public_key_path']
     else:
@@ -306,9 +338,9 @@ starting configuration for AT-ST mech walker
     enabled = lambda x : 1 if x else 0
     configuration._sections['environment']['phantom_server'] = enabled(answers['phantom_server'])
     if 'phantom_community_username' in answers:
-        configuration._sections['environment']['phantom_community_username'] = answers['phantom_community_username']
+        configuration._sections['phantom_settings']['phantom_community_username'] = answers['phantom_community_username']
     if 'phantom_community_password' in answers:
-        configuration._sections['environment']['phantom_community_password'] = answers['phantom_community_password']
+        configuration._sections['phantom_settings']['phantom_community_password'] = answers['phantom_community_password']
     configuration._sections['environment']['windows_domain_controller'] = enabled(answers['windows_domain_controller'])
     configuration._sections['environment']['windows_server'] = enabled(answers['windows_server'])
     configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
