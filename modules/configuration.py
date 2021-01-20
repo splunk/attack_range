@@ -85,7 +85,6 @@ def new(config):
             print("> continuing with attack_range configuration...")
         else:
             print("> exiting, to create a unique configuration file in another location use the --config flag")
-            parser.print_help()
             sys.exit(0)
 
         configpath = str(attack_range_config)

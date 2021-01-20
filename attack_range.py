@@ -160,6 +160,8 @@ def main(args):
     resume_parser.set_defaults(func=resume)
 
     # Configure arguments
+    configure_parser.add_argument("-c", "--config", required=False, type=str, default='attack_range.conf',
+                                    help="provide path to write configuration to")
     configure_parser.set_defaults(func=configure)
 
     # Simulation arguments
