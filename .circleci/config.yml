@@ -124,9 +124,8 @@ jobs:
       - run:
           name: publish release on github
           command: |
-            cd attack_range
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} .
-
+            tar -zcvf attack_range-${CIRCLE_TAG}.tar.gz attack_range-
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} attack_range-${CIRCLE_TAG}.tar.gz
 workflows:
   version: 2.1
   nightly-build-attack-destroy:
