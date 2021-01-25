@@ -26,13 +26,13 @@ Attack Range can be built in three different ways:
 
 ### [AWS and Ubuntu 18.04](https://github.com/splunk/attack_range/wiki/AWS:-Ubuntu-18.04-Installation)
 
-1. `source <(curl -s https://github.com/splunk/attack_range/blob/config_tool/scripts/ubuntu_deploy.sh)`
+1. `source <(curl -s 'https://raw.githubusercontent.com/splunk/attack_range/develop/scripts/ubuntu_deploy.sh')`
 2. `aws configure`
 3. `python attack_range.py configure`
 
 ### [AWS and MacOS](https://github.com/splunk/attack_range/wiki/AWS:-MacOS-Installation)
 
-1. `source <(curl -s 'https://raw.githubusercontent.com/splunk/attack_range/config_tool/scripts/macos_deploy.sh')`
+1. `source <(curl -s 'https://raw.githubusercontent.com/splunk/attack_range/develop/scripts/macos_deploy.sh')`
 2. `aws configure`
 3. `python attack_range.py configure`
 
