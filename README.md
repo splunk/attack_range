@@ -1,4 +1,5 @@
 # Splunk Attack Range ⚔️
+![Attack Range Log](docs/attack_range.png)
 
 | branch | build status |
 | ---    | ---          |
@@ -9,7 +10,7 @@ The Attack Range is a detection development platform, which solves three main ch
 
 
 ## Demo 📺
-[A short demo (< 6 min)](https://www.youtube.com/watch?v=xIbln7OQ-Ak) which shows the basic functions of the attack range. It builds a testing enviroment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [ESCU](https://github.com/splunk/security-content) searches are used to detect the attack.
+[A short demo (< 6 min)](https://www.youtube.com/watch?v=xIbln7OQ-Ak) which shows the basic functions of the attack range. It builds a testing enviroment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [Splunk Security Content](https://github.com/splunk/security-content) searches are used to detect the attack.
 
 [![Attack Range Demo](https://img.youtube.com/vi/xIbln7OQ-Ak/0.jpg)](https://www.youtube.com/watch?v=xIbln7OQ-Ak)
 
@@ -17,15 +18,24 @@ The Attack Range is a detection development platform, which solves three main ch
 
 Attack Range can be built in three different ways:
 
-- **cloud** using terraform and AWS or Azure.
-- **locally** with vagrant and virtualbox see the [attack\_range\_local](https://github.com/splunk/attack_range_local/) project for details
-- **serverless** see the [attack\_range\_cloud](https://github.com/splunk/attack_range_cloud/) project for details
+- [**cloud**](#installation) with terraform plus AWS or Azure.
+- [**locally**](https://github.com/splunk/attack_range_local/) with vagrant and virtualbox
+- [**serverless**](https://github.com/splunk/attack_range_cloud/) with terraform and AWS services
 
 ## Installation 🏗
 
 ### [AWS and Ubuntu 18.04](https://github.com/splunk/attack_range/wiki/AWS:-Ubuntu-18.04-Installation)
 
+1. `source <(curl -s https://github.com/splunk/attack_range/blob/config_tool/scripts/ubuntu_deploy.sh)`
+2. `aws configure`
+3. `python attack_range.py configure`
+
 ### [AWS and MacOS](https://github.com/splunk/attack_range/wiki/AWS:-MacOS-Installation)
+
+1. `source <(curl -s 'https://raw.githubusercontent.com/splunk/attack_range/config_tool/scripts/macos_deploy.sh')`
+2. `aws configure`
+3. `python attack_range.py configure`
+
 
 ### [Azure and MacOS](https://github.com/splunk/attack_range/wiki/Azure:-MacOS-Installation)
 
@@ -68,51 +78,47 @@ Attack Range supports different actions:
 - Resume Attack Range
 - Dump Log Data from Attack Range
 
+### Configure Attack Range
+```
+python attack_range.py configure
+```
 
 ### Build Attack Range
-- Build Attack Range
 ```
 python attack_range.py build
 ```
 
 ### Show Attack Range Infrastructure
-- Show Attack Range Infrastructure
 ```
 python attack_range.py show
 ```
 
 ### Perform Attack Simulation
-- Perform Attack Simulation
 ```
-python attack_range.py simulate -st T1003.001 -t default-attack-range-windows-domain-controller
+python attack_range.py simulate -st T1003.001 -t ar-win-dc-default-username-33048
 ```
 
 ### Test with Attack Range
-- Automated testing of detection:
 ```
 python attack_range.py test -tf tests/T1003_001.yml
 ```
 
 ### Destroy Attack Range
-- Destroy Attack Range
 ```
 python attack_range.py destroy
 ```
 
 ### Stop Attack Range
-- Stop Attack Range
 ```
 python attack_range.py stop
 ```
 
 ### Resume Attack Range
-- Resume Attack Range
 ```
 python attack_range.py resume
 ```
 
 ### Dump Log Data from Attack Range
-- Dump Log Data from Attack Range
 ```
 python attack_range.py dump -dn data_dump
 ```
@@ -120,11 +126,14 @@ python attack_range.py dump -dn data_dump
 
 ### Replay Dumps into Attack Range Splunk Server
 - Replay previously saved dumps from Attack Range
+
 ```
 python attack_range.py replay -dn data_dump [--dump NAME_OF_DUMP]
 ```
+
 - default will dump all enabled dumps described in `attack_data/dumps.yml`
 - with optional argument `--dump` you can specify which dump to replay
+
 ```
 python attack_range.py replay -dn data_dump --dump windows_sec_events
 ```
@@ -135,18 +144,22 @@ python attack_range.py replay -dn data_dump --dump windows_sec_events
   * Preconfigured with multiple TAs for field extractions
   * Out of the box Splunk detections with Enterprise Security Content Update ([ESCU](https://splunkbase.splunk.com/app/3449/)) App
   * Preinstalled Machine Learning Toolkit ([MLTK](https://splunkbase.splunk.com/app/2890/))
+  * pre-indexed BOTS datasets
   * Splunk UI available through port 8000 with user admin
   * ssh connection over configured ssh key
+
 
 - [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/)
   * [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) is a premium security solution requiring a paid license.
   * Enable or disable [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) in [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
   * Purchase a license, download it and store it in the apps folder to use it.
 
+
 - [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html)
   * [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) is a Security Orchestration and Automation platform
   * For a free development license (100 actions per day) register [here](https://my.phantom.us/login/?next=/)
   * Enable or disable [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
+
 
 - [Windows Domain Controller & Window Server & Windows 10 Client](https://github.com/splunk/attack_range/wiki/Windows-Infrastructure)
   * Can be enabled, disabled and configured over [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
@@ -159,10 +172,12 @@ python attack_range.py replay -dn data_dump --dump windows_sec_events
   * Will be automatically installed on target during first execution of simulate
   * Atomic Red Team already uses the new Mitre sub-techniques
 
+
 - [Caldera](https://github.com/mitre/caldera)
   * Adversary Emulation with [Caldera](https://github.com/mitre/caldera)
   * Installed on the Splunk Server and available over port 8888 with user admin
   * Preinstalled Caldera agents on windows machines
+
 
 - [Kali Linux](https://www.kali.org/)
   * Preconfigured Kali Linux machine for penetration testing
@@ -174,8 +189,8 @@ Please use the [GitHub issue tracker](https://github.com/splunk/attack_range/iss
 
 If you have questions or need support, you can:
 
-* Post a question to [Splunk Answers](http://answers.splunk.com)
 * Join the [#security-research](https://splunk-usergroups.slack.com/archives/C1S5BEF38) room in the [Splunk Slack channel](http://splunk-usergroups.slack.com)
+* Post a question to [Splunk Answers](http://answers.splunk.com)
 * If you are a Splunk Enterprise customer with a valid support entitlement contract and have a Splunk-related question, you can also open a support case on the https://www.splunk.com/ support portal
 
 ## Contributing 🥰
