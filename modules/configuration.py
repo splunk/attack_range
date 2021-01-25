@@ -151,6 +151,7 @@ starting configuration for AT-ST mech walker
         },
     ]
     answers = prompt(questions)
+    aws_configured_region = ''
     if answers['cloud_provider'] == 'aws':
         aws_session = boto3.Session()
         if aws_session.region_name:
@@ -167,8 +168,12 @@ starting configuration for AT-ST mech walker
 
     print("> configuring attack_range settings")
     # get external IP for default suggestion on whitelist question
-    external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
+    try:
+        external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    except ValueError:
+        print("WARNING, unable to determine the public ip")
+        external_ip = ''
     # get the latest key generated
     keys = get_generated_keys()
     if len(keys) > 0:
