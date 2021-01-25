@@ -171,7 +171,7 @@ starting configuration for AT-ST mech walker
 
     try:
         external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
-    except ValueError:
+    except:
         print("WARNING, unable to determine the public ip")
         external_ip = ''
     # get the latest key generated
