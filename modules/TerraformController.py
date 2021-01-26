@@ -28,13 +28,18 @@ class TerraformController(IEnvironmentController):
             self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/aws/state', statefile)
         elif self.config['cloud_provider'] == 'azure':
             self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/azure/state', statefile)
+
+        self.config['splunk_es_app_version'] = re.findall(r'\d+', self.config['splunk_es_app'])[0]
+
         custom_dict = self.config.copy()
         variables = dict()
         variables['config'] = custom_dict
+
         if self.config['cloud_provider'] == 'aws':
             self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/aws'),variables=variables, parallelism=15 ,state=config["statepath"])
         elif self.config['cloud_provider'] == 'azure':
             self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/azure'),variables=variables, parallelism=15 ,state=config["statepath"])
+
 
 
     def build(self):
@@ -116,7 +121,7 @@ class TerraformController(IEnvironmentController):
                 results_baselines = []
                 for baseline_obj in test['baselines']:
                     baseline_file_name = baseline_obj['file']
-                    baseline = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/' + baseline_file_name))
+                    baseline = self.load_file(os.path.join(os.path.dirname(__file__), '../../security_content/' + baseline_file_name))
                     result_obj = dict()
                     result_obj['baseline'] = baseline_obj['name']
                     result_obj['baseline_file'] = baseline_obj['file']
@@ -136,7 +141,7 @@ class TerraformController(IEnvironmentController):
                 result_test['baselines_result'] = results_baselines
 
             detection_file_name = test['file']
-            detection = self.load_file(os.path.join(os.path.dirname(__file__), '../../security-content/detections/' + detection_file_name))
+            detection = self.load_file(os.path.join(os.path.dirname(__file__), '../../security_content/detections/' + detection_file_name))
             if self.config['cloud_provider'] == 'aws':
                 instance = aws_service.get_instance_by_name(
                     'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)

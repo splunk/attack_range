@@ -7,7 +7,7 @@
     source: XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
     sourcetype: xmlwineventlog
     index: test
-  enabled: True
+  enabled: False
 
 - name: windows_security_events
   dump_parameters:
@@ -19,7 +19,7 @@
     sourcetype: WinEventLog
     index: test
     update_timestamp: True
-  enabled: True
+  enabled: False
 
 - name: windows_system_events
   dump_parameters:
@@ -31,7 +31,7 @@
     sourcetype: WinEventLog
     index: test
     update_timestamp: True
-  enabled: True
+  enabled: False
 
 - name: powershell_events
   dump_parameters:
@@ -42,7 +42,7 @@
     source: WinEventLog:Microsoft-Windows-PowerShell/Operational
     sourcetype: wineventlog
     index: test
-  enabled: True
+  enabled: False
 
 - name: stream_http_events
   dump_parameters:
@@ -59,7 +59,7 @@
   dump_parameters:
     out: aws_cloudtrail_events.json
     search: 'index=main sourcetype=aws:cloudtrail'
-    time: -60d
+    time: -24h
   replay_parameters:
     source: aws_cloudtrail
     sourcetype: aws:cloudtrail
@@ -71,10 +71,22 @@
   dump_parameters:
     out: o365_events.json
     search: 'index=main sourcetype=o365:management:activity'
-    time: -60d
+    time: -24h
   replay_parameters:
     source: o365
     sourcetype: o365:management:activity
     index: test
     update_timestamp: False
-  enabled: True
+  enabled: False
+
+- name: kubernetes_events
+  dump_parameters:
+    out: kubernetes_events.json
+    search: 'index=main sourcetype=kube*'
+    time: -24h
+  replay_parameters:
+    source: kubernetes
+    sourcetype: kubernetes
+    index: test
+    update_timestamp: False
+  enabled: False

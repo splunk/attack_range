@@ -178,7 +178,7 @@ phantom_app = phantom-app-for-splunk_305.tgz
 splunk_uf_win_url = https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi
 # Specify the download URL of the Splunk windows universal forwarder
 
-win_sysmon_url = https://download.sysinternals.com/files/Sysmon.zip
+win_sysmon_url = https://attack-range-appbinaries.s3-us-west-2.amazonaws.com/Sysmon.zip
 # Specify the download URL of sysmon
 
 win_sysmon_template = AttackRangeSysmon.xml
@@ -199,7 +199,7 @@ install_es = 0
 # After installing ES, Splunk is available under https://[ip]:8000
 # possible values: 1, 0
 
-splunk_es_app = splunk-enterprise-security_620.spl
+splunk_es_app = splunk-enterprise-security_640.spl
 # Spefify the name of the Splunk Enterprise Security file, which you saved into the apps folder.
 
 
@@ -207,7 +207,7 @@ splunk_es_app = splunk-enterprise-security_620.spl
 update_escu_app = 0
 # update the ESCU app with a local security content version
 
-security_content_path = ../security-content
+security_content_path = ../security_content
 # path to local security content project
 
 

@@ -104,9 +104,31 @@ jobs:
             source venv/bin/activate
             python attack_range.py destroy
           when: on_fail
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - run:
+          name: checkout repo
+          command: |
+            if [[ ! -z "${CIRCLE_PULL_REQUEST}" &&  ! -z "${CIRCLE_PR_NUMBER}" ]]; then
+                git clone https://${GITHUB_TOKEN}@github.com/splunk/attack_range.git
+                cd attack_range
+                git fetch origin pull/${CIRCLE_PR_NUMBER}/head:${CIRCLE_BRANCH}
+                git checkout ${CIRCLE_BRANCH}
+            elif [ "${CIRCLE_BRANCH}" == "" ]; then
+                git clone https://${GITHUB_TOKEN}@github.com/splunk/attack_range.git
+            else
+                git clone --branch ${CIRCLE_BRANCH} https://${GITHUB_TOKEN}@github.com/splunk/attack_range.git
+            fi
+      - run:
+          name: publish release on github
+          command: |
+            tar -zcvf attack_range-${CIRCLE_TAG}.tar.gz attack_range
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} attack_range-${CIRCLE_TAG}.tar.gz
 workflows:
   version: 2.1
-  build-attack-destroy:
+  nightly-build-attack-destroy:
     triggers:
       - schedule:
           cron: "15 13 * * *"
@@ -116,3 +138,20 @@ workflows:
                 - develop
     jobs:
       - terraform-build-attack-destroy
+  release-build-attack-destroy:
+    jobs:
+      - terraform-build-attack-destroy:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - publish-github-release:
+        # publish release in github if is a tag
+          requires:
+            - terraform-build-attack-destroy
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/

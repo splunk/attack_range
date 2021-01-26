@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 from modules import logger
+from modules import configuration
 from pathlib import Path
 from modules.CustomConfigParser import CustomConfigParser
 from modules.TerraformController import TerraformController
@@ -65,6 +66,9 @@ starting program loaded for B1 battle droid
     return TerraformController(config, log), config, log
 
 
+def configure(args):
+    configuration.new(args.config)
+
 def show(args):
     controller, _, _ = init(args)
     if args.machines:
@@ -85,7 +89,6 @@ def simulate(args):
     if not simulation_atomics:
         simulation_atomics = 'no'
     return controller.simulate(target, simulation_techniques, simulation_atomics)
-
 
 def dump(args):
     controller, _, _ = init(args)
@@ -133,7 +136,7 @@ def main(args):
     parser.set_defaults(func=lambda _: parser.print_help())
 
     actions_parser = parser.add_subparsers(title="Attack Range actions", dest="action")
-
+    configure_parser = actions_parser.add_parser("configure", help="configure a new attack range")
     build_parser = actions_parser.add_parser("build", help="Builds attack range instances")
     simulate_parser = actions_parser.add_parser("simulate", help="Simulates attack techniques")
     destroy_parser = actions_parser.add_parser("destroy", help="destroy attack range instances")
@@ -155,6 +158,11 @@ def main(args):
 
     # Resume arguments
     resume_parser.set_defaults(func=resume)
+
+    # Configure arguments
+    configure_parser.add_argument("-c", "--config", required=False, type=str, default='attack_range.conf',
+                                    help="provide path to write configuration to")
+    configure_parser.set_defaults(func=configure)
 
     # Simulation arguments
     simulate_parser.add_argument("-t", "--target", required=True,
@@ -198,5 +206,3 @@ def main(args):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
-# rnfgre rtt ol C4G12VPX
