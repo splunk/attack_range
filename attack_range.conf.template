@@ -205,7 +205,7 @@ splunk_es_app = splunk-enterprise-security_640.spl
 update_escu_app = 0
 # update the ESCU app with a local security content version
 
-security_content_path = ../security-content
+security_content_path = ../security_content
 # path to local security content project
 
 
