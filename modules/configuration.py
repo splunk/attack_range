@@ -205,8 +205,13 @@ starting configuration for AT-ST mech walker
         configuration._sections['azure']['azure_subscription_id'] = 'xxxXXX'
 
     print("> configuring attack_range settings")
+
     # get external IP for default suggestion on whitelist question
-    external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    try:
+        external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    except ValueError:
+        print("WARNING, unable to determine the public ip")
+        external_ip = ''
 
     # get the latest key generated
     priv_key, pub_key  = get_generated_keys()
@@ -292,7 +297,6 @@ starting configuration for AT-ST mech walker
             'message': 'enter aws region to build in.',
             'name': 'region',
             'default': aws_configured_region,
-            'when': lambda  answers: configuration._sections['global']['cloud_provider'] == 'aws',
         },
         {
             # get whitelist
