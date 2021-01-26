@@ -2,7 +2,7 @@
 brew update
 brew install python awscli git
 pip3 install virtualenv
-curl -s https://releases.hashicorp.com/terraform/0.14.4/terraform_0.14.4_linux_amd64.zip -o terraform.zip
+curl -s https://releases.hashicorp.com/terraform/0.14.4/terraform_0.14.4_darwin_amd64.zip -o terraform.zip
 unzip terraform.zip
 sudo mv terraform /usr/local/bin/
 git clone https://github.com/splunk/attack_range && cd attack_range
