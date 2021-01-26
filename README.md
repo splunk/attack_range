@@ -1,9 +1,18 @@
+<p align="center">
+    <a href="https://github.com/splunk/attack_range/releases">
+        <img src="https://img.shields.io/github/v/release/splunk/attack_range" /></a>
+    <a href="https://circleci.com/gh/splunk/attack_range/tree/develop">
+        <img src="https://img.shields.io/circleci/build/github/splunk/attack_range?token=4ae763d7a7d21e86bb40a76797cab13cda402fba" /></a>
+    <a href="https://github.com/splunk/attack_range">
+        <img src="https://img.shields.io/github/downloads/splunk/attack_range/total" /></a>
+    <a href="https://github.com/splunk/attack_range/graphs/contributors" alt="Contributors">
+        <img src="https://img.shields.io/github/contributors/splunk/attack_range" /></a>
+    <a href="https://github.com/splunk/attack_range/stargazers">
+        <img src="https://img.shields.io/github/stars/splunk/attack_range?style=social" /></a>
+</p>
+
 # Splunk Attack Range ⚔️
 ![Attack Range Log](docs/attack_range.png)
-
-| branch | build status |
-| ---    | ---          |
-| develop| [![develop status](https://circleci.com/gh/splunk/attack_range/tree/develop.svg?style=svg&circle-token=67ad1fa7779c57d7e5bcfc42bd617baf607ec269)](https://circleci.com/gh/splunk/attack_range/tree/develop)|
 
 ## Purpose 🛡
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering. First, the user is able to build quickly a small lab infrastructure as close as possible to a production environment. Second, the Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. Third, it integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
