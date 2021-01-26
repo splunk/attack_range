@@ -2,7 +2,7 @@
     <a href="https://github.com/splunk/attack_range/releases">
         <img src="https://img.shields.io/github/v/release/splunk/attack_range" /></a>
     <a href="https://circleci.com/gh/splunk/attack_range/tree/develop">
-        <img src="https://img.shields.io/circleci/build/github/splunk/attack_range?token=4ae763d7a7d21e86bb40a76797cab13cda402fba" /></a>a>
+        <img src="https://img.shields.io/circleci/build/github/splunk/attack_range?token=4ae763d7a7d21e86bb40a76797cab13cda402fba" /></a>
     <a href="https://github.com/splunk/attack_range">
         <img src="https://img.shields.io/github/downloads/splunk/attack_range/total" /></a>
     <a href="https://github.com/splunk/attack_range/graphs/contributors" alt="Contributors">
@@ -10,6 +10,7 @@
     <a href="https://github.com/splunk/attack_range/stargazers">
         <img src="https://img.shields.io/github/stars/splunk/attack_range?style=social" /></a>
 </p>
+
 # Splunk Attack Range ⚔️
 ![Attack Range Log](docs/attack_range.png)
 
