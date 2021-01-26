@@ -294,7 +294,7 @@ starting configuration for AT-ST mech walker
         {
             # get region
             'type': 'input',
-            'message': 'enter aws region to build in.',
+            'message': 'enter region to build in.',
             'name': 'region',
             'default': aws_configured_region,
         },
@@ -316,6 +316,7 @@ starting configuration for AT-ST mech walker
     ]
 
     answers = prompt(questions)
+    # manage keys first
     if 'key_name' in answers:
         configuration._sections['range_settings']['key_name'] = answers['key_name']
     else:
@@ -326,10 +327,14 @@ starting configuration for AT-ST mech walker
         print("> using ssh private key: {}".format(configuration._sections['range_settings']['private_key_path']))
     if 'public_key_path' in answers:
         configuration._sections['range_settings']['public_key_path'] = answers['public_key_path']
+    else:
+        print("> using ssh public key: {}".format(configuration._sections['range_settings']['public_key_path']))
+    # get region
     if 'region' in answers:
         configuration._sections['range_settings']['region'] = answers['region']
     else:
         configuration._sections['range_settings']['region'] = 'us-west-2'
+    # rest of configs
     configuration._sections['range_settings']['ip_whitelist'] = answers['ip_whitelist']
     configuration._sections['range_settings']['range_name'] = answers['range_name']
 
@@ -398,7 +403,8 @@ starting configuration for AT-ST mech walker
         configuration._sections['environment']['windows_domain_controller'] = enabled(answers['windows_domain_controller'])
     else:
         configuration._sections['environment']['windows_domain_controller'] = enabled(answers['windows_domain_controller'])
-        configuration._sections['environment']['windows_client_join_domain'] = 0
+        configuration._sections['windows_server']['windows_server_join_domain'] = 0
+        configuration._sections['windows_client']['windows_client_join_domain'] = 0
 
     configuration._sections['environment']['windows_server'] = enabled(answers['windows_server'])
     configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
