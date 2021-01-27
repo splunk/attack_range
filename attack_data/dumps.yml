@@ -90,3 +90,15 @@
     index: test
     update_timestamp: False
   enabled: False
+
+- name: security_hub_events
+  dump_parameters:
+    out: security_hub_events.json
+    search: 'index=main sourcetype=aws:securityhub:finding'
+    time: -24h
+  replay_parameters:
+    source: aws_securityhub_finding
+    sourcetype: aws:securityhub:finding
+    index: test
+    update_timestamp: False
+  enabled: True
