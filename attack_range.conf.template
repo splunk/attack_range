@@ -106,8 +106,12 @@ splunk_zeek_ta = splunk-add-on-for-zeek-aka-bro_400.tgz
 # Specify the Splunk Zeek TA
 
 splunk_kinesis_ta = splunk-add-on-for-amazon-kinesis-firehose_131r7d1d093.tgz
+# Specify the Splunk Kinesis TA
 
 splunk_office_365_ta = splunk-add-on-for-microsoft-office-365_202.tgz
+# Specify the Office 365 TA
+
+splunk_linux_ta = splunk-add-on-for-unix-and-linux_820.tgz
 
 punchard_custom_visualization = punchcard-custom-visualization_140.tgz
 
