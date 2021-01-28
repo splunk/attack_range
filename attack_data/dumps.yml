@@ -91,19 +91,7 @@
     update_timestamp: False
   enabled: False
 
-  - name: linux_package_data
-  dump_parameters:
-    out: linux_package_data.json
-    search: 'index=main sourcetype=package'
-    time: -24h
-  replay_parameters:
-    source: linux_package_data
-    sourcetype: package
-    index: test
-    update_timestamp: False
-  enabled: False
-
-  - name: security_hub_finding
+- name: security_hub_finding
   dump_parameters:
     out: security_hub_finding.json
     search: 'index=main sourcetype=aws:securityhub:finding'
