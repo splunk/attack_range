@@ -7,7 +7,7 @@
     source: XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
     sourcetype: xmlwineventlog
     index: test
-  enabled: False
+  enabled: True
 
 - name: windows_security_events
   dump_parameters:
@@ -19,7 +19,7 @@
     sourcetype: WinEventLog
     index: test
     update_timestamp: True
-  enabled: False
+  enabled: True
 
 - name: windows_system_events
   dump_parameters:
