@@ -62,7 +62,7 @@ The virtualized deployment of Attack Range consists of:
 
 Which can be added/removed/configured using [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template). More machines such as Phantom, Linux server, Linux client, MacOS clients are currently under development.
 
-An approxiamte **cost estimate** for running attack_range on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates).
+An approximate **cost estimate** for running attack_range on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates).
 
 #### Logging
 The following log sources are collected from the machines:
@@ -155,18 +155,15 @@ python attack_range.py replay -dn data_dump --dump windows_sec_events
   * Splunk UI available through port 8000 with user admin
   * ssh connection over configured ssh key
 
-
 - [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/)
   * [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) is a premium security solution requiring a paid license.
   * Enable or disable [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) in [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
   * Purchase a license, download it and store it in the apps folder to use it.
 
-
 - [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html)
   * [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) is a Security Orchestration and Automation platform
   * For a free development license (100 actions per day) register [here](https://my.phantom.us/login/?next=/)
   * Enable or disable [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
-
 
 - [Windows Domain Controller & Window Server & Windows 10 Client](https://github.com/splunk/attack_range/wiki/Windows-Infrastructure)
   * Can be enabled, disabled and configured over [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
@@ -179,12 +176,10 @@ python attack_range.py replay -dn data_dump --dump windows_sec_events
   * Will be automatically installed on target during first execution of simulate
   * Atomic Red Team already uses the new Mitre sub-techniques
 
-
 - [Caldera](https://github.com/mitre/caldera)
   * Adversary Emulation with [Caldera](https://github.com/mitre/caldera)
   * Installed on the Splunk Server and available over port 8888 with user admin
   * Preinstalled Caldera agents on windows machines
-
 
 - [Kali Linux](https://www.kali.org/)
   * Preconfigured Kali Linux machine for penetration testing
