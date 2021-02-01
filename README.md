@@ -3,8 +3,6 @@
         <img src="https://img.shields.io/github/v/release/splunk/attack_range" /></a>
     <a href="https://circleci.com/gh/splunk/attack_range/tree/develop">
         <img src="https://img.shields.io/circleci/build/github/splunk/attack_range?token=4ae763d7a7d21e86bb40a76797cab13cda402fba" /></a>
-    <a href="https://github.com/splunk/attack_range">
-        <img src="https://img.shields.io/github/downloads/splunk/attack_range/total" /></a>
     <a href="https://github.com/splunk/attack_range/graphs/contributors" alt="Contributors">
         <img src="https://img.shields.io/github/contributors/splunk/attack_range" /></a>
     <a href="https://github.com/splunk/attack_range/stargazers">
@@ -41,7 +39,7 @@ Attack Range can be built in three different ways:
 
 ### [AWS and MacOS](https://github.com/splunk/attack_range/wiki/AWS:-MacOS-Installation)
 
-1. `source <(curl -s 'https://raw.githubusercontent.com/splunk/attack_range/develop/scripts/macos_deploy.sh')`
+1. `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/splunk/attack_range/develop/scripts/macos_deploy.sh)" && cd attack_range && source venv/bin/activate`
 2. `aws configure`
 3. `python attack_range.py configure`
 
