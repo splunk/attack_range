@@ -72,7 +72,7 @@ splunk_binary = splunk-8.0.5-a1a6394cc5ae-Linux-x86_64.tgz
 s3_bucket_url = https://attack-range-appbinaries.s3-us-west-2.amazonaws.com
 # Specify the S3 bucket url from which you want to download the Splunk Apps
 
-splunk_windows_ta = splunk-add-on-for-microsoft-windows_800.tgz
+splunk_windows_ta = splunk-add-on-for-microsoft-windows_811.tgz
 # Specify the Splunk Windows TA
 
 splunk_sysmon_ta = splunk-add-on-for-microsoft-sysmon_1062.tgz
@@ -96,10 +96,16 @@ splunk_python_app = python-for-scientific-computing-for-linux-64-bit_200.tgz
 splunk_mltk_app = splunk-machine-learning-toolkit_510.tgz
 # Specify the Splunk MLTK App
 
-splunk_stream_app = splunk-stream_720.tgz
+splunk_stream_app = splunk-app-for-stream_730.tgz
 # Specify the Splunk Stream App
 
-splunk_security_essentials_app = splunk-security-essentials_312.tgz
+splunk_ta_wire_data = splunk-add-on-for-stream-wire-data_730.tgz
+# Specify the Splunk TA wire data
+
+splunk_ta_stream = splunk-add-on-for-stream-forwarders_730.tgz
+# Specify the Splunk TA stream
+
+splunk_security_essentials_app = splunk-security-essentials_330.tgz
 # Specify the Splunk SSE App
 
 splunk_zeek_ta = splunk-add-on-for-zeek-aka-bro_400.tgz
@@ -175,7 +181,7 @@ phantom_community_password = password
 # This must be changed to a real password
 # You can register under my.phantom.us
 
-phantom_app = phantom-app-for-splunk_305.tgz
+phantom_app = phantom-app-for-splunk_4035.tgz
 
 
 [windows_settings]

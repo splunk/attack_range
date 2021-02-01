@@ -1,12 +1,12 @@
 - name: Check if stream app exists
   stat:
-    path: /opt/splunk/etc/apps/Splunk_TA_stream
+    path: /opt/splunk/etc/apps/splunk_app_stream
   register: stream_app
 
 - name: download Stream app from S3 bucket
   get_url:
     url: '{{ s3_bucket_url }}/{{ splunk_stream_app }}'
-    dest: /tmp/splunk-stream_720.tgz
+    dest: /tmp/splunk-app-for-stream_730.tgz
     timeout: 30
   when: stream_app.stat.exists == False
 
@@ -17,15 +17,79 @@
     user: "admin"
     password: "{{ splunk_admin_password }}"
     validate_certs: false
-    body: "name=/tmp/splunk-stream_720.tgz&update=true&filename=true"
+    body: "name=/tmp/splunk-app-for-stream_730.tgz&update=true&filename=true"
     headers:
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
     timeout: 90
   when: stream_app.stat.exists == False
-  notify: restart splunk
 
-# app installation may still be in progress
+
+- name: Check if Splunk TA wire data exists
+  stat:
+    path: /opt/splunk/etc/apps/Splunk_app_stream
+  register: stream_app_2
+
+- name: download Stream app from S3 bucket
+  get_url:
+    url: '{{ s3_bucket_url }}/{{ splunk_ta_wire_data }}'
+    dest: /tmp/splunk-add-on-for-stream-wire-data_730.tgz
+    timeout: 30
+  when: stream_app_2.stat.exists == False
+
+- name: Install stream app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/splunk-add-on-for-stream-wire-data_730.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 90
+  when: stream_app_2.stat.exists == False
+
+
+- name: Check if Splunk Stream Forwarder exists
+  stat:
+    path: /opt/splunk/etc/apps/Splunk_TA_stream
+  register: stream_app_3
+
+- name: download Stream app from S3 bucket
+  get_url:
+    url: '{{ s3_bucket_url }}/{{ splunk_ta_stream }}'
+    dest: /tmp/splunk-add-on-for-stream-forwarders_730.tgz
+    timeout: 30
+  when: stream_app_3.stat.exists == False
+
+- name: Install Splunk Stream Forwarder via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ splunk_admin_password }}"
+    validate_certs: false
+    body: "name=/tmp/splunk-add-on-for-stream-forwarders_730.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 90
+  when: stream_app_3.stat.exists == False
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes
+
+- name: Copy new inputs.conf for stream configuration
+  copy:
+    src: inputs_stream.conf
+    dest: /opt/splunk/etc/apps/Splunk_TA_stream/local/inputs.conf
+    owner: splunk
+    group: splunk
+
+# # app installation may still be in progress
 - name: Wait for set_permissions.sh to exist
   wait_for:
     path: /opt/splunk/etc/apps/Splunk_TA_stream/set_permissions.sh
@@ -37,7 +101,7 @@
     group: root
     mode: '0700'
 
-# Script to set NIC to promiscuous mode: https://docs.splunk.com/Documentation/StreamApp/7.2.0/DeployStreamApp/InstallSplunkAppforStream#Set_Splunk_TA_stream_permissions
+# # # Script to set NIC to promiscuous mode: https://docs.splunk.com/Documentation/StreamApp/7.2.0/DeployStreamApp/InstallSplunkAppforStream#Set_Splunk_TA_stream_permissions
 - name: Change the working directory to cd /opt/splunk/etc/apps/Splunk_TA_stream/ before setting write permissions.
   shell: ./set_permissions.sh
   args:
@@ -46,10 +110,19 @@
   become_user: root
   become_method: sudo
 
-# app installation may still be in progress
-- name: Wait for inputs.conf to exist
-  wait_for:
-    path: /opt/splunk/etc/deployment-apps/Splunk_TA_stream/local/inputs.conf
+- name: Copy Splunk_TA_stream
+  copy:
+    src: /opt/splunk/etc/apps/Splunk_TA_stream
+    dest: /opt/splunk/etc/deployment-apps
+    owner: splunk
+    group: splunk
+    remote_src: yes
+    directory_mode: yes
+
+- name: Create local folder
+  file:
+    path: /opt/splunk/etc/deployment-apps/Splunk_TA_stream/local
+    state: directory
 
 - name: Copy new inputs.conf configuration
   template:
