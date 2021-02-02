@@ -744,11 +744,32 @@
 		<!--ADDITIONAL REFERENCE: [ https://blog.cobaltstrike.com/2015/10/07/named-pipe-pivoting/ ] -->
 
 		<!--DATA: UtcTime, ProcessGuid, ProcessId, PipeName, Image-->
-	<RuleGroup name="" groupRelation="or">
-		<PipeEvent onmatch="exclude">
-			<!--NOTE: Using incide with no rules means nothing in this section will be logged-->
-		</PipeEvent>
-	</RuleGroup>
+        <RuleGroup name="Exclude Filters for Named Pipes" groupRelation="or">
+            <PipeEvent onmatch="exclude">
+                <!-- Filter out known good named pipes -->
+                <Rule groupRelation="or">
+                    <!-- OS Pipes-->
+                    <PipeName condition="is">\ntapvsrq</PipeName>
+                    <PipeName condition="is">\srvsvc</PipeName>
+                    <PipeName condition="is">\wkssvc</PipeName>
+                    <PipeName condition="is">\lsass</PipeName>
+                    <PipeName condition="is">\winreg</PipeName>
+                    <PipeName condition="is">\spoolss</PipeName>
+                    <PipeName condition="contains">Anonymous Pipe</PipeName>
+                    <Image condition="is">c:\windows\system32\inetsrv\w3wp.exe</Image>
+
+                    <!-- MSSQL Named Pipes-->
+                    <PipeName condition="is">\SQLLocal\MSSQLSERVER</PipeName>
+                    <PipeName condition="is">\SQLLocal\INSTANCE01</PipeName>
+                    <PipeName condition="is">\SQLLocal\SQLEXPRESS</PipeName>
+                    <PipeName condition="is">\SQLLocal\COMMVAULT</PipeName>
+                    <PipeName condition="is">\SQLLocal\RTCLOCAL</PipeName>
+                    <PipeName condition="is">\SQLLocal\RTC</PipeName>
+                    <PipeName condition="is">\SQLLocal\TMSM</PipeName>
+                    <Image condition="is">Program Files (x86)\Microsoft SQL Server\110\DTS\binn\dtexec.exe</Image>
+                </Rule>
+            </PipeEvent>
+        </RuleGroup>
 
 	<!--SYSMON EVENT ID 19 & 20 & 21 : WMI EVENT MONITORING [WmiEvent]-->
 		<!--EVENT 19: "WmiEventFilter activity detected"-->
