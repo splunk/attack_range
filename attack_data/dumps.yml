@@ -31,7 +31,7 @@
     sourcetype: WinEventLog
     index: test
     update_timestamp: True
-  enabled: False
+  enabled: True
 
 - name: powershell_events
   dump_parameters:
@@ -42,7 +42,7 @@
     source: WinEventLog:Microsoft-Windows-PowerShell/Operational
     sourcetype: wineventlog
     index: test
-  enabled: False
+  enabled: True
 
 - name: stream_http_events
   dump_parameters:
@@ -78,6 +78,18 @@
     index: test
     update_timestamp: False
   enabled: False
+
+- name: o365_exchange_events
+  dump_parameters:
+    out: o365_exchange_events.json
+    search: 'index=main sourcetype=o365:management:activity'
+    time: -24h
+  replay_parameters:
+    source: exchange
+    sourcetype: o365:management:activity
+    index: test
+    update_timestamp: True
+  enabled: True
 
 - name: kubernetes_events
   dump_parameters:
