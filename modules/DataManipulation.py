@@ -19,6 +19,36 @@ class DataManipulation:
         if source == 'WinEventLog:System' or source == 'WinEventLog:Security':
             self.manipulate_timestamp_windows_event_log_raw(file_path, logger)
 
+        if source == 'exchange':
+            self.manipulate_timestamp_exchange_logs(file_path, logger)
+
+
+    def manipulate_timestamp_exchange_logs(self, file_path, logger):
+        path =  os.path.join(os.path.dirname(__file__), '../attack_data/' + file_path)
+        path =  path.replace('modules/../','')
+
+        f = io.open(path, "r", encoding="utf-8")
+
+        first_line = f.readline()
+        d = json.loads(first_line)
+        latest_event  = datetime.strptime(d["CreationTime"],"%Y-%m-%dT%H:%M:%S")
+
+        now = datetime.now()
+        now = now.strftime("%Y-%m-%dT%H:%M:%S")
+        now = datetime.strptime(now,"%Y-%m-%dT%H:%M:%S")
+
+        difference = now - latest_event
+        f.close()
+
+        for line in fileinput.input(path, inplace=True):
+            d = json.loads(line)
+            original_time = datetime.strptime(d["CreationTime"],"%Y-%m-%dT%H:%M:%S")
+            new_time = (difference + original_time)
+
+            original_time = original_time.strftime("%Y-%m-%dT%H:%M:%S")
+            new_time = new_time.strftime("%Y-%m-%dT%H:%M:%S")
+            print (line.replace(original_time, new_time),end ='')
+
 
     def manipulate_timestamp_windows_event_log_raw(self, file_path, logger):
         path =  os.path.join(os.path.dirname(__file__), '../attack_data/' + file_path)
