@@ -39,12 +39,15 @@ Attack Range can be built in three different ways:
 
 ### [AWS and MacOS](https://github.com/splunk/attack_range/wiki/AWS:-MacOS-Installation)
 
-1. `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/splunk/attack_range/develop/scripts/macos_deploy.sh)" && cd attack_range && source venv/bin/activate`
+1. `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/splunk/attack_range/develop/scripts/macos_deploy_aws.sh)" && cd attack_range && source venv/bin/activate`
 2. `aws configure`
 3. `python attack_range.py configure`
 
 
 ### [Azure and MacOS](https://github.com/splunk/attack_range/wiki/Azure:-MacOS-Installation)
+1. `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/splunk/attack_range/develop/scripts/macos_deploy_azure.sh)" && cd attack_range && source venv/bin/activate`
+2. `az login`
+3. `python attack_range.py configure`
 
 
 ## Architecture 🏯
