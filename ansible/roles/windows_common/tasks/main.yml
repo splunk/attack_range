@@ -5,3 +5,8 @@
 - include: windows-enable-4688-cmd-line-audit.yml
 - include: windows-security-configure-logging.yml
 - include: install_firefox.yml
+- include: install_notepadplusplus.yml
+- include: install_git.yml
+- include: install_7zip.yml
+- include: install_sysinternals.yml
+

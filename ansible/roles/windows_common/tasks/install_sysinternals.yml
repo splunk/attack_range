@@ -1,0 +1,5 @@
+---
+
+- name: install sysinternals
+  win_chocolatey:
+    name: sysinternals
