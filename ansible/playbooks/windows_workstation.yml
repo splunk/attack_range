@@ -11,3 +11,4 @@
     - windows_universal_forwarder
     - windows_caldera_agent
     - sysmon
+    - red_team_tools
