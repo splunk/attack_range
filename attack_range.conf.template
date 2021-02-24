@@ -232,6 +232,10 @@ art_repository = splunk
 art_branch =  local-master
 # Specify new branch of the Atomic Red Team repository, which you want to use.
 
+install_red_team_tools = 0
+# Specify whether to install multiple red team tools for simulating threats.
+# possible values: 1, 0
+
 [environment]
 # specify your Attack Range environment by enabling (1) or disabling (0) machines
 
