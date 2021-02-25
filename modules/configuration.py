@@ -342,37 +342,37 @@ starting configuration for AT-ST mech walker
     questions = [
         {
             'type': 'confirm',
-            'message': 'should we build a windows domain controller',
+            'message': 'shall we build a windows domain controller',
             'name': 'windows_domain_controller',
             'default': True,
         },
         {
             'type': 'confirm',
-            'message': 'should we build a windows server',
+            'message': 'shall we build a windows server',
             'name': 'windows_server',
             'default': False,
         },
         {
             'type': 'confirm',
-            'message': 'should we build a windows client',
+            'message': 'shall we build a windows client',
             'name': 'windows_client',
             'default': False,
         },
         {
             'type': 'confirm',
-            'message': 'should we build a kali linux machine for ad-hoc testing',
+            'message': 'shall we build a kali linux machine for ad-hoc testing',
             'name': 'kali_machine',
             'default': False,
         },
         {
             'type': 'confirm',
-            'message': 'should we build zeek sensors',
+            'message': 'shall we build zeek sensors',
             'name': 'zeek_sensor',
             'default': False,
         },
         {
             'type': 'confirm',
-            'message': 'should we build a phantom server',
+            'message': 'shall we build a phantom server',
             'name': 'phantom_server',
             'default': False,
         },
