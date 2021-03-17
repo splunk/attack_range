@@ -137,13 +137,27 @@ jobs:
       - run:
           name: Build docker image
           command: docker build -t $IMAGE_NAME:latest docker/
+      - run:
+          name: Archive docker image
+          command: docker save -o attack_range.tar $IMAGE_NAME
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - ./attack_range.tar
+
+
   publish-docker-image:
     environment: 
       IMAGE_NAME: splunkresearch/attack_range
     docker:
       - image: circleci/buildpack-deps:stretch
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - setup_remote_docker
+      - run: 
+          name: Load archived image
+          command: docker load -i /tmp/workspace/atttack_range.tar
       - run:
           name: Publish Attack Range Docker Image 
           command: |
