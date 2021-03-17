@@ -157,7 +157,7 @@ jobs:
       - setup_remote_docker
       - run: 
           name: Load archived image
-          command: docker load -i /tmp/workspace/atttack_range.tar
+          command: docker load -i /tmp/workspace/attack_range.tar
       - run:
           name: Publish Attack Range Docker Image 
           command: |
