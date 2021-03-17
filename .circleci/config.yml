@@ -23,6 +23,12 @@ executors:
       - image: circleci/python:latest
     working_directory: ~/repo
 
+  docker-publisher-executor:
+    environment:
+      IMAGE_NAME: splunkresearch/attack_range
+    docker:
+      - image: circleci/buildpack-deps:stretch
+
 jobs:
   terraform-build-attack-destroy:
     executor: content-executor
@@ -127,10 +133,7 @@ jobs:
             tar -zcvf attack_range-${CIRCLE_TAG}.tar.gz attack_range
             ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} attack_range-${CIRCLE_TAG}.tar.gz
   build-docker-image:
-    environment:
-      IMAGE_NAME: splunkresearch/attack_range
-    docker:
-      - image: circleci/buildpack-deps:stretch
+    executor: docker-publisher-executor
     steps:
       - checkout
       - setup_remote_docker
@@ -147,10 +150,7 @@ jobs:
 
 
   publish-docker-image:
-    environment: 
-      IMAGE_NAME: splunkresearch/attack_range
-    docker:
-      - image: circleci/buildpack-deps:stretch
+    executor: docker-publisher-executor
     steps:
       - attach_workspace:
           at: /tmp/workspace

@@ -218,3 +218,4 @@ We welcome feedback and contributions from the community! Please see our [contri
 * Peter Gael
 * Josef Kuepker
 * Shannon Davis
+* [Mauricio Velazco](https://twitter.com/mvelazco)
