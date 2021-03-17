@@ -141,7 +141,7 @@ jobs:
   
 workflows:
   version: 2.1
-  nightly-build-attack-destroy:
+  #nightly-build-attack-destroy:
   #  triggers:
   #    - schedule:
   #        cron: "15 13 * * *"
