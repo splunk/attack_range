@@ -128,7 +128,7 @@ jobs:
             ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} attack_range-${CIRCLE_TAG}.tar.gz
   build-docker-image:
     environment:
-      IMAGE_NAME: mvelazco/attack_range
+      IMAGE_NAME: splunkresearch/attack_range
     docker:
       - image: circleci/buildpack-deps:stretch
     steps:
@@ -137,6 +137,20 @@ jobs:
       - run:
           name: Build docker image
           command: docker build -t $IMAGE_NAME:latest docker/
+  publish-docker-image:
+    environment: 
+      IMAGE_NAME: splunkresearch/attack_range
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - setup_remote_docker
+      - run:
+          name: Publish Attack Range Docker Image 
+          command: |
+            echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker push $IMAGE_NAME:latest
+
+
       
   
 workflows:
@@ -169,7 +183,11 @@ workflows:
   #            only: /^v.*/
   #          branches:
   #            ignore: /.*/
-  build-docker:
+  build-and-push-docker:
     jobs:
       - build-docker-image
+      - publish-docker-image:
+          requires:
+            - build-docker-image
+
    
