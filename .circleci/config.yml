@@ -135,8 +135,8 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-        name: Build docker image
-        command: docker build -t $IMAGE_NAME:latest docker/
+          name: Build docker image
+          command: docker build -t $IMAGE_NAME:latest docker/
       
   
 workflows:
