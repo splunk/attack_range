@@ -197,9 +197,19 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-      - build-docker-image
+      - build-docker-image:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - publish-docker-image:
           requires:
             - build-docker-image
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/  
 
    
