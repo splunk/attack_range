@@ -169,36 +169,34 @@ jobs:
   
 workflows:
   version: 2.1
-  #nightly-build-attack-destroy:
-  #  triggers:
-  #    - schedule:
-  #        cron: "15 13 * * *"
-  #        filters:
-  #          branches:
-  #            only:
-  #              - develop
-  #  jobs:
-  #    - terraform-build-attack-destroy
-
-  #release-build-attack-destroy:
-  #  jobs:
-  #    - terraform-build-attack-destroy:
-  #        filters:
-  #          tags:
-  #            only: /^v.*/
-  #          branches:
-  #            ignore: /.*/
-  #    - publish-github-release:
-        # publish release in github if is a tag
-  #        requires:
-  #          - terraform-build-attack-destroy
-  #        filters:
-  #          tags:
-  #            only: /^v.*/
-  #          branches:
-  #            ignore: /.*/
-  build-and-push-docker:
+  nightly-build-attack-destroy:
+    triggers:
+      - schedule:
+          cron: "15 13 * * *"
+          filters:
+            branches:
+              only:
+                - develop
     jobs:
+      - terraform-build-attack-destroy
+
+  release-build-attack-destroy:
+    jobs:
+      - terraform-build-attack-destroy:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - publish-github-release:
+        # publish release in github if is a tag
+          requires:
+            - terraform-build-attack-destroy
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - build-docker-image
       - publish-docker-image:
           requires:
