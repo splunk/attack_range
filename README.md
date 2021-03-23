@@ -33,8 +33,8 @@ Attack Range can be built in three different ways:
 
 ### [Using Docker](https://github.com/splunk/attack_range/wiki/Using-Docker)
 
-1. `docker pull splunk/attack_range`
-2. `docker run -it splunk/attack_range`
+1. `docker pull splunkresearch/attack_range`
+2. `docker run -it splunkresearch/attack_range`
 
 
 ### [AWS and Ubuntu 18.04](https://github.com/splunk/attack_range/wiki/AWS:-Ubuntu-18.04-Installation)
