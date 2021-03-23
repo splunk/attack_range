@@ -23,6 +23,12 @@ executors:
       - image: circleci/python:latest
     working_directory: ~/repo
 
+  docker-publisher-executor:
+    environment:
+      IMAGE_NAME: splunkresearch/attack_range
+    docker:
+      - image: circleci/buildpack-deps:stretch
+
 jobs:
   terraform-build-attack-destroy:
     executor: content-executor
@@ -126,6 +132,41 @@ jobs:
           command: |
             tar -zcvf attack_range-${CIRCLE_TAG}.tar.gz attack_range
             ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} attack_range-${CIRCLE_TAG}.tar.gz
+  build-docker-image:
+    executor: docker-publisher-executor
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build docker image
+          command: docker build -t $IMAGE_NAME:latest docker/
+      - run:
+          name: Archive docker image
+          command: docker save -o attack_range.tar $IMAGE_NAME
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - ./attack_range.tar
+
+
+  publish-docker-image:
+    executor: docker-publisher-executor
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      - run: 
+          name: Load archived image
+          command: docker load -i /tmp/workspace/attack_range.tar
+      - run:
+          name: Publish Attack Range Docker Image 
+          command: |
+            echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker push $IMAGE_NAME:latest
+
+
+      
+  
 workflows:
   version: 2.1
   nightly-build-attack-destroy:
@@ -138,6 +179,7 @@ workflows:
                 - develop
     jobs:
       - terraform-build-attack-destroy
+
   release-build-attack-destroy:
     jobs:
       - terraform-build-attack-destroy:
@@ -155,3 +197,19 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
+      - build-docker-image:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - publish-docker-image:
+          requires:
+            - build-docker-image
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/  
+
+   
