@@ -89,7 +89,7 @@
     sourcetype: o365:management:activity
     index: test
     update_timestamp: True
-  enabled: True
+  enabled: False
 
 - name: kubernetes_events
   dump_parameters:
