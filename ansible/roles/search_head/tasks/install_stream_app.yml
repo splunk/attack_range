@@ -83,8 +83,8 @@
   become: yes
 
 - name: Copy new inputs.conf for stream configuration
-  copy:
-    src: inputs_stream.conf
+  template:
+    src: inputs_stream.conf.j2
     dest: /opt/splunk/etc/apps/Splunk_TA_stream/local/inputs.conf
     owner: splunk
     group: splunk
