@@ -61,3 +61,10 @@ module "zeek_sensor" {
   windows_client_instance = module.windows-client.windows_client_instance
   config                 = var.config
 }
+
+module "osquery_machine" {
+  source			           = "./modules/osquery_machine"
+	vpc_security_group_ids = module.networkModule.sg_vpc_id
+	ec2_subnet_id          = module.networkModule.ec2_subnet_id
+  config                 = var.config
+}
