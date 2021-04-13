@@ -8,7 +8,7 @@
 
 - name: Upload ESCU APP
   copy:
-    src: ../../{{ security_content_path }}/package/
+    src: ../../{{ security_content_path }}/dist/
     dest: "/opt/splunk/etc/apps/DA-ESS-ContentUpdate"
     owner: splunk
     group: splunk
