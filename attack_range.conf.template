@@ -264,6 +264,9 @@ zeek_sensor = 0
 # enable a zeek zeek_sensor
 # possible values: 1, 0
 
+osquery_machine = 0
+# enable a osquery linux server
+# possible values: 1, 0
 
 [splunk_server]
 # customize the splunk server
@@ -356,3 +359,12 @@ splunk_uf_binary = splunkforwarder-8.0.5-a1a6394cc5ae-linux-2.6-amd64.deb
 zeek_sensor_private_ip = 10.0.1.18
 # specify the zeek sensor private ip
 # for mode terraform should be in subnet: 10.0.1.0/24
+
+[osquery_machine]
+# customize the osquery machine
+
+osquery_linux_private_ip = 10.0.1.19
+# specify the osquery linux server's private ip
+# Should be in subnet: 10.0.1.0/24
+
+osquery_custom_config_file = custom_osquery.conf
