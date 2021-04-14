@@ -62,8 +62,9 @@ We leverage [pre-commit hooks](.pre-commit-config.yaml) in our project to have s
 
 Here's an overview of how you can make a pull request against this project:
 
-1. Fork the [analytic\_story\_execution GitHub repository](https://github.com/splunk/attack_range/issues)
-2. Clone your fork using git and create a branch off of master
+1. Fill out the [Splunk Contribution Agreement](https://www.splunk.com/goto/contributions).
+2. Fork the [analytic\_story\_execution GitHub repository](https://github.com/splunk/attack_range/issues)
+3. Clone your fork using git and create a branch off of master
 
     ```
     $ git clone git@github.com:YOUR_GITHUB_USERNAME/attack_range.git
@@ -73,7 +74,7 @@ Here's an overview of how you can make a pull request against this project:
     $ git checkout -b your-bugfix-branch-name master
     ```
     
-3. Make your changes, commit, and push (once your tests have passed)
+4. Make your changes, commit, and push (once your tests have passed)
 
     ```
     $ cd attack_range
@@ -81,7 +82,7 @@ Here's an overview of how you can make a pull request against this project:
     $ git push 
     ```
     
-4. Submit a pull request through the GitHub website, using the changes from your forked codebase
+5. Submit a pull request through the GitHub website, using the changes from your forked codebase
 
 ##### Code Review
 There are two aspects of code review: giving and receiving.
