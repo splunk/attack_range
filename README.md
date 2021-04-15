@@ -225,3 +225,4 @@ We welcome feedback and contributions from the community! Please see our [contri
 * Josef Kuepker
 * Shannon Davis
 * [Mauricio Velazco](https://twitter.com/mvelazco)
+* [Teoderick Contreras](https://twitter.com/tccontre18)

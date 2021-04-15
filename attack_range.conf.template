@@ -195,7 +195,7 @@ win_sysmon_template = AttackRangeSysmon.xml
 # Specify the sysmon template
 # Possible Values: SysmonConfig-moti.xml, SysmonConfig-Neo23x0-server.xml, SysmonConfig-Neo23x0-workstations.xml, SysmonConfig-TSwift.xml, SysmonConfig-Verbose.xml, SysmonConfigCustom.xml
 
-win_4688_cmd_line = 0
+win_4688_cmd_line = 1
 # Enables cmd line logging of Windows Security Events 4688
 
 verbose_win_security_logging = 0
@@ -226,10 +226,10 @@ art_run_techniques = T1003.001
 # Specify the run technique of atomic_red_team
 # You can specify this value either over the command line or in this configuration file. Command line is prioritized over configuration file.
 
-art_repository = splunk
+art_repository = redcanaryco
 # Specify the Atomic Red Team repository fork, which you want to use.
 
-art_branch =  local-master
+art_branch =  master
 # Specify new branch of the Atomic Red Team repository, which you want to use.
 
 install_red_team_tools = 0

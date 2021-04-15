@@ -53,6 +53,13 @@ module "kali_machine" {
   config                 = var.config
 }
 
+module "osquery_machine" {
+  source			           = "./modules/osquery_machine"
+  rg_name                = module.networkModule.rg_name
+	subnet_id              = module.networkModule.subnet_id
+  config                 = var.config
+}
+
 # module "zeek_sensor" {
 #   source			           = "./modules/zeek_sensor"
 # 	vpc_security_group_ids = module.networkModule.sg_vpc_id
