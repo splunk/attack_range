@@ -195,7 +195,7 @@ win_sysmon_template = AttackRangeSysmon.xml
 # Specify the sysmon template
 # Possible Values: SysmonConfig-moti.xml, SysmonConfig-Neo23x0-server.xml, SysmonConfig-Neo23x0-workstations.xml, SysmonConfig-TSwift.xml, SysmonConfig-Verbose.xml, SysmonConfigCustom.xml
 
-win_4688_cmd_line = 0
+win_4688_cmd_line = 1
 # Enables cmd line logging of Windows Security Events 4688
 
 verbose_win_security_logging = 0
@@ -226,10 +226,10 @@ art_run_techniques = T1003.001
 # Specify the run technique of atomic_red_team
 # You can specify this value either over the command line or in this configuration file. Command line is prioritized over configuration file.
 
-art_repository = splunk
+art_repository = redcanaryco
 # Specify the Atomic Red Team repository fork, which you want to use.
 
-art_branch =  local-master
+art_branch =  master
 # Specify new branch of the Atomic Red Team repository, which you want to use.
 
 install_red_team_tools = 0
@@ -264,6 +264,9 @@ zeek_sensor = 0
 # enable a zeek zeek_sensor
 # possible values: 1, 0
 
+osquery_machine = 0
+# enable a osquery linux server
+# possible values: 1, 0
 
 [splunk_server]
 # customize the splunk server
@@ -356,3 +359,12 @@ splunk_uf_binary = splunkforwarder-8.0.5-a1a6394cc5ae-linux-2.6-amd64.deb
 zeek_sensor_private_ip = 10.0.1.18
 # specify the zeek sensor private ip
 # for mode terraform should be in subnet: 10.0.1.0/24
+
+[osquery_machine]
+# customize the osquery machine
+
+osquery_linux_private_ip = 10.0.1.19
+# specify the osquery linux server's private ip
+# Should be in subnet: 10.0.1.0/24
+
+osquery_custom_config_file = custom_osquery.conf

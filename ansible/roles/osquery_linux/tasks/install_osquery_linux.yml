@@ -1,0 +1,58 @@
+---
+# This playbook install the isquery in linux machine
+
+- name: drop the osquery_install.sh script /tmp
+  become: true
+  copy:
+    src: osquery_install.sh
+    dest: /tmp/osquery_install.sh 
+    mode: 0777
+
+- name: check if osquery service exist
+  stat: path=/etc/init.d/osqueryd
+  register: service_status 
+
+- name: is osquery service exist? if yes stop it!
+  become: true
+  service: 
+    name: osquery
+    state: stopped
+  when: service_status.stat.exists
+
+- name: run osquery_install.sh
+  become: true
+  command: sh /tmp/osquery_install.sh
+
+- name: clean the script
+  become: true
+  command: rm /tmp/osquery_install.sh
+
+- name: copy template.osquery.conf /etc/osquery/osquery.conf
+  become: true
+  copy:
+    src: template.osquery.conf
+    dest: /etc/osquery/osquery.conf 
+
+- name: copy custom osquery conf template as /usr/share/osquery/packs/attack-range.conf
+  become: true
+  copy: 
+    src: "{{ custom_osquery_conf }}" 
+    dest: /usr/share/osquery/packs/attack-range.conf
+
+- name: activate osqueryd service
+  become: true
+  service:
+    name: osqueryd
+    state: started
+
+- name: osqueryd service status check
+  become: true
+  command: systemctl status osqueryd
+  register: osq_service_status
+
+- name: osquery service status stdout
+  debug: msg="{{ osq_service_status.stdout }}"
+
+
+
+
