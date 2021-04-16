@@ -18,7 +18,7 @@ cloud_provider = aws
 # example_2: azure
 
 [aws]
-instance_type_ec2 = t2.2xlarge
+instance_type_ec2 = t3.2xlarge
 # instance type for the aws ec2 instances
 
 [azure]
