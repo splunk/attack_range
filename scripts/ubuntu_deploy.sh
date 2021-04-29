@@ -1,6 +1,6 @@
 #!/bin/bash
 sudo apt-get update
-sudo apt-get install -y python3-dev git unzip python3-pip awscli
+sudo apt-get install -y python3-dev git unzip python3-pip awscli curl
 pip3 install virtualenv
 curl -s https://releases.hashicorp.com/terraform/0.14.4/terraform_0.14.4_linux_amd64.zip -o terraform.zip
 unzip terraform.zip
