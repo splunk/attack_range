@@ -21,6 +21,9 @@ cloud_provider = aws
 instance_type_ec2 = t3.2xlarge
 # instance type for the aws ec2 instances
 
+use_elastic_ips = 1
+# define if you want to use AWS EIPs or not
+
 [azure]
 azure_subscription_id = xxx
 # only for cloud_provider azure

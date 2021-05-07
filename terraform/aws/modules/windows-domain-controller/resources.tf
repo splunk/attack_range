@@ -62,6 +62,6 @@ EOF
 }
 
 resource "aws_eip" "windows_server_ip" {
-  count    = var.config.windows_domain_controller == "1" ? 1 : 0
+  count    = var.config.windows_domain_controller == "1"  && var.config.use_elastic_ips == "1" ? 1 : 0
   instance = aws_instance.windows_domain_controller[0].id
 }
