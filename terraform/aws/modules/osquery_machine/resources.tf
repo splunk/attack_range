@@ -47,6 +47,6 @@ resource "aws_instance" "osquery_machine" {
 
 
 resource "aws_eip" "osquery_ip" {
-  count    = var.config.osquery_machine == "1" ? 1 : 0
+  count    = var.config.osquery_machine == "1" && var.config.use_elastic_ips == "1" ? 1 : 0
   instance = aws_instance.osquery_machine[0].id
 }
