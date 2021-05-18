@@ -52,5 +52,6 @@ resource "aws_instance" "splunk-server" {
 }
 
 resource "aws_eip" "splunk_ip" {
+  count    = var.config.use_elastic_ips == "1" ? 1 : 0
   instance = aws_instance.splunk-server.id
 }
