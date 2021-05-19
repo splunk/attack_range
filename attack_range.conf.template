@@ -75,13 +75,13 @@ splunk_binary = splunk-8.0.5-a1a6394cc5ae-Linux-x86_64.tgz
 s3_bucket_url = https://attack-range-appbinaries.s3-us-west-2.amazonaws.com
 # Specify the S3 bucket url from which you want to download the Splunk Apps
 
-splunk_windows_ta = splunk-add-on-for-microsoft-windows_811.tgz
+splunk_windows_ta = splunk-add-on-for-microsoft-windows_812.tgz
 # Specify the Splunk Windows TA
 
 splunk_sysmon_ta = splunk-add-on-for-microsoft-sysmon_1062.tgz
 # Specify the Splunk Sysmon TA
 
-splunk_cim_app = splunk-common-information-model-cim_4180.tgz
+splunk_cim_app = splunk-common-information-model-cim_4181.tgz
 # Specify the Splunk CIM App
 
 splunk_aws_ta = splunk-add-on-for-amazon-web-services_503.tgz
@@ -108,7 +108,7 @@ splunk_ta_wire_data = splunk-add-on-for-stream-wire-data_730.tgz
 splunk_ta_stream = splunk-add-on-for-stream-forwarders_730.tgz
 # Specify the Splunk TA stream
 
-splunk_security_essentials_app = splunk-security-essentials_330.tgz
+splunk_security_essentials_app = splunk-security-essentials_333.tgz
 # Specify the Splunk SSE App
 
 splunk_zeek_ta = splunk-add-on-for-zeek-aka-bro_400.tgz
