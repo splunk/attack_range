@@ -1,0 +1,16 @@
+#jinja2: trim_blocks:False
+[indexAndForward]
+index = true
+
+[tcpout]
+defaultGroup={%- if install_dsp -%}dsp{% endif %}
+indexAndForward = true
+
+{% if install_dsp %}
+[tcpout:dsp]
+server={% for ip in nodes -%}{{ip}}:9997{% if not loop.last -%},{% endif -%}{% endfor%}
+clientCert=/opt/splunk/etc/apps/dsp_outputs_app/client.pem
+sslVerifyServerCert=false
+useACK=true
+indexAndForward = true
+{% endif %}

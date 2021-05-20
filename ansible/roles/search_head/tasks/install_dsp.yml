@@ -1,0 +1,18 @@
+- name: Create folder directory for outputs configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - '/opt/splunk/etc/apps/dsp_outputs_app/local'
+
+- name: Copy dsp client certificate
+  copy:
+    src: '{{ dsp_client_cert_path }}'
+    dest: '/opt/splunk/etc/apps/dsp_outputs_app/client.pem'
+
+- name: Copy an outputs.conf for dsp using templating
+  win_template:
+    src: outputs.conf.j2
+    dest: '/opt/splunk/etc/apps/dsp_outputs_app/local/outputs.conf'
+  vars:
+     nodes: "{{ lookup('vars', 'dsp_node').split(',') }}"
