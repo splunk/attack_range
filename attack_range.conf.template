@@ -271,6 +271,10 @@ osquery_machine = 0
 # enable a osquery linux server
 # possible values: 1, 0
 
+mac_os_machine = 1
+# enable a mac_os machine
+# possible values: 1, 0
+
 [splunk_server]
 # customize the splunk server
 
@@ -371,3 +375,22 @@ osquery_linux_private_ip = 10.0.1.19
 # Should be in subnet: 10.0.1.0/24
 
 osquery_custom_config_file = custom_osquery.conf
+
+[mac_os_machine]
+#customize the mac_os machine
+
+splunk_uf_mac_url = https://download.splunk.com/products/universalforwarder/releases/8.2.0/osx/splunkforwarder-8.2.0-e053ef3c985f-darwin-64.tgz
+# Specify the download URL of the Splunk macos universal forwarder
+
+mac_os_private_ip = 10.0.1.20
+# specify the macos machine's private ip
+# should be in subnet: 10.0.1.0/24
+
+mac_os_instance_type = mac1.metal
+# instance type for the aws macos instacne
+
+macos_availability_region = eu-west-1a
+# this image is only available in us-east-1/2, us-west-1/2 and eu-west-1
+
+macos_custom_config_file = custom_mac_attack_range.conf
+# custom macos osquery configuration that can be personalized and improved

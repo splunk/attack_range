@@ -1,0 +1,38 @@
+- name: Install osquery in macos instance using brew command 
+  command: brew install --cask osquery
+
+- name: copy mac_template.osquery.conf /var/osquery/osquery.conf
+  become: true
+  copy:
+    src: template.osquery.conf
+    dest: /var/osquery/osquery.conf
+
+- name: copy custom osquery conf template as /var/osquery/packs/attack-range.conf
+  become: true
+  copy: 
+    src: "{{ custom_osquery_conf }}" 
+    dest: /var/osquery/packs/attack-range.conf
+
+
+- name: activate osqueryctl service
+  become: true
+  command: osqueryctl start
+
+
+- name: osqueryctl service status check
+  become: true
+  command: osqueryctl status
+  register: osq_service_status
+
+- name: osquery service status stdout
+  debug: msg="{{ osq_service_status.stdout }}"
+
+
+- name: osqueryctl config check
+  become: true
+  command: osqueryctl config-check
+  register: osq_config_check
+
+- name: osquery config check
+  debug: msg="{{ osq_config_check.stdout }}"
+
