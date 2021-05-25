@@ -41,3 +41,5 @@
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: install_stream_app.yml
+- include: install_dsp.yml
+  when: install_dsp == "1"
