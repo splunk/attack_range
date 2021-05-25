@@ -97,9 +97,9 @@ jobs:
             sed -i "s/region = us-west-2/region = us-east-2/g" attack_range.conf
             sed -i "s/private_key_path =.*$/private_key_path = ~\/.ssh\/id_rsa_2dd6d0a5f6976c43f1aa8ce947ea47c2/g" attack_range.conf
             sed -i "s/windows_domain_controller = .*$/windows_domain_controller = 1/g" attack_range.conf
-            cd terraform/aws/
+            cd terraform/aws/local/
             terraform init
-            cd ../..
+            cd ../../..
             python attack_range.py build
             python attack_range.py simulate --target ar-win-dc-default-attack-range-ci-job --simulation_technique T1003.002
             python attack_range.py destroy
