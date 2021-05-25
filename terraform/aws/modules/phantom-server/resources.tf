@@ -46,7 +46,7 @@ resource "aws_instance" "phantom-server" {
   }
 
   provisioner "local-exec" {
-    working_dir = "../../ansible/"
+    working_dir = "../../../ansible/"
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.config.private_key_path} -i '${aws_instance.phantom-server[0].public_ip},' playbooks/phantom_server.yml -e 'phantom_admin_password=${var.config.attack_range_password} phantom_community_username=${var.config.phantom_community_username} phantom_community_password=${var.config.phantom_community_password} phantom_server_private_ip=${var.config.phantom_server_private_ip}'"
   }
 }

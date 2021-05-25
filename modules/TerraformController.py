@@ -25,9 +25,9 @@ class TerraformController(IEnvironmentController):
         super().__init__(config, log)
         statefile = self.config['range_name'] + ".terraform.tfstate"
         if self.config['cloud_provider'] == 'aws':
-            self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/aws/state', statefile)
+            self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/aws/local/state', statefile)
         elif self.config['cloud_provider'] == 'azure':
-            self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/azure/state', statefile)
+            self.config["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/azure/local/state', statefile)
 
         self.config['splunk_es_app_version'] = re.findall(r'\d+', self.config['splunk_es_app'])[0]
 
@@ -35,11 +35,22 @@ class TerraformController(IEnvironmentController):
         variables = dict()
         variables['config'] = custom_dict
 
-        if self.config['cloud_provider'] == 'aws':
-            self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/aws'),variables=variables, parallelism=15 ,state=config["statepath"])
-        elif self.config['cloud_provider'] == 'azure':
-            self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/azure'),variables=variables, parallelism=15 ,state=config["statepath"])
+        if self.config['tf_backend'] == 'remote':
+            with open(os.path.join(os.path.dirname(__file__), '../terraform', self.config['cloud_provider'], 'remote/resources.tf.j2'), 'r') as file :
+                filedata = file.read()  
 
+            filedata = filedata.replace('[region]', self.config['region'])
+            filedata = filedata.replace('[backend]', self.config['tf_backend_name'])
+            filedata = filedata.replace('[tf_backend_ressource_group]', self.config['tf_backend_ressource_group'])
+            filedata = filedata.replace('[tf_backend_storage_account]', self.config['tf_backend_storage_account'])
+            filedata = filedata.replace('[tf_backend_container]', self.config['tf_backend_container'])
+
+            with open(os.path.join(os.path.dirname(__file__), '../terraform', self.config['cloud_provider'], 'remote/resources.tf'), 'w+') as file:
+                file.write(filedata)
+        working_dir = os.path.join(os.path.dirname(__file__), '../terraform', self.config['cloud_provider'], self.config['tf_backend'])
+
+        self.terraform = Terraform(working_dir=working_dir,variables=variables, parallelism=15 ,state=config["statepath"])
+        os.system('cd terraform/' + self.config['cloud_provider'] + '/' + self.config['tf_backend'] + ' && terraform init && cd ../../..')
 
 
     def build(self):
