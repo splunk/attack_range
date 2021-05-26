@@ -17,12 +17,20 @@ cloud_provider = aws
 # example_1: aws
 # example_2: azure
 
+tf_backend = local
+# Specify terraform backend type 
+# Possible values: local, remote
+
 [aws]
 instance_type_ec2 = t3.2xlarge
 # instance type for the aws ec2 instances
 
 use_elastic_ips = 1
 # define if you want to use AWS EIPs or not
+
+tf_backend_name = threat_research_attack_range
+# only needed when you specify a remote backend
+# for AWS: need to be the name of the S3 bucket and DynamoDB table
 
 [azure]
 azure_subscription_id = xxx
@@ -31,6 +39,15 @@ azure_subscription_id = xxx
 
 instance_type_vms = Standard_D4_v4
 # instance type for azure vms
+
+tf_backend_ressource_group = resource_group
+# only needed when you specify a remote backend
+
+tf_backend_storage_account = attackrangestorage
+# only needed when you specify a remote backend
+
+tf_backend_container = tfstate
+# only needed when you specify a remote backend
 
 [range_settings]
 key_name = attack-range-key-pair

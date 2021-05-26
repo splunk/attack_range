@@ -13,6 +13,6 @@ RUN echo 'alias python=python3' >> ~/.bashrc
 
 WORKDIR /attack_range
 
-RUN cd terraform/aws && terraform init
-RUN cd terraform/azure && terraform init
+RUN cd terraform/aws/local && terraform init
+RUN cd terraform/azure/local && terraform init
 RUN pip3 install -r requirements.txt

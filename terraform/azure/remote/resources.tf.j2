@@ -2,13 +2,22 @@ provider "azurerm" {
   features {}
 }
 
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "[tf_backend_ressource_group]"
+    storage_account_name = "[tf_backend_storage_account]"
+    container_name       = "[tf_backend_container]"
+    key                  = "prod.terraform.tfstate"
+  }
+}
+
 module "networkModule" {
-  source			  = "./modules/network"
+  source			  = "../modules/network"
   config                = var.config
 }
 
 module "splunk-server" {
-  source			           = "./modules/splunk-server"
+  source			           = "../modules/splunk-server"
 	rg_name                = module.networkModule.rg_name
 	subnet_id              = module.networkModule.subnet_id
   phantom_server_instance = module.phantom-server.phantom_server_instance
@@ -16,14 +25,14 @@ module "splunk-server" {
 }
 
 module "phantom-server" {
-  source                     = "./modules/phantom-server"
+  source                     = "../modules/phantom-server"
   rg_name                = module.networkModule.rg_name
 	subnet_id              = module.networkModule.subnet_id
   config                 = var.config
 }
 
 module "windows-domain-controller" {
-  source			           = "./modules/windows-domain-controller"
+  source			           = "../modules/windows-domain-controller"
   rg_name                = module.networkModule.rg_name
 	subnet_id              = module.networkModule.subnet_id
   config                 = var.config
@@ -31,7 +40,7 @@ module "windows-domain-controller" {
 
 
 module "windows-server" {
-  source			           = "./modules/windows-server"
+  source			           = "../modules/windows-server"
   rg_name                = module.networkModule.rg_name
 	subnet_id              = module.networkModule.subnet_id
   config                 = var.config
@@ -39,7 +48,7 @@ module "windows-server" {
 }
 
 module "windows-client" {
-  source			           = "./modules/windows-client"
+  source			           = "../modules/windows-client"
   rg_name                = module.networkModule.rg_name
 	subnet_id              = module.networkModule.subnet_id
   config                 = var.config
@@ -47,14 +56,14 @@ module "windows-client" {
 }
 
 module "kali_machine" {
-  source			           = "./modules/kali_machine"
+  source			           = "../modules/kali_machine"
   rg_name                = module.networkModule.rg_name
 	subnet_id              = module.networkModule.subnet_id
   config                 = var.config
 }
 
 module "osquery_machine" {
-  source			           = "./modules/osquery_machine"
+  source			           = "../modules/osquery_machine"
   rg_name                = module.networkModule.rg_name
 	subnet_id              = module.networkModule.subnet_id
   config                 = var.config
