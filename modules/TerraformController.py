@@ -66,6 +66,9 @@ class TerraformController(IEnvironmentController):
 
     def destroy(self):
         self.log.info("[action] > destroy\n")
+        cwd = os.getcwd()
+        os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform', self.config['cloud_provider'], self.config['tf_backend']) + ' && terraform init ')
+        os.system('cd ' + cwd)
         return_code, stdout, stderr = self.terraform.destroy(
             capture_output='yes', no_color=IsNotFlagged)
         self.log.info("Destroyed with return code: " + str(return_code))
