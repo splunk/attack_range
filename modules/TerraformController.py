@@ -50,13 +50,13 @@ class TerraformController(IEnvironmentController):
         working_dir = os.path.join(os.path.dirname(__file__), '../terraform', self.config['cloud_provider'], self.config['tf_backend'])
 
         self.terraform = Terraform(working_dir=working_dir,variables=variables, parallelism=15 ,state=config["statepath"])
-        cwd = os.getcwd()
-        os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform', self.config['cloud_provider'], self.config['tf_backend']) + ' && terraform init ')
-        os.system('cd ' + cwd)
-        
+
 
     def build(self):
         self.log.info("[action] > build\n")
+        cwd = os.getcwd()
+        os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform', self.config['cloud_provider'], self.config['tf_backend']) + ' && terraform init ')
+        os.system('cd ' + cwd)
         return_code, stdout, stderr = self.terraform.apply(
             capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
         if not return_code:
@@ -66,6 +66,9 @@ class TerraformController(IEnvironmentController):
 
     def destroy(self):
         self.log.info("[action] > destroy\n")
+        cwd = os.getcwd()
+        os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform', self.config['cloud_provider'], self.config['tf_backend']) + ' && terraform init ')
+        os.system('cd ' + cwd)
         return_code, stdout, stderr = self.terraform.destroy(
             capture_output='yes', no_color=IsNotFlagged)
         self.log.info("Destroyed with return code: " + str(return_code))
