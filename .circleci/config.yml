@@ -25,7 +25,7 @@ executors:
 
   docker-publisher-executor:
     environment:
-      IMAGE_NAME: splunkresearch/attack_range
+      IMAGE_NAME: splunk/attack_range
     docker:
       - image: circleci/buildpack-deps:stretch
 
