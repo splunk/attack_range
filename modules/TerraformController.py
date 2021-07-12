@@ -70,7 +70,7 @@ class TerraformController(IEnvironmentController):
         os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform', self.config['cloud_provider'], self.config['tf_backend']) + ' && terraform init ')
         os.system('cd ' + cwd)
         return_code, stdout, stderr = self.terraform.destroy(
-            capture_output='yes', no_color=IsNotFlagged)
+            capture_output='yes', no_color=IsNotFlagged, force=IsNotFlagged, auto_approve=True)
         self.log.info("Destroyed with return code: " + str(return_code))
         statepath = self.config["statepath"]
         statebakpath = self.config["statepath"] + ".backup"
