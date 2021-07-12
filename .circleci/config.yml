@@ -80,9 +80,9 @@ jobs:
       - run:
           name: install terraform
           command: |
-            wget https://releases.hashicorp.com/terraform/0.13.7/terraform_0.13.7_linux_amd64.zip
-            sudo unzip terraform_0.13.7_linux_amd64.zip -d /usr/bin
-            rm terraform_0.13.7_linux_amd64.zip
+            wget https://releases.hashicorp.com/terraform/1.0.2/terraform_1.0.2_linux_amd64.zip
+            sudo unzip terraform_1.0.2_linux_amd64.zip -d /usr/bin
+            rm terraform_1.0.2_linux_amd64.zip
             terraform --version
 
       - run:
