@@ -3,6 +3,7 @@ import collections
 import sys
 from pathlib import Path
 import re
+import requests
 
 
 class CustomConfigParser:
@@ -41,6 +42,16 @@ class CustomConfigParser:
         if '0.0.0.0/0' in self.settings['ip_whitelist']:
             print("WARNING - with configuration file at: {0}, the attack range will be public and open to the world, it is recommended that users secure attack_range servers by whitelisting only the public IP address in this format: ip_whitelist= <X.X.X.X>/32".format(CONFIG_PATH))
              
+        # Check if Phantom Credentials work
+        if self.settings['phantom_server'] == "1":
+            base_url = "https://repo.phantom.us/phantom/4.10/product"
+            r = requests.get(base_url, auth=(self.settings['phantom_community_username'], self.settings['phantom_community_password']))
+            if r.status_code == 200:
+                print("Confirmed valid Phantom Community Credentials")
+            else:
+                print("Unable to authenticate to Phantom Community, check your credentials")
+                sys.ext(1)
+
 
         # Check for disallowed BOTS dataset combinations or syntax
         if self.settings['splunk_bots_dataset'] != '0':
