@@ -16,12 +16,12 @@
 
 - name: install the nginx dependency
   yum:
-    name: https://repo.phantom.us/phantom/4.10/base/7/x86_64/nginx-1.19.2-1.el7.ngx.x86_64.rpm
+    name: '{{ phantom_repo_nginx_url }}'
     state: present
 
 - name: install the phantom setup rpm from the community repository
   yum:
-    name: https://repo.phantom.us/phantom/4.10/base/7/x86_64/phantom_repo-4.10.4.56260-1.x86_64.rpm
+    name: '{{ phantom_repo_url }}'
     state: present
 
 # installing apps takes 15+ minutes longer, so later we will install just the apps we need
