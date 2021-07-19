@@ -50,7 +50,7 @@ class CustomConfigParser:
                 print("Confirmed valid Phantom Community Credentials")
             else:
                 print("Unable to authenticate to Phantom Community, check your credentials")
-                sys.ext(1)
+                sys.exit(1)
 
 
         # Check for disallowed BOTS dataset combinations or syntax
