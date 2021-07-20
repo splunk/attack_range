@@ -143,7 +143,7 @@ punchard_custom_visualization = punchcard-custom-visualization_140.tgz
 
 status_indicator_custom_visualization = status-indicator-custom-visualization_140.tgz
 
-splunk_attack_range_dashboard = splunk_attack_range_reporting-1.0.5.tar.gz
+splunk_attack_range_dashboard = splunk_attack_range_reporting-1.0.6.tar.gz
 
 timeline_custom_visualization = timeline-custom-visualization_140.tgz
 
