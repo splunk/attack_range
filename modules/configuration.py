@@ -424,7 +424,7 @@ starting configuration for AT-ST mech walker
     # phantom vars for BYO Phantom
     configuration._sections['environment']['phantom_BYO'] = enabled(answers['phantom_BYO'])
     if 'phantom_api_token' in answers:
-        configuration._sections['phantom_setttings']['phantom_api_token'] = answers['phantom_api_token']
+        configuration._sections['phantom_settings']['phantom_api_token'] = answers['phantom_api_token']
     if 'phantom_BYO_IP' in answers:
         configuration._sections['phantom_settings']['phantom_BYO_IP'] = answers['phantom_BYO_IP']
 
