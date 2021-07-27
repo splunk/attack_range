@@ -377,6 +377,12 @@ starting configuration for AT-ST mech walker
             'default': False,
         },
         {
+            'type': 'confirm',
+            'message': 'would you like to supply your own phantom server',
+            'name': 'phantom_BYO',
+            'default': False,
+        },
+        {
             'type': 'input',
             'message': 'phantom community username (my.phantom.us), required for phantom server',
             'name': 'phantom_community_username',
@@ -390,14 +396,37 @@ starting configuration for AT-ST mech walker
             'when': lambda answers: answers['phantom_server'],
             'default': 'password',
         },
+        {
+            'type': 'input',
+            'message': 'phantom api token, required for bring your own phantom',
+            'name': 'phantom_api_token',
+            'when': lambda answers: answers['phantom_BYO'],
+            'default': 'FIX_ME',
+        },
+        {
+            'type': 'input',
+            'message': 'phantom ip address, required for bring your own phantom',
+            'name': 'phantom_BYO_IP',
+            'when': lambda answers: answers['phantom_BYO'],
+            'default': '8.8.8.8',
+        },
     ]
     answers = prompt(questions)
     enabled = lambda x : 1 if x else 0
+    
+    # phantom vars for building phantom
     configuration._sections['environment']['phantom_server'] = enabled(answers['phantom_server'])
     if 'phantom_community_username' in answers:
         configuration._sections['phantom_settings']['phantom_community_username'] = answers['phantom_community_username']
     if 'phantom_community_password' in answers:
         configuration._sections['phantom_settings']['phantom_community_password'] = answers['phantom_community_password']
+    
+    # phantom vars for BYO Phantom
+    configuration._sections['environment']['phantom_BYO'] = enabled(answers['phantom_BYO'])
+    if 'phantom_api_token' in answers:
+        configuration._sections['phantom_setttings']['phantom_api_token'] = answers['phantom_api_token']
+    if 'phantom_BYO_IP' in answers:
+        configuration._sections['phantom_settings']['phantom_BYO_IP'] = answers['phantom_BYO_IP']
 
     if (enabled(answers['windows_domain_controller'])):
         configuration._sections['environment']['windows_domain_controller'] = enabled(answers['windows_domain_controller'])
