@@ -433,6 +433,8 @@ starting configuration for AT-ST mech walker
             configuration._sections['phantom_settings']['phantom_api_token'] = answers['phantom_api_token']
         if 'phantom_byo_ip' in answers:
             configuration._sections['phantom_settings']['phantom_byo_ip'] = answers['phantom_byo_ip']
+        configuration._sections['environment']['phantom_server'] = 0
+        configuration._sections['environment']['phantom_byo'] = 1
 
     if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "new":    
         questions = [
@@ -455,6 +457,8 @@ starting configuration for AT-ST mech walker
             configuration._sections['phantom_settings']['phantom_community_username'] = answers['phantom_community_username']
         if 'phantom_community_password' in answers:
             configuration._sections['phantom_settings']['phantom_community_password'] = answers['phantom_community_password']
+        configuration._sections['environment']['phantom_server'] = 1
+        configuration._sections['environment']['phantom_byo'] = 0
     
 
     # write config file

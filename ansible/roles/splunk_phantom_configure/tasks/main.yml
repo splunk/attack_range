@@ -4,4 +4,4 @@
   when: phantom_server == "1"
 
 - include: configure_phantom_BYO_app.yml
-  when: phantom_BYO == "1"
+  when: phantom_byo == "1"

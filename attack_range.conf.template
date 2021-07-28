@@ -290,7 +290,7 @@ phantom_server = 0
 # enable a phantom server
 # possible values: 1, 0
 
-phantom_BYO = 0
+phantom_byo = 0
 # enable BYO Phantom
 # possible values: 1, 0
 
