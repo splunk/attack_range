@@ -398,6 +398,7 @@ starting configuration for AT-ST mech walker
         configuration._sections['environment']['phantom_inclusion'] = enabled(answers['phantom_inclusion'])
         configuration._sections['environment']['phantom_type'] = 0
 
+
     if (enabled(answers['windows_domain_controller'])):
         configuration._sections['environment']['windows_domain_controller'] = enabled(answers['windows_domain_controller'])
     else:
@@ -454,12 +455,6 @@ starting configuration for AT-ST mech walker
             configuration._sections['phantom_settings']['phantom_community_username'] = answers['phantom_community_username']
         if 'phantom_community_password' in answers:
             configuration._sections['phantom_settings']['phantom_community_password'] = answers['phantom_community_password']
-    # phantom vars for building phantom
-    # configuration._sections['environment']['phantom_server'] = enabled(answers['phantom_server'])
-    #if 'phantom_community_username' in answers:
-    #    configuration._sections['phantom_settings']['phantom_community_username'] = answers['phantom_community_username']
-    #if 'phantom_community_password' in answers:
-    #    configuration._sections['phantom_settings']['phantom_community_password'] = answers['phantom_community_password']
     
 
     # write config file
