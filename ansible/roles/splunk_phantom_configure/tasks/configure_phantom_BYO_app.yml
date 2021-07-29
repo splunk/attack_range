@@ -29,7 +29,7 @@
 #  register: api_token
 
 - name: Connect Splunk Phantom App with Phantom
-  shell: curl -k -u "admin:{{ splunk_admin_password }}" --data '{"verify_certs":"false","enable_logging":"false","config":[{"ph-auth-token":"{{ phantom_api_token }}","server":"https://{{ phantom_byo_ip }}","custom_name":"phantom","default":false,"user":"","ph_auth_config_id":"193b2ffc-48fb-4087-bc75-c44184e7fa07","proxy":"","validate":true}],"accepted":"true","save":true}' https://localhost:8089/services/update_phantom_config?output_mode=json
+  shell: curl -k -u "admin:{{ splunk_admin_password }}" --data '{"verify_certs":"false","enable_logging":"false","config":[{"ph-auth-token":"{{ phantom_api_token | replace("=","%3D") | replace("+","%2B") }}","server":"https://{{ phantom_byo_ip }}","custom_name":"phantom","default":false,"user":"","ph_auth_config_id":"193b2ffc-48fb-4087-bc75-c44184e7fa07","proxy":"","validate":true}],"accepted":"true","save":true}' https://localhost:8089/services/update_phantom_config?output_mode=json
   register: shell_output
 
 # - name: Debug output
