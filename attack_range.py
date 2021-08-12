@@ -126,7 +126,9 @@ def resume(args):
 
 def test(args):
     controller, _, _ = init(args)
-    return controller.test(args.test_file)
+    # split the comma delimted list
+    tests = args.test_files.split(",")
+    return controller.test(tests, args.test_destroy)
 
 
 def main(args):
@@ -139,17 +141,17 @@ def main(args):
                         help="shows current attack_range version")
     parser.set_defaults(func=lambda _: parser.print_help())
 
-    actions_parser = parser.add_subparsers(title="Attack Range actions", dest="action")
+    actions_parser = parser.add_subparsers(title="attack Range actions", dest="action")
     configure_parser = actions_parser.add_parser("configure", help="configure a new attack range")
-    build_parser = actions_parser.add_parser("build", help="Builds attack range instances")
-    simulate_parser = actions_parser.add_parser("simulate", help="Simulates attack techniques")
+    build_parser = actions_parser.add_parser("build", help="builds attack range instances")
+    simulate_parser = actions_parser.add_parser("simulate", help="simulates attack techniques")
     destroy_parser = actions_parser.add_parser("destroy", help="destroy attack range instances")
     stop_parser = actions_parser.add_parser("stop", help="stops attack range instances")
     resume_parser = actions_parser.add_parser("resume", help="resumes previously stopped attack range instances")
     show_parser = actions_parser.add_parser("show", help="list machines")
-    test_parser = actions_parser.add_parser("test")
+    test_parser = actions_parser.add_parser("test", help="test detections")
     dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
-    replay_parser = actions_parser.add_parser("replay", help="replay dumps into the Splunk Enterprise server")
+    replay_parser = actions_parser.add_parser("replay", help="replay dumps into the splunk server")
 
     # Build arguments
     build_parser.set_defaults(func=build)
@@ -194,9 +196,11 @@ def main(args):
     replay_parser.set_defaults(func=replay)
 
     # Test Arguments
-    test_parser.add_argument("-tf", "--test_file", required=True,
-                             type=str, default="", help='test file for test command')
-    test_parser.set_defaults(func=test)
+    test_parser.add_argument("-tf", "--test_files", required=True,
+                             type=str, default="", help='comma delimited list relative path of the test files')
+    test_parser.add_argument("-td", "--test_destroy", required=False, default=False,
+                             action="store_true", help='destroy the attack_range after test completion')
+    test_parser.set_defaults(func=test, test_destroy=False)
 
     # Show arguments
     show_parser.add_argument("-m", "--machines", required=False, default=False,
