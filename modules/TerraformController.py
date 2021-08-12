@@ -97,9 +97,13 @@ class TerraformController(IEnvironmentController):
         elif self.config['cloud_provider'] == 'azure':
             azure_service.change_instance_state(self.config, 'running', self.log)
 
-    def test(self, test_files, test_destroy):
-        # build attack range
-        self.build()
+    def test(self, test_files, test_destroy, test_build_disable):
+
+        if test_build_disable:
+            self.log.info("skipping building an attack range since test_build_disable was set")
+        else:
+            # build attack range
+            self.build()
 
         result_tests = []
         for test_file in test_files:
