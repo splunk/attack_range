@@ -128,7 +128,7 @@ def test(args):
     controller, _, _ = init(args)
     # split the comma delimted list
     tests = args.test_files.split(",")
-    return controller.test(tests, args.test_destroy, args.test_build_disable)
+    return controller.test(tests, args.test_build_destroy)
 
 
 def main(args):
@@ -198,11 +198,9 @@ def main(args):
     # Test Arguments
     test_parser.add_argument("-tf", "--test_files", required=True,
                              type=str, default="", help='comma delimited list relative path of the test files')
-    test_parser.add_argument("-td", "--test_destroy", required=False, default=False,
-                             action="store_true", help='destroy the attack_range after test completion')
-    test_parser.add_argument("-tbd", "--test_build_disable", required=False, default=False,
-                             action="store_true", help='does not build an attack_range before running tests, should be set for repeated testing')
-    test_parser.set_defaults(func=test, test_destroy=False, test_build_disable=False)
+    test_parser.add_argument("-tbd", "--test_build_destroy", required=False, default=False,
+                             action="store_true", help='builds a attack_range, then runs the test files and finally destroy the range in one shot operation.')
+    test_parser.set_defaults(func=test, test_build_destroy=False)
 
     # Show arguments
     show_parser.add_argument("-m", "--machines", required=False, default=False,
