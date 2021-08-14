@@ -136,7 +136,7 @@ class TerraformController(IEnvironmentController):
 
                     self.replay_attack_data(folder_name, {'sourcetype': attack_data['sourcetype'], 'source': attack_data['source'], 'out': attack_data['file_name']})
 
-                self.log.info('waiting for 200 seconds for indexing to occur')
+                self.log.info('waiting for 60 seconds for indexing to occur')
                 time.sleep(60)
 
                 # process baselines
@@ -182,13 +182,12 @@ class TerraformController(IEnvironmentController):
                 result_detection['detection_file'] = test['file']
                 result_test['detection_result'] = result_detection
                 result_tests.append(result_test)
-
-        self.log.info('testing completed results: {0}'.format(result_tests))
-
-
+        self.log.info('testing completed.')
         if test_build_destroy:
             # destroy attack range
             self.destroy()
+
+        return result_tests
 
 
     def load_file(self, file_path):
