@@ -97,11 +97,9 @@ class TerraformController(IEnvironmentController):
         elif self.config['cloud_provider'] == 'azure':
             azure_service.change_instance_state(self.config, 'running', self.log)
 
-    def test(self, test_files, test_destroy, test_build_disable):
+    def test(self, test_files, test_build_destroy):
 
-        if test_build_disable:
-            self.log.info("skipping building an attack range since test_build_disable was set")
-        else:
+        if test_build_destroy:
             # build attack range
             self.build()
 
@@ -124,20 +122,24 @@ class TerraformController(IEnvironmentController):
                 result_test = {}
                 for attack_data in test['attack_data']:
                     url = attack_data['data']
+                    attack_data_file = os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + attack_data['file_name'])
+                    self.log.info("downloading attack_data {0} into file {1}".format(url, attack_data_file))
                     r = requests.get(url, allow_redirects=True)
-                    open(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + attack_data['file_name']), 'wb').write(r.content)
+                    open(attack_data_file, 'wb').write(r.content)
 
                     # Update timestamps before replay
                     if 'update_timestamp' in attack_data:
                         if attack_data['update_timestamp'] == True:
+                            self.log.info("updating timestamp on dataset: {1}".format(url, attack_data_file))
                             data_manipulation = DataManipulation()
                             data_manipulation.manipulate_timestamp(folder_name + '/' + attack_data['file_name'], self.log, attack_data['sourcetype'], attack_data['source'])
 
-                    self.replay_attack_data(folder_name, None, {'sourcetype': attack_data['sourcetype'], 'source': attack_data['source'], 'out': attack_data['file_name']})
+                    self.replay_attack_data(folder_name, {'sourcetype': attack_data['sourcetype'], 'source': attack_data['source'], 'out': attack_data['file_name']})
 
                 self.log.info('waiting for 200 seconds for indexing to occur')
-                time.sleep(200)
+                time.sleep(60)
 
+                # process baselines
                 if 'baselines' in test:
                     results_baselines = []
                     for baseline_obj in test['baselines']:
@@ -161,6 +163,7 @@ class TerraformController(IEnvironmentController):
                                 results_baselines.append(result)
                     result_test['baselines_result'] = results_baselines
 
+                # validate detection works
                 detection_file_name = test['file']
                 detection = self.load_file(os.path.join(os.path.dirname(__file__), '../' + self.config['security_content_path'] + '/detections/' + detection_file_name))
                 if self.config['cloud_provider'] == 'aws':
@@ -168,28 +171,24 @@ class TerraformController(IEnvironmentController):
                         'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
                     if instance['State']['Name'] == 'running':
                         result_detection = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
-                        self.log.info('running detections search: {0}.'.format(detection['name']))
                     else:
                         self.log.error('ERROR: splunk server is not running.')
                 elif self.config['cloud_provider'] == 'azure':
                     instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
                     if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
                         result_detection = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
-                        self.log.info('running detections search: {0}.'.format(detection['name']))
 
-                self.log.info('completed testing detection: {0}.'.format(detection['name']))
                 result_detection['detection_name'] = test['name']
                 result_detection['detection_file'] = test['file']
                 result_test['detection_result'] = result_detection
                 result_tests.append(result_test)
 
-        self.log.info('testing completed')
+        self.log.info('testing completed results: {0}'.format(result_tests))
 
-        if test_destroy:
+
+        if test_build_destroy:
             # destroy attack range
             self.destroy()
-
-        return result_tests
 
 
     def load_file(self, file_path):
@@ -353,7 +352,7 @@ class TerraformController(IEnvironmentController):
                     self.log.info("%s [Completed]" % dump_info)
 
 
-    def replay_attack_data(self, dump_name, dump, replay_parameters = None):
+    def replay_attack_data(self, dump_name, replay_parameters = None):
         if self.config['cloud_provider'] == 'aws':
             splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
         elif self.config['cloud_provider'] == 'azure':
@@ -383,6 +382,7 @@ class TerraformController(IEnvironmentController):
         ansible_vars['sourcetype'] = sourcetype
         ansible_vars['source'] = source
         ansible_vars['index'] = index
+        ansible_vars['ansible_port'] = 22
 
         cmdline = "-i %s, -u ubuntu" % (splunk_ip)
         runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
