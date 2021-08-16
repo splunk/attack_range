@@ -46,11 +46,7 @@ jobs:
         run: |
           sudo apt update -qq        
           #The following installation is required for the ssh-key-action to work
-          sudo apt install -y openssh-clients
-      
-
-      
-
+          sudo apt install -y openssh-client
       
       - uses: actions/setup-python@v2
         with:
