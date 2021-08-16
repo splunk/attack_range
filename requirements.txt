@@ -13,7 +13,7 @@ azure-mgmt-network==16.0.0
 azure-mgmt-resource==15.0.0
 bcrypt==3.1.7
 boto3==1.11.0
-botocore==1.14.0
+botocore>=1.14.0
 certifi==2019.11.28
 cffi==1.13.2
 cfgv==2.0.1
