@@ -41,7 +41,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
         - name: Print env
-          - run: echo "$GITHUB_EVENT_NAME"
+          run: echo "$GITHUB_EVENT_NAME"
   #     - name: Checkout repo
   #       uses: actions/checkout@v2
   #       with:
