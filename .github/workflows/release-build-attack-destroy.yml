@@ -1,7 +1,5 @@
 name: release-build-attack-destroy
 on:
-  push:
-  pull_request:
   schedule:
     - cron: '*/5 * * * *'
 
