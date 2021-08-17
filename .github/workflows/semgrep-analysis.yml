@@ -1,0 +1,56 @@
+# This workflow file requires a free account on Semgrep.dev to
+# manage rules, file ignores, notifications, and more.
+#
+# See https://semgrep.dev/docs
+
+name: Semgrep
+
+on: [push, pull_request]
+jobs:
+
+  validate-tag-if-present:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: TAGGED, Validate that the tag is in the correct format
+        
+        run: |
+          echo "The GITHUB_REF: $GITHUB_REF"
+          #First check to see if the release is a tag
+          if [[ $GITHUB_REF =~ refs/tags/* ]]; then
+            #Yes, this is a tag, so we need to test to make sure that the tag
+            #is in the correct format (like v1.10.20)
+            if [[ $GITHUB_REF =~ refs/tags/v[0-9]+.[0-9]+.[0-9]+ ]]; then
+              echo "PASS: Tagged release with good format"
+              exit 0
+            else
+              echo "FAIL: Tagged release with bad format"
+              exit 1
+            fi
+          else
+          echo "PASS: Not a tagged release"
+          exit 0
+          fi                    
+  semgrep:
+    name: Scan
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout project source
+      - uses: actions/checkout@v2
+
+      # Scan code using project's configuration on https://semgrep.dev/manage
+      - uses: returntocorp/semgrep-action@v1
+        with:
+          #The following line is commented out for now pending a fix to the semgrep repo
+          #generateSarif: "1"
+          config: >- # more at semgrep.dev/explore
+            p/security-audit
+            p/secrets
+
+      # Upload SARIF file generated in previous step
+      #The following lines are commented out right now pending a fix to the semgrep repo
+      # - name: Upload SARIF file
+      #   uses: github/codeql-action/upload-sarif@v1
+      #   with:
+      #     sarif_file: semgrep.sarif
+      #   if: always()
