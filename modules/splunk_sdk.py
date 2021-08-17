@@ -202,10 +202,10 @@ def export_search(host, s, password, export_mode="raw", out=sys.stdout, username
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     #Have semgrep ignore the following line.  It will complain about the verify=false, but the server is hosted locally
-    r = requests.post("https://%s:%d/servicesNS/admin/search/search/jobs/export" % (host, port),
+    r = requests.post("https://%s:%d/servicesNS/admin/search/search/jobs/export" % (host, port), # nosemgrep
                       auth=(username, password),
                       data={'output_mode': export_mode,
                             'search': s,
                             'max_count': 1000000},
-                      verify=False) # nosemgrep
+                      verify=False) 
     out.write(r.text.encode('utf-8'))
