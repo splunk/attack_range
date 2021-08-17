@@ -65,7 +65,7 @@ jobs:
       - name: Verify attack_range.py executes
         run: | 
           source venv/bin/activate
-          cp attack_range.conf.template attach_range.conf
+          cp attack_range.conf.template attack_range.conf
           sed -i "s/attack_range_password = .*$/attack_range_password = Pl3ase-k1Ll-me:p123/g" attack_range.conf
           python3 attack_range.py --version
       
