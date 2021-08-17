@@ -128,7 +128,7 @@ def test(args):
     controller, _, _ = init(args)
     # split the comma delimted list
     tests = args.test_files.split(",")
-    controller.test(tests, args.test_build_destroy, args.test_delete_data)
+    return controller.test(tests, args.test_build_destroy, args.test_delete_data)
 
 
 def main(args):
