@@ -142,7 +142,7 @@ jobs:
         - name: Prepare Release for Publishing on github
           run: |
             cd ..
-            tar -zcvf attack-range-${{ steps.vars.outputs.tag }}.tar.gz
+            tar -zcvf attack-range-${{ steps.vars.outputs.tag }}.tar.gz attack_range
             sha256sum attack-range-${{ steps.vars.outputs.tag }}.tar.gz > checksum-%{{ steps.vars.outputs.tag }}.txt
 
         #Upload all of the release artifacts that we have created using the third party
