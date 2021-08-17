@@ -1,7 +1,7 @@
 name: release-build-attack-destroy
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/2 * * * *'
 
 env:
   IMAGE_NAME: "splunk/attack_range"
