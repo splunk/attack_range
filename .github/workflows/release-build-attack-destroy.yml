@@ -2,7 +2,7 @@ name: release-build-attack-destroy
 on: [push, pull_request]
 
 env:
-  IMAGE_NAME: "splunk/attack_range_TESTING"
+  IMAGE_NAME: "splunk/attack_range_testing"
 jobs:
 
   #This will prevent anything below from running if we're not
