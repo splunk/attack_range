@@ -182,6 +182,6 @@ jobs:
         with:
           push: true 
           context: docker/ #do the build in the docker directory, not current working directory
-          tags: $IMAGE_NAME:latest
+          tags: env.IMAGE_NAME:latest
 
 
