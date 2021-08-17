@@ -208,3 +208,31 @@ def export_search(host, s, password, export_mode="raw", out=sys.stdout, username
                             'max_count': 1000000},
                       verify=False)
     out.write(r.text.encode('utf-8'))
+
+
+
+def delete_attack_data(splunk_host, splunk_password):
+    try:
+        service = client.connect(
+            host=splunk_host,
+            port=8089,
+            username='admin',
+            password=splunk_password
+        )
+    except Exception as e:
+        print("Unable to connect to Splunk instance: " + str(e))
+        return False
+
+    splunk_search = 'search index=test* | delete'
+
+    kwargs = {"exec_mode": "blocking",
+              "dispatch.earliest_time": "-1d",
+              "dispatch.latest_time": "now"}
+
+    try:
+        job = service.jobs.create(splunk_search, **kwargs)
+    except Exception as e:
+        print("Unable to execute search: " + str(e))
+        return False
+
+    return True

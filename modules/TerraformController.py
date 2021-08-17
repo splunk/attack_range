@@ -97,7 +97,7 @@ class TerraformController(IEnvironmentController):
         elif self.config['cloud_provider'] == 'azure':
             azure_service.change_instance_state(self.config, 'running', self.log)
 
-    def test(self, test_files, test_build_destroy):
+    def test(self, test_files, test_build_destroy, test_delete_data):
 
         if test_build_destroy:
             # build attack range
@@ -171,17 +171,23 @@ class TerraformController(IEnvironmentController):
                         'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
                     if instance['State']['Name'] == 'running':
                         result_detection = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
+                        if test_delete_data:
+                            splunk_sdk.delete_attack_data(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']))
                     else:
                         self.log.error('ERROR: splunk server is not running.')
+
                 elif self.config['cloud_provider'] == 'azure':
                     instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
                     if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
                         result_detection = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
+                        if test_delete_data:
+                            splunk_sdk.delete_attack_data(instance['public_ip'], str(self.config['attack_range_password']))
 
                 result_detection['detection_name'] = test['name']
                 result_detection['detection_file'] = test['file']
                 result_test['detection_result'] = result_detection
                 result_tests.append(result_test)
+
         self.log.info('testing completed.')
         if test_build_destroy:
             # destroy attack range
