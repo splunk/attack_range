@@ -60,7 +60,7 @@ jobs:
           rm -rf venv
           python3 -m venv --clear venv
           source venv/bin/activate
-          python3 -m pip install -q -r requirements.txt
+          python3 -m pip install -r requirements.txt -vvv
 
       - name: Verify attack_range.py executes
         run: | 
