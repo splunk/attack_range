@@ -115,15 +115,18 @@ class TerraformController(IEnvironmentController):
             for test in test_file['tests']:
                 epoch_time = str(int(time.time()))
                 dump_name = folder_name = "attack_data_" + epoch_time + "_" + test['name'].lower().replace(" ", "_").replace(".", "_")
-                print(dump_name)
                 result_test = {}
                 for attack_data in test['attack_data']:
                     if 'update_timestamp' in attack_data:
                         attack_data['update_timestamp'] = attack_data['update_timestamp']
                     else:
-                        attack_data['update_timestamp'] = True
-                    attack_data['update_timestamp'] = True
+                        attack_data['update_timestamp'] = False
+                    #attack_data['update_timestamp'] = True
                     self.replay_attack_data(dump_name, attack_data)
+
+                # wait for indexing
+                self.log.info("sleeping for 60 seconds to wait for indexing to occur")
+                time.sleep(60)
 
                 # process baselines
                 if 'baselines' in test:
@@ -156,9 +159,10 @@ class TerraformController(IEnvironmentController):
                     instance = aws_service.get_instance_by_name(
                         'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
                     if instance['State']['Name'] == 'running':
+                        self.log.info("running detection against splunk for indexed data {0}".format(detection_file_name))
                         result_detection = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
                         if test_delete_data:
-                            self.log.info("deleting test data from splunk for test {0}".format(test_file['file']))
+                            self.log.info("deleting test data from splunk for test {0}".format(detection_file_name))
                             splunk_sdk.delete_attack_data(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']))
                     else:
                         self.log.error('ERROR: splunk server is not running.')
@@ -166,9 +170,10 @@ class TerraformController(IEnvironmentController):
                 elif self.config['cloud_provider'] == 'azure':
                     instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
                     if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
+                        self.log.info("running detection against splunk for indexed data {0}".format(detection_file_name))
                         result_detection = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
                         if test_delete_data:
-                            self.log.info("deleting test data from splunk for test {0}".format(test_file['file']))
+                            self.log.info("deleting test data from splunk for test {0}".format(detection_file_name))
                             splunk_sdk.delete_attack_data(instance['public_ip'], str(self.config['attack_range_password']))
 
                 result_detection['detection_name'] = test['name']
@@ -372,7 +377,6 @@ class TerraformController(IEnvironmentController):
         ansible_vars['ansible_port'] = 22
 
         cmdline = "-i %s, -u ubuntu" % (splunk_ip)
-        print(os.path.join(os.path.dirname(__file__), '../'))
         runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                     cmdline=cmdline,
                                     roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
