@@ -109,35 +109,20 @@ class TerraformController(IEnvironmentController):
             self.log.info("running test: {0}".format(test_file))
             test_file = self.load_file(test_file)
 
-            epoch_time = str(int(time.time()))
-            folder_name = "attack_data_" + epoch_time
-            os.mkdir(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name))
-
-            output = 'loaded attack data'
-
             if self.config['update_escu_app'] == '1':
                 self.update_ESCU_app()
 
             for test in test_file['tests']:
+                epoch_time = str(int(time.time()))
+                dump_name = folder_name = "attack_data_" + epoch_time + "_" + test['name'].lower().replace(" ", "_").replace(".", "_")
+                print(dump_name)
                 result_test = {}
                 for attack_data in test['attack_data']:
-                    url = attack_data['data']
-                    attack_data_file = os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + attack_data['file_name'])
-                    self.log.info("downloading attack_data {0} into file {1}".format(url, attack_data_file))
-                    r = requests.get(url, allow_redirects=True)
-                    open(attack_data_file, 'wb').write(r.content)
-
-                    # Update timestamps before replay
                     if 'update_timestamp' in attack_data:
-                        if attack_data['update_timestamp'] == True:
-                            self.log.info("updating timestamp on dataset: {1}".format(url, attack_data_file))
-                            data_manipulation = DataManipulation()
-                            data_manipulation.manipulate_timestamp(folder_name + '/' + attack_data['file_name'], self.log, attack_data['sourcetype'], attack_data['source'])
-
-                    self.replay_attack_data(folder_name, {'sourcetype': attack_data['sourcetype'], 'source': attack_data['source'], 'out': attack_data['file_name']})
-
-                self.log.info('waiting for 60 seconds for indexing to occur')
-                time.sleep(60)
+                        attack_data['update_timestamp'] = attack_data['update_timestamp']
+                    else:
+                        attack_data['update_timestamp'] = True
+                    self.replay_attack_data(dump_name, attack_data)
 
                 # process baselines
                 if 'baselines' in test:
@@ -172,6 +157,7 @@ class TerraformController(IEnvironmentController):
                     if instance['State']['Name'] == 'running':
                         result_detection = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
                         if test_delete_data:
+                            self.log.info("deleting test data from splunk for test {0}".format(test_file))
                             splunk_sdk.delete_attack_data(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']))
                     else:
                         self.log.error('ERROR: splunk server is not running.')
@@ -181,6 +167,7 @@ class TerraformController(IEnvironmentController):
                     if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
                         result_detection = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
                         if test_delete_data:
+                            self.log.info("deleting test data from splunk for test {0}".format(test_file))
                             splunk_sdk.delete_attack_data(instance['public_ip'], str(self.config['attack_range_password']))
 
                 result_detection['detection_name'] = test['name']
@@ -357,44 +344,32 @@ class TerraformController(IEnvironmentController):
                     self.log.info("%s [Completed]" % dump_info)
 
 
-    def replay_attack_data(self, dump_name, replay_parameters = None):
+    def replay_attack_data(self, dump_name, attack_data):
         if self.config['cloud_provider'] == 'aws':
             splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
         elif self.config['cloud_provider'] == 'azure':
             splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
 
-        if replay_parameters == None:
-            with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dump_fh:
-                for d in yaml.full_load(dump_fh):
-                    if (d['name'] == dump or dump is None) and d['enabled']:
-                        if 'update_timestamp' in d['replay_parameters']:
-                            if d['replay_parameters']['update_timestamp'] == True:
-                                print('d1')
-                                data_manipulation = DataManipulation()
-                                data_manipulation.manipulate_timestamp(os.path.join(dump_name, d['dump_parameters']['out']), self.log, d['replay_parameters']['sourcetype'], d['replay_parameters']['source'])
-                        self.replay_attack_dataset(splunk_ip, dump_name, d['replay_parameters']['index'], d['replay_parameters']['sourcetype'], d['replay_parameters']['source'], d['dump_parameters']['out'])
-        else:
-            self.replay_attack_dataset(splunk_ip, dump_name, 'test', replay_parameters['sourcetype'], replay_parameters['source'], replay_parameters['out'])
-
-
-    def replay_attack_dataset(self, splunk_ip, dump_name, index, sourcetype, source, out):
         ansible_vars = {}
         ansible_vars['dump_name'] = dump_name
         ansible_vars['ansible_user'] = 'ubuntu'
         ansible_vars['ansible_ssh_private_key_file'] = self.config['private_key_path']
         ansible_vars['splunk_password'] = self.config['attack_range_password']
-        ansible_vars['out'] = out
-        ansible_vars['sourcetype'] = sourcetype
-        ansible_vars['source'] = source
-        ansible_vars['index'] = index
+        ansible_vars['out'] = attack_data['file_name']
+        ansible_vars['sourcetype'] = attack_data['sourcetype']
+        ansible_vars['source'] = attack_data['source']
+        ansible_vars['index'] = 'test'
+        ansible_vars['data'] = attack_data['data']
+        ansible_vars['update_timestamp'] = attack_data['update_timestamp']
         ansible_vars['ansible_port'] = 22
 
         cmdline = "-i %s, -u ubuntu" % (splunk_ip)
         runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                     cmdline=cmdline,
                                     roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                    playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_replay.yml'),
+                                    playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_test.yml'),
                                     extravars=ansible_vars)
+
 
     def update_ESCU_app(self):
         self.log.info("Update ESCU App. This can take some time")

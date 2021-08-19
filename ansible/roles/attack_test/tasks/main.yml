@@ -1,0 +1,43 @@
+---
+
+- name: creating /tmp/{{dump_name}} folder to download attack_data
+  file:
+    path: /tmp/{{dump_name}}
+    state: directory
+
+- name: downloading {{dump_name}}/{{ out }}
+  get_url:
+    url: "{{data}}"
+    dest: /tmp/{{ dump_name }}/{{ out }}
+    timeout: 300
+
+- name: copying datamanipulation.py scripts,update_timestamp set!
+  copy:
+    src: datamanipulation.py
+    dest: /tmp/datamanipulation.py
+    mode: 755
+  when: update_timestamp == True
+
+- name: running datamanipulation.py, update_timestamp set
+  ansible.builtin.script:
+    cmd: datamanipulation.py --path /tmp/{{dump_name}}/{{out}} --source {{source}} --sourcetype {{sourcetype}}
+    args:
+      executable: /usr/bin/python3
+  when: update_timestamp == True
+
+
+- name: calling oneshot inputs for index
+  uri:
+    url: https://localhost:8089/services/data/inputs/oneshot
+    validate_certs: no
+    method: POST
+    user: admin
+    password: "{{ splunk_password }}"
+    force_basic_auth: yes
+    body_format: form-urlencoded
+    body:
+      name: /tmp/{{ dump_name }}/{{ out }}
+      sourcetype: "{{ sourcetype }}"
+      rename-source: "{{ source }}"
+      index: "{{ index }}"
+    status_code: 201
