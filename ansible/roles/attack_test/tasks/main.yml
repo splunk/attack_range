@@ -16,14 +16,14 @@
     src: datamanipulation.py
     dest: /tmp/datamanipulation.py
     mode: 755
-  when: update_timestamp
+  when: update_timestamp | bool
+
 
 - name: running datamanipulation.py, update_timestamp set
-  ansible.builtin.script:
-    cmd: datamanipulation.py --path /tmp/{{dump_name}}/{{out}} --source {{source}} --sourcetype {{sourcetype}}
-    args:
-      executable: /usr/bin/python3
-  when: update_timestamp
+  ansible.builtin.shell:
+    cmd: /usr/bin/python3 datamanipulation.py --path /tmp/{{dump_name}}/{{out}} --source {{source}} --sourcetype {{sourcetype}}
+    chdir: /tmp/
+  when: update_timestamp | bool
 
 
 - name: calling oneshot inputs for indexing

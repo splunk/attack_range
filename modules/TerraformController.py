@@ -372,11 +372,12 @@ class TerraformController(IEnvironmentController):
         ansible_vars['ansible_port'] = 22
 
         cmdline = "-i %s, -u ubuntu" % (splunk_ip)
+        print(os.path.join(os.path.dirname(__file__), '../'))
         runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                     cmdline=cmdline,
                                     roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
                                     playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_test.yml'),
-                                    extravars=ansible_vars)
+                                    extravars=ansible_vars,)
 
 
     def update_ESCU_app(self):
