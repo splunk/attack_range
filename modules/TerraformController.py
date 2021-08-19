@@ -122,6 +122,7 @@ class TerraformController(IEnvironmentController):
                         attack_data['update_timestamp'] = attack_data['update_timestamp']
                     else:
                         attack_data['update_timestamp'] = True
+                    attack_data['update_timestamp'] = True
                     self.replay_attack_data(dump_name, attack_data)
 
                 # process baselines
@@ -157,7 +158,7 @@ class TerraformController(IEnvironmentController):
                     if instance['State']['Name'] == 'running':
                         result_detection = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
                         if test_delete_data:
-                            self.log.info("deleting test data from splunk for test {0}".format(test_file))
+                            self.log.info("deleting test data from splunk for test {0}".format(test_file['file']))
                             splunk_sdk.delete_attack_data(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']))
                     else:
                         self.log.error('ERROR: splunk server is not running.')
@@ -167,7 +168,7 @@ class TerraformController(IEnvironmentController):
                     if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
                         result_detection = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
                         if test_delete_data:
-                            self.log.info("deleting test data from splunk for test {0}".format(test_file))
+                            self.log.info("deleting test data from splunk for test {0}".format(test_file['file']))
                             splunk_sdk.delete_attack_data(instance['public_ip'], str(self.config['attack_range_password']))
 
                 result_detection['detection_name'] = test['name']
@@ -296,8 +297,15 @@ class TerraformController(IEnvironmentController):
             if instances_running:
                 print(tabulate(response, headers=[
                       'Name', 'Status', 'IP Address']))
+                print("\n\nAccess Splunk via:\n\tweb http://<splunk_ip>:8000\n\tvia ssh: ssh -i" + self.config['private_key_path'] \
+                + " ubuntu@<splunk_ip>\n\tusername:admin \n\tpassword:" + self.config['attack_range_password'])
+                print("Access Windows via\n\tRDP: rdp://<win_ip>:3389\n\tusername:Administrator \n\tpassword:" + self.config['attack_range_password'])
             else:
                 print(tabulate(response, headers=['Name', 'Status']))
+                print("\n\nAccess Splunk via:\n\tweb http://<splunk_ip>:8000\n\tvia ssh: ssh -i" + self.config['private_key_path'] \
+                + " ubuntu@<splunk_ip>\n\tusername:admin \n\tpassword:" + self.config['attack_range_password'])
+                print("Access Windows via\n\tRDP: rdp://<win_ip>:3389\n\tusername:Administrator \n\tpassword:" + self.config['attack_range_password'])
+
         else:
             print("ERROR: Can't find configured Attack Range Instances")
         print()

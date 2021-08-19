@@ -5,7 +5,7 @@
     path: /tmp/{{dump_name}}
     state: directory
 
-- name: downloading {{dump_name}}/{{ out }}
+- name: downloading {{ out }}
   get_url:
     url: "{{data}}"
     dest: /tmp/{{ dump_name }}/{{ out }}
@@ -16,17 +16,17 @@
     src: datamanipulation.py
     dest: /tmp/datamanipulation.py
     mode: 755
-  when: update_timestamp == True
+  when: update_timestamp
 
 - name: running datamanipulation.py, update_timestamp set
   ansible.builtin.script:
     cmd: datamanipulation.py --path /tmp/{{dump_name}}/{{out}} --source {{source}} --sourcetype {{sourcetype}}
     args:
       executable: /usr/bin/python3
-  when: update_timestamp == True
+  when: update_timestamp
 
 
-- name: calling oneshot inputs for index
+- name: calling oneshot inputs for indexing
   uri:
     url: https://localhost:8089/services/data/inputs/oneshot
     validate_certs: no
