@@ -357,7 +357,7 @@ class TerraformController(IEnvironmentController):
                     self.log.info("%s [Completed]" % dump_info)
 
 
-    def replay_attack_data(self, dump_name, replay_parameters = None):
+    def replay_attack_data(self, dump_name, dump, replay_parameters = None):
         if self.config['cloud_provider'] == 'aws':
             splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
         elif self.config['cloud_provider'] == 'azure':

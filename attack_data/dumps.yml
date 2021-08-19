@@ -7,7 +7,7 @@
     source: XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
     sourcetype: xmlwineventlog
     index: test
-  enabled: True
+  enabled: False
 
 - name: windows_security_events
   dump_parameters:
@@ -111,6 +111,30 @@
   replay_parameters:
     source: security_hub_finding
     sourcetype: aws:securityhub:finding
+    index: test
+    update_timestamp: False
+  enabled: False
+
+- name: gsuite_gmail_bigquery
+  dump_parameters:
+    out: gsuite_gmail_bigquery.json
+    search: 'sourcetype=gsuite:gmail:bigquery'
+    time: -24h
+  replay_parameters:
+    source: http:gsuite
+    sourcetype: gsuite:gmail:bigquery
+    index: test
+    update_timestamp: False
+  enabled: False
+
+- name: gsuite_drive_json
+  dump_parameters:
+    out: gsuite_drive_json.json
+    search: 'sourcetype=gsuite:drive:json'
+    time: -24h
+  replay_parameters:
+    source: http:gsuite
+    sourcetype: gsuite:drive:json
     index: test
     update_timestamp: False
   enabled: False
