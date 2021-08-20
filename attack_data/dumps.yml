@@ -138,3 +138,15 @@
     index: test
     update_timestamp: False
   enabled: False
+
+- name: github
+  dump_parameters:
+    out: github.json
+    search: 'sourcetype=aws:firehose:json'
+    time: -24h
+  replay_parameters:
+    source: github
+    sourcetype: aws:firehose:json
+    index: test
+    update_timestamp: False
+  enabled: False
