@@ -134,7 +134,7 @@ class TerraformController(IEnvironmentController):
                             data_manipulation = DataManipulation()
                             data_manipulation.manipulate_timestamp(folder_name + '/' + attack_data['file_name'], self.log, attack_data['sourcetype'], attack_data['source'])
 
-                    self.replay_attack_data(folder_name, {'sourcetype': attack_data['sourcetype'], 'source': attack_data['source'], 'out': attack_data['file_name']})
+                    self.replay_attack_data(folder_name, 'test', {'sourcetype': attack_data['sourcetype'], 'source': attack_data['source'], 'out': attack_data['file_name']})
 
                 self.log.info('waiting for 60 seconds for indexing to occur')
                 time.sleep(60)
