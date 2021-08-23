@@ -100,7 +100,7 @@ def dump(args):
 
 
 def replay(args):
-    controller, _, _ = init(args)
+    controller, _, log = init(args)
     controller.replay_attack_data(args.dump_name, args.dump)
 
 
@@ -190,9 +190,9 @@ def main(args):
 
     # Replay Arguments
     replay_parser.add_argument("-dn", "--dump_name", required=True,
-                               help="name for the dumped attack data")
+                               help="name for the data dump folder under attack_data/")
     replay_parser.add_argument("--dump", required=False,
-                        help="name of the dump as defined in attack_data/dumps.yml")
+                        help="name of the data dump as defined in attack_data/dumps.yml")
     replay_parser.set_defaults(func=replay)
 
     # Test Arguments
