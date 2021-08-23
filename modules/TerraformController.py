@@ -300,17 +300,24 @@ class TerraformController(IEnvironmentController):
         print()
         print('Status Virtual Machines\n')
         if len(response) > 0:
+            # grab the ips
+            for machine in response:
+                if 'splunk' in machine[0]:
+                    splunk_ip = machine[2]
+                elif 'win' in machine[0]:
+                    win_ip = machine[2]
+
             if instances_running:
                 print(tabulate(response, headers=[
                       'Name', 'Status', 'IP Address']))
-                print("\n\nAccess Splunk via:\n\tweb http://<splunk_ip>:8000\n\tvia ssh: ssh -i" + self.config['private_key_path'] \
-                + " ubuntu@<splunk_ip>\n\tusername:admin \n\tpassword:" + self.config['attack_range_password'])
-                print("Access Windows via\n\tRDP: rdp://<win_ip>:3389\n\tusername:Administrator \n\tpassword:" + self.config['attack_range_password'])
+                print("\n\nAccess Splunk via:\n\tweb http://" + splunk_ip + ":8000\n\tvia ssh: ssh -i" + self.config['private_key_path'] \
+                + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password'])
+                print("Access Windows via\n\tRDP: rdp://" + win_ip + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password'])
             else:
                 print(tabulate(response, headers=['Name', 'Status']))
-                print("\n\nAccess Splunk via:\n\tweb http://<splunk_ip>:8000\n\tvia ssh: ssh -i" + self.config['private_key_path'] \
-                + " ubuntu@<splunk_ip>\n\tusername:admin \n\tpassword:" + self.config['attack_range_password'])
-                print("Access Windows via\n\tRDP: rdp://<win_ip>:3389\n\tusername:Administrator \n\tpassword:" + self.config['attack_range_password'])
+                print("\n\nAccess Splunk via:\n\tweb http://" + splunk_ip + ":8000\n\tvia ssh: ssh -i" + self.config['private_key_path'] \
+                + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password'])
+                print("Access Windows via\n\tRDP: rdp://" + win_ip + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password'])
 
         else:
             print("ERROR: Can't find configured Attack Range Instances")
@@ -382,6 +389,7 @@ class TerraformController(IEnvironmentController):
                                 ansible_vars['update_timestamp'] = d['replay_parameters']['update_timestamp']
                                 data_manipulation = DataManipulation()
                                 data_manipulation.manipulate_timestamp(os.path.join(dump_name, d['dump_parameters']['out']), self.log, d['replay_parameters']['sourcetype'], d['replay_parameters']['source'])
+
                         ansible_vars['out'] = d['dump_parameters']['out']
                         ansible_vars['sourcetype'] = d['replay_parameters']['sourcetype']
                         ansible_vars['source'] = d['replay_parameters']['source']
