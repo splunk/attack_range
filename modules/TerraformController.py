@@ -16,6 +16,7 @@ import json
 from datetime import datetime
 from datetime import timedelta
 import fileinput
+import pyperclip
 
 
 
@@ -302,10 +303,12 @@ class TerraformController(IEnvironmentController):
         if len(response) > 0:
             # grab the ips
             for machine in response:
-                if 'splunk' in machine[0]:
-                    splunk_ip = machine[2]
-                elif 'win' in machine[0]:
-                    win_ip = machine[2]
+                for x in machine:
+                    if 'splunk' in x:
+                        splunk_ip = machine[2]
+                for x in machine:
+                    if 'win' in x:
+                        win_ip = machine[2]
 
             if instances_running:
                 print(tabulate(response, headers=[
@@ -321,6 +324,8 @@ class TerraformController(IEnvironmentController):
 
         else:
             print("ERROR: Can't find configured Attack Range Instances")
+        pyperclip.copy(self.config['attack_range_password'])
+        print("* attack_range password has been copied to your clipboard")
         print()
 
 

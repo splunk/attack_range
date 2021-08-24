@@ -6,6 +6,11 @@ from modules import configuration
 from pathlib import Path
 from modules.CustomConfigParser import CustomConfigParser
 from modules.TerraformController import TerraformController
+import colorama
+from colorama import Fore, Back, Style
+
+colorama.init(autoreset=True)
+
 
 
 # need to set this ENV var due to a OSX High Sierra forking bug
@@ -17,8 +22,8 @@ VERSION = 1
 
 def init(args):
     config = args.config
-    print("""
-starting program loaded for B1 battle droid
+    print(Back.BLACK + Fore.GREEN + """
+starting program loaded for B1 battle droid """ + Back.BLACK + Fore.BLUE + Style.BRIGHT + """
           ||/__'`.
           |//()'-.:
           |-.||
@@ -38,7 +43,7 @@ starting program loaded for B1 battle droid
     # parse config
     attack_range_config = Path(config)
     if attack_range_config.is_file():
-        print("attack_range is using config at path {0}".format(
+        print(Back.BLACK + Fore.GREEN + "attack_range is using config at path " + Style.BRIGHT + "{0}".format(
             attack_range_config))
         configpath = str(attack_range_config)
     else:
