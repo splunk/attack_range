@@ -118,21 +118,12 @@ class TerraformController(IEnvironmentController):
                 result_test = {}
                 for attack_data in test['attack_data']:
                     if 'update_timestamp' in attack_data:
-<<<<<<< HEAD
                         attack_data['update_timestamp'] = attack_data['update_timestamp']
                     else:
                         attack_data['update_timestamp'] = False
                     #attack_data['update_timestamp'] = True
                     attack_data['index'] = 'test'
                     self.replay_attack_data(dump_name, 'test', attack_data)
-=======
-                        if attack_data['update_timestamp'] == True:
-                            self.log.info("updating timestamp on dataset: {1}".format(url, attack_data_file))
-                            data_manipulation = DataManipulation()
-                            data_manipulation.manipulate_timestamp(folder_name + '/' + attack_data['file_name'], self.log, attack_data['sourcetype'], attack_data['source'])
-
-                    self.replay_attack_data(folder_name, 'test', {'sourcetype': attack_data['sourcetype'], 'source': attack_data['source'], 'out': attack_data['file_name']})
->>>>>>> develop
 
                 # wait for indexing
                 self.log.info("sleeping for 60 seconds to wait for indexing to occur")
@@ -374,11 +365,7 @@ class TerraformController(IEnvironmentController):
                     self.log.info("%s [Completed]" % dump_info)
 
 
-<<<<<<< HEAD
     def replay_attack_data(self, dump_name, dump, attack_data = None):
-=======
-    def replay_attack_data(self, dump_name, dump, replay_parameters = None):
->>>>>>> develop
         if self.config['cloud_provider'] == 'aws':
             splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
         elif self.config['cloud_provider'] == 'azure':
