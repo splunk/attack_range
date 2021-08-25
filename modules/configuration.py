@@ -28,6 +28,7 @@ def load_config_template(CONFIG_TEMPLATE):
     config.read(CONFIG_TEMPLATE)
     return config
 
+
 def get_random_password():
     random_source = string.ascii_letters + string.digits
     password = random.choice(string.ascii_lowercase)
@@ -372,32 +373,31 @@ starting configuration for AT-ST mech walker
         },
         {
             'type': 'confirm',
-            'message': 'shall we build a phantom server',
-            'name': 'phantom_server',
+            'message': 'Would you like to include phantom',
+            'name': 'phantom_inclusion',
             'default': False,
         },
         {
-            'type': 'input',
-            'message': 'phantom community username (my.phantom.us), required for phantom server',
-            'name': 'phantom_community_username',
-            'when': lambda answers: answers['phantom_server'],
-            'default': 'user',
+            'type': 'list',
+            'message': 'would you like to supply your own phantom server',
+            'name': 'phantom_type',
+            'choices': ['New', 'BYO'],
+            'when': lambda answers: answers['phantom_inclusion'],
+            'filter': lambda val : val.lower(),
+            'default': False,
         },
-        {
-            'type': 'input',
-            'message': 'phantom community password (my.phantom.us), required for phantom server',
-            'name': 'phantom_community_password',
-            'when': lambda answers: answers['phantom_server'],
-            'default': 'password',
-        },
+        
     ]
     answers = prompt(questions)
     enabled = lambda x : 1 if x else 0
-    configuration._sections['environment']['phantom_server'] = enabled(answers['phantom_server'])
-    if 'phantom_community_username' in answers:
-        configuration._sections['phantom_settings']['phantom_community_username'] = answers['phantom_community_username']
-    if 'phantom_community_password' in answers:
-        configuration._sections['phantom_settings']['phantom_community_password'] = answers['phantom_community_password']
+    
+    if (enabled(answers['phantom_inclusion'])):
+        configuration._sections['environment']['phantom_inclusion'] = enabled(answers['phantom_inclusion'])
+        configuration._sections['environment']['phantom_type'] = answers['phantom_type']
+    else:
+        configuration._sections['environment']['phantom_inclusion'] = enabled(answers['phantom_inclusion'])
+        configuration._sections['environment']['phantom_type'] = 0
+
 
     if (enabled(answers['windows_domain_controller'])):
         configuration._sections['environment']['windows_domain_controller'] = enabled(answers['windows_domain_controller'])
@@ -410,6 +410,56 @@ starting configuration for AT-ST mech walker
     configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
     configuration._sections['environment']['windows_client'] = enabled(answers['windows_client'])
     configuration._sections['environment']['zeek_sensor'] = enabled(answers['zeek_sensor'])
+    
+    
+    if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "byo":
+        questions=[
+            {
+            'type': 'input',
+            'message': 'phantom api token, required for bring your own phantom',
+            'name': 'phantom_api_token',
+            'default': 'FIX_ME',
+        },
+        {
+            'type': 'input',
+            'message': 'phantom server ip address, required for bring your own phantom',
+            'name': 'phantom_byo_ip',
+            'default': '8.8.8.8',
+        },
+        ]
+        answers = prompt(questions)
+        enabled = lambda x : 1 if x else 0
+        if 'phantom_api_token' in answers:
+            configuration._sections['phantom_settings']['phantom_api_token'] = answers['phantom_api_token']
+        if 'phantom_byo_ip' in answers:
+            configuration._sections['phantom_settings']['phantom_byo_ip'] = answers['phantom_byo_ip']
+        configuration._sections['environment']['phantom_server'] = 0
+        configuration._sections['environment']['phantom_byo'] = 1
+
+    if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "new":    
+        questions = [
+            {
+                'type': 'input',
+                'message': 'phantom community username (my.phantom.us), required for phantom server',
+                'name': 'phantom_community_username',
+                'default': 'user',
+            },
+            {
+                'type': 'input',
+                'message': 'phantom community password (my.phantom.us), required for phantom server',
+                'name': 'phantom_community_password',
+                'default': 'password',
+            },
+        ]
+        answers = prompt(questions)
+        enabled = lambda x : 1 if x else 0
+        if 'phantom_community_username' in answers:
+            configuration._sections['phantom_settings']['phantom_community_username'] = answers['phantom_community_username']
+        if 'phantom_community_password' in answers:
+            configuration._sections['phantom_settings']['phantom_community_password'] = answers['phantom_community_password']
+        configuration._sections['environment']['phantom_server'] = 1
+        configuration._sections['environment']['phantom_byo'] = 0
+    
 
     # write config file
     with open(attack_range_config, 'w') as configfile:

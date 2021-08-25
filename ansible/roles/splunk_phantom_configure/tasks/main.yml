@@ -2,3 +2,6 @@
 
 - include: configure_phantom_app.yml
   when: phantom_server == "1"
+
+- include: configure_phantom_BYO_app.yml
+  when: phantom_byo == "1"
