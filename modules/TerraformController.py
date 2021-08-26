@@ -367,8 +367,13 @@ class TerraformController(IEnvironmentController):
 
         else:
             print("ERROR: Can't find configured Attack Range Instances")
-        pyperclip.copy(self.config['attack_range_password'])
-        print("* attack_range password has been copied to your clipboard")
+
+        # copy password into clipboard
+        try:
+            pyperclip.copy(self.config['attack_range_password'])
+            print("* attack_range password has been copied to your clipboard")
+        except Exception as e:
+            self.log.error("not able to copy password to clipboard")
         print()
 
 
