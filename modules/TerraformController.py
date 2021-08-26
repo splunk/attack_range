@@ -296,8 +296,8 @@ class TerraformController(IEnvironmentController):
 
         # windows domain controller
         if self.config['windows_server']:
-            win_ip = self.getIP(response, 'win-server')
-            msg = "Access Windows Server via:\n\tRDP > rdp://" + win_ip + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password']
+            win_server = self.getIP(response, 'win-server')
+            msg = "Access Windows Server via:\n\tRDP > rdp://" + win_server + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password']
             print_messages.append(msg)
 
         # kali linux
