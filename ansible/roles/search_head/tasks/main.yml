@@ -38,6 +38,7 @@
     - "{{ splunk_office_365_ta }}"
     - "{{ splunk_kinesis_ta }}"
     - "{{ splunk_linux_ta }}"
+    - "{{ splunk_dashboard_beta }}"
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: install_stream_app.yml
