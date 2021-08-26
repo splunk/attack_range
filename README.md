@@ -57,7 +57,7 @@ Attack Range can be built in three different ways:
 
 
 ## Architecture 🏯
-![Logical Diagram](docs/attack_range_architecture.png)
+![Logical Diagram](docs/attack_range_architecture_white.png)
 
 The virtualized deployment of Attack Range consists of:
 
