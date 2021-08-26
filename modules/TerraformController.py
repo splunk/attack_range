@@ -16,6 +16,7 @@ import json
 from datetime import datetime
 from datetime import timedelta
 import fileinput
+import pyperclip
 
 
 
@@ -109,34 +110,24 @@ class TerraformController(IEnvironmentController):
             self.log.info("running test: {0}".format(test_file))
             test_file = self.load_file(test_file)
 
-            epoch_time = str(int(time.time()))
-            folder_name = "attack_data_" + epoch_time
-            os.mkdir(os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name))
-
-            output = 'loaded attack data'
-
             if self.config['update_escu_app'] == '1':
                 self.update_ESCU_app()
 
             for test in test_file['tests']:
+                epoch_time = str(int(time.time()))
+                dump_name = folder_name = "attack_data_" + epoch_time + "_" + test['name'].lower().replace(" ", "_").replace(".", "_")
                 result_test = {}
                 for attack_data in test['attack_data']:
-                    url = attack_data['data']
-                    attack_data_file = os.path.join(os.path.dirname(__file__), '../attack_data/' + folder_name + '/' + attack_data['file_name'])
-                    self.log.info("downloading attack_data {0} into file {1}".format(url, attack_data_file))
-                    r = requests.get(url, allow_redirects=True)
-                    open(attack_data_file, 'wb').write(r.content)
-
-                    # Update timestamps before replay
                     if 'update_timestamp' in attack_data:
-                        if attack_data['update_timestamp'] == True:
-                            self.log.info("updating timestamp on dataset: {1}".format(url, attack_data_file))
-                            data_manipulation = DataManipulation()
-                            data_manipulation.manipulate_timestamp(folder_name + '/' + attack_data['file_name'], self.log, attack_data['sourcetype'], attack_data['source'])
+                        attack_data['update_timestamp'] = attack_data['update_timestamp']
+                    else:
+                        attack_data['update_timestamp'] = False
+                    #attack_data['update_timestamp'] = True
+                    attack_data['index'] = 'test'
+                    self.replay_attack_data(dump_name, 'test', attack_data)
 
-                    self.replay_attack_data(folder_name, 'test', {'sourcetype': attack_data['sourcetype'], 'source': attack_data['source'], 'out': attack_data['file_name']})
-
-                self.log.info('waiting for 60 seconds for indexing to occur')
+                # wait for indexing
+                self.log.info("sleeping for 60 seconds to wait for indexing to occur")
                 time.sleep(60)
 
                 # process baselines
@@ -170,8 +161,10 @@ class TerraformController(IEnvironmentController):
                     instance = aws_service.get_instance_by_name(
                         'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
                     if instance['State']['Name'] == 'running':
+                        self.log.info("running detection against splunk for indexed data {0}".format(detection_file_name))
                         result_detection = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
                         if test_delete_data:
+                            self.log.info("deleting test data from splunk for test {0}".format(detection_file_name))
                             splunk_sdk.delete_attack_data(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']))
                     else:
                         self.log.error('ERROR: splunk server is not running.')
@@ -179,8 +172,10 @@ class TerraformController(IEnvironmentController):
                 elif self.config['cloud_provider'] == 'azure':
                     instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
                     if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
+                        self.log.info("running detection against splunk for indexed data {0}".format(detection_file_name))
                         result_detection = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
                         if test_delete_data:
+                            self.log.info("deleting test data from splunk for test {0}".format(detection_file_name))
                             splunk_sdk.delete_attack_data(instance['public_ip'], str(self.config['attack_range_password']))
 
                 result_detection['detection_name'] = test['name']
@@ -276,6 +271,57 @@ class TerraformController(IEnvironmentController):
                 simulation_techniques, target))
             sys.exit(1)
 
+    def getIP(self, response, machine_type):
+        for machine in response:
+            for x in machine:
+                    if machine_type in x:
+                        ip = machine[2]
+                        return ip
+
+
+    def show_message(self, response):
+        print_messages = []
+
+        # splunk server will always be built
+        splunk_ip = self.getIP(response, 'splunk')
+        msg = "\n\nAccess Splunk via:\n\tWeb > http://" + splunk_ip + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] \
+        + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
+        print_messages.append(msg)
+
+        # windows domain controller
+        if self.config['windows_domain_controller']:
+            win_ip = self.getIP(response, 'win-dc')
+            msg = "Access Windows Domain Controller via:\n\tRDP > rdp://" + win_ip + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        # windows domain controller
+        if self.config['windows_server']:
+            win_ip = self.getIP(response, 'win-server')
+            msg = "Access Windows Server via:\n\tRDP > rdp://" + win_ip + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        # kali linux
+        if self.config['kali_machine']:
+            kali_ip = self.getIP(response, 'kali')
+            msg = "Access Kali via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
+            + " ubuntu@" + kali_ip + "\n\tusername: kali \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        # osquery linux
+        if self.config['osquery_machine']:
+            osquerylnx_ip = self.getIP(response, 'osquerylnx')
+            msg = "Access Osquery via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
+            + " ubuntu@" + osquerylnx_ip + "\n\tusername: kali \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        # phantom linux
+        if self.config['phantom_server']:
+            phantom_ip = self.getIP(response, 'phantom')
+            msg = "Access Phantom via:\n\tWeb > https://" + phantom_ip + "\n\tSSH > ssh -i" + self.config['private_key_path'] \
+            + " centos@" + phantom_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        return print_messages
 
 
     def list_machines(self):
@@ -306,13 +352,23 @@ class TerraformController(IEnvironmentController):
         print()
         print('Status Virtual Machines\n')
         if len(response) > 0:
+
             if instances_running:
                 print(tabulate(response, headers=[
                       'Name', 'Status', 'IP Address']))
+                messages_to_print = self.show_message(response)
+                for msg in messages_to_print:
+                    print(msg)
             else:
                 print(tabulate(response, headers=['Name', 'Status']))
+                messages_to_print = self.show_message(response)
+                for msg in messages_to_print:
+                    print(msg)
+
         else:
             print("ERROR: Can't find configured Attack Range Instances")
+        pyperclip.copy(self.config['attack_range_password'])
+        print("* attack_range password has been copied to your clipboard")
         print()
 
 
@@ -357,44 +413,61 @@ class TerraformController(IEnvironmentController):
                     self.log.info("%s [Completed]" % dump_info)
 
 
-    def replay_attack_data(self, dump_name, dump, replay_parameters = None):
+    def replay_attack_data(self, dump_name, dump, attack_data = None):
         if self.config['cloud_provider'] == 'aws':
             splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
         elif self.config['cloud_provider'] == 'azure':
             splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
 
-        if replay_parameters == None:
-            with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dump_fh:
-                for d in yaml.full_load(dump_fh):
-                    if (d['name'] == dump or dump is None) and d['enabled']:
-                        if 'update_timestamp' in d['replay_parameters']:
-                            if d['replay_parameters']['update_timestamp'] == True:
-                                print('d1')
-                                data_manipulation = DataManipulation()
-                                data_manipulation.manipulate_timestamp(os.path.join(dump_name, d['dump_parameters']['out']), self.log, d['replay_parameters']['sourcetype'], d['replay_parameters']['source'])
-                        self.replay_attack_dataset(splunk_ip, dump_name, d['replay_parameters']['index'], d['replay_parameters']['sourcetype'], d['replay_parameters']['source'], d['dump_parameters']['out'])
-        else:
-            self.replay_attack_dataset(splunk_ip, dump_name, 'test', replay_parameters['sourcetype'], replay_parameters['source'], replay_parameters['out'])
-
-
-    def replay_attack_dataset(self, splunk_ip, dump_name, index, sourcetype, source, out):
+        # preset our ansible vars
         ansible_vars = {}
         ansible_vars['dump_name'] = dump_name
         ansible_vars['ansible_user'] = 'ubuntu'
         ansible_vars['ansible_ssh_private_key_file'] = self.config['private_key_path']
         ansible_vars['splunk_password'] = self.config['attack_range_password']
-        ansible_vars['out'] = out
-        ansible_vars['sourcetype'] = sourcetype
-        ansible_vars['source'] = source
-        ansible_vars['index'] = index
         ansible_vars['ansible_port'] = 22
 
-        cmdline = "-i %s, -u ubuntu" % (splunk_ip)
-        runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
-                                    cmdline=cmdline,
-                                    roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                    playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_replay.yml'),
-                                    extravars=ansible_vars)
+        # if attack_data is not passed then lets figure it out
+        if attack_data == None:
+            with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dump_fh:
+                for d in yaml.full_load(dump_fh):
+                    if (d['name'] == dump or dump is None) and d['enabled']:
+                        if 'update_timestamp' in d['replay_parameters']:
+                            if d['replay_parameters']['update_timestamp'] == True:
+                                ansible_vars['update_timestamp'] = d['replay_parameters']['update_timestamp']
+                                data_manipulation = DataManipulation()
+                                data_manipulation.manipulate_timestamp(os.path.join(dump_name, d['dump_parameters']['out']), self.log, d['replay_parameters']['sourcetype'], d['replay_parameters']['source'])
+
+                        ansible_vars['out'] = d['dump_parameters']['out']
+                        ansible_vars['sourcetype'] = d['replay_parameters']['sourcetype']
+                        ansible_vars['source'] = d['replay_parameters']['source']
+                        ansible_vars['index'] = d['replay_parameters']['index']
+                        ansible_vars['sourcetype'] = d['replay_parameters']['sourcetype']
+
+                        # call ansible
+                        cmdline = "-i %s, -u ubuntu" % (splunk_ip)
+                        runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                                    cmdline=cmdline,
+                                                    roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                                    playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_replay.yml'),
+                                                    extravars=ansible_vars)
+        # otherwise grab values from the vars
+        else:
+            ansible_vars['out'] = attack_data['file_name']
+            ansible_vars['sourcetype'] = attack_data['sourcetype']
+            ansible_vars['source'] = attack_data['source']
+            ansible_vars['index'] = attack_data['index']
+            ansible_vars['data'] = attack_data['data']
+            ansible_vars['update_timestamp'] = attack_data['update_timestamp']
+
+            # call ansible
+            cmdline = "-i %s, -u ubuntu" % (splunk_ip)
+            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                        cmdline=cmdline,
+                                        roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                        playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_test.yml'),
+                                        extravars=ansible_vars,)
+
 
     def update_ESCU_app(self):
         self.log.info("Update ESCU App. This can take some time")
