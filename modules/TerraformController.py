@@ -275,7 +275,6 @@ class TerraformController(IEnvironmentController):
         for machine in response:
             for x in machine:
                     if machine_type in x:
-                        print(machine_type, x)
                         ip = machine[2]
                         return ip
 

@@ -15,7 +15,7 @@ apt-run: &apt-install
   name: install system packages
   command: |
     sudo apt update -qq
-    sudo apt install -y python-dev python3-dev -qq
+    sudo apt install -y python-dev python3-dev xsel -qq
 
 executors:
   content-executor:
