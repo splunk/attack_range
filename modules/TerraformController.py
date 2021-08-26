@@ -271,6 +271,57 @@ class TerraformController(IEnvironmentController):
                 simulation_techniques, target))
             sys.exit(1)
 
+    def getIP(self, response, machine_type):
+        for machine in response:
+            for x in machine:
+                    if machine_type in x:
+                        ip = machine[2]
+                        return ip
+
+
+    def show_message(self, response):
+        print_messages = []
+
+        # splunk server will always be built
+        splunk_ip = self.getIP(response, 'splunk')
+        msg = "\n\nAccess Splunk via:\n\tWeb > http://" + splunk_ip + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] \
+        + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
+        print_messages.append(msg)
+
+        # windows domain controller
+        if self.config['windows_domain_controller']:
+            win_ip = self.getIP(response, 'win-dc')
+            msg = "Access Windows Domain Controller via:\n\tRDP > rdp://" + win_ip + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        # windows domain controller
+        if self.config['windows_server']:
+            win_ip = self.getIP(response, 'win-server')
+            msg = "Access Windows Server via:\n\tRDP > rdp://" + win_ip + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        # kali linux
+        if self.config['kali_machine']:
+            kali_ip = self.getIP(response, 'kali')
+            msg = "Access Kali via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
+            + " ubuntu@" + kali_ip + "\n\tusername: kali \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        # osquery linux
+        if self.config['osquery_machine']:
+            osquerylnx_ip = self.getIP(response, 'osquerylnx')
+            msg = "Access Osquery via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
+            + " ubuntu@" + osquerylnx_ip + "\n\tusername: kali \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        # phantom linux
+        if self.config['phantom_server']:
+            phantom_ip = self.getIP(response, 'phantom')
+            msg = "Access Phantom via:\n\tWeb > https://" + phantom_ip + "\n\tSSH > ssh -i" + self.config['private_key_path'] \
+            + " centos@" + phantom_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        return print_messages
 
 
     def list_machines(self):
@@ -301,26 +352,18 @@ class TerraformController(IEnvironmentController):
         print()
         print('Status Virtual Machines\n')
         if len(response) > 0:
-            # grab the ips
-            for machine in response:
-                for x in machine:
-                    if 'splunk' in x:
-                        splunk_ip = machine[2]
-                for x in machine:
-                    if 'win' in x:
-                        win_ip = machine[2]
 
             if instances_running:
                 print(tabulate(response, headers=[
                       'Name', 'Status', 'IP Address']))
-                print("\n\nAccess Splunk via:\n\tweb http://" + splunk_ip + ":8000\n\tvia ssh: ssh -i" + self.config['private_key_path'] \
-                + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password'])
-                print("Access Windows via\n\tRDP: rdp://" + win_ip + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password'])
+                messages_to_print = self.show_message(response)
+                for msg in messages_to_print:
+                    print(msg)
             else:
                 print(tabulate(response, headers=['Name', 'Status']))
-                print("\n\nAccess Splunk via:\n\tweb http://" + splunk_ip + ":8000\n\tvia ssh: ssh -i" + self.config['private_key_path'] \
-                + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password'])
-                print("Access Windows via\n\tRDP: rdp://" + win_ip + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password'])
+                messages_to_print = self.show_message(response)
+                for msg in messages_to_print:
+                    print(msg)
 
         else:
             print("ERROR: Can't find configured Attack Range Instances")
