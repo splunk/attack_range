@@ -21,7 +21,6 @@ chardet==3.0.4
 colorama==0.4.4
 configparser==4.0.2
 contextlib2==0.6.0.post1
-cryptography==3.4.7
 Deprecated==1.2.10
 dnspython==1.16.0
 docutils==0.15.2
@@ -83,7 +82,7 @@ splunk-sdk==1.6.12
 tabulate==0.8.6
 termcolor==1.1.0
 toml==0.10.0
-urllib3==1.25.11
+urllib3<=1.26.6
 virtualenv==16.7.9
 wcwidth==0.1.7
 wget==3.2
