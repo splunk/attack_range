@@ -17,9 +17,9 @@ The Attack Range is a detection development platform, which solves three main ch
 
 
 ## Demo 📺
-[A short demo (< 6 min)](https://www.youtube.com/watch?v=xIbln7OQ-Ak) which shows the basic functions of the attack range. It builds a testing environment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [Splunk Security Content](https://github.com/splunk/security-content) searches are used to detect the attack.
+[A short demo (< 3 min)](https://www.youtube.com/watch?v=yE7ytM3VNDQ) which shows the basic functions of the attack range. It builds a testing environment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [Splunk Security Content](https://github.com/splunk/security-content) searches are used to detect the attack.
 
-[![Attack Range Demo](https://img.youtube.com/vi/xIbln7OQ-Ak/0.jpg)](https://www.youtube.com/watch?v=xIbln7OQ-Ak)
+[![Attack Range Demo]https://img.youtube.com/vi/yE7ytM3VNDQ/default.jpg)](https://www.youtube.com/watch?v=yE7ytM3VNDQ)
 
 ## Building 👷‍♂️
 
