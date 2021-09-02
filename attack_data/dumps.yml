@@ -64,7 +64,7 @@
     source: aws_cloudtrail
     sourcetype: aws:cloudtrail
     index: test
-    update_timestamp: True
+    update_timestamp: False
   enabled: False
 
 - name: o365_events
@@ -126,7 +126,7 @@
     index: test
     update_timestamp: False
   enabled: False
-
+  
 - name: gsuite_drive_json
   dump_parameters:
     out: gsuite_drive_json.json
@@ -147,6 +147,30 @@
   replay_parameters:
     source: github
     sourcetype: aws:firehose:json
+    index: test
+    update_timestamp: False
+  enabled: False
+
+- name: kubernetes_nginx
+  dump_parameters:
+    out: kubernetes_nginx.json
+    search: 'index=main sourcetype=kube*'
+    time: -24h
+  replay_parameters:
+    source: kubernetes
+    sourcetype: kube:container:controller
+    index: test
+    update_timestamp: False
+  enabled: False
+
+- name: circleci
+  dump_parameters:
+    out: circleci.json
+    search: 'index=main sourcetype=circleci'
+    time: -24h
+  replay_parameters:
+    source: circleci
+    sourcetype: circleci
     index: test
     update_timestamp: False
   enabled: False

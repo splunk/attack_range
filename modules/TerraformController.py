@@ -447,7 +447,6 @@ class TerraformController(IEnvironmentController):
                         ansible_vars['sourcetype'] = d['replay_parameters']['sourcetype']
                         ansible_vars['source'] = d['replay_parameters']['source']
                         ansible_vars['index'] = d['replay_parameters']['index']
-                        ansible_vars['sourcetype'] = d['replay_parameters']['sourcetype']
 
                         # call ansible
                         cmdline = "-i %s, -u ubuntu" % (splunk_ip)
