@@ -147,6 +147,8 @@ splunk_attack_range_dashboard = splunk_attack_range_reporting-1.0.6.tar.gz
 
 timeline_custom_visualization = timeline-custom-visualization_140.tgz
 
+splunk_dashboard_beta = splunk-dashboards-app-beta_090.tgz
+
 splunk_bots_dataset = 0
 # A comma separated list of values indicating which of the open-source Boss
 # of the SOC (BOTS) datasets to install.
