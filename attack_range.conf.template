@@ -147,6 +147,8 @@ splunk_attack_range_dashboard = splunk_attack_range_reporting-1.0.6.tar.gz
 
 timeline_custom_visualization = timeline-custom-visualization_140.tgz
 
+splunk_dashboard_beta = splunk-dashboards-app-beta_090.tgz
+
 splunk_bots_dataset = 0
 # A comma separated list of values indicating which of the open-source Boss
 # of the SOC (BOTS) datasets to install.
@@ -215,12 +217,21 @@ phantom_community_password = password
 # This must be changed to a real password
 # You can register under my.phantom.us
 
-phantom_app = phantom-app-for-splunk_4035.tgz
+phantom_api_token = FIXME
+# Specify the API token used to setup communication from Splunk
+# docs: https://docs.splunk.com/Documentation/PhantomApp/4.1.3/UserGuide/Configurephantomserver
 
-phantom_repo_url = https://repo.phantom.us/phantom/4.10/base/7/x86_64/phantom_repo-4.10.4.56260-1.x86_64.rpm
+phantom_byo_ip = 8.8.8.8
+# Specify the IP to connect to your existing Phantom instance
+
+phantom_app = phantom-app-for-splunk_4035.tgz
+# Specify the Splunk App for Phantom
+
+phantom_repo_url = https://repo.phantom.us/phantom/4.10/base/7/x86_64/phantom_repo-4.10.6.61906-1.x86_64.rpm
+# Specify the Phantom install RPM 
 
 phantom_repo_nginx_url = https://repo.phantom.us/phantom/4.10/base/7/x86_64/nginx-1.19.2-1.el7.ngx.x86_64.rpm
-
+# Specify the Phantom NGINX dependency
 
 [windows_settings]
 splunk_uf_win_url = https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi
@@ -279,6 +290,10 @@ install_red_team_tools = 0
 
 phantom_server = 0
 # enable a phantom server
+# possible values: 1, 0
+
+phantom_byo = 0
+# enable BYO Phantom
 # possible values: 1, 0
 
 windows_domain_controller = 1

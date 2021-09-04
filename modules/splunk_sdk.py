@@ -75,8 +75,8 @@ def test_detection_search(splunk_host, splunk_password, search, pass_condition, 
         search = 'search ' + search
 
     kwargs = {"exec_mode": "blocking",
-              "dispatch.earliest_time": "-1d",
-              "dispatch.latest_time": "now"}
+              "dispatch.earliest_time": earliest_time,
+              "dispatch.latest_time": latest_time}
 
     splunk_search = search + ' ' + pass_condition
 
@@ -94,11 +94,11 @@ def test_detection_search(splunk_host, splunk_password, search, pass_condition, 
     test_results['scanCount'] = job['scanCount']
 
     if int(job['resultCount']) != 1:
-        log.error("Test failed for detection: " + detection_name)
+        log.error("test failed for detection: " + detection_name)
         test_results['error'] = True
         return test_results
     else:
-        log.info("Test successful for detection: " + detection_name)
+        log.info("test successful for detection: " + detection_name)
         test_results['error'] = False
         return test_results
 

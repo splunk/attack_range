@@ -7,7 +7,7 @@
 - include: configure_limits.yml
 - include: configure_web_conf.yml
 - include: configure_server_conf.yml
-#- include: configure_props.yml
+- include: configure_props.yml
 - include: create_serverclass.yml
 - include: install_enterprise_security.yml
 - include: install_botsv1_dataset.yml
@@ -38,6 +38,7 @@
     - "{{ splunk_office_365_ta }}"
     - "{{ splunk_kinesis_ta }}"
     - "{{ splunk_linux_ta }}"
+    - "{{ splunk_dashboard_beta }}"
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: install_stream_app.yml
