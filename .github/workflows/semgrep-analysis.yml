@@ -42,15 +42,14 @@ jobs:
       - uses: returntocorp/semgrep-action@v1
         with:
           #The following line is commented out for now pending a fix to the semgrep repo
-          #generateSarif: "1"
+          generateSarif: "1"
           config: >- # more at semgrep.dev/explore
             p/security-audit
             p/secrets
 
-      # Upload SARIF file generated in previous step
-      #The following lines are commented out right now pending a fix to the semgrep repo
-      # - name: Upload SARIF file
-      #   uses: github/codeql-action/upload-sarif@v1
-      #   with:
-      #     sarif_file: semgrep.sarif
-      #   if: always()
+      #Upload SARIF file generated in previous step
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: semgrep.sarif
+        if: always()
