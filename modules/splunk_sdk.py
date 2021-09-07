@@ -236,3 +236,38 @@ def delete_attack_data(splunk_host, splunk_password):
         return False
 
     return True
+
+
+def execute_savedsearch(splunk_host, splunk_password, search_name, earliest, latest):
+    try:
+        service = client.connect(
+            host=splunk_host,
+            port=8089,
+            username='admin',
+            password=splunk_password,
+            app="dev_sec_ops_analytics"
+        )
+    except Exception as e:
+        print("Unable to connect to Splunk instance: " + str(e))
+        return False  
+
+    mysavedsearch = service.saved_searches[search_name]
+
+    kwargs = {"dispatch.earliest_time": "-" + earliest,
+        "dispatch.latest_time": latest,
+         "disabled": 0}
+
+    mysavedsearch.update(**kwargs).refresh()
+
+    job = mysavedsearch.dispatch()
+    sleep(2)
+    while True:
+        job.refresh()
+        if job["isDone"] == "1":
+            break
+        sleep(2)
+
+    jobresults = job.results()
+
+    kwargs = {"disabled": 1}
+    mysavedsearch.update(**kwargs).refresh()
