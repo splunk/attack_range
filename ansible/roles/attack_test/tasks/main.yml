@@ -5,15 +5,22 @@
     path: /tmp/{{dump_name}}
     state: directory
 
-- name: downloading {{ out }}
+- name: downloading {{ out }} fromm Git LFS
   get_url:
     url: "{{data}}"
     dest: /tmp/{{ dump_name }}/{{ out }}
     timeout: 300
+  when: not (local_data | bool)
+
+- name: Upload replay from local machine
+  copy:
+    src: ../../attack_data/{{ dump_name }}/{{ out }}
+    dest: /tmp/{{ dump_name }}/{{ out }}
+  when: local_data | bool
 
 - name: copying datamanipulation.py scripts,update_timestamp set!
   copy:
-    src: datamanipulation.py
+    src: ../../modules/datamanipulation.py
     dest: /tmp/datamanipulation.py
     mode: 755
   when: update_timestamp | bool

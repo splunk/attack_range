@@ -2,7 +2,6 @@
 from modules.IEnvironmentController import IEnvironmentController
 from python_terraform import *
 from modules import aws_service, splunk_sdk, github_service, azure_service
-from modules.DataManipulation import DataManipulation
 from tabulate import tabulate
 import ansible_runner
 import yaml
@@ -124,7 +123,7 @@ class TerraformController(IEnvironmentController):
                         attack_data['update_timestamp'] = False
                     #attack_data['update_timestamp'] = True
                     attack_data['index'] = 'test'
-                    self.replay_attack_data(dump_name, 'test', attack_data)
+                    self.replay_attack_data(dump_name, attack_data)
 
                 # wait for indexing
                 self.log.info("sleeping for 60 seconds to wait for indexing to occur")
@@ -377,11 +376,15 @@ class TerraformController(IEnvironmentController):
         print()
 
 
-    def dump_attack_data(self, dump_name, last_sim):
+    def dump_attack_data(self, dump_name, dump_data):
         self.log.info("Dump log data")
 
         folder = "attack_data/" + dump_name
-        os.mkdir(os.path.join(os.path.dirname(__file__), '../' + folder))
+        if os.path.isdir(os.path.join(os.path.dirname(__file__), '../' + folder)):
+            self.log.error("folder already. please specify another directory")
+            sys.exit(1)
+        else:
+            os.mkdir(os.path.join(os.path.dirname(__file__), '../' + folder))
 
         server_str = ("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'])
         if self.config['cloud_provider'] == 'aws':
@@ -393,32 +396,21 @@ class TerraformController(IEnvironmentController):
             ansible_user = 'AzureAdmin'
             ansible_port = 5985
 
-        with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dumps:
-            for dump in yaml.full_load(dumps):
-                if dump['enabled']:
-                    dump_out = dump['dump_parameters']['out']
-                    if last_sim:
-                        # if last_sim is set, then it overrides time in dumps.yml
-                        # and starts dumping from last simulation
-                        with open(os.path.join(os.path.dirname(__file__),
-                                               "../attack_data/.%s-last-sim.tmp" % self.config['range_name']),
-                                  'r') as ls:
-                            sim_ts = float(ls.readline())
-                            dump['dump_parameters']['time'] = "-%ds" % int(time.time() - sim_ts)
-                    dump_search = "search %s earliest=%s | sort 0 _time" \
-                                  % (dump['dump_parameters']['search'], dump['dump_parameters']['time'])
-                    dump_info = "Dumping Splunk Search to %s " % dump_out
-                    self.log.info(dump_info)
-                    out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_out), 'wb')
-                    splunk_sdk.export_search(target_public_ip,
-                                             s=dump_search,
-                                             password=self.config['attack_range_password'],
-                                             out=out)
-                    out.close()
-                    self.log.info("%s [Completed]" % dump_info)
+
+        dump_search = "search %s earliest=-%s latest=%s | sort 0 _time" \
+            % (dump_data['search'], dump_data['earliest'], dump_data['latest'])
+        dump_info = "Dumping Splunk Search to %s " % dump_data['out']
+        self.log.info(dump_info)
+        out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_data['out']), 'wb')
+        splunk_sdk.export_search(target_public_ip,
+                                    s=dump_search,
+                                    password=self.config['attack_range_password'],
+                                    out=out)
+        out.close()
+        self.log.info("%s [Completed]" % dump_info)
 
 
-    def replay_attack_data(self, dump_name, dump, attack_data = None):
+    def replay_attack_data(self, dump_name, attack_data):
         if self.config['cloud_provider'] == 'aws':
             splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
         elif self.config['cloud_provider'] == 'azure':
@@ -432,45 +424,25 @@ class TerraformController(IEnvironmentController):
         ansible_vars['splunk_password'] = self.config['attack_range_password']
         ansible_vars['ansible_port'] = 22
 
-        # if attack_data is not passed then lets figure it out
-        if attack_data == None:
-            with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dump_fh:
-                for d in yaml.full_load(dump_fh):
-                    if (d['name'] == dump or dump is None) and d['enabled']:
-                        if 'update_timestamp' in d['replay_parameters']:
-                            if d['replay_parameters']['update_timestamp'] == True:
-                                ansible_vars['update_timestamp'] = d['replay_parameters']['update_timestamp']
-                                data_manipulation = DataManipulation()
-                                data_manipulation.manipulate_timestamp(os.path.join(dump_name, d['dump_parameters']['out']), self.log, d['replay_parameters']['sourcetype'], d['replay_parameters']['source'])
+        ansible_vars['out'] = attack_data['file_name']
+        ansible_vars['sourcetype'] = attack_data['sourcetype']
+        ansible_vars['source'] = attack_data['source']
+        ansible_vars['index'] = attack_data['index']
+        ansible_vars['update_timestamp'] = attack_data['update_timestamp']
 
-                        ansible_vars['out'] = d['dump_parameters']['out']
-                        ansible_vars['sourcetype'] = d['replay_parameters']['sourcetype']
-                        ansible_vars['source'] = d['replay_parameters']['source']
-                        ansible_vars['index'] = d['replay_parameters']['index']
-
-                        # call ansible
-                        cmdline = "-i %s, -u ubuntu" % (splunk_ip)
-                        runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
-                                                    cmdline=cmdline,
-                                                    roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                                    playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_replay.yml'),
-                                                    extravars=ansible_vars)
-        # otherwise grab values from the vars
-        else:
-            ansible_vars['out'] = attack_data['file_name']
-            ansible_vars['sourcetype'] = attack_data['sourcetype']
-            ansible_vars['source'] = attack_data['source']
-            ansible_vars['index'] = attack_data['index']
+        if 'data' in attack_data:
             ansible_vars['data'] = attack_data['data']
-            ansible_vars['update_timestamp'] = attack_data['update_timestamp']
+            ansible_vars['local_data'] = False
+        else:
+            ansible_vars['local_data'] = True
 
-            # call ansible
-            cmdline = "-i %s, -u ubuntu" % (splunk_ip)
-            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
-                                        cmdline=cmdline,
-                                        roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                        playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_test.yml'),
-                                        extravars=ansible_vars,)
+        # call ansible
+        cmdline = "-i %s, -u ubuntu" % (splunk_ip)
+        runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                    cmdline=cmdline,
+                                    roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                    playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/attack_test.yml'),
+                                    extravars=ansible_vars,)
 
 
     def update_ESCU_app(self):
@@ -493,3 +465,14 @@ class TerraformController(IEnvironmentController):
                                     roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
                                     playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/update_escu.yml'),
                                     extravars=ansible_vars)
+
+
+    def execute_savedsearch(self, search_name, earliest, latest):
+        self.log.info("Execute savedsearch " + search_name)
+
+        if self.config['cloud_provider'] == 'aws':
+            splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
+        elif self.config['cloud_provider'] == 'azure':
+            splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
+
+        splunk_sdk.execute_savedsearch(splunk_ip, self.config['attack_range_password'], search_name, earliest, latest)
