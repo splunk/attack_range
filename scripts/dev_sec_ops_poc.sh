@@ -1,4 +1,5 @@
 #!/bin/bash
+
 rm -rf attack_data/*
 
 # AWS ECR Container Scanning Findings High
@@ -31,6 +32,7 @@ wget -O attack_data/ci2/circle_ci_disable_security_step.json https://media.githu
 python attack_range.py replay -dn ci2 --source circleci --sourcetype circleci --index test --file_name circle_ci_disable_security_step.json
 sleep 10
 python attack_range.py search --search "ESCU - Circle CI Disable Security Step - Rule" --earliest 2h
+
 
 # Github Commit Changes In Master
 mkdir attack_data/github1

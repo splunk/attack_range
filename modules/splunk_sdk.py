@@ -259,7 +259,7 @@ def execute_savedsearch(splunk_host, splunk_password, search_name, earliest, lat
 
     mysavedsearch.update(**kwargs).refresh()
 
-    job = mysavedsearch.dispatch()
+    job = mysavedsearch.dispatch(trigger_actions=True)
     sleep(2)
     while True:
         job.refresh()

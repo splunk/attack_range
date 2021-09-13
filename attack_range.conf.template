@@ -149,6 +149,10 @@ timeline_custom_visualization = timeline-custom-visualization_140.tgz
 
 splunk_dashboard_beta = splunk-dashboards-app-beta_090.tgz
 
+dev_sec_ops_analytics = dev_sec_ops_analytics-1.0.0.tar.gz
+
+slack_alert = slack-notification-alert_220.tgz
+
 splunk_bots_dataset = 0
 # A comma separated list of values indicating which of the open-source Boss
 # of the SOC (BOTS) datasets to install.
@@ -261,6 +265,9 @@ install_es = 0
 splunk_es_app = splunk-enterprise-security_660.spl
 # Spefify the name of the Splunk Enterprise Security file, which you saved into the apps folder.
 
+[alerts]
+slack_webhook = 
+# configure a slack webhook to send alerts to slack
 
 [testing]
 update_escu_app = 0

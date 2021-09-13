@@ -39,8 +39,11 @@
     - "{{ splunk_kinesis_ta }}"
     - "{{ splunk_linux_ta }}"
     - "{{ splunk_dashboard_beta }}"
+    - "{{ dev_sec_ops_analytics }}"
+    - "{{ slack_alert }}"
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: install_stream_app.yml
 - include: install_dsp.yml
   when: install_dsp == "1"
+- include: configure_alerts.yml

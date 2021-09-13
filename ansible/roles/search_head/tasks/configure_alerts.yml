@@ -1,0 +1,18 @@
+---
+
+- name: Create local folder directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/slack_alerts/local/
+
+- name: Copy alert_actions.conf to splunk server
+  template:
+    src: alert_actions.conf.j2
+    dest: /opt/splunk/etc/apps/slack_alerts/local/alert_actions.conf
+    owner: splunk
+    group: splunk
