@@ -82,6 +82,11 @@
     name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_googledrive-2.0.19.x86_64.rpm
     state: present
 
+- name: install VirusTotal app
+  yum:
+    name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_virustotal-2.1.2.x86_64.rpm
+    state: present
+
 # template to install more apps
 #- name: install <> app
 #  yum:
