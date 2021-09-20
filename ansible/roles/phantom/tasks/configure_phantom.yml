@@ -69,7 +69,7 @@
 
 - name: install splunk app
   yum:
-    name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_splunk-2.2.3.x86_64.rpm
+    name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_splunk-2.3.3.x86_64.rpm
     state: present
 
 - name: install winrm app
@@ -87,11 +87,67 @@
     name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_virustotal-2.1.2.x86_64.rpm
     state: present
 
+- name: Install Greynoise
+  uri:
+    url: https://127.0.0.1/rest/app
+    method: POST
+    body: {"app": "{{ lookup('file', 'base64_greynoise_app.txt') }}"}
+    body_format: json
+    user: admin
+    password: "{{phantom_admin_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+
 - name: configure VirusTotal App
   uri:
     url: https://127.0.0.1/rest/asset
     method: POST
-    body: '{"configuration":{"apikey":"{{api_token_virus_total}}"},"description":"Virus Total Threat Research","name":"VT","product_name":"VirusTotal","product_vendor":"VirusTotal"}'
+    body: '{"configuration":{"apikey":"{{api_token_virus_total}}"},"description":"Virus Total Threat Research","name":"virustotal","product_name":"VirusTotal","product_vendor":"VirusTotal"}'
+    body_format: json
+    user: admin
+    password: "{{phantom_admin_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+
+# - name: configure G Drive App
+#   ignore_errors: yes
+#   uri:
+#     url: https://127.0.0.1/rest/asset
+#     method: POST
+#     body: '{"configuration":{"key_json":"{\"type\":\"service_account\",\"project_id\":\"{{google_drive_project_id}}\",\"private_key_id\":\"{{google_drive_private_key_id}}\",\"private_key\":\"{{google_drive_private_key}}\",\"client_email\":\"{{google_drive_client_email}}\",\"client_id\":\"{{google_drive_client_id}}\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://accounts.google.com/o/oauth2/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_x509_cert_url\": \"{{google_drive_client_x509_cert_url}}\"}","login_email":"{{google_drive_login_email}}"},"description":"gsgdrive","name":"google-gdrive","product_name":"Google Drive","product_vendor":"Google"}'
+#     body_format: json
+#     user: admin
+#     password: "{{phantom_admin_password}}"
+#     force_basic_auth: yes
+#     validate_certs: no
+
+- name: configure Splunk App
+  uri:
+    url: https://127.0.0.1/rest/asset
+    method: POST
+    body: '{"configuration":{"device":"10.0.1.12","ingest":{"container_label":"events"},"password":"{{phantom_admin_password}}","timezone":"Europe/London","username":"admin"},"description":"splunk","name":"splunk","product_name":"Splunk Enterprise","product_vendor":"Splunk Inc."}'
+    body_format: json
+    user: admin
+    password: "{{phantom_admin_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+
+- name: configure Greynoise
+  uri:
+    url: https://127.0.0.1/rest/asset
+    method: POST
+    body: '{"configuration":{"api_key":"{{greynoise_api_key}}","ingest":{"container_label":"events"}},"description":"greynoise","name":"greynoise","product_name":"GreyNoise","product_vendor":"GreyNoise"}'
+    body_format: json
+    user: admin
+    password: "{{phantom_admin_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+
+- name: configure playbook devsecops
+  uri:
+    url: https://127.0.0.1/rest/import_playbook
+    method: POST
+    body: {"playbook":"{{ lookup('file', 'base64_playbook.txt') }}","scm":"local"}
     body_format: json
     user: admin
     password: "{{phantom_admin_password}}"
@@ -99,10 +155,11 @@
     validate_certs: no
 
 - name: configure G Drive App
+  ignore_errors: yes
   uri:
     url: https://127.0.0.1/rest/asset
     method: POST
-    body: '{"configuration":{"key_json":"{{api_key_json_google_drive}}","login_email":"admin@hermancorp.biz"},"description":"gsgdrive","name":"google-gdrive","product_name":"Google Drive","product_vendor":"Google"}'
+    body: '{"configuration":{"key_json":"{\"type\":\"service_account\",\"project_id\":\"phantom-project-service\",\"private_key_id\":\"225e9f9453c7b1f9ab3df5591cc9b0c0287631e5\",\"private_key\":\"-----BEGIN PRIVATE KEY-----\\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDFKUom8ERcgsQa\\nTHW1WCL4vG3n4yQpe1UCUdTgE30HSKe8NWQZE4rbvNJk17wCdfbSQxFWdDan7A6h\\nEMtEpFxdXI1+QvsOTrQT/EMKNUaWzOWtBQQS0VqSnBw7cbtj5il3POBzQpaCdKJS\\nzo+0CL5WmkETKuPIdHvwwq8kdd6YeVOJ1bWzvl+9e/dNBGfv5pVdT/r2QGGazLZA\\nc4btZczu9/RabqPCf9J2ciy4SHtPAR+Xu083Y7p7ezn6Pwm3p7L3ztLNjDmGWhCk\\nMb/qYGhS/nKqYoIsZp3Jro4iFrQNRvRAsholkNpk/lKJXZft1CacBBEKKyncYk4q\\nGz6WjQWlAgMBAAECggEAIFu6c9GTJqu/i6Fo4C5q7u/eCeTZloVLWmobyfro1j0y\\nak1I9GSksZO35B0UGkNKExA21D2WitDPRdf/xHBFSH1cK5DKq3p3S6BnUFGWGEHg\\noBjmpj/94XoFmCv+WVL5EzzGiaQwF5EU4wpLw3x74LLIY2DyqX+Up9sL66v8sIFO\\n4DPFAR5W7Y3RlTK8v+UqHyCOWx0ScTnB044/gisXJ+iOFaLOXIjkZW+HHKuYkiOl\\n/ydmInqk5cgPF1pcUejUvnJVaHaG9IjnJzbr/GoV60D8eN3EnC8NbQPnAzrqhRM+\\n9mYPG4o2Fh9p8G0u4xCiIA1hNEBDOMyBQjVxGfVYMQKBgQD7qjun1qSc/iTLNNSU\\n2wAL/d0mX2AxaXn8jQnOAKLDYqYQqMAVR5pIG7FmCsa/cr2YuifB37DiXZxP9yqF\\n77UJkliEEBdXBBuMATu+HoTIme6uXwbvVE0ve3dLzNf3Zp3pg1XiJ0pzb1ocV+jI\\nt4JK5r3ffoQtC9H+a2bNQ6h0bwKBgQDIjrY0lwwM6bAcse54GbXXDSE02N1j7aEZ\\niecgZnbX+KrbQ5s7AMT1f1ALB1BLSh9YuIJijUd4bYhappqRY3tPQbAZXCk2Z5dB\\nIpQP/1AxEMTxqXW4HfxzceKfjps7dhCfHxvrywZKxYdEw1PiuQthQto0LCEMyJK8\\n4Lkfv9d5KwKBgHGSualc7J0M9H3gMa+bxcGjp5IRqM+j0jFvVOVq1AlpE5ihD06L\\nKc0w8jYi1t6/YWDzYc3UrXb61/gei0o2i3TuXpP6zw2uBOCCDfwWucXt8hEvQWnw\\nmYS8K3JB15UG8mzXoIKXSLofnoL8CUnLxzkWOMoLxoqtsu8meRZZWkRxAoGBAInf\\nObjLgbg6yhvf4fzkR9Jvrz1CPGfeyxngaGgoqFhuFR6oykT0kXHnNKJwQ62OZiA6\\nrz+KufA69DrFP4rlJbblhGbaqWZCLoPTfo/Ex18DlTBAe7G3w32lc9KWWXa2AlUx\\nMKOXLVsnkYce9ELvTLhvGcw17f54wA9iOUFvQ3SDAoGAJ5cS5gKOitXt7QaTeP3+\\nm8gDU/Lz7fIUuYtPsrlyCF9+bLn9UcEpDv9DPDbIWl3BcAUKSJJ7zfvjagn/P828\\n5Z5pdd1G9jZbD7blvny3aE3+uOGdF/egT1LDHk+icCEXQQvBfYqD/gy2VvCKzS4Q\\nrMJhf9ZdqT72L4cAh3dqnqw=\\n-----END PRIVATE KEY-----\\n\",\"client_email\":\"phantomaccount@phantom-project-service.iam.gserviceaccount.com\",\"client_id\":\"111931648819424345892\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://accounts.google.com/o/oauth2/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_x509_cert_url\": \"https://www.googleapis.com/robot/v1/metadata/x509/phantomaccount%40phantom-project-service.iam.gserviceaccount.com\"}","login_email":"admin@hermancorp.biz"},"description":"gsgdrive","name":"google-gdrive","product_name":"Google Drive","product_vendor":"Google"}'
     body_format: json
     user: admin
     password: "{{phantom_admin_password}}"
@@ -110,16 +167,6 @@
     validate_certs: no
 
 
-- name: add source control repository
-  uri:
-    url: https://127.0.0.1/scm/
-    method: POST
-    body: '{"uri":"https://github.com/splunk/security_content","name":"security_content","branch":"devsecops_demo","repo-user":"","repo-pass":"","read_only":"off","save":"true"}'
-    body_format: json
-    user: admin
-    password: "{{phantom_admin_password}}"
-    force_basic_auth: yes
-    validate_certs: no
 
 # template to install more apps
 #- name: install <> app

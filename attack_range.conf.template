@@ -243,6 +243,8 @@ api_token_virus_total = 0
 api_key_json_google_drive = 0
 # Google Drive Key Json
 
+greynoise_api_key = 0
+
 [windows_settings]
 splunk_uf_win_url = https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi
 # Specify the download URL of the Splunk windows universal forwarder
