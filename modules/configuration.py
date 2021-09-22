@@ -373,13 +373,13 @@ starting configuration for AT-ST mech walker
         },
         {
             'type': 'confirm',
-            'message': 'Would you like to include phantom',
+            'message': 'shall we include Splunk SOAR',
             'name': 'phantom_inclusion',
             'default': False,
         },
         {
             'type': 'list',
-            'message': 'would you like to supply your own phantom server',
+            'message': 'would you like to supply your own Splunk SOAR environment',
             'name': 'phantom_type',
             'choices': ['New', 'BYO'],
             'when': lambda answers: answers['phantom_inclusion'],
