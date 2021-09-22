@@ -373,13 +373,13 @@ starting configuration for AT-ST mech walker
         },
         {
             'type': 'confirm',
-            'message': 'Would you like to include phantom',
+            'message': 'shall we include Splunk SOAR',
             'name': 'phantom_inclusion',
             'default': False,
         },
         {
             'type': 'list',
-            'message': 'would you like to supply your own phantom server',
+            'message': 'would you like to supply your own Splunk SOAR environment',
             'name': 'phantom_type',
             'choices': ['New', 'BYO'],
             'when': lambda answers: answers['phantom_inclusion'],
@@ -416,13 +416,13 @@ starting configuration for AT-ST mech walker
         questions=[
             {
             'type': 'input',
-            'message': 'phantom api token, required for bring your own phantom',
+            'message': 'SOAR api token, required for bring your own SOAR',
             'name': 'phantom_api_token',
             'default': 'FIX_ME',
         },
         {
             'type': 'input',
-            'message': 'phantom server ip address, required for bring your own phantom',
+            'message': 'SOAR server ip address, required for bring your own SOAR',
             'name': 'phantom_byo_ip',
             'default': '8.8.8.8',
         },
@@ -440,13 +440,13 @@ starting configuration for AT-ST mech walker
         questions = [
             {
                 'type': 'input',
-                'message': 'phantom community username (my.phantom.us), required for phantom server',
+                'message': 'phantom community username (my.phantom.us), required for SOAR server',
                 'name': 'phantom_community_username',
                 'default': 'user',
             },
             {
                 'type': 'input',
-                'message': 'phantom community password (my.phantom.us), required for phantom server',
+                'message': 'phantom community password (my.phantom.us), required for SOAR server',
                 'name': 'phantom_community_password',
                 'default': 'password',
             },
