@@ -416,13 +416,13 @@ starting configuration for AT-ST mech walker
         questions=[
             {
             'type': 'input',
-            'message': 'phantom api token, required for bring your own phantom',
+            'message': 'SOAR api token, required for bring your own SOAR',
             'name': 'phantom_api_token',
             'default': 'FIX_ME',
         },
         {
             'type': 'input',
-            'message': 'phantom server ip address, required for bring your own phantom',
+            'message': 'SOAR server ip address, required for bring your own SOAR',
             'name': 'phantom_byo_ip',
             'default': '8.8.8.8',
         },
@@ -440,13 +440,13 @@ starting configuration for AT-ST mech walker
         questions = [
             {
                 'type': 'input',
-                'message': 'phantom community username (my.phantom.us), required for phantom server',
+                'message': 'phantom community username (my.phantom.us), required for SOAR server',
                 'name': 'phantom_community_username',
                 'default': 'user',
             },
             {
                 'type': 'input',
-                'message': 'phantom community password (my.phantom.us), required for phantom server',
+                'message': 'phantom community password (my.phantom.us), required for SOAR server',
                 'name': 'phantom_community_password',
                 'default': 'password',
             },
