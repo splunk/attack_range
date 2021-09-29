@@ -8,7 +8,7 @@
   with_items:
     - /opt/splunk/etc/apps/Splunk_SA_CIM/local/
 
- - name: copy datamodels.conf to splunk server
+- name: copy datamodels.conf to splunk server
   copy:
     src: datamodels.conf
     dest: /opt/splunk/etc/apps/Splunk_SA_CIM/local/datamodels.conf
