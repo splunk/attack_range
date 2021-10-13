@@ -18,17 +18,17 @@
     dest: /tmp/{{ dump_name }}/{{ out }}
   when: local_data | bool
 
-- name: copying datamanipulation.py scripts,update_timestamp set!
+- name: copying DataManipulation.py scripts,update_timestamp set!
   copy:
-    src: ../../modules/datamanipulation.py
-    dest: /tmp/datamanipulation.py
+    src: ../../modules/DatamMnipulation.py
+    dest: /tmp/DataManipulation.py
     mode: 755
   when: update_timestamp | bool
 
 
-- name: running datamanipulation.py, update_timestamp set
+- name: running DataManipulation.py, update_timestamp set
   ansible.builtin.shell:
-    cmd: /usr/bin/python3 datamanipulation.py --path /tmp/{{dump_name}}/{{out}} --source {{source}} --sourcetype {{sourcetype}}
+    cmd: /usr/bin/python3 DataManipulation.py --path /tmp/{{dump_name}}/{{out}} --source {{source}} --sourcetype {{sourcetype}}
     chdir: /tmp/
   when: update_timestamp | bool
 
