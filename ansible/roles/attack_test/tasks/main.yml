@@ -20,7 +20,7 @@
 
 - name: copying DataManipulation.py scripts,update_timestamp set!
   copy:
-    src: ../../modules/DatamMnipulation.py
+    src: ../../modules/DataManipulation.py
     dest: /tmp/DataManipulation.py
     mode: 755
   when: update_timestamp | bool
