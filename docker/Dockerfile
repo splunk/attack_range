@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive 
 
 RUN apt-get update && \
-        apt-get install -y python3.8 git unzip python3-pip awscli curl
+        apt-get install -y python3.8 git unzip python3-pip awscli curl vim 
 
 RUN curl -s https://releases.hashicorp.com/terraform/0.14.4/terraform_0.14.4_linux_amd64.zip -o terraform.zip && \
          unzip terraform.zip && \
