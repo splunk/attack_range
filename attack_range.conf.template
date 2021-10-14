@@ -321,6 +321,10 @@ osquery_machine = 0
 # enable a osquery linux server
 # possible values: 1, 0
 
+sysmon_linux = 0
+# enable a sysmon on linux server
+# possible values: 1, 0
+
 [splunk_server]
 # customize the splunk server
 
@@ -421,3 +425,13 @@ osquery_linux_private_ip = 10.0.1.19
 # Should be in subnet: 10.0.1.0/24
 
 osquery_custom_config_file = custom_osquery.conf
+
+[sysmon_linux]
+# customize the sysmon on linux machine
+
+sysmon_linux_private_ip = 10.0.1.25
+# specify the osquery linux server's private ip
+# should be in the subnet: 10.0.1.0/24
+
+sysmon_linux_template = AttackRangeSysmon.xml
+# sysmon config file 

@@ -1,0 +1,27 @@
+# this playbook installs sysmon for linux (https://github.com/Sysinternals/SysmonForLinux)
+
+- name: add the microsoft repo
+  become: true
+  get_url:
+    url: https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb 
+    dest: /tmp/packages-microsoft-prod.deb
+
+- name: dpkg install the deb
+  become: true
+  apt:
+    deb: /tmp/packages-microsoft-prod.deb
+
+- name: install sysmon
+  become: true
+  apt:
+    name: sysmonforlinux
+    state: latest
+    update_cache: yes
+
+- name: accept sysmon EULA
+  become: true
+  ansible.builtin.shell: sysmon -accepteula
+
+- name: launch with config
+  become: true
+  ansible.builtin.shell: sysmon -i {{ sysmon_linux_template }}

@@ -1,0 +1,10 @@
+---
+- include: install_deb_uf.yml
+- include: configure_outputs_conf.yml
+- include: install_sysmon_linux.yml
+- include: create_deploymentclient.yml
+
+
+- name: restart splunk
+  become: true
+  command: "/opt/splunkforwarder/bin/splunk restart"

@@ -1,0 +1,194 @@
+{{ ansible_managed | comment('xml') }}
+<!--	Sysmon sample configuration file (Updated: 11/6/2017)
+		Created by: Moti Bani (Moti.Ba@hotmail.com)
+		=====================================================
+		THIS SAMPLE CFILE AND ANY RELATED INFORMATION 
+		ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, 
+		EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT 
+		LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY 
+		AND/OR FITNESS FOR A PARTICULAR PURPOSE
+		Use is subject to the terms specified at http://www.microsoft.com/info/cpyright.htm. 
+        https://blogs.technet.microsoft.com/motiba/2017/12/07/sysinternals-sysmon-suspicious-activity-guide/
+        https://github.com/MotiBa/Sysmon
+-->
+<Sysmon schemaversion="4.00">
+  <HashAlgorithms>SHA256,IMPHASH</HashAlgorithms>
+  <EventFiltering>
+	<!-- Windows File System Persistence -->
+	<FileCreate onmatch="include">
+		<TargetFilename condition="contains">\Startup\</TargetFilename>
+	</FileCreate>
+	<!-- Windows Registry Persistence -->
+	<RegistryEvent onmatch="include">
+		 <TargetObject condition="contains">Software\Microsoft\Windows\CurrentVersion\Run</TargetObject>
+		 <TargetObject condition="contains">CurrentControlSet\Control\Session Manager\BootExecute</TargetObject>
+		 <TargetObject condition="contains">Software\Microsoft\Windows\CurrentVersion\RunServicesOnce</TargetObject>
+		 <TargetObject condition="contains">Software\Microsoft\Windows\CurrentVersion\RunServices</TargetObject>
+		 <TargetObject condition="contains">SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify</TargetObject>
+		 <TargetObject condition="contains">Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Userinit</TargetObject>
+		 <TargetObject condition="contains">Software\Microsoft\Windows NT\CurrentVersion\Winlogon</TargetObject>
+		 <TargetObject condition="contains">SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad</TargetObject>
+		 <TargetObject condition="contains">Software\Microsoft\Windows\CurrentVersion\RunOnce</TargetObject>
+		 <TargetObject condition="contains">Software\Microsoft\Windows\CurrentVersion\RunOnceEx</TargetObject>
+		 <TargetObject condition="contains">Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run</TargetObject>
+		 <TargetObject condition="contains">Software\Microsoft\Windows NT\CurrentVersion\Windows\load</TargetObject>
+		 <TargetObject condition="contains">Software\Microsoft\Windows NT\CurrentVersion\Windows\\AppInit_DLLs</TargetObject>
+		 <TargetObject condition="contains">SYSTEM\CurrentControlSet\Control\Session Manager\KnownDLLs</TargetObject>
+		 <!-- Malicious Security Support Provider -->
+		 <TargetObject condition="contains">System\CurrentControlSet\Control\Lsa\Security Packages</TargetObject>		 
+	</RegistryEvent>
+	<!-- log only unsigned images loaded  from user profile directory, clear some noise and also monitor what is loaded  on lsass.exe/svchost/wmiprvse> -->
+	<ImageLoad onmatch="include">
+	    <Signed condition="is">False</Signed>		
+	</ImageLoad>
+	<ImageLoad onmatch="exclude">
+	    <ImageLoaded condition="contains">C:\Windows\assembly\NativeImages</ImageLoaded>		
+	</ImageLoad>
+	<DriverLoad onmatch="exclude">
+      <Signature condition="is">Microsoft Windows</Signature>		
+	  <Signature condition="is">Microsoft Corporation</Signature>	
+	  <Signature condition="is">NVIDIA Corporation</Signature>	
+    </DriverLoad>
+	 <!-- Log CreateRemoteThread on certain Windows binaries -->
+	<CreateRemoteThread onmatch="include">
+		<TargetImage condition="is">C:\Windows\system32\lsass.exe</TargetImage>
+		<TargetImage condition="is">C:\Windows\system32\winlogon.exe</TargetImage>		
+		<TargetImage condition="is">C:\Windows\system32\svchost.exe</TargetImage>		
+		<TargetImage condition="is">"C:\Program Files\Google\Chrome\Application\chrome.exe"</TargetImage>	
+		<TargetImage condition="is">"C:\Program Files\Internet Explorer\iexplore.exe"</TargetImage>	
+		<TargetImage condition="is">"C:\Program Files (x86)\Mozilla Firefox\firefox.exe"</TargetImage>			
+	</CreateRemoteThread>
+	<!-- Exclude certain processes that cause high event volumes -->
+	<CreateRemoteThread onmatch="exclude">		
+		<SourceImage condition="is">c:\Program Files\Windows Defender\MsMpEng.exe</SourceImage>
+		<SourceImage condition="contains">Program Files\Windows Defender\MsMpEng.exe</SourceImage>
+	</CreateRemoteThread>
+	<!-- Log all raw disk access if the Image is System or svchost  -->
+	<RawAccessRead onmatch="exclude">
+		  <Image condition="is">System</Image>
+		  <Image condition="is">C:\Windows\CCM\CcmExec.exe</Image>
+		  <Image condition="is">C:\Windows\System32\svchost.exe</Image>
+		  <Image condition="is">C:\Program Files\Windows Defender\MsMpEng.exe</Image>
+		  <Image condition="is">C:\Windows\System32\SrTasks.exe</Image>
+		  <Image condition="is">C:\Windows\System32\MRT.exe</Image>
+		  <Image condition="is">C:\Windows\System32\SearchIndexer.exe</Image>
+		  <Image condition="is">C:\Windows\System32\winlogon.exe</Image>
+		  <Image condition="is">C:\Windows\System32\smss.exe</Image>
+		  <Image condition="is">C:\Windows\System32\autochk.exe</Image>
+		  <Image condition="is">C:\Windows\System32\CompatTelRunner.exe</Image>
+		  <Image condition="is">C:\Windows\System32\DeviceCensus.exe</Image>
+		  <Image condition="is">C:\Windows\System32\wininit.exe</Image>
+		  <Image condition="is">C:\Windows\System32\VSSVC.exe</Image>
+		  <Image condition="is">C:\Windows\System32\bcdedit.exe</Image>
+		  <Image condition="is">C:\Windows\System32\WinSAT.exe</Image>
+		  <Image condition="is">C:\Windows\SysWOW64\msiexec.exe</Image>
+		  <Image condition="is">C:\Windows\explorer.exe</Image>
+		  <Image condition="is">C:\Windows\System32\DiskSnapshot.exe</Image>
+	</RawAccessRead>
+	<!-- Log process access -->
+	<!-- Only ProcessAccess on certain Windows binaries -->
+	<ProcessAccess onmatch="include">		
+		<TargetImage condition="is">C:\Windows\system32\lsass.exe</TargetImage>
+		<TargetImage condition="is">C:\Windows\system32\winlogon.exe</TargetImage>		
+		<TargetImage condition="is">"C:\Program Files\Google\Chrome\Application\chrome.exe"</TargetImage>	
+		<TargetImage condition="is">"C:\Program Files\Internet Explorer\iexplore.exe"</TargetImage>	
+		<TargetImage condition="is">"C:\Program Files (x86)\Mozilla Firefox\firefox.exe"</TargetImage>		
+	</ProcessAccess>	
+	<!-- Exclude certain processes that cause high event volumes -->
+	<ProcessAccess onmatch="exclude">
+		<SourceImage condition="is">c:\windows\system32\svchost.exe</SourceImage>
+      <SourceImage condition="is">C:\WINDOWS\system32\wbem\wmiprvse.exe</SourceImage>
+      <SourceImage condition="is">C:\WINDOWS\System32\perfmon.exe</SourceImage>
+            <SourceImage condition="is">C:\WINDOWS\system32\LogonUI.exe</SourceImage>
+      <SourceImage condition="is">C:\WINDOWS\system32\MRT.exe</SourceImage>
+      <SourceImage condition="is">C:\Windows\System32\MsiExec.exe</SourceImage>
+      <SourceImage condition="is">C:\windows\CCM\CcmExec.exe</SourceImage>
+      <SourceImage condition="is">C:\WINDOWS\system32\taskmgr.exe</SourceImage>
+      <SourceImage condition="is">C:\WINDOWS\system32\lsass.exe</SourceImage>
+      <SourceImage condition="is">C:\WINDOWS\system32\services.exe</SourceImage>
+      <SourceImage condition="is">C:\WINDOWS\system32\wininit.exe</SourceImage>
+      <SourceImage condition="is">C:\WINDOWS\system32\csrss.exe</SourceImage>
+      <SourceImage condition="is">C:\WINDOWS\System32\smss.exe</SourceImage>
+      <SourceImage condition="is">C:\Program Files\Windows Defender Advanced Threat Protection\MsSense.exe</SourceImage>
+      <SourceImage condition="is">C:\Windows\syswow64\MsiExec.exe</SourceImage>
+      <SourceImage condition="is">C:\Program Files (x86)\Common Files\Adobe\ARM\1.0\AdobeARMHelper.exe</SourceImage>
+      <SourceImage condition="contains">Program Files\Windows Defender\MsMpEng.exe</SourceImage>
+	</ProcessAccess>	
+    <ProcessCreate onmatch="exclude">
+	  <!-- Exclude Universal Apps></!-->	
+	  <IntegrityLevel condition="is">AppContainer</IntegrityLevel>	
+	  <!-- Exclude common Windows binaries></!-->
+	  <Image condition="image">C:\Windows\System32\audiodg.exe</Image>
+	  <Image condition="contains">System32\backgroundTaskHost.exe</Image>
+	  <Image condition="end with">System32\BackgroundTransferHost.exe</Image>	  
+	  <Image condition="end with">System32\dllhost.exe</Image>
+	  <Image condition="end with">System32\smartscreen.exe</Image>
+	  <Image condition="end with">System32\SearchFilterHost.exe</Image>
+	  <Image condition="end with">System32\audiodg.exe</Image>
+	  <Image condition="end with">System32\conhost.exe</Image>
+	  <Image condition="end with">System32\SearchProtocolHost.exe</Image>
+	  <Image condition="end with">SysWOW64\msiexec.exe</Image>
+	  <Image condition="end with">system32\msiexec.exe</Image>	  
+	  <Image condition="end with">microsoft shared\ClickToRun\OfficeClickToRun.exe</Image>
+	  <Image condition="end with">System32\consent.exe</Image>
+	  <Image condition="end with">System32\LogonUI.exe</Image>
+	  <Image condition="end with">System32\taskhostw.exe</Image>
+	  <Image condition="end with">System32\LockAppHost.exe</Image>
+	  <Image condition="end with">Chrome\Application\chrome.exe</Image>
+	  <Image condition="end with">Internet Explorer\iexplorer.exe</Image>
+	  <Image condition="end with">Mozilla Firefox\firefox.exe</Image>
+	</ProcessCreate>
+	<ProcessTerminate onmatch="include" />
+	<FileCreateTime onmatch="exclude" >	
+		<Image condition="is">C:\Windows\System32\RuntimeBroker.exe</Image>
+		<Image condition="is">c:\windows\system32\svchost.exe</Image>
+		<Image condition="is">C:\WINDOWS\system32\MpSigStub.exe</Image>
+		<Image condition="is">C:\WINDOWS\System32\LogonUI.exe</Image>
+		<Image condition="is">C:\WINDOWS\ImmersiveControlPanel\SystemSettings.exe</Image>
+		<Image condition="is">C:\WINDOWS\system32\SettingSyncHost.exe</Image>
+		<Image condition="is">C:\WINDOWS\explorer.exe</Image>
+		<Image condition="is">C:\WINDOWS\system32\mmc.exe</Image>
+		<Image condition="is">C:\windows\CCM\CcmExec.exe</Image>
+		<Image condition="is">C:\WINDOWS\system32\msiexec.exe</Image>
+		<Image condition="is">C:\WINDOWS\system32\taskmgr.exe</Image>
+  		<Image condition="contains">WINDOWS\system32\WindowsPowerShell\v1.0\PowerShell_ISE.exe</Image>
+		<Image condition="contains">WINDOWS\system32\backgroundTaskHost.exe</Image>
+		<Image condition="contains">Mozilla Firefox\firefox.exe</Image>
+		<Image condition="contains">Google\Chrome\Application\chrome.exe</Image>
+	</FileCreateTime>	
+	<!-- Log all alternate data streams-->
+	<FileCreateStreamHash onmatch="exclude" />
+	<!-- Very picky about network connection></!-->
+	<NetworkConnect onmatch="include">
+		<Image condition="begin with">C:\Users</Image>
+		<Image condition="begin with">C:\ProgramData</Image>
+		<Image condition="end with">powershell.exe</Image> 
+		<Image condition="end with">cmd.exe</Image> 
+		<Image condition="end with">wmic.exe</Image>
+		<Image condition="end with">cscript.exe</Image> 
+		<Image condition="end with">wscript.exe</Image> 
+		<Image condition="end with">rundll32.exe</Image> 
+	</NetworkConnect>
+    <NetworkConnect onmatch="exclude">
+	  <Image condition="contains">chrome.exe</Image>
+      <Image condition="contains">iexplore.exe</Image>
+      <Image condition="contains">firefox.exe</Image>
+      <Image condition="contains">outlook.exe</Image>
+      <Image condition="contains">Skype.exe</Image>
+      <Image condition="contains">lync.exe</Image>
+      <Image condition="contains">GoogleUpdate.exe</Image>
+	  <Image condition="contains">qbittorrent.exe</Image>
+	  <Image condition="contains">OfficeClickToRun.exe</Image>
+	  <Image condition="contains">Windows\SystemApps\Microsoft.Windows.Cortana</Image>	  
+	  <Image condition="contains">OneDrive.exe</Image>	  
+	  <Image condition="contains">Windows\System32\svchost.exe</Image>	
+	  <Image condition="contains">System32\backgroundTaskHost.exe</Image>
+	  <Image condition="contains">Skype\Browser\SkypeBrowserHost.exe</Image>
+	  <Image condition="contains">Free Download Manager\fdm.exe</Image>	  
+      <DestinationIp condition="begin with">172.</DestinationIp>
+	  <DestinationIp condition="begin with">10.</DestinationIp>
+	  <DestinationIp condition="begin with">192.</DestinationIp>
+	  <DestinationIp condition="is">0.0.0.0</DestinationIp>
+    </NetworkConnect>
+  </EventFiltering>
+</Sysmon>
