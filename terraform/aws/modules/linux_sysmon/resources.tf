@@ -1,6 +1,7 @@
 # install sysmon for linux on a fresh Ubuntu instances
 
 data "aws_ami" "latest-ubuntu" {
+count = var.config.sysmon_linux == "1" ? 1 : 0
   most_recent = true
   owners      = ["099720109477"] # Canonical
 
@@ -16,9 +17,9 @@ data "aws_ami" "latest-ubuntu" {
 }
 
 # install Phantom on a bare ubuntu instance
-resource "aws_instance" "phantom-server" {
+resource "aws_instance" "sysmon_linux" {
   count                  = var.config.sysmon_linux == "1" ? 1 : 0
-  ami                    = data.aws_ami.latest-centos[count.index].id
+  ami                    = data.aws_ami.latest-ubuntu[count.index].id
   instance_type          = var.config.instance_type_ec2
   key_name               = var.config.key_name
   subnet_id              = var.ec2_subnet_id
@@ -38,7 +39,7 @@ resource "aws_instance" "phantom-server" {
 
     connection {
       type        = "ssh"
-      user        = "centos"
+      user        = "ubuntu"
       host        = aws_instance.sysmon_linux[0].public_ip
       private_key = file(var.config.private_key_path)
     }
@@ -46,7 +47,7 @@ resource "aws_instance" "phantom-server" {
 
   provisioner "local-exec" {
     working_dir = "../../../ansible/"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.config.private_key_path} -i '${aws_instance.sysmon_linux[0].public_ip},' playbooks/sysmon_linux.yml -e ' sysmon_linux_private_ip=${var.config.sysmon_linux_private_ip} splunk_indexer_ip=${var.config.splunk_server_private_ip} splunk_uf_url=${var.config.splunk_uf_linux_deb_url} sysmon_linux_config=${var.config.sysmon_linux_config}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.config.private_key_path} -i '${aws_instance.sysmon_linux[0].public_ip},' playbooks/sysmon_linux.yml -e ' sysmon_linux_private_ip=${var.config.sysmon_linux_private_ip} splunk_indexer_ip=${var.config.splunk_server_private_ip} splunk_uf_url=${var.config.splunk_uf_linux_deb_url} sysmon_linux_template=${var.config.sysmon_linux_template}'"
   }
 }
 

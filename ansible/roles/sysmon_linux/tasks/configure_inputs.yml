@@ -1,0 +1,7 @@
+- name: copy deb_inputs.conf as inputs.conf to capture osquery logs
+  copy:
+    src: deb_template_inputs.conf
+    dest: /opt/splunkforwarder/etc/system/local/inputs.conf
+    owner: splunk
+    group: splunk
+    force: yes
