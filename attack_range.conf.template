@@ -321,6 +321,10 @@ osquery_machine = 0
 # enable a osquery linux server
 # possible values: 1, 0
 
+sysmon_linux = 0
+# enable a sysmon on linux server
+# possible values: 1, 0
+
 [splunk_server]
 # customize the splunk server
 
@@ -403,10 +407,10 @@ windows_client_zeek_capture = 0
 [zeek_sensor]
 # customize the zeek sensor
 
-splunk_uf_linux_deb_url = https://download.splunk.com/products/universalforwarder/releases/8.0.5/linux/splunkforwarder-8.0.5-a1a6394cc5ae-linux-2.6-amd64.deb
+splunk_uf_linux_deb_url = https://download.splunk.com/products/universalforwarder/releases/8.2.2.1/linux/splunkforwarder-8.2.2.1-ae6821b7c64b-linux-2.6-amd64.deb
 # Specify the download URL of the Splunk Linux (debian based) universal forwarder
 
-splunk_uf_binary = splunkforwarder-8.0.5-a1a6394cc5ae-linux-2.6-amd64.deb
+splunk_uf_binary = splunkforwarder-8.2.2.1-ae6821b7c64b-linux-2.6-amd64.deb
 # Specify the name of the Splunk binary installer
 
 zeek_sensor_private_ip = 10.0.1.18
@@ -421,3 +425,13 @@ osquery_linux_private_ip = 10.0.1.19
 # Should be in subnet: 10.0.1.0/24
 
 osquery_custom_config_file = custom_osquery.conf
+
+[sysmon_linux]
+# customize the sysmon on linux machine
+
+sysmon_linux_private_ip = 10.0.1.25
+# specify the osquery linux server's private ip
+# should be in the subnet: 10.0.1.0/24
+
+sysmon_linux_template = SysMonLinux-CatchAll.xml
+# sysmon config file 

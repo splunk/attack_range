@@ -68,3 +68,10 @@ module "osquery_machine" {
 	ec2_subnet_id          = module.networkModule.ec2_subnet_id
   config                 = var.config
 }
+
+module "linux_sysmon" {
+  source                 = "../modules/linux_sysmon"
+  vpc_security_group_ids = module.networkModule.sg_vpc_id
+  ec2_subnet_id          = module.networkModule.ec2_subnet_id
+  config                 = var.config
+}
