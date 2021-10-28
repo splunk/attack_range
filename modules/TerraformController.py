@@ -12,6 +12,7 @@ import sys
 import re
 import requests
 import json
+from shutil import copyfile
 from datetime import datetime
 from datetime import timedelta
 import fileinput
@@ -200,7 +201,7 @@ class TerraformController(IEnvironmentController):
         return file
 
 
-    def simulate(self, target, simulation_techniques, simulation_atomics, var_str='no'):
+    def simulate(self, simulation_type, target, simulation_techniques, simulation_atomics, simulation_playbook, var_str='no'):
         if self.config['cloud_provider'] == 'aws':
             target_public_ip = aws_service.get_single_instance_public_ip(target, self.config)
             ansible_user = 'Administrator'
@@ -212,31 +213,57 @@ class TerraformController(IEnvironmentController):
 
         start_time = time.time()
 
-        # check if specific atomics are used then it's not allowed to multiple techniques
-        techniques_arr = simulation_techniques.split(',')
-        if (len(techniques_arr) > 1) and (simulation_atomics != 'no'):
-            self.log.error(
-                'ERROR: if simulation_atomics are used, only a single simulation_technique is allowed.')
-            sys.exit(1)
+        if simulation_type == 'ART':
 
-        run_specific_atomic_tests = 'True'
-        if simulation_atomics == 'no':
-            run_specific_atomic_tests = 'False'
+            # check if specific atomics are used then it's not allowed to multiple techniques
+            techniques_arr = simulation_techniques.split(',')
+            if (len(techniques_arr) > 1) and (simulation_atomics != 'no'):
+                self.log.error(
+                    'ERROR: if simulation_atomics are used, only a single simulation_technique is allowed.')
+                sys.exit(1)
 
-        if target == "ar-win-client-" + self.config['range_name'] + "-" + self.config['key_name']:
-            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
-                                   cmdline=str('-i ' + target_public_ip + ', '),
-                                   roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                                   playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
-                                   extravars={'ansible_port': 5985, 'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
-                                   verbosity=0)
-        else:
-            runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
-                               cmdline=str('-i ' + target_public_ip + ', '),
-                               roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
-                               playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
-                               extravars={'ansible_port': ansible_port, 'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
-                               verbosity=0)
+            run_specific_atomic_tests = 'True'
+            if simulation_atomics == 'no':
+                run_specific_atomic_tests = 'False'
+
+            if target == "ar-win-client-" + self.config['range_name'] + "-" + self.config['key_name']:
+                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                    cmdline=str('-i ' + target_public_ip + ', '),
+                                    roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                    playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
+                                    extravars={'ansible_port': 5985, 'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password'], 'ansible_port': 5985, 'ansible_winrm_scheme': 'http', 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
+                                    verbosity=0)
+            else:
+
+
+                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                cmdline=str('-i ' + target_public_ip + ', '),
+                                roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/atomic_red_team.yml'),
+                                extravars={'ansible_port': ansible_port, 'var_str': var_str, 'run_specific_atomic_tests': run_specific_atomic_tests, 'art_run_tests': simulation_atomics, 'art_run_techniques': simulation_techniques, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password'], 'art_repository': self.config['art_repository'], 'art_branch': self.config['art_branch']},
+                                verbosity=0)
+
+        
+        elif simulation_type == 'PurpleSharp':
+
+            copyfile(simulation_playbook, os.path.join(os.path.dirname(__file__), '../ansible/roles/purplesharp/files/simulation_playbook.json'))
+
+            if target == "ar-win-client-" + self.config['range_name'] + "-" + self.config['key_name']:
+                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                cmdline=str('-i ' + target_public_ip + ', '),
+                                roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/purplesharp.yml'),
+                                extravars={'ansible_port': 5985, 'var_str': var_str, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password'] }, 
+                                verbosity=0)
+            else:
+                runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                cmdline=str('-i ' + target_public_ip + ', '),
+                                roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
+                                playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/purplesharp.yml'),
+                                extravars={'ansible_port': ansible_port, 'var_str': var_str, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password']},
+                                verbosity=0)
+
+
 
         if runner.status == "successful":
             output = []
