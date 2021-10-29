@@ -7,5 +7,12 @@
 
 - name: Run PurpleSharp Simulation
   win_command: PurpleSharp.exe /pb simulation_playbook.json
+  register: output_purplesharp
   args:
     chdir: C:\\Tools\\PurpleSharp
+
+- name: Save PurpleSharp output
+  set_fact:
+    output_purplesharp: "{{ output_purplesharp }}"
+    cacheable: yes
+  #when: var_str == 'no'
