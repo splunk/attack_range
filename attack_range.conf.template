@@ -49,6 +49,16 @@ tf_backend_storage_account = attackrangestorage
 tf_backend_container = tfstate
 # only needed when you specify a remote backend
 
+[orca]
+splunk_instance_ip = 127.0.0.1
+# Splunk IP set from orca
+
+splunk_ssh_port = 2222
+# Splunk ssh port from orca
+
+splunk_rest_port = 8089
+# Splunk rest port from orca
+
 [range_settings]
 key_name = attack-range-key-pair
 # please configure your ssh key name on aws

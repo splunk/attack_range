@@ -49,7 +49,7 @@ class TerraformController(IEnvironmentController):
                 file.write(filedata)
         working_dir = os.path.join(os.path.dirname(__file__), '../terraform', self.config['cloud_provider'], self.config['tf_backend'])
 
-        self.terraform = Terraform(working_dir=working_dir,variables=variables, parallelism=15 ,state=config["statepath"])
+        self.terraform = Terraform(working_dir=working_dir,variables=variables, parallelism=15 ,state=config.get("statepath"))
 
 
     def build(self):
@@ -138,44 +138,15 @@ class TerraformController(IEnvironmentController):
                         result_obj = dict()
                         result_obj['baseline'] = baseline_obj['name']
                         result_obj['baseline_file'] = baseline_obj['file']
-                        if self.config['cloud_provider'] == 'aws':
-                            instance = aws_service.get_instance_by_name(
-                                'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
-                            if instance['State']['Name'] == 'running':
-                                result = splunk_sdk.test_baseline_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], baseline_obj['earliest_time'], baseline_obj['latest_time'], self.log)
-                                results_baselines.append(result)
-                            else:
-                                self.log.error('ERROR: splunk server is not running.')
-                        elif self.config['cloud_provider'] == 'azure':
-                            instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
-                            if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
-                                result = splunk_sdk.test_baseline_search(instance['public_ip'], str(self.config['attack_range_password']), baseline['search'], baseline_obj['pass_condition'], baseline['name'], baseline_obj['file'], baseline_obj['earliest_time'], baseline_obj['latest_time'], self.log)
-                                results_baselines.append(result)
+                        result = self.get_baseline_result(baseline_obj, baseline)
+                        if result:
+                            results_baselines.append(result)
                     result_test['baselines_result'] = results_baselines
 
                 # validate detection works
                 detection_file_name = test['file']
                 detection = self.load_file(os.path.join(os.path.dirname(__file__), '../' + self.config['security_content_path'] + '/detections/' + detection_file_name))
-                if self.config['cloud_provider'] == 'aws':
-                    instance = aws_service.get_instance_by_name(
-                        'ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
-                    if instance['State']['Name'] == 'running':
-                        self.log.info("running detection against splunk for indexed data {0}".format(detection_file_name))
-                        result_detection = splunk_sdk.test_detection_search(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
-                        if test_delete_data:
-                            self.log.info("deleting test data from splunk for test {0}".format(detection_file_name))
-                            splunk_sdk.delete_attack_data(instance['NetworkInterfaces'][0]['Association']['PublicIp'], str(self.config['attack_range_password']))
-                    else:
-                        self.log.error('ERROR: splunk server is not running.')
-
-                elif self.config['cloud_provider'] == 'azure':
-                    instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
-                    if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
-                        self.log.info("running detection against splunk for indexed data {0}".format(detection_file_name))
-                        result_detection = splunk_sdk.test_detection_search(instance['public_ip'], str(self.config['attack_range_password']), detection['search'], test['pass_condition'], detection['name'], test['file'], test['earliest_time'], test['latest_time'], self.log)
-                        if test_delete_data:
-                            self.log.info("deleting test data from splunk for test {0}".format(detection_file_name))
-                            splunk_sdk.delete_attack_data(instance['public_ip'], str(self.config['attack_range_password']))
+                result_detection = self.get_detection_result(detection, test, test_delete_data)
 
                 result_detection['detection_name'] = test['name']
                 result_detection['detection_file'] = test['file']
@@ -189,6 +160,67 @@ class TerraformController(IEnvironmentController):
 
         return result_tests
 
+    def get_baseline_result(self, baseline_obj, baseline):
+
+        result = {}
+        instance_ip, rest_port = self.get_instance_ip_and_port()
+
+        if instance_ip and rest_port:
+            result = splunk_sdk.test_baseline_search(instance_ip, str(self.config['attack_range_password']),
+                                                     baseline['search'], baseline_obj['pass_condition'],
+                                                     baseline['name'], baseline_obj['file'],
+                                                     baseline_obj['earliest_time'], baseline_obj['latest_time'],
+                                                     self.log, rest_port)
+        return result
+
+    def get_detection_result(self, detection, test, test_delete_data):
+
+        result = {}
+        instance_ip, rest_port = self.get_instance_ip_and_port()
+
+        if instance_ip and rest_port:
+            self.log.info("running detection against splunk for indexed data {0}".format(test['file']))
+            result = splunk_sdk.test_detection_search(instance_ip, str(self.config['attack_range_password']),
+                                                      detection['search'], test['pass_condition'],
+                                                      detection['name'], test['file'],
+                                                      test['earliest_time'], test['latest_time'], self.log, rest_port)
+
+            if test_delete_data:
+                self.log.info("deleting test data from splunk for test {0}".format(test['file']))
+                splunk_sdk.delete_attack_data(instance_ip, str(self.config['attack_range_password']), rest_port)
+
+        return result
+
+    def get_instance_ip_and_port(self):
+        instance_ip = None
+        rest_port = 8089
+
+        # aws cloud provider
+        if self.config['cloud_provider'] == 'aws':
+            instance = aws_service.get_instance_by_name('ar-splunk-' + self.config['range_name'] + '-' + self.config['key_name'], self.config)
+
+            if instance['State']['Name'] == 'running':
+                instance_ip = instance['NetworkInterfaces'][0]['Association']['PublicIp']
+            else:
+                self.log.error('ERROR: splunk server is not running.')
+                return None, None
+
+        # azure cloud provider
+        elif self.config['cloud_provider'] == 'azure':
+            instance = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)
+
+            if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
+                instance_ip = instance['public_ip']
+            else:
+                self.log.error('ERROR: splunk server is not running.')
+                return None, None
+
+        # orca cloud provider
+        elif self.config['cloud_provider'] == 'orca':
+            instance_ip = self.config["splunk_instance_ip"]
+            rest_port = self.config["splunk_rest_port"]
+
+        return instance_ip, rest_port
 
     def load_file(self, file_path):
         with open(file_path, 'r', encoding="utf-8") as stream:
@@ -411,18 +443,25 @@ class TerraformController(IEnvironmentController):
 
 
     def replay_attack_data(self, dump_name, attack_data):
+        ansible_user = 'ubuntu'
+        ansible_port = 22
+
         if self.config['cloud_provider'] == 'aws':
             splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
         elif self.config['cloud_provider'] == 'azure':
             splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
+        elif self.config['cloud_provider'] == 'orca':
+            ansible_user = 'ansible'
+            splunk_ip = self.config["splunk_instance_ip"]
+            ansible_port = self.config["splunk_ssh_port"]
 
         # preset our ansible vars
         ansible_vars = {}
         ansible_vars['dump_name'] = dump_name
-        ansible_vars['ansible_user'] = 'ubuntu'
+        ansible_vars['ansible_user'] = ansible_user
         ansible_vars['ansible_ssh_private_key_file'] = self.config['private_key_path']
         ansible_vars['splunk_password'] = self.config['attack_range_password']
-        ansible_vars['ansible_port'] = 22
+        ansible_vars['ansible_port'] = ansible_port
 
         ansible_vars['out'] = attack_data['file_name']
         ansible_vars['sourcetype'] = attack_data['sourcetype']
@@ -437,7 +476,7 @@ class TerraformController(IEnvironmentController):
             ansible_vars['local_data'] = True
 
         # call ansible
-        cmdline = "-i %s, -u ubuntu" % (splunk_ip)
+        cmdline = "-i %s, -u %s" % (splunk_ip, ansible_user)
         runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                     cmdline=cmdline,
                                     roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
