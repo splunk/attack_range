@@ -10,6 +10,11 @@
     src: '{{ dsp_client_cert_path }}'
     dest: '/opt/splunk/etc/apps/dsp_outputs_app/client.pem'
 
+- name: Download DigiCertGlobalRootCA.pem
+  get_url:
+    url: https://cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem
+    dest: '/opt/splunk/etc/apps/dsp_outputs_app/DigiCertGlobalRootCA.crt.pem'
+
 - name: Copy an outputs.conf for dsp using templating
   win_template:
     src: outputs.conf.j2
