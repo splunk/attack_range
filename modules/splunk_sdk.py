@@ -5,11 +5,11 @@ import splunklib.client as client
 import splunklib.results as results
 import requests
 
-def test_baseline_search(splunk_host, splunk_password, search, pass_condition, baseline_name, baseline_file, earliest_time, latest_time, log, rest_port=8089):
+def test_baseline_search(splunk_host, splunk_password, search, pass_condition, baseline_name, baseline_file, earliest_time, latest_time, log, splunk_rest_port=8089):
     try:
         service = client.connect(
             host=splunk_host,
-            port=rest_port,
+            port=splunk_rest_port,
             username='admin',
             password=splunk_password
         )
@@ -62,11 +62,11 @@ def test_baseline_search(splunk_host, splunk_password, search, pass_condition, b
         return test_results
 
 
-def test_detection_search(splunk_host, splunk_password, search, pass_condition, detection_name, detection_file, earliest_time, latest_time, log, rest_port=8089):
+def test_detection_search(splunk_host, splunk_password, search, pass_condition, detection_name, detection_file, earliest_time, latest_time, log, splunk_rest_port=8089):
     try:
         service = client.connect(
             host=splunk_host,
-            port=rest_port,
+            port=splunk_rest_port,
             username='admin',
             password=splunk_password
         )
@@ -119,12 +119,12 @@ def test_detection_search(splunk_host, splunk_password, search, pass_condition, 
         return test_results
 
 
-def search(splunk_host, splunk_password, search_name, log):
+def search(splunk_host, splunk_password, search_name, log, splunk_rest_port=8089):
     print('\nexecute savedsearch: ' + search_name + '\n')
 
     service = client.connect(
         host=splunk_host,
-        port=8089,
+        port=splunk_rest_port,
         username='admin',
         password=splunk_password
     )
@@ -172,10 +172,10 @@ def search(splunk_host, splunk_password, search_name, log):
     mysavedsearch.update(**kwargs).refresh()
 
 
-def list_searches(splunk_host, splunk_password):
+def list_searches(splunk_host, splunk_password, splunk_rest_port=8089):
     service = client.connect(
         host=splunk_host,
-        port=8089,
+        port=splunk_rest_port,
         username='admin',
         password=splunk_password
     )
@@ -201,7 +201,7 @@ def test():
     print(return_value)
 
 
-def export_search(host, s, password, export_mode="raw", out=sys.stdout, username="admin", port=8089):
+def export_search(host, s, password, export_mode="raw", out=sys.stdout, username="admin", splunk_rest_port=8089):
     """
     Exports events from a search using Splunk REST API to a local file.
 
@@ -217,7 +217,7 @@ def export_search(host, s, password, export_mode="raw", out=sys.stdout, username
     """
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    r = requests.post("https://%s:%d/servicesNS/admin/search/search/jobs/export" % (host, port),
+    r = requests.post("https://%s:%d/servicesNS/admin/search/search/jobs/export" % (host, splunk_rest_port),
                       auth=(username, password),
                       data={'output_mode': export_mode,
                             'search': s,
@@ -227,11 +227,11 @@ def export_search(host, s, password, export_mode="raw", out=sys.stdout, username
 
 
 
-def delete_attack_data(splunk_host, splunk_password, splunk_mgmt_port=8089):
+def delete_attack_data(splunk_host, splunk_password, splunk_rest_port=8089):
     try:
         service = client.connect(
             host=splunk_host,
-            port=splunk_mgmt_port,
+            port=splunk_rest_port,
             username='admin',
             password=splunk_password
         )
@@ -254,11 +254,11 @@ def delete_attack_data(splunk_host, splunk_password, splunk_mgmt_port=8089):
     return True
 
 
-def execute_savedsearch(splunk_host, splunk_password, search_name, earliest, latest):
+def execute_savedsearch(splunk_host, splunk_password, search_name, earliest, latest, splunk_rest_port=8089):
     try:
         service = client.connect(
             host=splunk_host,
-            port=8089,
+            port=splunk_rest_port,
             username='admin',
             password=splunk_password,
             app="dev_sec_ops_analytics"

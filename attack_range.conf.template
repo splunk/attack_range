@@ -12,10 +12,11 @@ attack_range_password = Pl3ase-k1Ll-me:p
 # Master password for all administrative accounts
 # default Pl3ase-k1Ll-me:p
 
-cloud_provider = aws
-# cloud provider to deploy the Attack Range
+provider = aws
+# provider to deploy the Attack Range
 # example_1: aws
 # example_2: azure
+# example_3: orca
 
 tf_backend = local
 # Specify terraform backend type 
@@ -34,7 +35,7 @@ tf_backend_name = threat_research_attack_range
 
 [azure]
 azure_subscription_id = xxx
-# only for cloud_provider azure
+# only for provider azure
 # for instructions visit: https://docs.microsoft.com/en-us/azure/media-services/latest/how-to-set-azure-subscription?tabs=portal
 
 instance_type_vms = Standard_D4_v4
@@ -50,6 +51,8 @@ tf_backend_container = tfstate
 # only needed when you specify a remote backend
 
 [orca]
+# only for provider orca
+
 splunk_instance_ip = 127.0.0.1
 # Splunk IP set from orca
 
