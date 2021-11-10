@@ -89,6 +89,7 @@ jobs:
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           name: attack-range-ci-job-github-actions
+          known_hosts: unnecessary
           if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
 
       - uses: hashicorp/setup-terraform@v1
