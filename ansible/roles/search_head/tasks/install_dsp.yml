@@ -5,13 +5,18 @@
   with_items:
     - '/opt/splunk/etc/apps/dsp_outputs_app/local'
 
+- name: Copy root CA
+  copy:
+    src: DigiCertGlobalRootCA.pem
+    dest: '/opt/splunk/etc/apps/dsp_outputs_app/DigiCertGlobalRootCA.pem'
+
 - name: Copy dsp client certificate
   copy:
     src: '{{ dsp_client_cert_path }}'
     dest: '/opt/splunk/etc/apps/dsp_outputs_app/client.pem'
 
 - name: Copy an outputs.conf for dsp using templating
-  win_template:
+  template:
     src: outputs.conf.j2
     dest: '/opt/splunk/etc/apps/dsp_outputs_app/local/outputs.conf'
   vars:
