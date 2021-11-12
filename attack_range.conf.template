@@ -227,11 +227,8 @@ phantom_byo_ip = 8.8.8.8
 phantom_app = phantom-app-for-splunk_4035.tgz
 # Specify the Splunk App for Phantom
 
-phantom_repo_url = https://repo.phantom.us/phantom/5.0/base/7/x86_64/phantom_repo-5.0.1.66250-1.x86_64.rpm
+phantom_repo_url = https://repo.phantom.us/phantom/5.1/base/7/x86_64/phantom_repo-5.1.0.70187-1.x86_64.rpm
 # Specify the Phantom install RPM 
-
-phantom_repo_nginx_url = https://repo.phantom.us/phantom/5.0/base/7/x86_64/nginx-1.21.1-1.el7.ngx.x86_64.rpm
-# Specify the Phantom NGINX dependency
 
 [windows_settings]
 splunk_uf_win_url = https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi
