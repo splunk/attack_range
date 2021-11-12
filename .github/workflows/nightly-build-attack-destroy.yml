@@ -1,6 +1,5 @@
 name: nightly-build-attack-destroy
 on:
-  pull_request:
   schedule:
     - cron: '15 13 * * *'
 
