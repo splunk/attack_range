@@ -39,3 +39,10 @@
 - name: launch with config
   become: true
   ansible.builtin.shell: sysmon -accepteula -i /tmp/{{ sysmon_linux_template }}
+
+- name: install powershell
+  become: true
+  apt:
+    name: powershell
+    state: latest
+    update_cache: yes
