@@ -34,6 +34,7 @@
     - "{{ splunk_mltk_app }}"
     - "{{ splunk_security_essentials_app }}"
     - "{{ splunk_sysmon_ta }}"
+    - "{{ splunk_sysmon_linux_ta }}"
     - "{{ splunk_aws_ta }}"
     - "{{ splunk_office_365_ta }}"
     - "{{ splunk_kinesis_ta }}"
