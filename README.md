@@ -2,7 +2,7 @@
     <a href="https://github.com/splunk/attack_range/releases">
         <img src="https://img.shields.io/github/v/release/splunk/attack_range" /></a>
     <a href="https://github.com/splunk/attack_range/actions">
-        <img src="https://github.com/github/docs/actions/workflows/nightly-build-attack-destroy.yml/badge.svg?branch=develop"/></a>
+        <img src="https://github.com/splunk/attack_range/actions/workflows/nightly-build-attack-destroy.yml/badge.svg?branch=develop"/></a>
     <a href="https://github.com/splunk/attack_range/graphs/contributors" alt="Contributors">
         <img src="https://img.shields.io/github/contributors/splunk/attack_range" /></a>
     <a href="https://github.com/splunk/attack_range/stargazers">
