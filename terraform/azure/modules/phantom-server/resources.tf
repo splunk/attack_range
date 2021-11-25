@@ -73,7 +73,7 @@ resource "azurerm_virtual_machine" "phantom" {
 
   provisioner "local-exec" {
     working_dir = "../../../ansible/"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.config.private_key_path} -i '${azurerm_public_ip.phantom-publicip[0].ip_address},' playbooks/phantom_server.yml -e 'phantom_admin_password=${var.config.attack_range_password} phantom_community_username=${var.config.phantom_community_username} phantom_community_password=${var.config.phantom_community_password} phantom_server_private_ip=${var.config.phantom_server_private_ip} phantom_repo_url=${var.config.phantom_repo_url} phantom_repo_nginx_url=${var.config.phantom_repo_nginx_url}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.config.private_key_path} -i '${azurerm_public_ip.phantom-publicip[0].ip_address},' playbooks/phantom_server.yml -e 'phantom_admin_password=${var.config.attack_range_password} phantom_community_username=${var.config.phantom_community_username} phantom_community_password=${var.config.phantom_community_password} phantom_server_private_ip=${var.config.phantom_server_private_ip} phantom_repo_url=${var.config.phantom_repo_url}'"
   }
 
 }

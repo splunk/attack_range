@@ -9,8 +9,12 @@ indexAndForward = true
 {% if install_dsp %}
 [tcpout:dsp]
 server={% for ip in nodes -%}{{ip}}:9997{% if not loop.last -%},{% endif -%}{% endfor%}
+disabled= False
+dropClonedEventsOnQueueFull = 0s 
+dropEventsOnQueueFull = 0s 
 clientCert=/opt/splunk/etc/apps/dsp_outputs_app/client.pem
-sslVerifyServerCert=false
+sslRootCAPath=/opt/splunk/etc/apps/dsp_outputs_app/DigiCertGlobalRootCA.pem
+sslVerifyServerCert=true
 useACK=true
 indexAndForward = true
 {% endif %}
