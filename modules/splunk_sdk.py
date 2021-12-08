@@ -30,21 +30,23 @@ def test_baseline_search(splunk_host, splunk_password, search, pass_condition, b
               "dispatch.latest_time": latest_time}
 
     splunk_search = search + ' ' + pass_condition
+    test_results = dict()
+    test_results['baseline_name'] = baseline_name
+    test_results['baseline_file'] = baseline_file
+    test_results["splunk_search"] = splunk_search
 
     try:
         job = service.jobs.create(splunk_search, **kwargs)
     except Exception as e:
         log.error("Unable to execute baseline: " + str(e))
-        return {}
+        test_results['error'] = True
+        test_results['messages'] = {"error": [str(e)]}
+        return test_results
 
     try:
-        test_results = dict()
         test_results['diskUsage'] = job['diskUsage']
         test_results['runDuration'] = job['runDuration']
-        test_results['baseline_name'] = baseline_name
-        test_results['baseline_file'] = baseline_file
         test_results['scanCount'] = job['scanCount']
-        test_results["splunk_search"] = splunk_search
         test_results["resultCount"] = job['resultCount']
         test_results["messages"] = job["messages"]
 
@@ -87,21 +89,23 @@ def test_detection_search(splunk_host, splunk_password, search, pass_condition, 
               "dispatch.latest_time": latest_time}
 
     splunk_search = search + ' ' + pass_condition
+    test_results = dict()
+    test_results['detection_name'] = detection_name
+    test_results['detection_file'] = detection_file
+    test_results["splunk_search"] = splunk_search
 
     try:
         job = service.jobs.create(splunk_search, **kwargs)
     except Exception as e:
         log.error("Unable to execute detection: " + str(e))
-        return {}
+        test_results['error'] = True
+        test_results['messages'] = {"error": [str(e)]}
+        return test_results
 
     try:
-        test_results = dict()
         test_results['diskUsage'] = job['diskUsage']
         test_results['runDuration'] = job['runDuration']
-        test_results['detection_name'] = detection_name
-        test_results['detection_file'] = detection_file
         test_results['scanCount'] = job['scanCount']
-        test_results["splunk_search"] = splunk_search
         test_results["resultCount"] = job['resultCount']
         test_results["messages"] = job["messages"]
 
