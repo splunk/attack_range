@@ -156,6 +156,8 @@ splunk_office_365_ta = splunk-add-on-for-microsoft-office-365_202.tgz
 
 splunk_linux_ta = splunk-add-on-for-unix-and-linux_820.tgz
 
+splunk_nginx_ta = splunk-add-on-for-nginx_310.tgz
+
 punchard_custom_visualization = punchcard-custom-visualization_140.tgz
 
 status_indicator_custom_visualization = status-indicator-custom-visualization_140.tgz
