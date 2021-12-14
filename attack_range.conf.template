@@ -164,6 +164,8 @@ splunk_attack_range_dashboard = splunk_attack_range_reporting-1.0.6.tar.gz
 
 timeline_custom_visualization = timeline-custom-visualization_140.tgz
 
+ta_for_zeek = ta-for-zeek_105.tgz
+
 splunk_dashboard_beta = splunk-dashboards-app-beta_090.tgz
 
 splunk_bots_dataset = 0

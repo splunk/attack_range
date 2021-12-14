@@ -40,6 +40,7 @@
     - "{{ splunk_kinesis_ta }}"
     - "{{ splunk_linux_ta }}"
     - "{{ splunk_dashboard_beta }}"
+    - "{{ ta_for_zeek }}"
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: configure_cim.yml
