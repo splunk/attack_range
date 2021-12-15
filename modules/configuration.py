@@ -373,6 +373,18 @@ starting configuration for AT-ST mech walker
         },
         {
             'type': 'confirm',
+            'message': 'shall we build nginx plus web proxy',
+            'name': 'nginx_web_proxy',
+            'default': False,
+        },
+        {
+            'type': 'confirm',
+            'message': 'shall we build linux host with sysmon for linux',
+            'name': 'sysmon_linux',
+            'default': False,
+        },
+        {
+            'type': 'confirm',
             'message': 'shall we include Splunk SOAR',
             'name': 'phantom_inclusion',
             'default': False,
@@ -386,11 +398,11 @@ starting configuration for AT-ST mech walker
             'filter': lambda val : val.lower(),
             'default': False,
         },
-        
+
     ]
     answers = prompt(questions)
     enabled = lambda x : 1 if x else 0
-    
+
     if (enabled(answers['phantom_inclusion'])):
         configuration._sections['environment']['phantom_inclusion'] = enabled(answers['phantom_inclusion'])
         configuration._sections['environment']['phantom_type'] = answers['phantom_type']
@@ -410,8 +422,10 @@ starting configuration for AT-ST mech walker
     configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
     configuration._sections['environment']['windows_client'] = enabled(answers['windows_client'])
     configuration._sections['environment']['zeek_sensor'] = enabled(answers['zeek_sensor'])
-    
-    
+    configuration._sections['environment']['nginx_web_proxy'] = enabled(answers['nginx_web_proxy'])
+    configuration._sections['environment']['sysmon_linux'] = enabled(answers['sysmon_linux'])
+
+
     if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "byo":
         questions=[
             {
@@ -436,7 +450,7 @@ starting configuration for AT-ST mech walker
         configuration._sections['environment']['phantom_server'] = 0
         configuration._sections['environment']['phantom_byo'] = 1
 
-    if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "new":    
+    if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "new":
         questions = [
             {
                 'type': 'input',
@@ -459,7 +473,7 @@ starting configuration for AT-ST mech walker
             configuration._sections['phantom_settings']['phantom_community_password'] = answers['phantom_community_password']
         configuration._sections['environment']['phantom_server'] = 1
         configuration._sections['environment']['phantom_byo'] = 0
-    
+
 
     # write config file
     with open(attack_range_config, 'w') as configfile:

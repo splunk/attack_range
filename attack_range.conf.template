@@ -19,7 +19,7 @@ provider = aws
 # example_3: orca
 
 tf_backend = local
-# Specify terraform backend type 
+# Specify terraform backend type
 # Possible values: local, remote
 
 [aws]
@@ -249,7 +249,7 @@ phantom_app = phantom-app-for-splunk_4035.tgz
 # Specify the Splunk App for Phantom
 
 phantom_repo_url = https://repo.phantom.us/phantom/5.1/base/7/x86_64/phantom_repo-5.1.0.70187-1.x86_64.rpm
-# Specify the Phantom install RPM 
+# Specify the Phantom install RPM
 
 [windows_settings]
 splunk_uf_win_url = https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi
@@ -343,6 +343,10 @@ sysmon_linux = 0
 # enable a sysmon on linux server
 # possible values: 1, 0
 
+nginx_web_proxy = 0
+# enable a nginx plus web proxy
+# possible values: 1, 0
+
 [splunk_server]
 # customize the splunk server
 
@@ -401,7 +405,6 @@ kali_machine_private_ip = 10.0.1.16
 # specify the kali machine private ip
 # should be in subnet: 10.0.1.0/24
 
-
 [windows_client]
 # customize the windows client
 
@@ -447,9 +450,22 @@ osquery_custom_config_file = custom_osquery.conf
 [sysmon_linux]
 # customize the sysmon on linux machine
 
-sysmon_linux_private_ip = 10.0.1.25
+sysmon_linux_private_ip = 10.0.1.20
 # specify the osquery linux server's private ip
 # should be in the subnet: 10.0.1.0/24
 
 sysmon_linux_template = SysMonLinux-CatchAll.xml
-# sysmon config file 
+# sysmon config file
+
+[nginx_web_proxy]
+# customize the nginx web proxy, can only proxy http port 80 traffic today
+
+nginx_web_proxy_private_ip = 10.0.1.21
+# specify the nginx_web_proxy machine private ip
+# should be in subnet: 10.0.1.0/24
+
+nginx_web_proxy_host = 10.0.1.20
+# what machine to proxy web traffic to, defaults to sysmon_linux_private_ip
+
+nginx_proxy_web_port = 8080
+# what port to proxy web traffic to, defaults to 8080

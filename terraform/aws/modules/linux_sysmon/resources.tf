@@ -16,7 +16,6 @@ count = var.config.sysmon_linux == "1" ? 1 : 0
   }
 }
 
-# install Phantom on a bare ubuntu instance
 resource "aws_instance" "sysmon_linux" {
   count                  = var.config.sysmon_linux == "1" ? 1 : 0
   ami                    = data.aws_ami.latest-ubuntu[count.index].id

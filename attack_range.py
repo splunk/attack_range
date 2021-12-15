@@ -65,11 +65,15 @@ starting program loaded for B1 battle droid """ + Back.BLACK + Fore.BLUE + Style
         sys.exit(1)
 
     if config['provider'] == 'azure' and config['zeek_sensor'] == '1':
-        log.error('ERROR: zeek sensor only available for aws in the moment. Plase change zeek_sensor to 0 and try again.')
+        log.error('ERROR: zeek sensor only available for aws in the moment. Please change zeek_sensor to 0 and try again.')
         sys.exit(1)
 
     if config['provider'] == 'aws' and config['windows_client'] == '1':
         log.error('ERROR: windows client is only support for Azure.')
+        sys.exit(1)
+
+    if config['provider'] == 'azure' and config['nginx_web_proxy'] == '1':
+        log.error('ERROR: nginx web proxy is only support for aws at the moment. Please change nginx_web_proxy to 0 and try again.')
         sys.exit(1)
 
     return TerraformController(config, log), config, log
@@ -109,9 +113,9 @@ def dump(args):
 
 def replay(args):
     controller, _, log = init(args)
-    controller.replay_attack_data(args.dump_name, {"source": args.source, 
-                                                "index": args.index, 
-                                                "sourcetype": args.sourcetype, 
+    controller.replay_attack_data(args.dump_name, {"source": args.source,
+                                                "index": args.index,
+                                                "sourcetype": args.sourcetype,
                                                 "update_timestamp": args.update_timestamp,
                                                 "file_name": args.file_name})
 
@@ -169,7 +173,7 @@ def main(args):
     test_parser = actions_parser.add_parser("test", help="test detections")
     dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
     replay_parser = actions_parser.add_parser("replay", help="replay dumps into the splunk server")
-    search_parser = actions_parser.add_parser("search", help="execute a splunk savedsearch on the splunk server") 
+    search_parser = actions_parser.add_parser("search", help="execute a splunk savedsearch on the splunk server")
 
     # Build arguments
     build_parser.set_defaults(func=build)
@@ -202,11 +206,11 @@ def main(args):
     # Dump  Arguments
     dump_parser.add_argument("-dn", "--dump_name", required=True,
                              help="name for the dumped attack data")
-    dump_parser.add_argument("--out", required=True, 
+    dump_parser.add_argument("--out", required=True,
                              help="file name of dump output")
-    dump_parser.add_argument("--search", required=True, 
+    dump_parser.add_argument("--search", required=True,
                              help="splunk search to export")
-    dump_parser.add_argument("--earliest", required=True, 
+    dump_parser.add_argument("--earliest", required=True,
                              help="earliest time of the splunk search")
     dump_parser.add_argument("--latest", required=False, default="now",
                              help="latest time of the splunk search")
@@ -239,11 +243,11 @@ def main(args):
     # Search Arguments
     search_parser.add_argument("--search", required=True,
                              help="savedsearch on splunk server")
-    search_parser.add_argument("--earliest", required=True, 
+    search_parser.add_argument("--earliest", required=True,
                              help="earliest time of the splunk search")
     search_parser.add_argument("--latest", required=False, default="now",
                              help="latest time of the splunk search")
-    search_parser.set_defaults(func=search)   
+    search_parser.set_defaults(func=search)
 
 
     # Show arguments
