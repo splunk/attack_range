@@ -464,8 +464,8 @@ nginx_web_proxy_private_ip = 10.0.1.21
 # specify the nginx_web_proxy machine private ip
 # should be in subnet: 10.0.1.0/24
 
-nginx_web_proxy_host = 10.0.1.20
+nginx_web_proxy_host = 10.0.1.12
 # what machine to proxy web traffic to, defaults to sysmon_linux_private_ip
 
-nginx_proxy_web_port = 8080
+nginx_web_proxy_port = 8000
 # what port to proxy web traffic to, defaults to 8080

@@ -355,7 +355,7 @@ class TerraformController(IEnvironmentController):
         # nginx_web_proxy
         if self.config['nginx_web_proxy'] == "1":
             nginx_web_proxy = self.getIP(response, 'nginx_web_proxy')
-            msg = "Access Phantom via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
+            msg = "Access Nginx Web Proxy via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
             + " ubuntu@" + nginx_web_proxy
             print_messages.append(msg)
 

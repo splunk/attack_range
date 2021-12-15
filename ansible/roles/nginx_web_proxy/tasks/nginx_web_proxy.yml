@@ -4,9 +4,9 @@
     src: nginx.conf
     dest: /etc/nginx/nginx.conf
 
-- name: copy default.conf to add the proxy information (by default it points to linux sysmon host)
+- name: copy default.conf to add the proxy information 
   template:
-    src: default.conf
+    src: default.conf.j2
     dest: /etc/nginx/conf.d/default.conf
 
 - name: reload nginx
