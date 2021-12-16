@@ -1,6 +1,6 @@
-- name: copy deb_inputs.conf as inputs.conf to capture sysmon for linux logs
+- name: copy inputs.conf to capture nginx plus logs
   copy:
-    src: deb_template_inputs.conf
+    src: inputs.conf
     dest: /opt/splunkforwarder/etc/system/local/inputs.conf
     owner: splunk
     group: splunk

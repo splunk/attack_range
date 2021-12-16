@@ -1,5 +1,0 @@
----
-- name: copy nginx.conf to add kv logging to nginx plus
-  file:
-    src: inputs.conf
-    dest: /opt/splunkforwarder/etc/system/local

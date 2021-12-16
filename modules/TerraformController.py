@@ -359,6 +359,13 @@ class TerraformController(IEnvironmentController):
             + " ubuntu@" + nginx_web_proxy
             print_messages.append(msg)
 
+        # nginx_web_proxy
+        if self.config['sysmon_linux'] == "1":
+            sysmon_linux_ip = self.getIP(response, 'sysmon_linux')
+            msg = "Access Sysmon Linux via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
+            + " ubuntu@" + sysmon_linux_ip
+            print_messages.append(msg)
+
         return print_messages
 
 
