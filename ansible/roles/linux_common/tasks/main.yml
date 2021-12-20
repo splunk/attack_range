@@ -1,4 +1,4 @@
 ---
 - include: set-hostname.yml
 - include: disable-dnssec.yml
-- include: disable-autoupgrade.yml]
+- include: disable-autoupgrade.yml
