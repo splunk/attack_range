@@ -44,8 +44,8 @@
     deb: /tmp/splunkforwarder-latest.deb
   register: apt_status
   until: apt_status is success
-  delay: 6
-  retries: 10
+  delay: 60
+  retries: 3
   when: splunk_path.stat.exists == false
 
 
