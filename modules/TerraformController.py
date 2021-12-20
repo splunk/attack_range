@@ -320,36 +320,50 @@ class TerraformController(IEnvironmentController):
         print_messages.append(msg)
 
         # windows domain controller
-        if self.config['windows_domain_controller'] == 1:
+        if self.config['windows_domain_controller'] == "1":
             win_ip = self.getIP(response, 'win-dc')
             msg = "Access Windows Domain Controller via:\n\tRDP > rdp://" + win_ip + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password']
             print_messages.append(msg)
 
         # windows domain controller
-        if self.config['windows_server'] == 1:
+        if self.config['windows_server'] == "1":
             win_server = self.getIP(response, 'win-server')
             msg = "Access Windows Server via:\n\tRDP > rdp://" + win_server + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password']
             print_messages.append(msg)
 
         # kali linux
-        if self.config['kali_machine'] == 1:
+        if self.config['kali_machine'] == "1":
             kali_ip = self.getIP(response, 'kali')
             msg = "Access Kali via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
             + " ubuntu@" + kali_ip + "\n\tusername: kali \n\tpassword: " + self.config['attack_range_password']
             print_messages.append(msg)
 
         # osquery linux
-        if self.config['osquery_machine'] == 1:
+        if self.config['osquery_machine'] == "1":
             osquerylnx_ip = self.getIP(response, 'osquerylnx')
             msg = "Access Osquery via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
             + " ubuntu@" + osquerylnx_ip + "\n\tusername: kali \n\tpassword: " + self.config['attack_range_password']
             print_messages.append(msg)
 
         # phantom linux
-        if self.config['phantom_server'] == 1:
+        if self.config['phantom_server'] == "1":
             phantom_ip = self.getIP(response, 'phantom')
             msg = "Access Phantom via:\n\tWeb > https://" + phantom_ip + "\n\tSSH > ssh -i" + self.config['private_key_path'] \
             + " centos@" + phantom_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        # nginx_web_proxy
+        if self.config['nginx_web_proxy'] == "1":
+            nginx_web_proxy = self.getIP(response, 'nginx_web_proxy')
+            msg = "Access Nginx Web Proxy via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
+            + " ubuntu@" + nginx_web_proxy
+            print_messages.append(msg)
+
+        # nginx_web_proxy
+        if self.config['sysmon_linux'] == "1":
+            sysmon_linux_ip = self.getIP(response, 'sysmon_linux')
+            msg = "Access Sysmon Linux via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
+            + " ubuntu@" + sysmon_linux_ip
             print_messages.append(msg)
 
         return print_messages
