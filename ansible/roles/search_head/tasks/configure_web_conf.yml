@@ -7,12 +7,12 @@
     group: splunk
     recurse: yes
   with_items:
-    - /opt/splunk/etc/apps/web_app/local/
+    - /opt/splunk/etc/apps/system/local/
 
 - name: copy web.conf to splunk server
   copy:
     src: web.conf
-    dest: /opt/splunk/etc/apps/web_app/local/web.conf
+    dest: /opt/splunk/etc/apps/system/local/web.conf
     owner: splunk
     group: splunk
   notify: restart splunk
