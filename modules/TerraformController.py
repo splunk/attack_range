@@ -335,7 +335,7 @@ class TerraformController(IEnvironmentController):
         if self.config['kali_machine'] == "1":
             kali_ip = self.getIP(response, 'kali')
             msg = "Access Kali via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
-            + " ubuntu@" + kali_ip + "\n\tusername: kali \n\tpassword: " + self.config['attack_range_password']
+            + " kali@" + kali_ip + "\n\tusername: kali \n\tpassword: " + self.config['attack_range_password']
             print_messages.append(msg)
 
         # osquery linux
