@@ -22,6 +22,6 @@
 
 # installing apps takes 15+ minutes longer, so later we will install just the apps we need
 - name: run the phantom install script without apps
-  shell: printf "{{phantom_community_username}}\n{{phantom_community_password}}\n" | /opt/phantom/bin/phantom_setup.sh install --no-prompt --without-apps --version=5.2.0.77965-1
+  shell: printf "{{phantom_community_username}}\n{{phantom_community_password}}\n" | /opt/phantom/bin/phantom_setup.sh install --no-prompt --without-apps --version=5.2.1.78411-1
   async: 600
   poll: 60
