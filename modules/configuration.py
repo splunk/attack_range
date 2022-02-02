@@ -163,7 +163,7 @@ starting configuration for AT-ST mech walker
             # get provider
             'type': 'list',
             'message': 'select cloud provider',
-            'name': 'cloud_provider',
+            'name': 'provider',
             'choices': [
                 {
                     'name': 'aws'
@@ -178,7 +178,7 @@ starting configuration for AT-ST mech walker
             'type': 'input',
             'message': 'enter azure subscription id',
             'name': 'azure_subscription_id',
-            'when': lambda answers: answers['cloud_provider'] == 'azure',
+            'when': lambda answers: answers['provider'] == 'azure',
         },
         {
             # get range password
@@ -189,7 +189,7 @@ starting configuration for AT-ST mech walker
         },
     ]
     answers = prompt(questions)
-    if answers['cloud_provider'] == 'aws':
+    if answers['provider'] == 'aws':
         aws_session = boto3.Session()
         if aws_session.region_name:
             aws_configured_region = aws_session.region_name
@@ -198,7 +198,7 @@ starting configuration for AT-ST mech walker
             sys.exit(1)
     else:
         aws_configured_region = ''
-    configuration._sections['global']['cloud_provider'] = answers['cloud_provider']
+    configuration._sections['global']['provider'] = answers['provider']
     configuration._sections['global']['attack_range_password'] = answers['attack_range_password']
     if 'azure_subscription_id' in answers:
         configuration._sections['azure']['azure_subscription_id'] = answers['azure_subscription_id']
@@ -247,14 +247,14 @@ starting configuration for AT-ST mech walker
     if 'new_key_pair' in answers:
         if answers['new_key_pair']:
             # create new ssh key for aws
-            if configuration._sections['global']['cloud_provider'] == "aws":
+            if configuration._sections['global']['provider'] == "aws":
                 new_key_name = create_key_pair_aws(aws_session.client('ec2', region_name=aws_configured_region))
                 new_key_path = Path(new_key_name).resolve()
                 configuration._sections['range_settings']['key_name'] = new_key_name[:-4]
                 configuration._sections['range_settings']['private_key_path'] = str(new_key_path)
                 configuration._sections['range_settings']['public_key_path'] = str(pub_key)
                 print("> new aws ssh created: {}".format(new_key_path))
-            elif configuration._sections['global']['cloud_provider'] == "azure":
+            elif configuration._sections['global']['provider'] == "azure":
                 priv_key_name, pub_key_name = create_key_pair_azure()
                 priv_key_path = Path(priv_key_name).resolve()
                 pub_key_path = Path(pub_key_name).resolve()
@@ -263,7 +263,7 @@ starting configuration for AT-ST mech walker
                 configuration._sections['range_settings']['public_key_path'] = str(pub_key_path)
                 print("> new azure ssh pair created:\nprivate key: {0}\npublic key:{1}".format(priv_key_path, pub_key_path))
             else:
-                print("ERROR, we do not support generating a key pair for the selected provider: {}".format(configuration._sections['global']['cloud_provider']))
+                print("ERROR, we do not support generating a key pair for the selected provider: {}".format(configuration._sections['global']['provider']))
 
 
 
@@ -373,6 +373,18 @@ starting configuration for AT-ST mech walker
         },
         {
             'type': 'confirm',
+            'message': 'shall we build nginx plus web proxy',
+            'name': 'nginx_web_proxy',
+            'default': False,
+        },
+        {
+            'type': 'confirm',
+            'message': 'shall we build linux host with sysmon for linux',
+            'name': 'sysmon_linux',
+            'default': False,
+        },
+        {
+            'type': 'confirm',
             'message': 'shall we include Splunk SOAR',
             'name': 'phantom_inclusion',
             'default': False,
@@ -386,11 +398,11 @@ starting configuration for AT-ST mech walker
             'filter': lambda val : val.lower(),
             'default': False,
         },
-        
+
     ]
     answers = prompt(questions)
     enabled = lambda x : 1 if x else 0
-    
+
     if (enabled(answers['phantom_inclusion'])):
         configuration._sections['environment']['phantom_inclusion'] = enabled(answers['phantom_inclusion'])
         configuration._sections['environment']['phantom_type'] = answers['phantom_type']
@@ -410,8 +422,10 @@ starting configuration for AT-ST mech walker
     configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
     configuration._sections['environment']['windows_client'] = enabled(answers['windows_client'])
     configuration._sections['environment']['zeek_sensor'] = enabled(answers['zeek_sensor'])
-    
-    
+    configuration._sections['environment']['nginx_web_proxy'] = enabled(answers['nginx_web_proxy'])
+    configuration._sections['environment']['sysmon_linux'] = enabled(answers['sysmon_linux'])
+
+
     if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "byo":
         questions=[
             {
@@ -436,7 +450,7 @@ starting configuration for AT-ST mech walker
         configuration._sections['environment']['phantom_server'] = 0
         configuration._sections['environment']['phantom_byo'] = 1
 
-    if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "new":    
+    if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "new":
         questions = [
             {
                 'type': 'input',
@@ -459,7 +473,7 @@ starting configuration for AT-ST mech walker
             configuration._sections['phantom_settings']['phantom_community_password'] = answers['phantom_community_password']
         configuration._sections['environment']['phantom_server'] = 1
         configuration._sections['environment']['phantom_byo'] = 0
-    
+
 
     # write config file
     with open(attack_range_config, 'w') as configfile:

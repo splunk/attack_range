@@ -33,11 +33,17 @@
     src: template.osquery.conf
     dest: /etc/osquery/osquery.conf 
 
-- name: copy custom osquery conf template as /usr/share/osquery/packs/attack-range.conf
+- name: copy template.osquery.conf /var/osquery/osquery.conf
+  become: true
+  copy:
+    src: template.osquery.conf
+    dest: /var/osquery/osquery.conf 
+
+- name: copy custom osquery conf template as /opt/osquery/share/osquery/packs/attack-range.conf
   become: true
   copy: 
     src: "{{ custom_osquery_conf }}" 
-    dest: /usr/share/osquery/packs/attack-range.conf
+    dest: /opt/osquery/share/osquery/packs/attack-range.conf
 
 - name: activate osqueryd service
   become: true

@@ -75,3 +75,10 @@ module "linux_sysmon" {
   ec2_subnet_id          = module.networkModule.ec2_subnet_id
   config                 = var.config
 }
+
+module "nginx_web_proxy" {
+  source                 = "../modules/nginx_web_proxy"
+  vpc_security_group_ids = module.networkModule.sg_vpc_id
+  ec2_subnet_id          = module.networkModule.ec2_subnet_id
+  config                 = var.config
+}

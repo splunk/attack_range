@@ -1,4 +1,4 @@
-ansible==2.9.20
+ansible==2.9.27
 ansible-runner==1.4.4
 apipkg==1.5
 aspy.yaml==1.3.0
@@ -18,9 +18,11 @@ certifi==2019.11.28
 cffi==1.13.2
 cfgv==2.0.1
 chardet==3.0.4
+charset-normalizer==2.0.9
 colorama==0.4.4
 configparser==4.0.2
 contextlib2==0.6.0.post1
+cryptography==36.0.1
 Deprecated==1.2.10
 dnspython==1.16.0
 docutils==0.15.2
@@ -82,7 +84,7 @@ splunk-sdk==1.6.12
 tabulate==0.8.6
 termcolor==1.1.0
 toml==0.10.0
-urllib3<=1.26.6
+urllib3==1.25.11
 virtualenv==16.7.9
 wcwidth==0.1.7
 wget==3.2

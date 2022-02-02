@@ -12,13 +12,14 @@ attack_range_password = Pl3ase-k1Ll-me:p
 # Master password for all administrative accounts
 # default Pl3ase-k1Ll-me:p
 
-cloud_provider = aws
-# cloud provider to deploy the Attack Range
+provider = aws
+# provider to deploy the Attack Range
 # example_1: aws
 # example_2: azure
+# example_3: orca
 
 tf_backend = local
-# Specify terraform backend type 
+# Specify terraform backend type
 # Possible values: local, remote
 
 [aws]
@@ -34,7 +35,7 @@ tf_backend_name = threat_research_attack_range
 
 [azure]
 azure_subscription_id = xxx
-# only for cloud_provider azure
+# only for provider azure
 # for instructions visit: https://docs.microsoft.com/en-us/azure/media-services/latest/how-to-set-azure-subscription?tabs=portal
 
 instance_type_vms = Standard_D4_v4
@@ -48,6 +49,18 @@ tf_backend_storage_account = attackrangestorage
 
 tf_backend_container = tfstate
 # only needed when you specify a remote backend
+
+[orca]
+# only for provider orca
+
+splunk_instance_ip = 127.0.0.1
+# Splunk IP set from orca
+
+splunk_ssh_port = 2222
+# Splunk ssh port from orca
+
+splunk_rest_port = 8089
+# Splunk rest port from orca
 
 [range_settings]
 key_name = attack-range-key-pair
@@ -95,8 +108,12 @@ s3_bucket_url = https://attack-range-appbinaries.s3-us-west-2.amazonaws.com
 splunk_windows_ta = splunk-add-on-for-microsoft-windows_812.tgz
 # Specify the Splunk Windows TA
 
-splunk_sysmon_ta = splunk-add-on-for-sysmon_101.tgz
+splunk_sysmon_ta = splunk-add-on-for-microsoft-sysmon_1062.tgz
+# splunk_sysmon_ta = splunk-add-on-for-sysmon_101.tgz
 # Specify the Splunk Sysmon TA
+
+splunk_sysmon_linux_ta = add-on-for-linux-sysmon_103.tgz
+#Specify the Splunk Sysmon for Linux TA
 
 splunk_cim_app = splunk-common-information-model-cim_4200.tgz
 # Specify the Splunk CIM App
@@ -139,6 +156,8 @@ splunk_office_365_ta = splunk-add-on-for-microsoft-office-365_202.tgz
 
 splunk_linux_ta = splunk-add-on-for-unix-and-linux_820.tgz
 
+splunk_nginx_ta = splunk-add-on-for-nginx_310.tgz
+
 punchard_custom_visualization = punchcard-custom-visualization_140.tgz
 
 status_indicator_custom_visualization = status-indicator-custom-visualization_140.tgz
@@ -146,6 +165,8 @@ status_indicator_custom_visualization = status-indicator-custom-visualization_14
 splunk_attack_range_dashboard = splunk_attack_range_reporting-1.0.6.tar.gz
 
 timeline_custom_visualization = timeline-custom-visualization_140.tgz
+
+ta_for_zeek = ta-for-zeek_105.tgz
 
 splunk_dashboard_beta = splunk-dashboards-app-beta_090.tgz
 
@@ -227,11 +248,8 @@ phantom_byo_ip = 8.8.8.8
 phantom_app = phantom-app-for-splunk_4035.tgz
 # Specify the Splunk App for Phantom
 
-phantom_repo_url = https://repo.phantom.us/phantom/5.0/base/7/x86_64/phantom_repo-5.0.1.66250-1.x86_64.rpm
-# Specify the Phantom install RPM 
-
-phantom_repo_nginx_url = https://repo.phantom.us/phantom/5.0/base/7/x86_64/nginx-1.21.1-1.el7.ngx.x86_64.rpm
-# Specify the Phantom NGINX dependency
+phantom_repo_url = https://repo.phantom.us/phantom/5.2/base/7/x86_64/phantom_repo-5.2.1.78411-1.x86_64.rpm
+# Specify the Phantom install RPM
 
 [windows_settings]
 splunk_uf_win_url = https://download.splunk.com/products/universalforwarder/releases/8.0.2/windows/splunkforwarder-8.0.2-a7f645ddaf91-x64-release.msi
@@ -325,6 +343,10 @@ sysmon_linux = 0
 # enable a sysmon on linux server
 # possible values: 1, 0
 
+nginx_web_proxy = 0
+# enable a nginx plus web proxy
+# possible values: 1, 0
+
 [splunk_server]
 # customize the splunk server
 
@@ -383,7 +405,6 @@ kali_machine_private_ip = 10.0.1.16
 # specify the kali machine private ip
 # should be in subnet: 10.0.1.0/24
 
-
 [windows_client]
 # customize the windows client
 
@@ -429,9 +450,22 @@ osquery_custom_config_file = custom_osquery.conf
 [sysmon_linux]
 # customize the sysmon on linux machine
 
-sysmon_linux_private_ip = 10.0.1.25
+sysmon_linux_private_ip = 10.0.1.20
 # specify the osquery linux server's private ip
 # should be in the subnet: 10.0.1.0/24
 
 sysmon_linux_template = SysMonLinux-CatchAll.xml
-# sysmon config file 
+# sysmon config file
+
+[nginx_web_proxy]
+# customize the nginx web proxy, can only proxy http port 80 traffic today
+
+nginx_web_proxy_private_ip = 10.0.1.21
+# specify the nginx_web_proxy machine private ip
+# should be in subnet: 10.0.1.0/24
+
+nginx_web_proxy_host = 10.0.1.12
+# what machine to proxy web traffic to, defaults to sysmon_linux_private_ip
+
+nginx_web_proxy_port = 8000
+# what port to proxy web traffic to, defaults to 8080

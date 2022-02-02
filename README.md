@@ -1,8 +1,8 @@
 <p align="center">
     <a href="https://github.com/splunk/attack_range/releases">
         <img src="https://img.shields.io/github/v/release/splunk/attack_range" /></a>
-    <a href="https://circleci.com/gh/splunk/attack_range/tree/develop">
-        <img src="https://img.shields.io/circleci/build/github/splunk/attack_range?token=4ae763d7a7d21e86bb40a76797cab13cda402fba" /></a>
+    <a href="https://github.com/splunk/attack_range/actions">
+        <img src="https://github.com/splunk/attack_range/actions/workflows/nightly-build-attack-destroy.yml/badge.svg?branch=develop"/></a>
     <a href="https://github.com/splunk/attack_range/graphs/contributors" alt="Contributors">
         <img src="https://img.shields.io/github/contributors/splunk/attack_range" /></a>
     <a href="https://github.com/splunk/attack_range/stargazers">
@@ -229,3 +229,4 @@ We welcome feedback and contributions from the community! Please see our [contri
 * Shannon Davis
 * [Mauricio Velazco](https://twitter.com/mvelazco)
 * [Teoderick Contreras](https://twitter.com/tccontre18)
+* [Lou Stella](https://twitter.com/ljstella)

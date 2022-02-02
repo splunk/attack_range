@@ -27,9 +27,9 @@ class CustomConfigParser:
                         from path: {1} and install_dsp is enabled".format(CONFIG_PATH, dsp_client_cert_path))
                 sys.exit(1)
 
-        key_name_regex = re.compile('[@!#$%^&*()\' <>?/\|}{~:]')
+        key_name_regex = re.compile('[@!#$%^&*_=().\' <>?/\|}{~:]')
         if (key_name_regex.search(self.settings['key_name']) != None):
-            print("ERROR - with configuration file at: {0}, no special characters, spaces, single quotes allowed in key_name: {1}".format(
+            print("ERROR - with configuration file at: {0}, no special characters, underscores, spaces, no single quotes allowed in key_name: {1}".format(
                 CONFIG_PATH, self.settings['key_name']))
             sys.exit(1)
 

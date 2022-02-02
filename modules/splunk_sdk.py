@@ -5,17 +5,17 @@ import splunklib.client as client
 import splunklib.results as results
 import requests
 
-def test_baseline_search(splunk_host, splunk_password, search, pass_condition, baseline_name, baseline_file, earliest_time, latest_time, log):
+def test_baseline_search(splunk_host, splunk_password, search, pass_condition, baseline_name, baseline_file, earliest_time, latest_time, log, splunk_rest_port=8089):
     try:
         service = client.connect(
             host=splunk_host,
-            port=8089,
+            port=splunk_rest_port,
             username='admin',
             password=splunk_password
         )
     except Exception as e:
         log.error("Unable to connect to Splunk instance: " + str(e))
-        return 1, {}
+        return {}
 
     # search and replace \\ with \\\
     # search = search.replace('\\','\\\\')
@@ -30,19 +30,29 @@ def test_baseline_search(splunk_host, splunk_password, search, pass_condition, b
               "dispatch.latest_time": latest_time}
 
     splunk_search = search + ' ' + pass_condition
+    test_results = dict()
+    test_results['baseline_name'] = baseline_name
+    test_results['baseline_file'] = baseline_file
+    test_results["splunk_search"] = splunk_search
 
     try:
         job = service.jobs.create(splunk_search, **kwargs)
     except Exception as e:
         log.error("Unable to execute baseline: " + str(e))
-        return 1, {}
+        test_results['error'] = True
+        test_results['messages'] = {"error": [str(e)]}
+        return test_results
 
-    test_results = dict()
-    test_results['diskUsage'] = job['diskUsage']
-    test_results['runDuration'] = job['runDuration']
-    test_results['baseline_name'] = baseline_name
-    test_results['baseline_file'] = baseline_file
-    test_results['scanCount'] = job['scanCount']
+    try:
+        test_results['diskUsage'] = job['diskUsage']
+        test_results['runDuration'] = job['runDuration']
+        test_results['scanCount'] = job['scanCount']
+        test_results["resultCount"] = job['resultCount']
+        test_results["messages"] = job["messages"]
+
+    except Exception as exc:
+        log.error(f"Caught an exception during updating test_results in test_baseline_search, exception: {exc}")
+
 
     if int(job['resultCount']) != 1:
         log.error("Test failed for baseline: " + baseline_name)
@@ -54,17 +64,17 @@ def test_baseline_search(splunk_host, splunk_password, search, pass_condition, b
         return test_results
 
 
-def test_detection_search(splunk_host, splunk_password, search, pass_condition, detection_name, detection_file, earliest_time, latest_time, log):
+def test_detection_search(splunk_host, splunk_password, search, pass_condition, detection_name, detection_file, earliest_time, latest_time, log, splunk_rest_port=8089):
     try:
         service = client.connect(
             host=splunk_host,
-            port=8089,
+            port=splunk_rest_port,
             username='admin',
             password=splunk_password
         )
     except Exception as e:
         log.error("Unable to connect to Splunk instance: " + str(e))
-        return 1, {}
+        return {}
 
     # search and replace \\ with \\\
     # search = search.replace('\\','\\\\')
@@ -79,19 +89,29 @@ def test_detection_search(splunk_host, splunk_password, search, pass_condition, 
               "dispatch.latest_time": latest_time}
 
     splunk_search = search + ' ' + pass_condition
+    test_results = dict()
+    test_results['detection_name'] = detection_name
+    test_results['detection_file'] = detection_file
+    test_results["splunk_search"] = splunk_search
 
     try:
         job = service.jobs.create(splunk_search, **kwargs)
     except Exception as e:
         log.error("Unable to execute detection: " + str(e))
-        return 1, {}
+        test_results['error'] = True
+        test_results['messages'] = {"error": [str(e)]}
+        return test_results
 
-    test_results = dict()
-    test_results['diskUsage'] = job['diskUsage']
-    test_results['runDuration'] = job['runDuration']
-    test_results['detection_name'] = detection_name
-    test_results['detection_file'] = detection_file
-    test_results['scanCount'] = job['scanCount']
+    try:
+        test_results['diskUsage'] = job['diskUsage']
+        test_results['runDuration'] = job['runDuration']
+        test_results['scanCount'] = job['scanCount']
+        test_results["resultCount"] = job['resultCount']
+        test_results["messages"] = job["messages"]
+
+    except Exception as exc:
+        log.error(f"Caught an exception during updating test_results in test_detection_search, exception: {exc}")
+
 
     if int(job['resultCount']) != 1:
         log.error("test failed for detection: " + detection_name)
@@ -103,12 +123,12 @@ def test_detection_search(splunk_host, splunk_password, search, pass_condition, 
         return test_results
 
 
-def search(splunk_host, splunk_password, search_name, log):
+def search(splunk_host, splunk_password, search_name, log, splunk_rest_port=8089):
     print('\nexecute savedsearch: ' + search_name + '\n')
 
     service = client.connect(
         host=splunk_host,
-        port=8089,
+        port=splunk_rest_port,
         username='admin',
         password=splunk_password
     )
@@ -156,10 +176,10 @@ def search(splunk_host, splunk_password, search_name, log):
     mysavedsearch.update(**kwargs).refresh()
 
 
-def list_searches(splunk_host, splunk_password):
+def list_searches(splunk_host, splunk_password, splunk_rest_port=8089):
     service = client.connect(
         host=splunk_host,
-        port=8089,
+        port=splunk_rest_port,
         username='admin',
         password=splunk_password
     )
@@ -185,7 +205,7 @@ def test():
     print(return_value)
 
 
-def export_search(host, s, password, export_mode="raw", out=sys.stdout, username="admin", port=8089):
+def export_search(host, s, password, export_mode="raw", out=sys.stdout, username="admin", splunk_rest_port=8089):
     """
     Exports events from a search using Splunk REST API to a local file.
 
@@ -201,7 +221,7 @@ def export_search(host, s, password, export_mode="raw", out=sys.stdout, username
     """
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    r = requests.post("https://%s:%d/servicesNS/admin/search/search/jobs/export" % (host, port),
+    r = requests.post("https://%s:%d/servicesNS/admin/search/search/jobs/export" % (host, splunk_rest_port),
                       auth=(username, password),
                       data={'output_mode': export_mode,
                             'search': s,
@@ -211,11 +231,11 @@ def export_search(host, s, password, export_mode="raw", out=sys.stdout, username
 
 
 
-def delete_attack_data(splunk_host, splunk_password):
+def delete_attack_data(splunk_host, splunk_password, splunk_rest_port=8089):
     try:
         service = client.connect(
             host=splunk_host,
-            port=8089,
+            port=splunk_rest_port,
             username='admin',
             password=splunk_password
         )
@@ -238,11 +258,11 @@ def delete_attack_data(splunk_host, splunk_password):
     return True
 
 
-def execute_savedsearch(splunk_host, splunk_password, search_name, earliest, latest):
+def execute_savedsearch(splunk_host, splunk_password, search_name, earliest, latest, splunk_rest_port=8089):
     try:
         service = client.connect(
             host=splunk_host,
-            port=8089,
+            port=splunk_rest_port,
             username='admin',
             password=splunk_password,
             app="dev_sec_ops_analytics"
