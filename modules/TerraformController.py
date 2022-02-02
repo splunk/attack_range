@@ -233,7 +233,7 @@ class TerraformController(IEnvironmentController):
         return file
 
 
-    def simulate(self, target, simulation_techniques, simulation_atomics, var_str='no'):
+    def simulate(self, simulation_type, target, simulation_techniques, simulation_atomics, simulation_playbook, var_str='no'):
         if self.config['provider'] == 'aws':
             target_public_ip = aws_service.get_single_instance_public_ip(target, self.config)
             ansible_user = 'Administrator'
@@ -307,6 +307,10 @@ class TerraformController(IEnvironmentController):
                 sys.exit(1)
 
         elif simulation_type == 'PurpleSharp':
+
+            if not simulation_playbook:
+                    self.log.error("Simulation playbook parameter missing (-sp /path/playbook.json)")
+                    sys.exit(1)
 
             copyfile(simulation_playbook, os.path.join(os.path.dirname(__file__), '../ansible/roles/purplesharp/files/simulation_playbook.json'))
 
