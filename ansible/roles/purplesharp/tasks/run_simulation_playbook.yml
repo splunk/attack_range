@@ -1,11 +1,11 @@
----
+
 
 - name: Copy Simulation Playbook to Host
   win_copy:
     src: "simulation_playbook.json"
     dest: 'C:\\Tools\\PurpleSharp\\simulation_playbook.json'
 
-- name: Run PurpleSharp Simulation
+- name: Run PurpleSharp Simulation Playbook
   win_command: PurpleSharp.exe /pb simulation_playbook.json
   register: output_purplesharp
   args:

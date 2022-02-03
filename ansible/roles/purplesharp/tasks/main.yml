@@ -1,4 +1,3 @@
----
 
 - name: Download Latest PurpleSharp Binary
   win_shell: |
@@ -9,4 +8,10 @@
     $purplesharpDownloadUrl = 'https://github.com/mvelazc0/PurpleSharp/releases/download/' + $tag + '/PurpleSharp_x64.exe'
     If (-not (Test-Path c:\Tools\PurpleSharp\PurpleSharp.exe)) { Invoke-WebRequest -Uri $purplesharpDownloadUrl -OutFile c:\Tools\PurpleSharp\PurpleSharp.exe }
     
-- include_tasks: "run_simulation.yml"
+- include_tasks: "run_simulation_playbook.yml"
+  when: run_simulation_playbook == "True"
+
+
+- include_tasks: "run_simulation_techniques.yml"
+  with_items: "{{ techniques }}"
+  when: run_simulation_playbook == "False"
