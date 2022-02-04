@@ -1,6 +1,6 @@
 - debug:
     var: techniques
-
+    
 - name: Run PurpleSharp Simulation Techniques
   win_command: PurpleSharp.exe /t "{{ techniques }}" 
   register: output_purplesharp

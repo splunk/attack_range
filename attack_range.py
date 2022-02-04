@@ -95,15 +95,24 @@ def simulate(args):
     simulation_techniques = args.simulation_technique
     simulation_atomics = args.simulation_atomics
     simulation_playbook = args.simulation_playbook
+    simulation_techniques_param = False
+
     # lets give CLI priority over config file for pre-configured techniques
     if simulation_techniques:
-        pass
+        simulation_techniques_param = True
+
     else:
         simulation_techniques = config['art_run_techniques']
 
+    # lets give CLI priority over config file for pre-configured techniques
+    if simulation_playbook:
+        pass
+    else:
+        simulation_playbook = config['purplesharp_simulation_playbook']
+ 
     if not simulation_atomics:
         simulation_atomics = 'no'
-    return controller.simulate(simulation_type, target, simulation_techniques, simulation_atomics, simulation_playbook)
+    return controller.simulate(simulation_type, target, simulation_techniques_param, simulation_techniques, simulation_atomics, simulation_playbook)
 
 def dump(args):
     controller, _, _ = init(args)

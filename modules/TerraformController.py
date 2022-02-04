@@ -1,4 +1,5 @@
 
+from asyncio import format_helpers
 from modules.IEnvironmentController import IEnvironmentController
 from python_terraform import *
 from modules import aws_service, splunk_sdk, github_service, azure_service
@@ -233,7 +234,7 @@ class TerraformController(IEnvironmentController):
         return file
 
 
-    def simulate(self, simulation_type, target, simulation_techniques, simulation_atomics, simulation_playbook, var_str='no'):
+    def simulate(self, simulation_type, target, simulation_techniques_param, simulation_techniques, simulation_atomics, simulation_playbook, var_str='no'):
         if self.config['provider'] == 'aws':
             target_public_ip = aws_service.get_single_instance_public_ip(target, self.config)
             ansible_user = 'Administrator'
@@ -308,30 +309,29 @@ class TerraformController(IEnvironmentController):
 
         elif simulation_type == 'PurpleSharp':
 
-            #if not simulation_playbook and not simulation_techniques:
-            #    self.log.error("Simulation playbook (-sp /path/playbook.json) or simulation technique (-st T1003.001) parameter missing ")
-            #    sys.exit(1)
-
-            if simulation_playbook:
-                run_simulation_playbook = True
-                copyfile(simulation_playbook, os.path.join(os.path.dirname(__file__), '../ansible/roles/purplesharp/files/simulation_playbook.json'))
-                
-            else:
+            run_simulation_playbook = True
+            if simulation_techniques_param:
                 run_simulation_playbook = False
+
+            elif simulation_playbook == 'T1003.001.pb':
+                pass
+
+            else:
+                copyfile(simulation_playbook, os.path.join(os.path.dirname(__file__), '../ansible/roles/purplesharp/files/'+simulation_playbook))
 
             if target == "ar-win-client-" + self.config['range_name'] + "-" + self.config['key_name']:
                 runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                 cmdline=str('-i ' + target_public_ip + ', '),
                                 roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
                                 playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/purplesharp.yml'),
-                                extravars={'ansible_port': 5985, 'var_str': var_str, 'run_simulation_playbook': run_simulation_playbook, 'techniques': simulation_techniques, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password'] }, 
+                                extravars={'ansible_port': 5985, 'var_str': var_str, 'run_simulation_playbook': run_simulation_playbook, 'simulation_playbook': simulation_playbook, 'techniques': simulation_techniques, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password'] }, 
                                 verbosity=0)
             else:
                 runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                 cmdline=str('-i ' + target_public_ip + ', '),
                                 roles_path=os.path.join(os.path.dirname(__file__), '../ansible/roles'),
                                 playbook=os.path.join(os.path.dirname(__file__), '../ansible/playbooks/purplesharp.yml'),
-                                extravars={'ansible_port': ansible_port, 'var_str': var_str, 'run_simulation_playbook': run_simulation_playbook, 'techniques': simulation_techniques, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password']},
+                                extravars={'ansible_port': ansible_port, 'var_str': var_str, 'run_simulation_playbook': run_simulation_playbook, 'simulation_playbook': simulation_playbook, 'techniques': simulation_techniques, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password']},
                                 verbosity=0)
 
             if runner.status == "successful":
@@ -346,7 +346,7 @@ class TerraformController(IEnvironmentController):
                     return output
 
             else:
-                self.log.error("failed to execute PurpleSharp simulation against target: {1}".format(
+                self.log.error("failed to execute PurpleSharp simulation against target: {0}".format(
                     target))
                 sys.exit(1)
 
