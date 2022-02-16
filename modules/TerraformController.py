@@ -234,7 +234,7 @@ class TerraformController(IEnvironmentController):
         return file
 
 
-    def simulate(self, simulation_type, target, simulation_techniques_param, simulation_techniques, simulation_atomics, simulation_playbook, var_str='no'):
+    def simulate(self, simulation_engine, target, simulation_techniques_param, simulation_techniques, simulation_atomics, simulation_playbook, var_str='no'):
         if self.config['provider'] == 'aws':
             target_public_ip = aws_service.get_single_instance_public_ip(target, self.config)
             ansible_user = 'Administrator'
@@ -246,7 +246,7 @@ class TerraformController(IEnvironmentController):
 
         start_time = time.time()
 
-        if simulation_type == 'ART':
+        if simulation_engine == 'ART':
 
             # check if specific atomics are used then it's not allowed to multiple techniques
             techniques_arr = simulation_techniques.split(',')
@@ -307,7 +307,7 @@ class TerraformController(IEnvironmentController):
                     simulation_techniques, target))
                 sys.exit(1)
 
-        elif simulation_type == 'PurpleSharp':
+        elif simulation_engine == 'PurpleSharp':
 
             run_simulation_playbook = True
             if simulation_techniques_param:

@@ -289,6 +289,12 @@ security_content_path = ../security_content
 
 
 [simulation]
+
+engine = ART
+# Specify the simulation engine to use
+# You can specify this value either over the command line or in this configuration file. Command line is prioritized over configuration file.
+
+
 art_run_techniques = T1003.001
 # Specify the run technique of atomic_red_team
 # You can specify this value either over the command line or in this configuration file. Command line is prioritized over configuration file.
