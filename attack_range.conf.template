@@ -108,11 +108,11 @@ s3_bucket_url = https://attack-range-appbinaries.s3-us-west-2.amazonaws.com
 splunk_windows_ta = splunk-add-on-for-microsoft-windows_812.tgz
 # Specify the Splunk Windows TA
 
-splunk_sysmon_ta = splunk-add-on-for-microsoft-sysmon_1062.tgz
-# splunk_sysmon_ta = splunk-add-on-for-sysmon_101.tgz
+#splunk_sysmon_ta = splunk-add-on-for-microsoft-sysmon_1062.tgz
+splunk_sysmon_ta = splunk-add-on-for-sysmon_200.tgz
 # Specify the Splunk Sysmon TA
 
-splunk_sysmon_linux_ta = add-on-for-linux-sysmon_103.tgz
+splunk_sysmon_linux_ta = add-on-for-linux-sysmon_104.tgz
 #Specify the Splunk Sysmon for Linux TA
 
 splunk_cim_app = splunk-common-information-model-cim_4200.tgz
