@@ -4,13 +4,9 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    # Replace this with your bucket name!
     bucket         = "[backend]"
     key            = "global/terraform.tfstate"
     region         = "[region]"
-    # Replace this with your DynamoDB table name!
-    dynamodb_table = "[backend]"
-    encrypt        = true
   }
 }
 

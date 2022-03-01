@@ -15,12 +15,92 @@ data "aws_ami" "latest-ubuntu" {
   }
 }
 
+resource "aws_iam_role" "splunk_role" {
+  name = "splunk_role_${var.config.key_name}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+
+}
+
+resource "aws_iam_instance_profile" "splunk_profile" {
+  name = "splunk_profile_${var.config.key_name}"
+  role = aws_iam_role.splunk_role.name
+}
+
+
+data "aws_iam_policy_document" "splunk_logging" {
+
+  statement {
+    actions = [
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+      "logs:DescribeDestinations",
+      "logs:DescribeDestinations",
+      "logs:TestMetricFilter",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "logs:Describe*",
+      "logs:Get*",
+      "logs:FilterLogEvents",
+    ]
+
+    resources = [
+      "arn:aws:logs:*:log-group:/aws/eks/kubernetes_${var.config.key_name}/cluster*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "sqs:GetQueueAttributes",
+      "sqs:ListQueues",
+      "sqs:ReceiveMessage",
+      "sqs:GetQueueUrl",
+      "sqs:DeleteMessage",
+      "s3:Get*",
+      "s3:List*",
+      "s3:Delete*",
+      "kms:Decrypt",
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "splunk_logging_policy" {
+  name = "splunk_logging_policy_${var.config.key_name}"
+  role = aws_iam_role.splunk_role.id
+  policy = data.aws_iam_policy_document.splunk_logging.json
+}
 
 resource "aws_instance" "splunk-server" {
   ami                    = data.aws_ami.latest-ubuntu.id
   instance_type          = var.config.instance_type_ec2
   key_name               = var.config.key_name
   subnet_id              = var.ec2_subnet_id
+  iam_instance_profile = aws_iam_instance_profile.splunk_profile.name
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip             = var.config.splunk_server_private_ip
   depends_on             = [var.phantom_server_instance]
