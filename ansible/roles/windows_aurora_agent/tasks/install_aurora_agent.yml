@@ -1,0 +1,34 @@
+---
+# install nextron aurora agent https://www.nextron-systems.com/2021/11/13/aurora-sigma-based-edr-agent-preview/
+- name: checking if splunk is install
+  tags: install
+  win_stat: path=c:\aurora-agent-lite-win-pack
+  register: aurora_path
+
+- name: is aurora-agent installed?
+  tags: install
+  debug: msg='aurora-agent is already installed under c:\aurora-agent-lite-win-pack'
+  when: aurora_path.stat.exists == false
+
+- name: download the aurora-agent-lite-win-pack.zip file
+  win_get_url:
+    url: "{{ aurora_agent_url }}"
+    dest: '%TEMP%\aurora-agent.zip'
+  when: aurora_path.stat.exists == false
+
+- name: unzip aurora-agent-lite-pack.zip
+  win_unzip:
+    src: '%TEMP%\aurora-agent.zip'
+    dest: C:\aurora-agent-lite-pack
+  when: aurora_path.stat.exists == false
+
+
+- name: download the aurora-agent license file
+  win_get_url:
+    url: "{{ aurora_agent_license_url }}"
+    dest: C:\aurora-agent-lite-pack\aurora-license.lic
+  when: aurora_path.stat.exists == false
+
+- name: install aurora-agent as a service with standard config
+  win_shell: |
+    C:\aurora-agent-lite-pack\aurora-agent.exe --install -c agent-config-standard.yml

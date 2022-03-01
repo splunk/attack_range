@@ -306,7 +306,11 @@ class TerraformController(IEnvironmentController):
         for machine in response:
             for x in machine:
                     if machine_type in x:
-                        ip = machine[2]
+                        try:
+                            ip = machine[2]
+                        except Exception as e:
+                            self.log.debug("not able to get instance ip")
+                            ip = ''
                         return ip
 
 

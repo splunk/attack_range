@@ -469,3 +469,13 @@ nginx_web_proxy_host = 10.0.1.12
 
 nginx_web_proxy_port = 8000
 # what port to proxy web traffic to, defaults to 8080
+
+[aurora_agent]
+install_aurora_agent = 0
+# specify whether enable installing the Nextron Aurora EDR Agent on Windows Hosts
+
+aurora_agent_url =
+# specify the URL where the aurora binary will be downloaded from. 
+
+aurora_agent_license = 
+# specify the license url that contains the license to use for the aurora agent.
