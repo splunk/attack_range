@@ -197,7 +197,7 @@ def main(args):
                                  help="target for attack simulation. Use the name of the aws EC2 name")
     simulate_parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                                  help="comma delimited list of MITRE ATT&CK technique ID to simulate in the "
-                                      "attack_range, example: T1117, T1118, requires --simulation flag")
+                                      "attack_range, example: T1117, T1118, full list of supported TTPs can be found on https://explore.atomicredteam.io/")
     simulate_parser.add_argument("-sa", "--simulation_atomics", required=False, type=str, default="",
                                  help="specify dedicated Atomic Red Team atomics to simulate in the attack_range, "
                                       "example: Regsvr32 remote COM scriptlet execution for T1117")

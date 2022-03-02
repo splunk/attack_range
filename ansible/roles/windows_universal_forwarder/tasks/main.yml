@@ -6,6 +6,8 @@
 - include: collect_attack_simulation_logs.yml
 - include: collect_sysmon_logs.yml
 - include: collect_windows_event_logs.yml
+- include: collect_aurora_edr_logs.yml
+
 #- include: install_nxlog.yml
 
 - name: Restart splunk
