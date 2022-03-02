@@ -88,30 +88,6 @@ jobs:
         run: |
           source venv/bin/activate
           python3 attack_range.py destroy
-  #We can trivially combine these next two steps.  In the original
-  #test, these were two different steps -
-  #build-docker-image and publish-docker-image
-  nightly-publish-docker-image:
-    runs-on: ubuntu-latest
-    needs: [nightly-build-attack-destroy]
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-        with:
-          ref: 'develop'
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Setup Docker Build and Push
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          context: docker/ #do the build in the docker directory, not current working directory
-          tags: ${{ env.IMAGE_NAME }}:latest
-
+  
         
  
