@@ -1,0 +1,106 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "attack_range show",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/attack_range.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["show"]
+        },
+        {
+            "name": "attack_range build",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/attack_range.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["build"]
+        },
+        {
+            "name": "attack_range configure",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/attack_range.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["configure"]
+        },
+        {
+            "name": "attack_range simulate",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/attack_range.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["simulate"]
+        },
+        {
+            "name": "attack_range destroy",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/attack_range.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["destroy"]
+        },
+        {
+            "name": "attack_range stop",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/attack_range.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["stop"]
+        },
+        {
+            "name": "attack_range resume",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/attack_range.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["resume"]
+        },
+        {
+            "name": "attack_range test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/attack_range.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["test", "-tf", "tests/windows_event_log_cleared.test.yml"]
+        },
+        {
+            "name": "attack_range dump",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/attack_range.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["dump", "--dump_name", "DUMP", "--out", "output.log", "--earliest", "24h", "--search", "index=test"]
+        },
+        {
+            "name": "attack_range search",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/attack_range.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["search"]
+        }
+    ]
+}
