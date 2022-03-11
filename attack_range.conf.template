@@ -133,13 +133,13 @@ splunk_python_app = python-for-scientific-computing-for-linux-64-bit_302.tgz
 splunk_mltk_app = splunk-machine-learning-toolkit_531.tgz
 # Specify the Splunk MLTK App
 
-splunk_stream_app = splunk-app-for-stream_730.tgz
+splunk_stream_app = splunk-app-for-stream_802.tgz
 # Specify the Splunk Stream App
 
-splunk_ta_wire_data = splunk-add-on-for-stream-wire-data_730.tgz
+splunk_ta_wire_data = splunk-add-on-for-stream-wire-data_802.tgz
 # Specify the Splunk TA wire data
 
-splunk_ta_stream = splunk-add-on-for-stream-forwarders_730.tgz
+splunk_ta_stream = splunk-add-on-for-stream-forwarders_802.tgz
 # Specify the Splunk TA stream
 
 splunk_security_essentials_app = splunk-security-essentials_350.tgz
@@ -151,10 +151,10 @@ splunk_zeek_ta = splunk-add-on-for-zeek-aka-bro_400.tgz
 splunk_kinesis_ta = splunk-add-on-for-amazon-kinesis-firehose_131r7d1d093.tgz
 # Specify the Splunk Kinesis TA
 
-splunk_office_365_ta = splunk-add-on-for-microsoft-office-365_202.tgz
+splunk_office_365_ta = splunk-add-on-for-microsoft-office-365_300.tgz
 # Specify the Office 365 TA
 
-splunk_linux_ta = splunk-add-on-for-unix-and-linux_820.tgz
+splunk_linux_ta = splunk-add-on-for-unix-and-linux_840.tgz
 
 splunk_nginx_ta = splunk-add-on-for-nginx_310.tgz
 
