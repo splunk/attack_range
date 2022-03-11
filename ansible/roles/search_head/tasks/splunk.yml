@@ -43,6 +43,16 @@
   become_user: splunk
   when: splunk_path.stat.exists == false
 
+- name: migrate to WiredTiger
+  tags:
+  - install
+  blockinfile:
+    path: /opt/splunk/etc/system/local/server.conf
+    insertafter: EOF
+    block: |
+      [kvstore]
+      storageEngine=wiredTiger
+
 - name: accept license and start splunk
   tags:
    - install
