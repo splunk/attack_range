@@ -112,9 +112,13 @@ python attack_range.py build
 python attack_range.py show
 ```
 
-### Perform Attack Simulation
+### Perform Attack Simulations with Atomic Red Team or PurpleSharp
 ```
-python attack_range.py simulate -st T1003.001 -t ar-win-dc-default-username-33048
+python attack_range.py simulate -e ART -st T1003.001 -t ar-win-dc-default-username-33048
+
+python attack_range.py simulate -e PurpleSharp -st T1003.001 -t ar-win-dc-default-username-33048
+
+python attack_range.py simulate -e PurpleSharp -sp AD_Discovery.json -t ar-win-dc-default-username-33048
 ```
 
 ### Test with Attack Range
@@ -187,6 +191,12 @@ python attack_range.py replay -dn data_dump --dump windows_sec_events
   * Attack Simulation with [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
   * Will be automatically installed on target during first execution of simulate
   * Atomic Red Team already uses the new Mitre sub-techniques
+
+- [PurpleSharp](https://github.com/mvelazc0/PurpleSharp)
+  * Native adversary simulation support with [PurpleSharp](https://github.com/mvelazc0/PurpleSharp)
+  * Will be automatically downloaded on target during first execution of simulate
+  * Supports two parameters **-st** for comma separated ATT&CK techniques and **-sp** for a simulation playbook
+
 
 - [Caldera](https://github.com/mitre/caldera)
   * Adversary Emulation with [Caldera](https://github.com/mitre/caldera)

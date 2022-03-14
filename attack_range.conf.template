@@ -289,6 +289,11 @@ security_content_path = ../security_content
 
 
 [simulation]
+
+engine = ART
+# Specify the simulation engine to use
+# You can specify this value either over the command line or in this configuration file. Command line is prioritized over configuration file.
+
 art_run_techniques = T1003.001
 # Specify the run technique of atomic_red_team
 # You can specify this value either over the command line or in this configuration file. Command line is prioritized over configuration file.
@@ -298,6 +303,11 @@ art_repository = redcanaryco
 
 art_branch =  master
 # Specify new branch of the Atomic Red Team repository, which you want to use.
+
+purplesharp_simulation_playbook = T1003.001.pb
+# Specify the simulation playbook file executed by PurpleSharp. The default is located at ansible/roles/purplesharp/files
+# You can specify this value either over the command line or in this configuration file. Command line is prioritized over configuration file.
+
 
 install_red_team_tools = 0
 # Specify whether to install multiple red team tools for simulating threats.

@@ -91,17 +91,30 @@ def show(args):
 def simulate(args):
     controller, config, _ = init(args)
     target = args.target
+    simulation_engine = args.engine
     simulation_techniques = args.simulation_technique
     simulation_atomics = args.simulation_atomics
-    # lets give CLI priority over config file for pre-configured techniques
+    simulation_playbook = args.simulation_playbook
+    simulation_techniques_param = False
+
+    # Give CLI priority over the config file for the simulation engine
+    if not simulation_engine:
+        simulation_engine = config['engine']
+
+    # Give CLI priority over the config file for pre-configured techniques
     if simulation_techniques:
-        pass
+        simulation_techniques_param = True
     else:
         simulation_techniques = config['art_run_techniques']
 
+    # Give CLI priority over the config file for pre-configured techniques
+    if not simulation_playbook:
+        simulation_playbook = config['purplesharp_simulation_playbook']
+ 
     if not simulation_atomics:
         simulation_atomics = 'no'
-    return controller.simulate(target, simulation_techniques, simulation_atomics)
+
+    return controller.simulate(simulation_engine, target, simulation_techniques_param, simulation_techniques, simulation_atomics, simulation_playbook)
 
 def dump(args):
     controller, _, _ = init(args)
@@ -193,11 +206,16 @@ def main(args):
     configure_parser.set_defaults(func=configure)
 
     # Simulation arguments
+    simulate_parser.add_argument("-e", "--engine", required=False,
+                                 help="simulation engine to use. Available options are: PurpleSharp and ART (default)")
     simulate_parser.add_argument("-t", "--target", required=True,
                                  help="target for attack simulation. Use the name of the aws EC2 name")
     simulate_parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                                  help="comma delimited list of MITRE ATT&CK technique ID to simulate in the "
-                                      "attack_range, example: T1117, T1118, full list of supported TTPs can be found on https://explore.atomicredteam.io/")
+                                      "attack_range, example: T1117, T1118")
+    simulate_parser.add_argument("-sp", "--simulation_playbook", required=False, type=str, default="",
+                                 help="file path for a PurpleSharp JSON simulation playbook")
+
     simulate_parser.add_argument("-sa", "--simulation_atomics", required=False, type=str, default="",
                                  help="specify dedicated Atomic Red Team atomics to simulate in the attack_range, "
                                       "example: Regsvr32 remote COM scriptlet execution for T1117")

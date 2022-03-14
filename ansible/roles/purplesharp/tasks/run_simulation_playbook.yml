@@ -1,0 +1,20 @@
+
+- debug:
+    var: simulation_playbook
+
+- name: Copy Simulation Playbook to Host
+  win_copy:
+    src: "{{ simulation_playbook }}"
+    dest: "C:\\Tools\\PurpleSharp\\{{ simulation_playbook }}"
+
+- name: Run PurpleSharp Simulation Playbook
+  win_command: "PurpleSharp.exe /pb {{ simulation_playbook }}"
+  register: output_purplesharp
+  args:
+    chdir: C:\\Tools\\PurpleSharp
+
+- name: Save PurpleSharp output
+  set_fact:
+    output_purplesharp: "{{ output_purplesharp }}"
+    cacheable: yes
+  #when: var_str == 'no'
