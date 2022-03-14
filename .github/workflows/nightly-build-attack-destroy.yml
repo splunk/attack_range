@@ -5,6 +5,7 @@ on:
 
 jobs:
   nightly-build-attack-destroy:
+
     runs-on: ubuntu-latest
     steps:
       - name: Print env
@@ -87,5 +88,6 @@ jobs:
         run: |
           source venv/bin/activate
           python3 attack_range.py destroy
+  
         
  
