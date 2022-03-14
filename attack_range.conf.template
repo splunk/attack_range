@@ -108,11 +108,11 @@ s3_bucket_url = https://attack-range-appbinaries.s3-us-west-2.amazonaws.com
 splunk_windows_ta = splunk-add-on-for-microsoft-windows_812.tgz
 # Specify the Splunk Windows TA
 
-splunk_sysmon_ta = splunk-add-on-for-microsoft-sysmon_1062.tgz
-# splunk_sysmon_ta = splunk-add-on-for-sysmon_101.tgz
+#splunk_sysmon_ta = splunk-add-on-for-microsoft-sysmon_1062.tgz
+splunk_sysmon_ta = splunk-add-on-for-sysmon_200.tgz
 # Specify the Splunk Sysmon TA
 
-splunk_sysmon_linux_ta = add-on-for-linux-sysmon_103.tgz
+splunk_sysmon_linux_ta = add-on-for-linux-sysmon_104.tgz
 #Specify the Splunk Sysmon for Linux TA
 
 splunk_cim_app = splunk-common-information-model-cim_4200.tgz
@@ -479,3 +479,13 @@ nginx_web_proxy_host = 10.0.1.12
 
 nginx_web_proxy_port = 8000
 # what port to proxy web traffic to, defaults to 8080
+
+[aurora_agent]
+install_aurora_agent = 0
+# specify whether enable installing the Nextron Aurora EDR Agent on Windows Hosts
+
+aurora_agent_url = https://update1.nextron-systems.com/getupdate.php?product=aurora-agent-lite-win
+# specify the URL where the aurora binary will be downloaded from. 
+
+aurora_agent_license = https://portal.nextron-systems.com/api/lite/license/2022-2/6beda56036fbe184dd0950fd24acfd59_a1f1081c9d6f0dc29aa0e5609fadf855.lic
+# specify the license url that contains the license to use for the aurora agent.

@@ -215,6 +215,7 @@ def main(args):
                                       "attack_range, example: T1117, T1118")
     simulate_parser.add_argument("-sp", "--simulation_playbook", required=False, type=str, default="",
                                  help="file path for a PurpleSharp JSON simulation playbook")
+
     simulate_parser.add_argument("-sa", "--simulation_atomics", required=False, type=str, default="",
                                  help="specify dedicated Atomic Red Team atomics to simulate in the attack_range, "
                                       "example: Regsvr32 remote COM scriptlet execution for T1117")

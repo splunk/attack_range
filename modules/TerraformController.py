@@ -355,7 +355,11 @@ class TerraformController(IEnvironmentController):
         for machine in response:
             for x in machine:
                     if machine_type in x:
-                        ip = machine[2]
+                        try:
+                            ip = machine[2]
+                        except Exception as e:
+                            self.log.debug("not able to get instance ip")
+                            ip = ''
                         return ip
 
 
@@ -364,9 +368,12 @@ class TerraformController(IEnvironmentController):
 
         # splunk server will always be built
         splunk_ip = self.getIP(response, 'splunk')
-        msg = "\n\nAccess Splunk via:\n\tWeb > http://" + splunk_ip + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] \
-        + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
-        print_messages.append(msg)
+        if self.config['install_es'] == "1":
+            msg = "\n\nAccess Splunk via:\n\tWeb > https://" + splunk_ip + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+        else:
+            msg = "\n\nAccess Splunk via:\n\tWeb > http://" + splunk_ip + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
 
         # windows domain controller
         if self.config['windows_domain_controller'] == "1":

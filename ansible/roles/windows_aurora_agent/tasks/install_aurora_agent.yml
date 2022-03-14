@@ -1,0 +1,21 @@
+---
+# install nextron aurora agent https://www.nextron-systems.com/2021/11/13/aurora-sigma-based-edr-agent-preview/
+- name: download the aurora-agent-lite-win-pack.zip file
+  win_get_url:
+    url: "{{ aurora_agent_url }}"
+    dest: '%TEMP%\aurora-agent.zip'
+
+- name: unzip aurora-agent-lite-pack.zip
+  win_unzip:
+    src: '%TEMP%\aurora-agent.zip'
+    dest: C:\aurora-agent-lite-win-pack
+
+- name: download the aurora-agent license file
+  win_get_url:
+    url: "{{ aurora_agent_license }}"
+    dest: C:\aurora-agent-lite-win-pack\aurora-license.lic
+
+- name: install aurora-agent as a service with standard config
+  win_shell: .\aurora-agent.exe --install -c agent-config-standard.yml --json --logfile aurora_alerts.json.log
+  args:
+    chdir: C:\aurora-agent-lite-win-pack
