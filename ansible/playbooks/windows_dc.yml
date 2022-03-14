@@ -10,6 +10,7 @@
     - windows_dns_server
     - windows_domain_controller
     - windows_universal_forwarder
+    - windows_aurora_agent
     - windows_caldera_agent
     - sysmon
     - red_team_tools

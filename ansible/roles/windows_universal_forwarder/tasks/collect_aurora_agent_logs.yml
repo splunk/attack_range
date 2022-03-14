@@ -3,9 +3,9 @@
     path: "{{ item }}"
     state: directory
   with_items:
-    - 'C:\Program Files\SplunkUniversalForwarder\etc\apps\aurora_edr_inputs_app\local'
+    - 'C:\Program Files\SplunkUniversalForwarder\etc\apps\aurora_agent_inputs_app\local'
 
 - name: Copy inputs.conf configuration
   win_copy:
-    src: aurora_edr_inputs.conf
-    dest: 'C:\Program Files\SplunkUniversalForwarder\etc\apps\aurora_edr_inputs_app\local\inputs.conf'
+    src: aurora_agent_inputs.conf
+    dest: 'C:\Program Files\SplunkUniversalForwarder\etc\apps\aurora_agent_inputs_app\local\inputs.conf'
