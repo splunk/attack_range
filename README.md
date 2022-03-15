@@ -240,3 +240,4 @@ We welcome feedback and contributions from the community! Please see our [contri
 * [Mauricio Velazco](https://twitter.com/mvelazco)
 * [Teoderick Contreras](https://twitter.com/tccontre18)
 * [Lou Stella](https://twitter.com/ljstella)
+* Christion Cloutier

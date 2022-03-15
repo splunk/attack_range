@@ -26,6 +26,7 @@ artifacts
 
 ## Terraform ignores
 # Local .terraform directories
+terraform/aws/.terraform/
 terraform/aws/local/.terraform/
 terraform/aws/remote/.terraform/
 terraform/azure/local/.terraform/
