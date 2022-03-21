@@ -1,6 +1,4 @@
 
-- name: Run BadBlood
+- name: Run BadBlood in Background
   win_shell: |
-    #This will import the module
-    C:\Tools\BadBlood\Invoke-BadBlood.ps1 -NonInteractive
-  register: requirements
+    Start-Job -ScriptBlock {C:\Tools\BadBlood\Invoke-BadBlood.ps1 -NonInteractive}
