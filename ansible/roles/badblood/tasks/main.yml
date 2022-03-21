@@ -2,3 +2,6 @@
 - name: Git clone BadBlood
   win_shell: git clone https://github.com/davidprowe/BadBlood.git C:\Tools\BadBlood
   when: windows_domain_controller_run_badblood == "1"
+
+- include_tasks: "run_badblood.yml"
+  when: windows_domain_controller_run_badblood == "1"
