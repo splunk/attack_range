@@ -1,4 +1,7 @@
 
 - name: Run BadBlood in Background
   win_shell: |
+    Import-Module -Name ActiveDirectory
     Start-Job -ScriptBlock {C:\Tools\BadBlood\Invoke-BadBlood.ps1 -NonInteractive}
+  args:
+    chdir: 'C:\Tools\BadBlood\'
