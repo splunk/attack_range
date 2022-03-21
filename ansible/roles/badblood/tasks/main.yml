@@ -1,4 +1,4 @@
 
 - name: Git clone BadBlood
   win_shell: git clone https://github.com/davidprowe/BadBlood.git C:\Tools\BadBlood
-  when: install_bad_blood == "1"
+  when: windows_domain_controller_run_badblood == "1"
