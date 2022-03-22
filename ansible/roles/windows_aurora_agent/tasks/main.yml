@@ -1,3 +1,4 @@
 ---
 - include: install_aurora_agent.yml
+  when: install_aurora_agent == "1"
 
