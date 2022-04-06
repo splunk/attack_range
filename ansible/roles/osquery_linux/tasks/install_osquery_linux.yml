@@ -45,11 +45,22 @@
     src: "{{ custom_osquery_conf }}" 
     dest: /opt/osquery/share/osquery/packs/attack-range.conf
 
+- name: copy custom osquery flags template as /etc/osquery/osquery.flags
+  become: true
+  copy: 
+    src: "{{ custom_osquery_conf_flag }}" 
+    dest: /etc/osquery/osquery.flags
+
 - name: activate osqueryd service
   become: true
   service:
     name: osqueryd
     state: started
+
+- name: osqueryd service enable 
+  become: true
+  command: systemctl enable osqueryd
+  register: osq_service_status
 
 - name: osqueryd service status check
   become: true

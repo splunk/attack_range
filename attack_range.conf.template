@@ -454,6 +454,10 @@ osquery_linux_private_ip = 10.0.1.19
 # Should be in subnet: 10.0.1.0/24
 
 osquery_custom_config_file = custom_osquery.conf
+# customized osquery config file
+
+osquery_custom_config_flag = custom_osquery.flags
+# customized osquery config flag
 
 [sysmon_linux]
 # customize the sysmon on linux machine
