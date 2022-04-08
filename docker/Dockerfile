@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
         apt-get install -y python3.8 git unzip python3-pip awscli curl vim 
 
-RUN curl -s https://releases.hashicorp.com/terraform/1.1.6/terraform_1.1.6_darwin_amd64.zip -o terraform.zip && \
+RUN curl -s https://releases.hashicorp.com/terraform/1.1.8/terraform_1.1.8_linux_amd64.zip -o terraform.zip && \
          unzip terraform.zip && \
          mv terraform /usr/local/bin/
 
