@@ -24,14 +24,6 @@ The Attack Range is a detection development platform, which solves three main ch
 
 [![Attack Range Demo](https://img.youtube.com/vi/yE7ytM3VNDQ/1.jpg)](https://www.youtube.com/watch?v=yE7ytM3VNDQ)
 
-## Building 👷‍♂️
-
-Attack Range can be built in three different ways:
-
-- [**cloud**](#installation) with terraform plus AWS or Azure.
-- [**locally**](https://github.com/splunk/attack_range_local/) with vagrant and virtualbox
-- [**serverless**](https://github.com/splunk/attack_range_cloud/) with terraform and AWS services
-
 ## Installation 🏗
 
 ### [Using Docker](https://github.com/splunk/attack_range/wiki/Using-Docker)
@@ -39,40 +31,25 @@ Attack Range can be built in three different ways:
 1. `docker pull splunk/attack_range`
 2. `docker run -it splunk/attack_range`
 
-
-### [AWS and Ubuntu 18.04](https://github.com/splunk/attack_range/wiki/AWS:-Ubuntu-18.04-Installation)
-
-1. `source <(curl -s 'https://raw.githubusercontent.com/splunk/attack_range/develop/scripts/ubuntu_deploy.sh')`
-2. `aws configure`
-3. `python attack_range.py configure`
-
-### [AWS and MacOS](https://github.com/splunk/attack_range/wiki/AWS:-MacOS-Installation)
-
-1. `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/splunk/attack_range/develop/scripts/macos_deploy_aws.sh)" && cd attack_range && source venv/bin/activate`
-2. `aws configure`
-3. `python attack_range.py configure`
-
-
-### [Azure and MacOS](https://github.com/splunk/attack_range/wiki/Azure:-MacOS-Installation)
-1. `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/splunk/attack_range/develop/scripts/macos_deploy_azure.sh)" && cd attack_range && source venv/bin/activate`
-2. `az login`
-3. `python attack_range.py configure`
+To install directly on Ubuntu, MacOS follow [these](https://github.com/splunk/attack_range/wiki/Installing-on-Ubuntu-or-MacOS) instructions.
 
 
 ## Architecture 🏯
 ![Logical Diagram](docs/attack_range_architecture.png)
 
-The virtualized deployment of Attack Range consists of:
+The deployment of Attack Range consists of:
 
 - Windows Domain Controller
 - Windows Server
 - Windows Workstation
 - A Kali Machine
 - Splunk Server
-- Phantom Server
+- Splunk SOAR Server
+- Nginx Server
+- Linux + Sysmon
 - Zeek Sensor
 
-Which can be added/removed/configured using [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template). More machines such as Phantom, Linux server, Linux client, MacOS clients are currently under development.
+Which can be added/removed/configured using [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template). 
 
 An approximate **cost estimate** for running attack_range on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates).
 
@@ -82,20 +59,14 @@ The following log sources are collected from the machines:
 - Windows Event Logs (```index = win```)
 - Sysmon Logs (```index = win```)
 - Powershell Logs (```index = win```)
+- Aurora EDR (```index = win```)
+- Sysmon for Linux Logs (```index = unix```)
+- Nginx logs (```index = proxy```)
 - Network Logs with Splunk Stream (```index = main```)
 - Attack Simulation Logs from Atomic Red Team and Caldera (```index = attack```)
 
 ## Running 🏃‍♀️
 Attack Range supports different actions:
-
-- Configuring Attack Range
-- Build Attack Range
-- Perform Attack Simulation
-- Test with Attack Range
-- Destroy Attack Range
-- Stop Attack Range
-- Resume Attack Range
-- Dump Log Data from Attack Range
 
 ### Configure Attack Range
 ```
@@ -143,7 +114,7 @@ python attack_range.py resume
 
 ### Dump Log Data from Attack Range
 ```
-python attack_range.py dump -dn data_dump
+python attack_range.py dump -dn data_dump 
 ```
 
 
@@ -151,14 +122,7 @@ python attack_range.py dump -dn data_dump
 - Replay previously saved dumps from Attack Range
 
 ```
-python attack_range.py replay -dn data_dump [--dump NAME_OF_DUMP]
-```
-
-- default will dump all enabled dumps described in `attack_data/dumps.yml`
-- with optional argument `--dump` you can specify which dump to replay
-
-```
-python attack_range.py replay -dn data_dump --dump windows_sec_events
+python attack_range.py replay -dn data_dump -fn FILE_NAME --source SOURCE --sourcetype SOURCETYPE --index INDEX
 ```
 
 ## Features 💍
@@ -176,10 +140,10 @@ python attack_range.py replay -dn data_dump --dump windows_sec_events
   * Enable or disable [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) in [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
   * Purchase a license, download it and store it in the apps folder to use it.
 
-- [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html)
-  * [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) is a Security Orchestration and Automation platform
+- [Splunk SOAR](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html)
+  * [Splunk SOAR](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) is a Security Orchestration and Automation platform
   * For a free development license (100 actions per day) register [here](https://my.phantom.us/login/?next=/)
-  * Enable or disable [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
+  * Enable or disable [Splunk SOAR](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
 
 - [Windows Domain Controller & Window Server & Windows 10 Client](https://github.com/splunk/attack_range/wiki/Windows-Infrastructure)
   * Can be enabled, disabled and configured over [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
@@ -196,7 +160,6 @@ python attack_range.py replay -dn data_dump --dump windows_sec_events
   * Native adversary simulation support with [PurpleSharp](https://github.com/mvelazc0/PurpleSharp)
   * Will be automatically downloaded on target during first execution of simulate
   * Supports two parameters **-st** for comma separated ATT&CK techniques and **-sp** for a simulation playbook
-
 
 - [Caldera](https://github.com/mitre/caldera)
   * Adversary Emulation with [Caldera](https://github.com/mitre/caldera)
