@@ -10,7 +10,6 @@ RUN curl -s https://releases.hashicorp.com/terraform/1.1.8/terraform_1.1.8_linux
 
 RUN git clone https://github.com/splunk/attack_range.git
 RUN echo 'alias python=python3' >> ~/.bashrc
-RUN echo 'alias attack_range=python ~/attack_range/attack_range.py' >> ~/.bashrc
 
 WORKDIR /attack_range
 
