@@ -16,3 +16,6 @@ WORKDIR /attack_range
 RUN cd terraform/aws/local && terraform init
 RUN cd terraform/azure/local && terraform init
 RUN pip3 install -r requirements.txt
+#fixes a known issue with AWS CLI on Ubuntu 20.04
+#https://github.com/aws-solutions/aws-control-tower-customizations/issues/34
+RUN pip3 install --upgrade awscli
