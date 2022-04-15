@@ -14,9 +14,9 @@
 
 ## Purpose 🛡
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering:
-* **1.** The user is able to quickly build a small lab infrastructure as close as possible to a production environment.
-* **2.** The Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. 
-* **3.** It integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
+* The user is able to quickly build a small lab infrastructure as close as possible to a production environment.
+* The Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. 
+* It integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
 
 
 ## Demo 📺
@@ -30,6 +30,8 @@ The Attack Range is a detection development platform, which solves three main ch
 
 1. `docker pull splunk/attack_range`
 2. `docker run -it splunk/attack_range`
+3. `aws configure`  
+4. `python attack_range.py configure` 
 
 To install directly on Ubuntu, MacOS follow [these](https://github.com/splunk/attack_range/wiki/Installing-on-Ubuntu-or-MacOS) instructions.
 
@@ -53,7 +55,7 @@ Which can be added/removed/configured using [attack_range.conf](https://github.c
 
 An approximate **cost estimate** for running attack_range on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates).
 
-#### Logging
+## Logging
 The following log sources are collected from the machines:
 
 - Windows Event Logs (```index = win```)
