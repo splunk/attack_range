@@ -23,7 +23,7 @@
   win_shell: git clone https://github.com/FSecureLABS/SharpGPOAbuse.git C:\tools\SharpGPOAbuse
   when: install_red_team_tools == "1"
 
-- name: Git clone SharpGPOAbuse
+- name: Git clone Mimikatz
   win_shell: git clone https://github.com/gentilkiwi/mimikatz.git C:\tools\mimikatz
   when: install_red_team_tools == "1"
 
@@ -74,10 +74,6 @@
 - name: Git clone donut
   win_shell: git clone https://github.com/TheWover/donut.git C:\tools\donut
   when: install_red_team_tools == "1" 
-
-- name: Git clone PurpleSharp
-  win_shell: git clone https://github.com/mvelazc0/PurpleSharp.git c:\tools\PurpleSharp
-  when: install_red_team_tools == "1"
 
 - name: install sysinternals
   win_shell: C:\\ProgramData\\chocolatey\\bin\\choco.exe install sysinternals --fail-on-unfound --yes --no-progress --limit-output --timeout 2700 --ignore-checksums

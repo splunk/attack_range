@@ -375,6 +375,12 @@ class TerraformController(IEnvironmentController):
             msg = "\n\nAccess Splunk via:\n\tWeb > http://" + splunk_ip + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
             print_messages.append(msg)
 
+        # prelude operator headless
+        splunk_ip = self.getIP(response, 'splunk')
+        if self.config['prelude'] == "1":
+            msg = "\n\nAccess Prelude Operator via:\n\headless  > " + splunk_ip + ":8000\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
         # windows domain controller
         if self.config['windows_domain_controller'] == "1":
             win_ip = self.getIP(response, 'win-dc')

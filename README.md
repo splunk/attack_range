@@ -15,7 +15,7 @@
 ## Purpose 🛡
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering:
 * The user is able to quickly build a small lab infrastructure as close as possible to a production environment.
-* The Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. 
+* The Attack Range performs attack simulation using different engines such as Atomic Red Team or Prelude Operator in order to generate real attack data. 
 * It integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
 
 
@@ -65,7 +65,7 @@ The following log sources are collected from the machines:
 - Sysmon for Linux Logs (```index = unix```)
 - Nginx logs (```index = proxy```)
 - Network Logs with Splunk Stream (```index = main```)
-- Attack Simulation Logs from Atomic Red Team and Caldera (```index = attack```)
+- Attack Simulation Logs from Atomic Red Team and Prelude Operator (```index = attack```)
 
 ## Running 🏃‍♀️
 Attack Range supports different actions:
@@ -163,10 +163,10 @@ python attack_range.py replay -dn data_dump -fn FILE_NAME --source SOURCE --sour
   * Will be automatically downloaded on target during first execution of simulate
   * Supports two parameters **-st** for comma separated ATT&CK techniques and **-sp** for a simulation playbook
 
-- [Caldera](https://github.com/mitre/caldera)
-  * Adversary Emulation with [Caldera](https://github.com/mitre/caldera)
+- [Prelude Operator](https://www.prelude.org/operator)
+  * Adversary Emulation with [Prelude Operator](https://www.prelude.org/operator)
   * Installed on the Splunk Server and available over port 8888 with user admin
-  * Preinstalled Caldera agents on windows machines
+  * Preinstalled Prelude Operator [Pneuma agent](https://github.com/preludeorg/pneuma) across Windows and Linux machines 
 
 - [Kali Linux](https://www.kali.org/)
   * Preconfigured Kali Linux machine for penetration testing

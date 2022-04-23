@@ -311,6 +311,9 @@ install_red_team_tools = 0
 # Specify whether to install multiple red team tools for simulating threats.
 # possible values: 1, 0
 
+prelude = 0 
+# Specify weather to install Prelude Operator headless on the Splunk server for simulations
+
 [environment]
 # specify your Attack Range environment by enabling (1) or disabling (0) machines
 
