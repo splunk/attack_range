@@ -309,10 +309,10 @@ purplesharp_simulation_playbook = T1003.001.pb
 
 install_red_team_tools = 0
 # Specify whether to install multiple red team tools for simulating threats.
-# possible values: 1, 0
+# The specific tools are: SharpHound, MailSniper, juicy-potato, SharpChrome, SharpGPOAbuse, Mimikatz, DAMP, UACME, SpoolSample, PowerUpSQL, PowerShdll, PowerSploit, MiscTools, Sherlock, Watson, SharpView, donut, sysinternals
 
 prelude = 0 
-# Specify weather to install Prelude Operator headless on the Splunk server for simulations
+# Specify weather to install Prelude Operator headless on the Splunk server for simulations and agents on each machine
 
 [environment]
 # specify your Attack Range environment by enabling (1) or disabling (0) machines
