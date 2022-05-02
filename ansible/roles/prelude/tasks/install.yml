@@ -1,0 +1,24 @@
+---
+
+- name: Download Prelude Operator Linux Headless /opt/prelude
+  unarchive:
+    src: {{ prelude_operator_url }}
+    dest: /opt/prelude
+    remote_src: yes
+
+- name: Copy env, configures account uuid
+  template:
+    src: env
+    dest: /opt/prelude/env
+
+- name: Copy systemd file
+  template:
+    src: prelude-operator.service
+    dest: /etc/systemd/system/prelude-operator.service
+    mode: 644
+    become: true
+
+- name: Start Prelude Operator service
+  systemd:
+    name: prelude-operator.service
+    state: started

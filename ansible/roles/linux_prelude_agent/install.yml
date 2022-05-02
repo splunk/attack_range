@@ -1,0 +1,10 @@
+- name: Download Prelude Pneuma from headless Operator: {{ splunk_indexer_ip_}}
+  get_url:
+    url: http://{{ splunk_indexer_ip }}:3391/payloads/pneuma/v1.5/pneuma-linux
+    dest: /opt/prelude-pneuma
+    mode: 755
+
+- name: Start Prelude Pneuma and Connect to headless Operator: {{ splunk_indexer_ip }}
+  command: nohup /opt/prelude-pneuma -name "$(hostname)" -address {{ splunk_indexer_ip }}:2323
+  poll: 0
+

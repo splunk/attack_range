@@ -17,6 +17,7 @@ import string
 import boto3
 import getpass
 import time
+import uuid
 
 import os
 
@@ -373,7 +374,7 @@ starting configuration for AT-ST mech walker
         },
         {
             'type': 'confirm',
-            'message': 'shall we pre-install red team tools on Windows\nThe specific tools are: SharpHound, MailSniper, juicy-potato, SharpChrome, SharpGPOAbuse, Mimikatz, DAMP, UACME, SpoolSample, PowerUpSQL, PowerShdll, PowerSploit, MiscTools, Sherlock, Watson, SharpView, donut, sysinternals',
+            'message': 'shall we pre-install red team tools on Windows. The tool list can be found here: https://github.com/splunk/attack_range/wiki/Red-Team-Tools',
             'name': 'install_red_team_tools',
             'default': False,
         },
@@ -434,7 +435,11 @@ starting configuration for AT-ST mech walker
     configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
     configuration._sections['environment']['windows_client'] = enabled(answers['windows_client'])
     configuration._sections['environment']['zeek_sensor'] = enabled(answers['zeek_sensor'])
-    configuration._sections['environment']['prelude'] = enabled(answers['prelude'])
+
+    if (enabled(answers['prelude'])):
+        configuration._sections['simulation']['prelude'] = enabled(answers['prelude'])
+        configuration._sections['simulation']['prelude_account_uui'] = uuid.uuid4() 
+
     configuration._sections['environment']['install_red_team_tools'] = enabled(answers['install_red_team_tools'])
     configuration._sections['environment']['nginx_web_proxy'] = enabled(answers['nginx_web_proxy'])
     configuration._sections['environment']['sysmon_linux'] = enabled(answers['sysmon_linux'])

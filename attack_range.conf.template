@@ -309,10 +309,17 @@ purplesharp_simulation_playbook = T1003.001.pb
 
 install_red_team_tools = 0
 # Specify whether to install multiple red team tools for simulating threats.
-# The specific tools are: SharpHound, MailSniper, juicy-potato, SharpChrome, SharpGPOAbuse, Mimikatz, DAMP, UACME, SpoolSample, PowerUpSQL, PowerShdll, PowerSploit, MiscTools, Sherlock, Watson, SharpView, donut, sysinternals
+# The specific tools are: https://github.com/splunk/attack_range/wiki/Red-Team-Tools
 
 prelude = 0 
 # Specify weather to install Prelude Operator headless on the Splunk server for simulations and agents on each machine
+
+prelude_operator_url = https://download.prelude.org/latest?arch=x64&platform=linux&variant=zip&edition=headless
+# Specify where to download Prelude Operator from
+
+prelude_account_uuid = 
+# uuid used to connect headless redirector to a Prelude Operator UI, automatically generated during configuration
+
 
 [environment]
 # specify your Attack Range environment by enabling (1) or disabling (0) machines

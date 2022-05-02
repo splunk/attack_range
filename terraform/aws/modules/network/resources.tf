@@ -22,67 +22,74 @@ resource "aws_security_group" "default" {
   vpc_id = module.vpc.vpc_id
 
   ingress {
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["10.0.0.0/16"]
-    }
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
 
    ingress {
-      from_port   = -1
-      to_port     = -1
-      protocol    = "icmp"
-      cidr_blocks = split(",", var.config.ip_whitelist)
-    }
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = split(",", var.config.ip_whitelist)
+  }
 
-    ingress {
-       from_port   = -1
-       to_port     = -1
-       protocol    = "icmp"
-       cidr_blocks = ["10.0.0.0/16"]
-     }
+  ingress {
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
 
-   ingress {
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
-      cidr_blocks = split(",", var.config.ip_whitelist)
-    }
+  ingress {
+    from_port   = 3391
+    to_port     = 3391
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
 
-   ingress {
-      from_port   = 8000
-      to_port     = 8000
-      protocol    = "tcp"
-      cidr_blocks = split(",", var.config.ip_whitelist)
-    }
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = split(",", var.config.ip_whitelist)
+  }
 
-    ingress {
-      from_port   = 9997
-      to_port     = 9997
-      protocol    = "tcp"
-      cidr_blocks = split(",", var.config.ip_whitelist)
-    }
+  ingress {
+    from_port   = 8000
+    to_port     = 8000
+    protocol    = "tcp"
+    cidr_blocks = split(",", var.config.ip_whitelist)
+  }
 
-    ingress {
-      from_port   = 8089
-      to_port     = 8089
-      protocol    = "tcp"
-      cidr_blocks = split(",", var.config.ip_whitelist)
-    }
+  ingress {
+    from_port   = 9997
+    to_port     = 9997
+    protocol    = "tcp"
+    cidr_blocks = split(",", var.config.ip_whitelist)
+  }
 
-   ingress {
+  ingress {
+    from_port   = 8089
+    to_port     = 8089
+    protocol    = "tcp"
+    cidr_blocks = split(",", var.config.ip_whitelist)
+  }
+
+  ingress {
     from_port   = 5986
     to_port     = 5986
     protocol    = "tcp"
     cidr_blocks = split(",", var.config.ip_whitelist)
-   }
+  }
 
-    ingress {
+  ingress {
     from_port   = 5985
     to_port     = 5985
     protocol    = "tcp"
     cidr_blocks = split(",", var.config.ip_whitelist)
-   }
+  }
 
   ingress {
     from_port   = 3389
@@ -99,12 +106,12 @@ resource "aws_security_group" "default" {
   }
 
 
-    ingress {
-      from_port   = 8888
-      to_port     = 8888
-      protocol    = "tcp"
-      cidr_blocks = split(",", var.config.ip_whitelist)
-    }
+  ingress {
+    from_port   = 8888
+    to_port     = 8888
+    protocol    = "tcp"
+    cidr_blocks = split(",", var.config.ip_whitelist)
+  }
 
   ingress {
     from_port   = 443
