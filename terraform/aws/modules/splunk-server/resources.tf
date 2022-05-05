@@ -16,13 +16,99 @@ data "aws_ami" "latest-ubuntu" {
 }
 
 
+resource "aws_iam_role" "splunk_role" {
+  # count = var.config.aws_cloudtrail == "1" ? 1 : 0
+  name = "splunk_role_${var.config.key_name}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+
+}
+
+resource "aws_iam_instance_profile" "splunk_profile" {
+  #count = var.config.aws_cloudtrail == "1" ? 1 : 0
+  name = "splunk_profile_${var.config.key_name}"
+  role = aws_iam_role.splunk_role.name
+}
+
+
+data "aws_iam_policy_document" "splunk_logging" {
+
+  statement {
+    actions = [
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+      "logs:DescribeDestinations",
+      "logs:DescribeDestinations",
+      "logs:TestMetricFilter",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "logs:Describe*",
+      "logs:Get*",
+      "logs:FilterLogEvents",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "sqs:GetQueueAttributes",
+      "sqs:ListQueues",
+      "sqs:ReceiveMessage",
+      "sqs:GetQueueUrl",
+      "sqs:DeleteMessage",
+      "s3:Get*",
+      "s3:List*",
+      "s3:Delete*",
+      "kms:Decrypt",
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "splunk_logging_policy" {
+  name = "splunk_logging_policy_${var.config.key_name}"
+  role = aws_iam_role.splunk_role.id
+  policy = data.aws_iam_policy_document.splunk_logging.json
+}
+
+
+
 resource "aws_instance" "splunk-server" {
-  ami                    = data.aws_ami.latest-ubuntu.id
+  ami                    = data.aws_ami.latest-ubuntu[count.index].id
   instance_type          = var.config.instance_type_ec2
   key_name               = var.config.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip             = var.config.splunk_server_private_ip
+  iam_instance_profile   = aws_iam_instance_profile.splunk_profile.name
+  monitoring             = true
   depends_on             = [var.phantom_server_instance]
   root_block_device {
     volume_type = "gp2"
@@ -46,7 +132,7 @@ resource "aws_instance" "splunk-server" {
 
   provisioner "local-exec" {
     working_dir = "../../../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.config.private_key_path} -i '${aws_instance.splunk-server.public_ip},' playbooks/splunk_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 splunk_admin_password=${var.config.attack_range_password} splunk_url=${var.config.splunk_url} splunk_binary=${var.config.splunk_binary} s3_bucket_url=${var.config.s3_bucket_url} splunk_escu_app=${var.config.splunk_escu_app} splunk_asx_app=${var.config.splunk_asx_app} splunk_windows_ta=${var.config.splunk_windows_ta} splunk_aws_ta=${var.config.splunk_aws_ta} splunk_cim_app=${var.config.splunk_cim_app} splunk_sysmon_ta=${var.config.splunk_sysmon_ta} splunk_sysmon_linux_ta=${var.config.splunk_sysmon_linux_ta} key_name=${var.config.key_name} splunk_python_app=${var.config.splunk_python_app} splunk_mltk_app=${var.config.splunk_mltk_app} caldera_password=${var.config.attack_range_password} install_es=${var.config.install_es} splunk_es_app=${var.config.splunk_es_app} phantom_app=${var.config.phantom_app} phantom_server=${var.config.phantom_server} phantom_byo=${var.config.phantom_byo} phantom_api_token=${var.config.phantom_api_token} phantom_byo_ip=${var.config.phantom_byo_ip} phantom_server_private_ip=${var.config.phantom_server_private_ip} phantom_admin_password=${var.config.attack_range_password} splunk_security_essentials_app=${var.config.splunk_security_essentials_app} splunk_bots_dataset=${var.config.splunk_bots_dataset} punchard_custom_visualization=${var.config.punchard_custom_visualization} status_indicator_custom_visualization=${var.config.status_indicator_custom_visualization} splunk_attack_range_dashboard=${var.config.splunk_attack_range_dashboard} timeline_custom_visualization=${var.config.timeline_custom_visualization} splunk_stream_app=${var.config.splunk_stream_app} splunk_ta_wire_data=${var.config.splunk_ta_wire_data} splunk_ta_stream=${var.config.splunk_ta_stream} splunk_zeek_ta=${var.config.splunk_zeek_ta} splunk_server_private_ip=${var.config.splunk_server_private_ip} splunk_office_365_ta=${var.config.splunk_office_365_ta} splunk_kinesis_ta=${var.config.splunk_kinesis_ta} splunk_linux_ta=${var.config.splunk_linux_ta} splunk_es_app_version=${var.config.splunk_es_app_version} install_dsp=${var.config.install_dsp} dsp_client_cert_path=${var.config.dsp_client_cert_path} dsp_node=${var.config.dsp_node} ta_for_zeek=${var.config.ta_for_zeek} splunk_nginx_ta=${var.config.splunk_nginx_ta}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.config.private_key_path} -i '${aws_instance.splunk-server.public_ip},' playbooks/splunk_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 splunk_admin_password=${var.config.attack_range_password} splunk_url=${var.config.splunk_url} splunk_binary=${var.config.splunk_binary} s3_bucket_url=${var.config.s3_bucket_url} splunk_escu_app=${var.config.splunk_escu_app} splunk_asx_app=${var.config.splunk_asx_app} splunk_windows_ta=${var.config.splunk_windows_ta} splunk_aws_ta=${var.config.splunk_aws_ta} splunk_cim_app=${var.config.splunk_cim_app} splunk_sysmon_ta=${var.config.splunk_sysmon_ta} splunk_sysmon_linux_ta=${var.config.splunk_sysmon_linux_ta} key_name=${var.config.key_name} splunk_python_app=${var.config.splunk_python_app} splunk_mltk_app=${var.config.splunk_mltk_app} caldera_password=${var.config.attack_range_password} install_es=${var.config.install_es} splunk_es_app=${var.config.splunk_es_app} phantom_app=${var.config.phantom_app} phantom_server=${var.config.phantom_server} phantom_byo=${var.config.phantom_byo} phantom_api_token=${var.config.phantom_api_token} phantom_byo_ip=${var.config.phantom_byo_ip} phantom_server_private_ip=${var.config.phantom_server_private_ip} phantom_admin_password=${var.config.attack_range_password} splunk_security_essentials_app=${var.config.splunk_security_essentials_app} splunk_bots_dataset=${var.config.splunk_bots_dataset} punchard_custom_visualization=${var.config.punchard_custom_visualization} status_indicator_custom_visualization=${var.config.status_indicator_custom_visualization} splunk_attack_range_dashboard=${var.config.splunk_attack_range_dashboard} timeline_custom_visualization=${var.config.timeline_custom_visualization} splunk_stream_app=${var.config.splunk_stream_app} splunk_ta_wire_data=${var.config.splunk_ta_wire_data} splunk_ta_stream=${var.config.splunk_ta_stream} splunk_zeek_ta=${var.config.splunk_zeek_ta} splunk_server_private_ip=${var.config.splunk_server_private_ip} splunk_office_365_ta=${var.config.splunk_office_365_ta} splunk_kinesis_ta=${var.config.splunk_kinesis_ta} splunk_linux_ta=${var.config.splunk_linux_ta} splunk_es_app_version=${var.config.splunk_es_app_version} install_dsp=${var.config.install_dsp} dsp_client_cert_path=${var.config.dsp_client_cert_path} dsp_node=${var.config.dsp_node} ta_for_zeek=${var.config.ta_for_zeek} splunk_nginx_ta=${var.config.splunk_nginx_ta} sqs_queue_url=${var.config.sqs_queue_url} key_name=${var.config.key_name} region=${var.config.region}'"
   }
 }
 

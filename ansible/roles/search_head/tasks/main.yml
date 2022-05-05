@@ -2,6 +2,7 @@
 # This playbook contains common tasks in this role
 
 - include: splunk.yml
+- include: install_aws_app.yml
 - include: configure_inputs.yml
 - include: configure_indexes.yml
 - include: configure_limits.yml

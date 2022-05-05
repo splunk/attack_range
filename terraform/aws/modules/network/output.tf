@@ -11,3 +11,7 @@ output "vpc_id" {
 output "ec2_subnet_id" {
   value = module.vpc.public_subnets[0]
 }
+
+output "vpc_private_subnets" {
+  value = module.vpc.private_subnets
+}
