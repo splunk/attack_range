@@ -494,6 +494,9 @@ aurora_agent_license = https://portal.nextron-systems.com/api/lite/license/2022-
 # specify the license url that contains the license to use for the aurora agent.
 
 [aws_logs]
-cloudtrail = 1
-sqs_queue_url = https://sqs.us-west-2.amazonaws.com/591511147606/cloudtrail-cloud-attack-range
+aws_cloudtrail = 0
+sqs_queue_url = 
+# specify the sqs queue for the cloudtrail logs. Cloudtrail needs to be enabled and configured manually.
+# eg: sqs_queue_url= https://sqs.<aws_region>.amazonaws.com/<aws_account_id>/<sqs_queue_name>
+# more information can be found here: https://docs.splunk.com/Documentation/AddOns/released/AWS/CloudTrail
 

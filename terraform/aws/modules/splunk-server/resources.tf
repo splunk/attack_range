@@ -17,7 +17,6 @@ data "aws_ami" "latest-ubuntu" {
 
 
 resource "aws_iam_role" "splunk_role" {
-  # count = var.config.aws_cloudtrail == "1" ? 1 : 0
   name = "splunk_role_${var.config.key_name}"
 
   assume_role_policy = <<EOF
@@ -39,7 +38,6 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "splunk_profile" {
-  #count = var.config.aws_cloudtrail == "1" ? 1 : 0
   name = "splunk_profile_${var.config.key_name}"
   role = aws_iam_role.splunk_role.name
 }
@@ -101,7 +99,7 @@ resource "aws_iam_role_policy" "splunk_logging_policy" {
 
 
 resource "aws_instance" "splunk-server" {
-  ami                    = data.aws_ami.latest-ubuntu[count.index].id
+  ami                    = data.aws_ami.latest-ubuntu.id
   instance_type          = var.config.instance_type_ec2
   key_name               = var.config.key_name
   subnet_id              = var.ec2_subnet_id
