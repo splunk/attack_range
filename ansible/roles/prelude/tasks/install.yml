@@ -1,10 +1,29 @@
 ---
+- name: Make /opt/prelude
+  file:
+    path: /opt/prelude
+    state: directory
+    mode: '0755'
 
-- name: Download Prelude Operator Linux Headless /opt/prelude
+- name: Download Prelude Operator Linux Headless /opt/prelude/headless.zip
+  get_url:
+    url: "{{ prelude_operator_url }}"
+    dest: /opt/prelude/headless.zip
+
+- name: Install unzip
+  apt:
+    name: unzip
+    state: latest
+
+- name: Unzip headless.zip
   unarchive:
-    src: {{ prelude_operator_url }}
+    src: /opt/prelude/headless.zip
     dest: /opt/prelude
     remote_src: yes
+
+- name: Generate new UUID
+  shell: uuidgen
+  register: prelude_account_uuid
 
 - name: Copy env, configures account uuid
   template:
@@ -12,13 +31,26 @@
     dest: /opt/prelude/env
 
 - name: Copy systemd file
-  template:
+  copy:
     src: prelude-operator.service
     dest: /etc/systemd/system/prelude-operator.service
     mode: 644
-    become: true
 
 - name: Start Prelude Operator service
   systemd:
     name: prelude-operator.service
     state: started
+
+- name: Get Session Token
+  shell: journalctl -t prelude-operator | egrep -e '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$' -o | tail -n1
+  register: prelude_session_token
+
+- name: Print Session Token
+  debug: 
+    var: prelude_session_token
+
+- name: Write Session Token to file
+  delegate_to: localhost
+  become: false
+  local_action: copy content="{{ prelude_session_token.stdout }}" dest=/var/tmp/.prelude_session_token force=yes
+

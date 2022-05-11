@@ -435,11 +435,7 @@ starting configuration for AT-ST mech walker
     configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
     configuration._sections['environment']['windows_client'] = enabled(answers['windows_client'])
     configuration._sections['environment']['zeek_sensor'] = enabled(answers['zeek_sensor'])
-
-    if (enabled(answers['prelude'])):
-        configuration._sections['simulation']['prelude'] = enabled(answers['prelude'])
-        configuration._sections['simulation']['prelude_account_uui'] = uuid.uuid4() 
-
+    configuration._sections['simulation']['prelude'] = enabled(answers['prelude'])
     configuration._sections['environment']['install_red_team_tools'] = enabled(answers['install_red_team_tools'])
     configuration._sections['environment']['nginx_web_proxy'] = enabled(answers['nginx_web_proxy'])
     configuration._sections['environment']['sysmon_linux'] = enabled(answers['sysmon_linux'])
