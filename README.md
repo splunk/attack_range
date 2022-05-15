@@ -165,7 +165,7 @@ python attack_range.py replay -dn data_dump -fn FILE_NAME --source SOURCE --sour
 
 - [Prelude Operator](https://www.prelude.org/operator)
   * Adversary Emulation with [Prelude Operator](https://www.prelude.org/operator)
-  * Installed on the Splunk Server and available over port 8888 with user admin
+  * Installed on the Splunk Server and available over TCP port 2323 
   * Preinstalled Prelude Operator [Pneuma agent](https://github.com/preludeorg/pneuma) across Windows and Linux machines 
 
 - [Kali Linux](https://www.kali.org/)
