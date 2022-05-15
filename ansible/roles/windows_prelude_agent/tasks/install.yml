@@ -13,6 +13,22 @@
     url: "http://{{ splunk_indexer_ip }}:3391/payloads/pneuma/v1.5/pneuma-windows.exe"
     dest: c:\pneuma-windows.exe
 
+- name: Create a task to Start Prelude Pneuma on boot
+  win_scheduled_task:
+    name: Pneuma
+    description: Start Pneuma on boot
+    actions:
+    - path: C:\pneuma-windows.exe
+      arguments: "-name {{ ansible_hostname }} -address {{ splunk_indexer_ip }}:2323"
+    triggers:
+    - type: boot
+    username: SYSTEM
+    run_level: highest
+    state: present
+
 - name: Start Prelude Pneuma and Connect to headless Operator
   win_shell: Start-Process -FilePath c:\pneuma-windows.exe -ArgumentList "-name $env:COMPUTERNAME -address {{ splunk_indexer_ip }}:2323"
  
+
+
+    
