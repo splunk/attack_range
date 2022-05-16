@@ -1,0 +1,62 @@
+- name: setup DNS App
+  uri:
+    url: https://127.0.0.1/rest/asset
+    method: POST
+    user: admin
+    password: "{{phantom_admin_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+    body: '{"description": "DNS Asset", "name": "dns", "app_guid": "876ab991-313e-48e7-bccd-e8c9650c239c"}'
+
+- name: setup MaxMind App
+  uri:
+    url: https://127.0.0.1/rest/asset
+    method: POST
+    user: admin
+    password: "{{phantom_admin_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+    body: '{"description": "MaxMind Asset", "name": "maxmind", "app_guid": "c566e153-3118-4033-abda-14dd9748c91a"}'
+
+- name: setup WHOIS-RDAP App
+  uri:
+    url: https://127.0.0.1/rest/asset
+    method: POST
+    user: admin
+    password: "{{phantom_admin_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+    body: '{"description": "WHOIS-RDAP Asset", "name": "whois", "app_guid": "7241ecbd-4a79-4a86-99eb-b2ed8f3e7686"}'
+
+- name: setup Splunk App
+  uri:
+    url: https://127.0.0.1/rest/asset
+    method: POST
+    user: admin
+    password: "{{phantom_admin_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+    body_format: json
+    body: {"description": "Splunk Asset", "name": "splunk", "configuration": { "device": "10.0.1.12", "port": "8089", "username": "admin", "password": "{{ phantom_admin_password }}", "verify_server_cert": false, "timezone": "UTC"}, "app_guid": "91883aa8-9c81-470b-97a1-5d8f7995f560"}
+
+- name: setup AD LDAP App
+  uri:
+    url: https://127.0.0.1/rest/asset
+    method: POST
+    user: admin
+    password: "{{phantom_admin_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+    body_format: json
+    body: {"description": "AD LDAP Asset", "name": "ldap", "app_guid": "a5730e5d-a396-4695-92c2-35ff391aaf45", "configuration": {"server": "10.0.1.14", "force_ssl": false, "validate_ssl_cert": false, "username": "Administrator@attackrange.local", "password": "{{ phantom_admin_password }}", "ssl_port": "389"}}
+
+- name: setup WinRM App
+  uri:
+    url: https://127.0.0.1/rest/asset
+    method: POST
+    user: admin
+    password: "{{phantom_admin_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+    body_format: json
+    body: {"description": "WinRM Asset", "name": "winrm", "app_guid": "a0222b95-b006-4c9e-9578-1428defcec0f", "configuration": {"endpoint": "10.0.1.14", "verify_server_cert": false, "username": "Administrator@attackrange.local", "password": "{{ phantom_admin_password }}", "default_port": "5986", "default_protocol": "https", "transport": "ntlm"}}
