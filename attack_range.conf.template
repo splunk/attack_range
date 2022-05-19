@@ -317,6 +317,10 @@ prelude = 0
 prelude_operator_url = https://download.prelude.org/latest?arch=x64&platform=linux&variant=zip&edition=headless
 # Specify where to download Prelude Operator from
 
+prelude_account_email = 
+# Email account login into a Prelude Operator UI
+# required for connecting to redirector, can be found on the GUI under connect>deploy manual redirector> accountEmail.
+
 [environment]
 # specify your Attack Range environment by enabling (1) or disabling (0) machines
 

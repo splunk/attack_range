@@ -1,1 +1,4 @@
-ACCOUNT_EMAIL={{ prelude_account_uuid['stdout'] }}@desktop.prelude.org
+## Prelude Creds
+ACCOUNT_EMAIL={{ prelude_account_email }}
+
+

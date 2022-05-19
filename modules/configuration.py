@@ -435,7 +435,19 @@ starting configuration for AT-ST mech walker
     configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
     configuration._sections['environment']['windows_client'] = enabled(answers['windows_client'])
     configuration._sections['environment']['zeek_sensor'] = enabled(answers['zeek_sensor'])
-    configuration._sections['simulation']['prelude'] = enabled(answers['prelude'])
+
+    if (enabled(answers['prelude'])):
+        configuration._sections['simulation']['prelude'] = enabled(answers['prelude'])
+        prelude_question=[
+        {
+            'type': 'input',
+            'message': 'Prelude Operator Account Email, can be found on the GUI under connect>deploy manual redirector> accountEmail.',
+            'name': 'prelude_account_email',
+        }
+        ]
+        prelude_answer = prompt(prelude_question)
+        configuration._sections['simulation']['prelude_account_email'] = prelude_answer['prelude_account_email']
+
     configuration._sections['environment']['install_red_team_tools'] = enabled(answers['install_red_team_tools'])
     configuration._sections['environment']['nginx_web_proxy'] = enabled(answers['nginx_web_proxy'])
     configuration._sections['environment']['sysmon_linux'] = enabled(answers['sysmon_linux'])

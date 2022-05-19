@@ -21,11 +21,7 @@
     dest: /opt/prelude
     remote_src: yes
 
-- name: Generate new UUID
-  shell: uuidgen
-  register: prelude_account_uuid
-
-- name: Copy env, configures account uuid
+- name: Copy env, configures Prelude Email Account 
   template:
     src: env
     dest: /opt/prelude/env
