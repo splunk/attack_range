@@ -1,13 +1,16 @@
+---
+
 - name: Check if aws app exists
   stat:
     path: /opt/splunk/etc/apps/Splunk_TA_aws  # need to be done
   register: aws_app
+  when: aws_cloudtrail == "1"
 
 - name: download AWS App from S3
   get_url:
     url: '{{ s3_bucket_url }}/{{ splunk_aws_ta }}'
     dest: /tmp/aws_app.tgz
-  when: aws_app.stat.exists == False
+  when: aws_app.stat.exists == False and aws_cloudtrail == "1"
 
 - name: Install aws app via REST
   uri:
@@ -21,7 +24,7 @@
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
     timeout: 30
-  when: aws_app.stat.exists == False
+  when: aws_app.stat.exists == False and aws_cloudtrail == "1"
   notify: restart splunk
 
 - name: Create folder directory for AWS TA
@@ -33,6 +36,7 @@
     recurse: yes
   with_items:
     - /opt/splunk/etc/apps/Splunk_TA_aws/local/
+  when: aws_cloudtrail == "1"
 
 - name: Copy new aws_account_ext.conf configuration
   template:
@@ -40,6 +44,7 @@
     dest: /opt/splunk/etc/apps/Splunk_TA_aws/local/aws_account_ext.conf
     owner: splunk
     group: splunk
+  when: aws_cloudtrail == "1"
 
 - name: Copy new inputs.conf configuration
   template:
@@ -47,6 +52,7 @@
     dest: /opt/splunk/etc/apps/Splunk_TA_aws/local/inputs.conf
     owner: splunk
     group: splunk
+  when: aws_cloudtrail == "1"
 
 # - name: Copy new aws_cloudwatch_logs_tasks.conf configuration
 #   template:

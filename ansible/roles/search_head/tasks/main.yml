@@ -2,7 +2,6 @@
 # This playbook contains common tasks in this role
 
 - include: splunk.yml
-- include: install_aws_app.yml
 - include: configure_inputs.yml
 - include: configure_indexes.yml
 - include: configure_limits.yml
@@ -43,6 +42,8 @@
     - "{{ ta_for_zeek }}"
     - "{{ splunk_nginx_ta }}"
 - include: configure_attack_range_dashboard.yml
+- include: install_aws_app.yml
+  when: aws_cloudtrail == "1"
 - include: configure_escu.yml
 - include: configure_cim.yml
 - include: install_stream_app.yml
