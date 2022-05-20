@@ -398,6 +398,12 @@ starting configuration for AT-ST mech walker
             'filter': lambda val : val.lower(),
             'default': False,
         },
+        {
+            'type': 'confirm',
+            'message': 'shall we include cloudtrail logs',
+            'name': 'aws_cloudtrail',
+            'default': False,
+        },
 
     ]
     answers = prompt(questions)
@@ -424,6 +430,7 @@ starting configuration for AT-ST mech walker
     configuration._sections['environment']['zeek_sensor'] = enabled(answers['zeek_sensor'])
     configuration._sections['environment']['nginx_web_proxy'] = enabled(answers['nginx_web_proxy'])
     configuration._sections['environment']['sysmon_linux'] = enabled(answers['sysmon_linux'])
+    configuration._sections['aws_logs']['aws_cloudtrail'] = enabled(answers['aws_cloudtrail'])
 
 
     if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "byo":
