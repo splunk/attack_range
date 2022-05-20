@@ -16,6 +16,10 @@ class CustomConfigParser:
                   "if the number of 'windows_domain_controller' is set to '0'".format(CONFIG_PATH))
             sys.exit(1)
 
+        if self.settings['aws_cloudtrail'] == "1" and (self.settings['sqs_queue_url'] !=None and "https://sqs" not in self.settings['sqs_queue_url']):
+            print("ERROR - with configuration file at {0} 'sqs_queue_url' have a valid sqs queue URL. eg: https://sqs.<aws_region>.amazonaws.com/<aws_account_id>/<sqs_queue_name> ".format(CONFIG_PATH))
+            sys.exit(1)
+
         # lets load the dsp certificate if enabled
         if self.settings['install_dsp'] == "1":
             dsp_client_cert_path = Path(self.settings['dsp_client_cert_path'])
