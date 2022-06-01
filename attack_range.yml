@@ -1,12 +1,13 @@
 
 general:
   attack_range_password: "Pl3ase-k1Ll-me:p1"
-  key_name: "attack-range-key-pair"
+  key_name: "ar-pbareiss"
   ip_whitelist: "0.0.0.0/0"
-azure:
-  region: "West Europe"
+aws:
+  region: "eu-central-1"
   private_key_path: "~/.ssh/id_rsa"
-  public_key_path: "~/.ssh/id_rsa.pub"
+  cloudtrail: "0"
+  cloudtrail_sqs_queue: "https://sqs.us-west-2.amazonaws.com/111111111111/cloudtrail-cloud-attack-range"
 splunk_server:
   image: "splunk-8-2-5-v2-0-0"
   install_es: "0"

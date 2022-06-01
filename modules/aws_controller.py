@@ -71,9 +71,8 @@ class AwsController(AttackRangeController):
             if instances_running:
                 print(tabulate(response, headers=[
                       'Name', 'Status', 'IP Address']))
-                # messages_to_print = self.show_message(response)
-                # for msg in messages_to_print:
-                #     print(msg)
+                for msg in messages:
+                    print(msg)
             else:
                 print(tabulate(response, headers=['Name', 'Status']))
 
