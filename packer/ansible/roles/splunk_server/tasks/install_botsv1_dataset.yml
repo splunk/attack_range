@@ -1,0 +1,14 @@
+
+- name: check if BOTSv1 app exists
+  stat:
+    path: /opt/splunk/etc/apps/botsv1_data_set
+  register: botsv1_app
+
+- name: download BOTSv1 dataset
+  unarchive:
+    src: 'https://s3.amazonaws.com/botsdataset/botsv1/splunk-pre-indexed/botsv1_data_set.tgz'
+    dest: /opt/splunk/etc/apps 
+    owner: splunk
+    group: splunk
+    remote_src: yes
+  when: botsv1_app.stat.exists == False

@@ -1,7 +1,0 @@
----
-
-- include: install_phantom_app.yml
-  when: phantom_server == "1"
-
-- include: add_phantom_role.yml
-  when: phantom_server == "1"

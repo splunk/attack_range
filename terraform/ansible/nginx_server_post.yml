@@ -1,0 +1,6 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  roles:
+    - linux_server_post
+    - nginx_server_post

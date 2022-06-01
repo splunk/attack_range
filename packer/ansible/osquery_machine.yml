@@ -1,0 +1,9 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  vars:
+    hostname: osquerylnx
+  roles:
+    - linux_common
+    - osquery_linux
+

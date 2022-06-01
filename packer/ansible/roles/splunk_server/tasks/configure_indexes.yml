@@ -1,0 +1,26 @@
+
+- name: Create folder directory for indexes configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/indexes_app/local/
+
+- name: copy indexes.conf to splunk server
+  copy:
+    src: indexes.conf
+    dest: /opt/splunk/etc/apps/indexes_app/local/indexes.conf
+    owner: splunk
+    group: splunk
+  notify: restart splunk
+
+- name: copy authorize.conf for default searchable indexes_app
+  copy:
+    src: authorize.conf
+    dest: /opt/splunk/etc/system/local/authorize.conf
+    owner: splunk
+    group: splunk
+  notify: restart splunk

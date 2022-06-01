@@ -1,0 +1,6 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  roles:
+    - linux_server_post
+    - update_sysmon_config_linux

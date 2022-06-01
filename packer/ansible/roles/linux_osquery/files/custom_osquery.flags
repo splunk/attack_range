@@ -1,0 +1,10 @@
+--host_identifier=uuid
+--audit_allow_config=true
+--audit_allow_sockets
+--audit_persist=true
+--disable_audit=false
+--disable_events=false
+--events_expiry=1
+--events_max=500000
+--logger_min_status=1
+--logger_plugin=filesystem

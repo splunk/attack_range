@@ -6,34 +6,16 @@ from azure.identity import AzureCliCredential
 from azure.mgmt.network import NetworkManagementClient
 
 
-def change_instance_state(config, new_state, log):
-    credential = AzureCliCredential()
-    subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]
-    compute_client = ComputeManagementClient(credential, subscription_id)
 
-    instances = get_all_instances(config)
-
-    if new_state == 'stopped':
-        for instance in instances:
-            if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
-                async_vm_stop = compute_client.virtual_machines.begin_power_off("ar-rg-" + config['range_name'] + "-" + config['key_name'], instance['vm_obj'].name)
-                log.info('Successfully stopped instance ' + instance['vm_obj'].name + ' .')
-
-    elif new_state == 'running':
-        for instance in instances:
-            if instance['vm_obj'].instance_view.statuses[1].display_status == "VM stopped":
-                async_vm_start = compute_client.virtual_machines.begin_start("ar-rg-" + config['range_name'] + "-" + config['key_name'], instance['vm_obj'].name)
-                log.info('Successfully started instance ' + instance['vm_obj'].name + ' .')
-
-def get_all_instances(config):
+def get_all_instances(key_name):
     credential = AzureCliCredential()
     subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]
     compute_client = ComputeManagementClient(credential, subscription_id)
 
     instances = []
 
-    for vm in compute_client.virtual_machines.list("ar-rg-" + config["range_name"] + "-" + config["key_name"]):
-        vm_extended = compute_client.virtual_machines.get("ar-rg-" + config['range_name'] + "-" + config['key_name'], vm.name, expand='instanceView')
+    for vm in compute_client.virtual_machines.list("ar-rg-" + key_name):
+        vm_extended = compute_client.virtual_machines.get("ar-rg-" + key_name, vm.name, expand='instanceView')
         if vm_extended.instance_view.statuses[1].display_status not in ["VM deallocating", "VM deallocated"]:
             vm_obj = {}
             if vm_extended.instance_view.statuses[1].display_status == "VM running":
@@ -44,15 +26,12 @@ def get_all_instances(config):
     return instances
 
 
-def get_instance(config, instance_name, log):
-    instances = get_all_instances(config)
+def get_instance(instance_name, key_name):
+    instances = get_all_instances(key_name)
 
     for instance in instances:
         if instance['vm_obj'].name == instance_name:
             return instance
-
-    log.error('Can not find instance: ' + instance_name)
-    sys.exit(1)
 
 
 def get_public_ip(vm_obj):

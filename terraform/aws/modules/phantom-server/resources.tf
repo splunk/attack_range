@@ -1,13 +1,12 @@
-# install phantom on a fresh centos 7 aws instance
 
 data "aws_ami" "latest-centos" {
-  count       = var.config.phantom_server == "1" ? 1 : 0
+  count       = var.phantom_server.phantom_server == "1" ? 1 : 0
   most_recent = true
   owners      = ["679593333241"] # owned by AWS Marketplace
 
   filter {
     name   = "name"
-    values = ["CentOS Linux 7 x86_64 HVM EBS ENA 1901_01-b7ee8a69-ee97-4a49-9e68-afaee216db2e-ami-05713873c6794f575.4"]
+    values = ["CentOS-7-2111-20220330_2.x86_64*"]
   }
 
   filter {
@@ -18,20 +17,20 @@ data "aws_ami" "latest-centos" {
 
 # install Phantom on a bare CentOS 7 instance
 resource "aws_instance" "phantom-server" {
-  count                  = var.config.phantom_server == "1" ? 1 : 0
+  count                  = var.phantom_server.phantom_server == "1" ? 1 : 0
   ami                    = data.aws_ami.latest-centos[count.index].id
-  instance_type          = var.config.instance_type_ec2
-  key_name               = var.config.key_name
+  instance_type          = "t3.xlarge"
+  key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip             = var.config.phantom_server_private_ip
+  private_ip             = "10.0.1.13"
   root_block_device {
     volume_type           = "gp2"
     volume_size           = "30"
     delete_on_termination = "true"
   }
   tags = {
-    Name = "ar-phantom-${var.config.range_name}-${var.config.key_name}"
+    Name = "ar-phantom-${var.general.key_name}"
   }
 
   provisioner "remote-exec" {
@@ -41,17 +40,17 @@ resource "aws_instance" "phantom-server" {
       type        = "ssh"
       user        = "centos"
       host        = aws_instance.phantom-server[0].public_ip
-      private_key = file(var.config.private_key_path)
+      private_key = file(var.aws.private_key_path)
     }
   }
 
   provisioner "local-exec" {
-    working_dir = "../../ansible/"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.config.private_key_path} -i '${aws_instance.phantom-server[0].public_ip},' playbooks/phantom_server.yml -e 'phantom_admin_password=${var.config.attack_range_password} phantom_community_username=${var.config.phantom_community_username} phantom_community_password=${var.config.phantom_community_password} phantom_server_private_ip=${var.config.phantom_server_private_ip}'"
+    working_dir = "../ansible"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.aws.private_key_path} -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.aws : "${key}=\"${value}\""])}'"
   }
 }
 
 resource "aws_eip" "phantom_ip" {
-  count    = var.config.phantom_server == "1" ? 1 : 0
+  count    = var.phantom_server.phantom_server == "1" ? 1 : 0
   instance = aws_instance.phantom-server[0].id
 }

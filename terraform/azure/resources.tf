@@ -1,65 +1,53 @@
-provider "azurerm" {
-  version = "=2.12.0"
-  features {}
-}
 
 module "networkModule" {
-  source			  = "./modules/network"
-  config                = var.config
+  source = "./modules/network"
+  general = var.general
+  azure = var.azure
 }
 
 module "splunk-server" {
-  source			           = "./modules/splunk-server"
-	rg_name                = module.networkModule.rg_name
-	subnet_id              = module.networkModule.subnet_id
-  phantom_server_instance = module.phantom-server.phantom_server_instance
-  config                 = var.config
+  source = "./modules/splunk-server"
+  rg_name = module.networkModule.rg_name
+  subnet_id = module.networkModule.subnet_id
+  azure = var.azure
+  splunk_server = var.splunk_server
+  phantom_server = var.phantom_server
+  general = var.general
 }
 
 module "phantom-server" {
-  source                     = "./modules/phantom-server"
-  rg_name                = module.networkModule.rg_name
-	subnet_id              = module.networkModule.subnet_id
-  config                 = var.config
+  source = "./modules/phantom-server"
+  rg_name = module.networkModule.rg_name
+  subnet_id = module.networkModule.subnet_id
+  azure = var.azure
+  phantom_server = var.phantom_server
+  general = var.general
 }
-
-module "windows-domain-controller" {
-  source			           = "./modules/windows-domain-controller"
-  rg_name                = module.networkModule.rg_name
-	subnet_id              = module.networkModule.subnet_id
-  config                 = var.config
-}
-
 
 module "windows-server" {
-  source			           = "./modules/windows-server"
-  rg_name                = module.networkModule.rg_name
-	subnet_id              = module.networkModule.subnet_id
-  config                 = var.config
-  windows_domain_controller_instance = module.windows-domain-controller.windows_domain_controller_instance
+  source = "./modules/windows"
+  rg_name = module.networkModule.rg_name
+	subnet_id = module.networkModule.subnet_id
+  general = var.general
+  azure = var.azure
+  windows_servers = var.windows_servers
 }
 
-module "windows-client" {
-  source			           = "./modules/windows-client"
-  rg_name                = module.networkModule.rg_name
-	subnet_id              = module.networkModule.subnet_id
-  config                 = var.config
-  windows_domain_controller_instance = module.windows-domain-controller.windows_domain_controller_instance
+module "linux-server" {
+  source = "./modules/linux-server"
+  rg_name = module.networkModule.rg_name
+  subnet_id = module.networkModule.subnet_id
+  azure = var.azure
+  general = var.general
+  linux_servers = var.linux_servers
 }
 
-module "kali_machine" {
-  source			           = "./modules/kali_machine"
-  rg_name                = module.networkModule.rg_name
-	subnet_id              = module.networkModule.subnet_id
-  config                 = var.config
-}
-
-# module "zeek_sensor" {
-#   source			           = "./modules/zeek_sensor"
-# 	vpc_security_group_ids = module.networkModule.sg_vpc_id
-# 	ec2_subnet_id          = module.networkModule.ec2_subnet_id
-#   windows_domain_controller_instance = module.windows-domain-controller.windows_domain_controller_instance
-#   windows_server_instance = module.windows-server.windows_server_instance
-#   windows_client_instance = module.windows-client.windows_client_instance
-#   config                 = var.config
+# kali linux image was removed from Azure marketplace
+# module "kali-server" {
+#   source = "./modules/kali-server"
+#   rg_name = module.networkModule.rg_name
+#   subnet_id = module.networkModule.subnet_id
+#   azure = var.azure
+#   general = var.general
+#   kali_server = var.kali_server
 # }

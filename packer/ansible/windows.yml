@@ -1,0 +1,11 @@
+- hosts: all
+  gather_facts: True
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    hostname: win-dc
+  roles:
+    - windows_common
+    - windows_universal_forwarder
+    - windows_aurora_agent
+    - sysmon

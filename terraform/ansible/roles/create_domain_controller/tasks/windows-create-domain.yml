@@ -1,0 +1,57 @@
+---
+
+- name: features | Installing Windows DNS Server
+  win_feature:
+    name: DNS
+    state: present
+    include_management_tools: yes
+    include_sub_features: yes
+  register: _windows_dns_server
+
+- name: reboot | Rebooting Server
+  win_reboot:
+    reboot_timeout_sec: 3600
+  when: >
+    _windows_dns_server['restart_needed'] is defined and
+    _windows_dns_server['restart_needed']
+
+- name: set local admin password
+  win_user:
+    name: "{{ ansible_user }}"
+    password: "{{ attack_range_password }}"
+    state: present
+
+- name: features | Installing RSAT AD Admin Center
+  win_feature:
+    name: RSAT-AD-AdminCenter
+    state: present
+
+- name: features | Installing AD Domain Services
+  win_feature:
+    name: AD-Domain-Services
+    include_management_tools: yes
+    include_sub_features: yes
+    state: present
+
+- name: Creating a windows domain
+  win_domain:
+    dns_domain_name: "attackrange.local"
+    safe_mode_password: "{{ attack_range_password }}"
+
+- name: Setting DNS Servers
+  win_dns_client:
+    adapter_names: "*"
+    ipv4_addresses: "127.0.0.1"
+
+- name: reboot | Rebooting Server
+  win_reboot:
+    post_reboot_delay: 60
+
+- name: Managing Domain Controller Membership
+  win_domain_controller:
+    dns_domain_name: "attackrange.local"
+    domain_admin_user: "{{ ansible_user }}@attackrange.local"
+    domain_admin_password: "{{ attack_range_password }}"
+    safe_mode_password: "{{ attack_range_password }}"
+    state: "domain_controller"
+  register: _windows_domain_controller

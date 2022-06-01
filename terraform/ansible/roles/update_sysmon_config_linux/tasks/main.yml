@@ -1,0 +1,4 @@
+---
+
+- include: update_sysmon_config.yml
+  when: sysmon_config != "SysMonLinux-CatchAll.xml"

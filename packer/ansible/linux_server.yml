@@ -1,0 +1,8 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  roles:
+    - linux_common
+    - linux_universal_forwarder
+    - linux_osquery
+    - linux_sysmon

@@ -1,0 +1,22 @@
+
+- name: Create folder directory for server configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/server_app/local/
+
+- name: copy server.conf to splunk server
+  copy:
+    src: server.conf
+    dest: /opt/splunk/etc/apps/server_app/local/server.conf
+    owner: splunk
+    group: splunk
+  notify: restart splunk
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes

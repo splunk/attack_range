@@ -1,0 +1,12 @@
+- hosts: all
+  gather_facts: True
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  roles:
+    #- set_hostname
+    - create_domain_controller
+    - update_sysmon_config
+    - red_team_tools
+    - join_domain

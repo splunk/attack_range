@@ -1,0 +1,43 @@
+---
+# This playbook install the Splunk Universal Forwarder
+
+- name: add splunk group
+  become: true
+  group: name=splunk state=present
+
+- name: add splunk user
+  become: true
+  user: name=splunk comment="Splunk service user" shell=/usr/sbin/nologin groups=splunk createhome=yes
+
+- name: make /opt writetable by splunk
+  become: true
+  file: path=/opt mode=777
+
+- name: checking if splunk is install
+  stat: path=/opt/splunkforwarder
+  register: splunk_path
+
+- name: is splunk UF installed?
+  debug: msg='splunk is already installed under /opt/splunkforwarder'
+  when: splunk_path.stat.exists
+
+- name: Install splunk uf
+  become: true
+  apt: deb="{{ splunk_uf_url }}"
+  when: splunk_path.stat.exists == false
+
+- name: copy outputs.conf to forward data to splunk server
+  copy:
+    src: outputs.conf
+    dest: /opt/splunkforwarder/etc/system/local/outputs.conf
+    owner: splunk
+    group: splunk
+    force: yes
+
+- name: splunk license acceptance
+  become: true
+  command:  "/opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd Pl3ase-k1Ll-me:p"
+
+- name: setup to start at boot
+  become: true
+  command: "/opt/splunkforwarder/bin/splunk enable boot-start"

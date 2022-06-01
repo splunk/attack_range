@@ -1,2 +1,2 @@
-
-variable "config" { }
+variable "general" { }
+variable "azure" { }

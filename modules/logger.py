@@ -1,3 +1,4 @@
+
 import logging
 
 def setup_logging(LOG_PATH,LOG_LEVEL):
@@ -18,8 +19,4 @@ def setup_logging(LOG_PATH,LOG_LEVEL):
     # add the handlers to the logger
     logger.addHandler(fh)
     logger.addHandler(ch)
-    return logger
-
-def get():
-    logger = logging.getLogger('attack_range')
     return logger

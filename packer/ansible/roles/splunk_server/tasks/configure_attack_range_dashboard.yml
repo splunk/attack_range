@@ -1,0 +1,18 @@
+
+- name: Create folder directory for user-prefs configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/users/admin/user-prefs/local/
+
+- name: copy user-prefs.conf to splunk server
+  copy:
+    src: user-prefs.conf
+    dest: /opt/splunk/etc/users/admin/user-prefs/local/user-prefs.conf
+    owner: splunk
+    group: splunk
+  notify: restart splunk

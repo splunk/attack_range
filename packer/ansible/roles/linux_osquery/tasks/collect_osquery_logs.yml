@@ -1,0 +1,23 @@
+---
+
+- name: make /var/log/osquery dir accessible to everyone (rwx)
+  become: true
+  command: chmod a+rwx /var/log/osquery -R
+
+- name: Create folder directory for inputs configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunkforwarder/etc/apps/osquery_app/local/
+
+- name: copy inputs.conf to capture osquery logs
+  copy:
+    src: inputs.conf
+    dest: /opt/splunkforwarder/etc/apps/osquery_app/local/inputs.conf
+    owner: splunk
+    group: splunk
+    force: yes

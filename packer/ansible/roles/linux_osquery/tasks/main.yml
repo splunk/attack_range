@@ -1,0 +1,8 @@
+---
+
+- include: install_osquery_linux.yml
+- include: collect_osquery_logs.yml
+
+- name: restart splunk
+  become: true
+  command: "/opt/splunkforwarder/bin/splunk restart"

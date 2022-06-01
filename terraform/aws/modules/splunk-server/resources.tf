@@ -1,36 +1,31 @@
 
 
-data "aws_ami" "latest-ubuntu" {
+data "aws_ami" "splunk_server" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical
+  owners      = ["591511147606"] 
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+    values = [var.splunk_server.image]
   }
 }
 
-
 resource "aws_instance" "splunk-server" {
-  ami                    = data.aws_ami.latest-ubuntu.id
-  instance_type          = var.config.instance_type_ec2
-  key_name               = var.config.key_name
+  ami                    = data.aws_ami.splunk_server.id
+  instance_type          = "t3.2xlarge"
+  key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip             = var.config.splunk_server_private_ip
-  depends_on             = [var.phantom_server_instance]
+  private_ip             = "10.0.1.12"
+
   root_block_device {
     volume_type = "gp2"
     volume_size = "60"
     delete_on_termination = "true"
   }
+
   tags = {
-    Name = "ar-splunk-${var.config.range_name}-${var.config.key_name}"
+    Name = "ar-splunk-${var.general.key_name}"
   }
 
   provisioner "remote-exec" {
@@ -40,14 +35,15 @@ resource "aws_instance" "splunk-server" {
       type        = "ssh"
       user        = "ubuntu"
       host        = aws_instance.splunk-server.public_ip
-      private_key = file(var.config.private_key_path)
+      private_key = file(var.aws.private_key_path)
     }
   }
 
   provisioner "local-exec" {
-    working_dir = "../../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.config.private_key_path} -i '${aws_instance.splunk-server.public_ip},' playbooks/splunk_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 splunk_admin_password=${var.config.attack_range_password} splunk_url=${var.config.splunk_url} splunk_binary=${var.config.splunk_binary} s3_bucket_url=${var.config.s3_bucket_url} splunk_escu_app=${var.config.splunk_escu_app} splunk_asx_app=${var.config.splunk_asx_app} splunk_windows_ta=${var.config.splunk_windows_ta} splunk_aws_ta=${var.config.splunk_aws_ta} splunk_cim_app=${var.config.splunk_cim_app} splunk_sysmon_ta=${var.config.splunk_sysmon_ta} splunk_python_app=${var.config.splunk_python_app} splunk_mltk_app=${var.config.splunk_mltk_app} caldera_password=${var.config.attack_range_password} install_es=${var.config.install_es} splunk_es_app=${var.config.splunk_es_app} phantom_app=${var.config.phantom_app} phantom_server=${var.config.phantom_server} phantom_server_private_ip=${var.config.phantom_server_private_ip} phantom_admin_password=${var.config.attack_range_password} splunk_security_essentials_app=${var.config.splunk_security_essentials_app} splunk_bots_dataset=${var.config.splunk_bots_dataset} punchard_custom_visualization=${var.config.punchard_custom_visualization} status_indicator_custom_visualization=${var.config.status_indicator_custom_visualization} splunk_attack_range_dashboard=${var.config.splunk_attack_range_dashboard} timeline_custom_visualization=${var.config.timeline_custom_visualization} splunk_stream_app=${var.config.splunk_stream_app} splunk_zeek_ta=${var.config.splunk_zeek_ta} splunk_server_private_ip=${var.config.splunk_server_private_ip}'"
+    working_dir = "../ansible"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.aws.private_key_path} -i '${aws_instance.splunk-server.public_ip},' splunk_server_post.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.aws : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])}'"
   }
+
 }
 
 resource "aws_eip" "splunk_ip" {

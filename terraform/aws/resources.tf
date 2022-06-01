@@ -1,63 +1,61 @@
-provider "aws" {
-  region     =  var.config.region
-}
 
 module "networkModule" {
-  source			  = "./modules/network"
-  config                = var.config
+  source = "./modules/network"
+  general = var.general
+  aws = var.aws
 }
 
 module "splunk-server" {
-  source			           = "./modules/splunk-server"
+  source = "./modules/splunk-server"
 	vpc_security_group_ids = module.networkModule.sg_vpc_id
-	ec2_subnet_id         = module.networkModule.ec2_subnet_id
-  phantom_server_instance = module.phantom-server.phantom_server_instance
-  config                = var.config
+	ec2_subnet_id = module.networkModule.ec2_subnet_id
+  aws = var.aws
+  splunk_server = var.splunk_server
+  phantom_server = var.phantom_server
+  general = var.general
 }
 
 module "phantom-server" {
-  source                     = "./modules/phantom-server"
-  vpc_security_group_ids = module.networkModule.sg_vpc_id
-	ec2_subnet_id          = module.networkModule.ec2_subnet_id
-  config                 = var.config
-}
-
-module "windows-domain-controller" {
-  source			           = "./modules/windows-domain-controller"
+  source = "./modules/phantom-server"
 	vpc_security_group_ids = module.networkModule.sg_vpc_id
-	ec2_subnet_id          = module.networkModule.ec2_subnet_id
-  config                 = var.config
+	ec2_subnet_id = module.networkModule.ec2_subnet_id
+  phantom_server = var.phantom_server
+  general = var.general
+  aws = var.aws
 }
 
 module "windows-server" {
-  source			           = "./modules/windows-server"
+  source = "./modules/windows"
 	vpc_security_group_ids = module.networkModule.sg_vpc_id
-	ec2_subnet_id          = module.networkModule.ec2_subnet_id
-  windows_domain_controller_instance = module.windows-domain-controller.windows_domain_controller_instance
-  config                 = var.config
+	ec2_subnet_id = module.networkModule.ec2_subnet_id
+  general = var.general
+  aws = var.aws
+  windows_servers = var.windows_servers
 }
 
-module "windows-client" {
-  source			           = "./modules/windows-client"
+module "linux-server" {
+  source = "./modules/linux-server"
 	vpc_security_group_ids = module.networkModule.sg_vpc_id
-	ec2_subnet_id          = module.networkModule.ec2_subnet_id
-  windows_domain_controller_instance = module.windows-domain-controller.windows_domain_controller_instance
-  config                 = var.config
+	ec2_subnet_id = module.networkModule.ec2_subnet_id
+  general = var.general
+  aws = var.aws
+  linux_servers = var.linux_servers
 }
 
-module "kali_machine" {
-  source			           = "./modules/kali_machine"
+module "kali-server" {
+  source = "./modules/kali-server"
 	vpc_security_group_ids = module.networkModule.sg_vpc_id
-	ec2_subnet_id          = module.networkModule.ec2_subnet_id
-  config                 = var.config
+	ec2_subnet_id = module.networkModule.ec2_subnet_id
+  general = var.general
+  kali_server = var.kali_server
+  aws = var.aws
 }
 
-module "zeek_sensor" {
-  source			           = "./modules/zeek_sensor"
+module "nginx-server" {
+  source = "./modules/nginx-server"
 	vpc_security_group_ids = module.networkModule.sg_vpc_id
-	ec2_subnet_id          = module.networkModule.ec2_subnet_id
-  windows_domain_controller_instance = module.windows-domain-controller.windows_domain_controller_instance
-  windows_server_instance = module.windows-server.windows_server_instance
-  windows_client_instance = module.windows-client.windows_client_instance
-  config                 = var.config
+	ec2_subnet_id = module.networkModule.ec2_subnet_id
+  general = var.general
+  nginx_server = var.nginx_server
+  aws = var.aws
 }

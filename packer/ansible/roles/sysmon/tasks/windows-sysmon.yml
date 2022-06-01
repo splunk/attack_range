@@ -1,0 +1,36 @@
+---
+
+- block:
+    - name: check if sysmon archive is present
+      win_stat:
+        path: c:\Program Files\ansible\sysmon
+      register: sysmondl
+
+    - name: download sysmon
+      win_get_url:
+        url: https://download.sysinternals.com/files/Sysmon.zip
+        dest: 'c:\Program Files\ansible\Sysmon.zip'
+        timeout: 60
+      when: not sysmondl.stat.exists
+
+    - name: unzip sysmon
+      win_unzip:
+        src: 'c:\Program Files\ansible\Sysmon.zip'
+        dest: 'c:\Program Files\ansible\sysmon'
+        creates: 'c:\Program Files\ansible\sysmon\sysmon.exe'
+      when: not sysmondl.stat.exists
+
+    - name: add sysmon to PATH
+      win_path:
+        elements: 'c:\Program Files\ansible\sysmon'
+      when: not sysmondl.stat.exists
+
+- block:
+    - name: Copy Sysmon template
+      win_copy:
+        src: "../../configs/SwiftOnSecurity.xml"
+        dest: C:\Program Files\ansible\SwiftOnSecurity.xml
+
+    - name: install sysmon with defined config
+      win_command: '"C:\Program Files\ansible\sysmon\sysmon64.exe" -accepteula -i "C:\Program Files\ansible\SwiftOnSecurity.xml"'
+

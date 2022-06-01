@@ -1,0 +1,15 @@
+---
+- name: copy nginx.conf to add kv logging to nginx plus
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+
+- name: copy default.conf to add the proxy information 
+  copy:
+    src: default.conf
+    dest: /etc/nginx/conf.d/default.conf
+
+- name: reload nginx
+  systemd:
+    daemon_reload: yes
+    name: nginx

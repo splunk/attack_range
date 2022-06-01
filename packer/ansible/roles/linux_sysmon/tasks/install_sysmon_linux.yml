@@ -1,0 +1,49 @@
+---
+# this playbook installs sysmon for linux (https://github.com/Sysinternals/SysmonForLinux)
+
+- name: get version
+  become: true
+  ansible.builtin.shell: lsb_release -rs
+  register: result
+
+- name: add the microsoft repo
+  become: true
+  get_url:
+    url: https://packages.microsoft.com/config/ubuntu/{{ result.stdout }}/packages-microsoft-prod.deb 
+    dest: /tmp/packages-microsoft-prod.deb
+
+- name: dpkg install the deb
+  become: true
+  apt:
+    deb: /tmp/packages-microsoft-prod.deb
+
+- name: install sysinternalsebpf
+  become: true
+  apt:
+    name:  sysinternalsebpf  
+    state: latest
+    update_cache: yes
+
+- name: install sysmonforlinux
+  become: true
+  apt:
+    name:  sysmonforlinux 
+    state: latest
+    update_cache: yes
+
+- name: copy sysmon config template
+  become: true
+  copy:
+    src: "../../configs/SysMonLinux-CatchAll.xml"
+    dest: "/tmp/SysMonLinux-CatchAll.xml"
+
+- name: launch with config
+  become: true
+  ansible.builtin.shell: sysmon -accepteula -i /tmp/SysMonLinux-CatchAll.xml
+
+- name: install powershell
+  become: true
+  apt:
+    name: powershell
+    state: latest
+    update_cache: yes

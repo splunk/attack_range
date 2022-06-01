@@ -1,0 +1,17 @@
+---
+
+# - name: debug ansible facts
+#   debug:
+#     var: ansible_facts
+
+- include_tasks: "install_art_windows.yml"
+  when: ansible_distribution is match "Microsoft Windows"
+
+- include_tasks: "run_art_linux.yml"
+  with_items: "{{ techniques }}"
+  when: ansible_distribution=="Ubuntu"
+
+- include_tasks: "run_art_test_windows.yml"
+  with_items: "{{ techniques }}"
+  when: ansible_distribution is match "Microsoft Windows"
+

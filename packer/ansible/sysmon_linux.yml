@@ -1,0 +1,8 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  vars:
+    hostname: sysmonlinux
+  roles:
+    - linux_common
+    - sysmon_linux

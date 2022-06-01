@@ -1,0 +1,7 @@
+- debug:
+    var: windows_server_join_domain
+
+- include: create.yml
+  when: windows_server_join_domain == "1"
+
+- include: windows-disable-firewall.yml
