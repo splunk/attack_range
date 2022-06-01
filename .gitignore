@@ -31,6 +31,8 @@ terraform/azure/state/
 # .tfstate files
 *.tfstate
 *.tfstate.*
+*.terraform*
+*state*
 
 # Crash log files
 crash.log
