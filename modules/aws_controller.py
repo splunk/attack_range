@@ -1,4 +1,5 @@
 import os
+import ansible_runner
 
 from python_terraform import Terraform, IsNotFlagged
 from modules import aws_service, splunk_sdk
@@ -24,6 +25,8 @@ class AwsController(AttackRangeController):
         )
         if not return_code:
             self.logger.info("attack_range has been built using terraform successfully")
+
+        self.show()
 
     def destroy(self) -> None:
         self.logger.info("[action] > destroy\n")
@@ -63,9 +66,9 @@ class AwsController(AttackRangeController):
                 instance_name = instance['Tags'][0]['Value']
                 if instance_name.startswith("ar-splunk"):
                     if self.config["splunk_server"]["install_es"] == "1":
-                        messages.append("\n\nAccess Splunk via:\n\tWeb > https://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":8000\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                        messages.append("\nAccess Splunk via:\n\tWeb > https://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":8000\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                     else:
-                        messages.append("\n\nAccess Splunk via:\n\tWeb > http://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":8000\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                        messages.append("\nAccess Splunk via:\n\tWeb > http://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":8000\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                 elif instance_name.startswith("ar-phantom"):
                     messages.append("\nAccess Phantom via:\n\tWeb > https://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " centos@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                 elif instance_name.startswith("ar-win"):
@@ -100,7 +103,7 @@ class AwsController(AttackRangeController):
         self.logger.info("Dump log data")
         dump_search = "search " + search + " earliest=-" + earliest + " latest=" + latest + " | sort 0 _time"
         self.logger.info("Dumping Splunk Search: " + dump_search)
-        out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + ".log"), 'wb')
+        out = open(os.path.join(os.path.dirname(__file__), "../" + dump_name), 'wb')
 
         splunk_instance = "ar-splunk-" + self.config['general']['key_name']
         splunk_sdk.export_search(aws_service.get_single_instance_public_ip(splunk_instance, self.config['general']['key_name'], self.config['aws']['region']),
@@ -110,5 +113,22 @@ class AwsController(AttackRangeController):
         out.close()
         self.logger.info("[Completed]")
 
-    def replay(self) -> None:
-        pass
+    def replay(self, file_name, index, sourcetype, source) -> None:
+        ansible_vars = {}
+        ansible_vars['file_name'] = file_name
+        ansible_vars['ansible_user'] = 'ubuntu'
+        ansible_vars['ansible_ssh_private_key_file'] = self.config['aws']['private_key_path']
+        ansible_vars['attack_range_password'] = self.config['general']['attack_range_password']
+        ansible_vars['ansible_port'] = 22
+        ansible_vars['sourcetype'] = sourcetype
+        ansible_vars['source'] = source
+        ansible_vars['index'] = index
+
+        splunk_instance = "ar-splunk-" + self.config['general']['key_name']
+        splunk_ip = aws_service.get_single_instance_public_ip(splunk_instance, self.config['general']['key_name'], self.config['aws']['region'])
+        cmdline = "-i %s, -u %s" % (splunk_ip, ansible_vars['ansible_user'])
+        runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                    cmdline=cmdline,
+                                    roles_path=os.path.join(os.path.dirname(__file__), 'ansible/roles'),
+                                    playbook=os.path.join(os.path.dirname(__file__), 'ansible/data_replay.yml'),
+                                    extravars=ansible_vars)

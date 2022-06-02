@@ -15,6 +15,7 @@ variable "aws" {
     default = {
         region = "eu-central-1"
         private_key_path = "~/.ssh/id_rsa"
+        image_owner = "591511147606"
     }
 }
 

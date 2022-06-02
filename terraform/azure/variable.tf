@@ -48,16 +48,8 @@ variable "windows_servers" {
         hostname = "ar-win-dc"
         image = "windows-2016"
         win_sysmon_config = "SwiftOnSecurity.xml"
-        create_domain = "1"
-        join_domain = "0"
-        install_red_team_tools = "0"
-    },
-    {
-        hostname = "ar-win"
-        image = "windows-2016"
-        win_sysmon_config = "SwiftOnSecurity.xml"
         create_domain = "0"
-        join_domain = "1"
+        join_domain = "0"
         install_red_team_tools = "0"
     }
   ]

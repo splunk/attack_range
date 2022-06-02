@@ -1,9 +1,10 @@
 import os
+import ansible_runner
 
 from python_terraform import Terraform, IsNotFlagged
 from tabulate import tabulate
 
-from modules import azure_service
+from modules import azure_service, splunk_sdk
 from modules.attack_range_controller import AttackRangeController
 from modules.art_simulation_controller import ArtSimulationController
 
@@ -34,6 +35,12 @@ class AzureController(AttackRangeController):
             auto_approve=True
         )
         self.logger.info("attack_range has been destroy using terraform successfully")
+
+    def stop(self) -> None:
+        azure_service.change_instance_state(self.config['general']['key_name'], 'stopped', self.logger)
+
+    def resume(self) -> None:
+        azure_service.change_instance_state(self.config['general']['key_name'], 'running', self.logger)
 
     def simulate(self, engine, target, technique, playbook) -> None:
         self.logger.info("[action] > simulate\n")
@@ -88,3 +95,39 @@ class AzureController(AttackRangeController):
             print()
         else:
             print("ERROR: Can't find configured Attack Range Instances")
+
+
+    def dump(self, dump_name, search, earliest, latest) -> None:
+        self.logger.info("Dump log data")
+        dump_search = "search " + search + " earliest=-" + earliest + " latest=" + latest + " | sort 0 _time"
+        self.logger.info("Dumping Splunk Search: " + dump_search)
+        out = open(os.path.join(os.path.dirname(__file__), "../" + dump_name), 'wb')
+
+        splunk_instance = "ar-splunk-" + self.config['general']['key_name']
+        splunk_sdk.export_search(azure_service.get_instance(splunk_instance, self.config['general']['key_name'])['public_ip'],
+                                    s=dump_search,
+                                    password=self.config['general']['attack_range_password'],
+                                    out=out)
+        out.close()
+        self.logger.info("[Completed]")
+
+
+    def replay(self, file_name, index, sourcetype, source) -> None:
+        ansible_vars = {}
+        ansible_vars['file_name'] = file_name
+        ansible_vars['ansible_user'] = 'ubuntu'
+        ansible_vars['ansible_ssh_private_key_file'] = self.config['azure']['private_key_path']
+        ansible_vars['attack_range_password'] = self.config['general']['attack_range_password']
+        ansible_vars['ansible_port'] = 22
+        ansible_vars['sourcetype'] = sourcetype
+        ansible_vars['source'] = source
+        ansible_vars['index'] = index
+
+        splunk_instance = "ar-splunk-" + self.config['general']['key_name']
+        splunk_ip = azure_service.get_instance(splunk_instance, self.config['general']['key_name'])['public_ip']
+        cmdline = "-i %s, -u %s" % (splunk_ip, ansible_vars['ansible_user'])
+        runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
+                                    cmdline=cmdline,
+                                    roles_path=os.path.join(os.path.dirname(__file__), 'ansible/roles'),
+                                    playbook=os.path.join(os.path.dirname(__file__), 'ansible/data_replay.yml'),
+                                    extravars=ansible_vars)

@@ -48,3 +48,23 @@ def get_public_ip(vm_obj):
     ip_name = ip_reference[8]
     public_ip = network_client.public_ip_addresses.get(ip_group, ip_name)
     return public_ip.ip_address
+
+
+def change_instance_state(key_name, new_state, log):
+    credential = AzureCliCredential()
+    subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]
+    compute_client = ComputeManagementClient(credential, subscription_id)
+
+    instances = get_all_instances(key_name)
+
+    if new_state == 'stopped':
+        for instance in instances:
+            if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
+                async_vm_stop = compute_client.virtual_machines.begin_power_off("ar-rg-" + key_name, instance['vm_obj'].name)
+                log.info('Successfully stopped instance ' + instance['vm_obj'].name + ' .')
+
+    elif new_state == 'running':
+        for instance in instances:
+            if instance['vm_obj'].instance_view.statuses[1].display_status == "VM stopped":
+                async_vm_start = compute_client.virtual_machines.begin_start("ar-rg-" + key_name, instance['vm_obj'].name)
+                log.info('Successfully started instance ' + instance['vm_obj'].name + ' .')

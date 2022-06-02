@@ -43,5 +43,5 @@ class AttackRangeController(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def replay(self) -> None:
+    def replay(self, file_name, index, sourcetype, source) -> None:
         pass

@@ -50,13 +50,11 @@ def simulate(args):
 
 def dump(args):
     controller = init(args)
-    controller.dump(args.dump_name, args.search, args.earliest, args.latest)
+    controller.dump(args.file_name, args.search, args.earliest, args.latest)
 
 def replay(args):
-    pass
-
-def search(args):
-    pass
+    controller = init(args)
+    controller.replay(args.file_name, args.index, args.sourcetype, args.source)
 
 def build(args):
     controller = init(args)
@@ -73,9 +71,6 @@ def stop(args):
 def resume(args):
     controller = init(args)
     controller.resume()
-
-def test(args):
-    pass
 
 def configure(args):
     pass
@@ -101,10 +96,8 @@ def main(args):
     stop_parser = actions_parser.add_parser("stop", help="stops attack range instances")
     resume_parser = actions_parser.add_parser("resume", help="resumes previously stopped attack range instances")
     show_parser = actions_parser.add_parser("show", help="list machines")
-    test_parser = actions_parser.add_parser("test", help="test detections")
     dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
     replay_parser = actions_parser.add_parser("replay", help="replay dumps into the splunk server")
-    search_parser = actions_parser.add_parser("search", help="execute a splunk savedsearch on the splunk server")
 
     # Build arguments
     build_parser.set_defaults(func=build)
@@ -137,8 +130,8 @@ def main(args):
     simulate_parser.set_defaults(func=simulate)
 
     # Dump  Arguments
-    dump_parser.add_argument("-dn", "--dump_name", required=True,
-                             help="name for the dumped attack data")
+    dump_parser.add_argument("-fn", "--file_name", required=True,
+                               help="file name of the attack_data")
     dump_parser.add_argument("--search", required=True,
                              help="splunk search to export")
     dump_parser.add_argument("--earliest", required=True,
@@ -148,37 +141,15 @@ def main(args):
     dump_parser.set_defaults(func=dump)
 
     # Replay Arguments
-    replay_parser.add_argument("-dn", "--dump_name", required=True,
-                               help="name for the data dump folder under attack_data/")
     replay_parser.add_argument("-fn", "--file_name", required=True,
                                help="file name of the attack_data")
     replay_parser.add_argument("--source", required=True,
                         help="source of replayed data")
     replay_parser.add_argument("--sourcetype", required=True,
                         help="sourcetype of replayed data")
-    replay_parser.add_argument("--index", required=True,
+    replay_parser.add_argument("--index", required=False, default="test",
                         help="index of replayed data")
-    replay_parser.add_argument("--update_timestamp", required=False, default=False,
-                             action="store_true", help="update timestamps of replayed data")
     replay_parser.set_defaults(func=replay)
-
-    # Test Arguments
-    test_parser.add_argument("-tf", "--test_files", required=True,
-                             type=str, default="", help='comma delimited list relative path of the test files')
-    test_parser.add_argument("-tbd", "--test_build_destroy", required=False, default=False,
-                             action="store_true", help='builds a attack_range, then runs the test files and finally destroy the range in one shot operation.')
-    test_parser.add_argument("-tdd", "--test_delete_data", required=False, default=False,
-                             action="store_true", help='delete the replayed attack data after detection test.')
-    test_parser.set_defaults(func=test, test_build_destroy=False)
-
-    # Search Arguments
-    search_parser.add_argument("--search", required=True,
-                             help="savedsearch on splunk server")
-    search_parser.add_argument("--earliest", required=True,
-                             help="earliest time of the splunk search")
-    search_parser.add_argument("--latest", required=False, default="now",
-                             help="latest time of the splunk search")
-    search_parser.set_defaults(func=search)
 
 
     # Show arguments

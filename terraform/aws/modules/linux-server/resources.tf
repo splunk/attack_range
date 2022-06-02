@@ -2,11 +2,11 @@
 data "aws_ami" "linux_server" {
   count = length(var.linux_servers)
   most_recent = true
-  owners      = ["591511147606"] 
+  owners      = [var.aws.image_owner] 
 
   filter {
     name   = "name"
-    values = [var.linux_servers[count.index].image]
+    values = [var.linux_servers[count.index].image_owner]
   }
 }
 
