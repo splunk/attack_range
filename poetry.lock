@@ -497,7 +497,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "pyjwt"
-version = "2.3.0"
+version = "2.4.0"
 description = "JSON Web Token implementation in Python"
 category = "main"
 optional = false
@@ -721,6 +721,14 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
+name = "splunk-sdk"
+version = "1.6.19"
+description = "The Splunk Software Development Kit for Python."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "tabulate"
 version = "0.8.9"
 description = "Pretty-print tabular data"
@@ -778,8 +786,8 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.10"
-content-hash = "21cdd54353426b03f683f7a92ae5681efc4ef43dcda80dd77b66f48530fdc08c"
+python-versions = "^3.8"
+content-hash = "1bd059e49898307493a5f86ac3235457dee4928bee22bce10822d68de9184115"
 
 [metadata.files]
 ansible = [
@@ -1053,8 +1061,8 @@ pycparser = [
     {file = "pycparser-2.21.tar.gz", hash = "sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"},
 ]
 pyjwt = [
-    {file = "PyJWT-2.3.0-py3-none-any.whl", hash = "sha256:e0c4bb8d9f0af0c7f5b1ec4c5036309617d03d56932877f2f7a0beeb5318322f"},
-    {file = "PyJWT-2.3.0.tar.gz", hash = "sha256:b888b4d56f06f6dcd777210c334e69c737be74755d3e5e9ee3fe67dc18a0ee41"},
+    {file = "PyJWT-2.4.0-py3-none-any.whl", hash = "sha256:72d1d253f32dbd4f5c88eaf1fdc62f3a19f676ccbadb9dbc5d07e951b2b26daf"},
+    {file = "PyJWT-2.4.0.tar.gz", hash = "sha256:d42908208c699b3b973cbeb01a969ba6a96c821eefb1c5bfe4c390c01d67abba"},
 ]
 pynacl = [
     {file = "PyNaCl-1.5.0-cp36-abi3-macosx_10_10_universal2.whl", hash = "sha256:401002a4aaa07c9414132aaed7f6836ff98f59277a234704ff66878c2ee4a0d1"},
@@ -1179,6 +1187,9 @@ s3transfer = [
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
+]
+splunk-sdk = [
+    {file = "splunk-sdk-1.6.19.tar.gz", hash = "sha256:db0e6183e2994e341d7ee81c05ea96acee6e8ee0d7a6d37ac5448c3761effc2b"},
 ]
 tabulate = [
     {file = "tabulate-0.8.9-py3-none-any.whl", hash = "sha256:d7c013fe7abbc5e491394e10fa845f8f32fe54f8dc60c6622c6cf482d25d47e4"},

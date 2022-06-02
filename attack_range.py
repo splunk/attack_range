@@ -49,7 +49,8 @@ def simulate(args):
     controller.simulate(args.engine, args.target, args.technique, args.playbook)
 
 def dump(args):
-    pass
+    controller = init(args)
+    controller.dump(args.dump_name, args.search, args.earliest, args.latest)
 
 def replay(args):
     pass
@@ -66,10 +67,12 @@ def destroy(args):
     controller.destroy()
 
 def stop(args):
-    pass
-
+    controller = init(args)
+    controller.stop()
+    
 def resume(args):
-    pass
+    controller = init(args)
+    controller.resume()
 
 def test(args):
     pass
@@ -136,8 +139,6 @@ def main(args):
     # Dump  Arguments
     dump_parser.add_argument("-dn", "--dump_name", required=True,
                              help="name for the dumped attack data")
-    dump_parser.add_argument("--out", required=True,
-                             help="file name of dump output")
     dump_parser.add_argument("--search", required=True,
                              help="splunk search to export")
     dump_parser.add_argument("--earliest", required=True,

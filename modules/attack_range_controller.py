@@ -18,17 +18,30 @@ class AttackRangeController(abc.ABC):
     def build(self) -> None:
         pass
 
-
     @abc.abstractmethod
     def destroy(self) -> None:
         pass
 
+    @abc.abstractmethod
+    def stop(self) -> None:
+        pass
+
+    @abc.abstractmethod
+    def resume(self) -> None:
+        pass
 
     @abc.abstractmethod
     def simulate(self, engine, target, technique, playbook) -> None:
         pass
 
-
     @abc.abstractmethod
     def show(self) -> None:
+        pass
+
+    @abc.abstractmethod
+    def dump(self, dump_name, search, earliest, latest) -> None:
+        pass
+
+    @abc.abstractmethod
+    def replay(self) -> None:
         pass

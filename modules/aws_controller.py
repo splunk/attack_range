@@ -1,7 +1,7 @@
 import os
 
 from python_terraform import Terraform, IsNotFlagged
-from modules import aws_service
+from modules import aws_service, splunk_sdk
 from tabulate import tabulate
 
 from modules.attack_range_controller import AttackRangeController
@@ -35,12 +35,19 @@ class AwsController(AttackRangeController):
         )
         self.logger.info("attack_range has been destroy using terraform successfully")
 
+    def stop(self) -> None:
+        instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['aws']['region'])
+        aws_service.change_ec2_state(instances, 'stopped', self.logger, self.config['aws']['region'])
+
+    def resume(self) -> None:
+        instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['aws']['region'])
+        aws_service.change_ec2_state(instances, 'running', self.logger, self.config['aws']['region'])
+
     def simulate(self, engine, target, technique, playbook) -> None:
         self.logger.info("[action] > simulate\n")
         if engine == "ART":
             simulation_controller = ArtSimulationController(self.config)
             simulation_controller.simulate(target, technique)
-
 
     def show(self) -> None:
         self.logger.info("[action] > show\n")
@@ -56,10 +63,19 @@ class AwsController(AttackRangeController):
                 instance_name = instance['Tags'][0]['Value']
                 if instance_name.startswith("ar-splunk"):
                     if self.config["splunk_server"]["install_es"] == "1":
-                        messages.append("\n\nAccess Splunk via:\n\tWeb > https://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                        messages.append("\n\nAccess Splunk via:\n\tWeb > https://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":8000\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                     else:
-                        messages.append("\n\nAccess Splunk via:\n\tWeb > http://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
-                    
+                        messages.append("\n\nAccess Splunk via:\n\tWeb > http://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":8000\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                elif instance_name.startswith("ar-phantom"):
+                    messages.append("\nAccess Phantom via:\n\tWeb > https://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " centos@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                elif instance_name.startswith("ar-win"):
+                    messages.append("\nAccess Windows via:\n\tRDP > rdp://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['general']['attack_range_password'])
+                elif instance_name.startswith("ar-linux"):
+                    messages.append("\nAccess Linux via:\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: ubuntu \n\tpassword: " + self.config['general']['attack_range_password'])
+                elif instance_name.startswith("ar-kali"):
+                    messages.append("\nAccess Kali via:\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " kali@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: kali \n\tpassword: " + self.config['general']['attack_range_password'])
+                elif instance_name.startswith("ar-nginx"):
+                    messages.append("\nAccess Nginx Web Proxy via:\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: kali \n\tpassword: " + self.config['general']['attack_range_password'])                
             else:
                 response.append([instance['Tags'][0]['Value'],
                                     instance['State']['Name']])
@@ -80,74 +96,19 @@ class AwsController(AttackRangeController):
         else:
             print("ERROR: Can't find configured Attack Range Instances")
 
-    # def getIP(self, response, machine_type):
-    #     for machine in response:
-    #         for x in machine:
-    #             if machine_type in x:
-    #                 try:
-    #                     ip = machine[2]
-    #                 except Exception as e:
-    #                     self.log.debug("not able to get instance ip")
-    #                     ip = ''
-    #                 return ip
+    def dump(self, dump_name, search, earliest, latest) -> None:
+        self.logger.info("Dump log data")
+        dump_search = "search " + search + " earliest=-" + earliest + " latest=" + latest + " | sort 0 _time"
+        self.logger.info("Dumping Splunk Search: " + dump_search)
+        out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + ".log"), 'wb')
 
-    # def show_message(self, response):
-    #     print_messages = []
+        splunk_instance = "ar-splunk-" + self.config['general']['key_name']
+        splunk_sdk.export_search(aws_service.get_single_instance_public_ip(splunk_instance, self.config['general']['key_name'], self.config['aws']['region']),
+                                    s=dump_search,
+                                    password=self.config['general']['attack_range_password'],
+                                    out=out)
+        out.close()
+        self.logger.info("[Completed]")
 
-    #     # splunk server will always be built
-    #     splunk_ip = self.getIP(response, 'splunk')
-    #     if self.config['install_es'] == "1":
-    #         msg = "\n\nAccess Splunk via:\n\tWeb > https://" + splunk_ip + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
-    #         print_messages.append(msg)
-    #     else:
-    #         msg = "\n\nAccess Splunk via:\n\tWeb > http://" + splunk_ip + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
-    #         print_messages.append(msg)
-
-    #     # windows domain controller
-    #     if self.config['windows_domain_controller'] == "1":
-    #         win_ip = self.getIP(response, 'win-dc')
-    #         msg = "Access Windows Domain Controller via:\n\tRDP > rdp://" + win_ip + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password']
-    #         print_messages.append(msg)
-
-    #     # windows domain controller
-    #     if self.config['windows_server'] == "1":
-    #         win_server = self.getIP(response, 'win-server')
-    #         msg = "Access Windows Server via:\n\tRDP > rdp://" + win_server + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['attack_range_password']
-    #         print_messages.append(msg)
-
-    #     # kali linux
-    #     if self.config['kali_machine'] == "1":
-    #         kali_ip = self.getIP(response, 'kali')
-    #         msg = "Access Kali via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
-    #         + " kali@" + kali_ip + "\n\tusername: kali \n\tpassword: " + self.config['attack_range_password']
-    #         print_messages.append(msg)
-
-    #     # osquery linux
-    #     if self.config['osquery_machine'] == "1":
-    #         osquerylnx_ip = self.getIP(response, 'osquerylnx')
-    #         msg = "Access Osquery via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
-    #         + " ubuntu@" + osquerylnx_ip + "\n\tusername: kali \n\tpassword: " + self.config['attack_range_password']
-    #         print_messages.append(msg)
-
-    #     # phantom linux
-    #     if self.config['phantom_server'] == "1":
-    #         phantom_ip = self.getIP(response, 'phantom')
-    #         msg = "Access Phantom via:\n\tWeb > https://" + phantom_ip + "\n\tSSH > ssh -i" + self.config['private_key_path'] \
-    #         + " centos@" + phantom_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
-    #         print_messages.append(msg)
-
-    #     # nginx_web_proxy
-    #     if self.config['nginx_web_proxy'] == "1":
-    #         nginx_web_proxy = self.getIP(response, 'nginx_web_proxy')
-    #         msg = "Access Nginx Web Proxy via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
-    #         + " ubuntu@" + nginx_web_proxy
-    #         print_messages.append(msg)
-
-    #     # nginx_web_proxy
-    #     if self.config['sysmon_linux'] == "1":
-    #         sysmon_linux_ip = self.getIP(response, 'sysmon_linux')
-    #         msg = "Access Sysmon Linux via:\n\tSSH > ssh -i" + self.config['private_key_path'] \
-    #         + " ubuntu@" + sysmon_linux_ip
-    #         print_messages.append(msg)
-
-    #     return print_messages
+    def replay(self) -> None:
+        pass

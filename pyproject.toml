@@ -19,6 +19,7 @@ azure-mgmt-resource = "^21.1.0"
 azure-mgmt-network = "^19.3.0"
 azure-mgmt-compute = "^26.1.0"
 azure-identity = "^1.10.0"
+splunk-sdk = "^1.6.19"
 
 [tool.poetry.dev-dependencies]
 

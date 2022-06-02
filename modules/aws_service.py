@@ -36,3 +36,28 @@ def get_instance_by_name(ec2_name, key_name, region):
 def get_single_instance_public_ip(ec2_name, key_name, region):
     instance = get_instance_by_name(ec2_name, key_name, region)
     return instance['NetworkInterfaces'][0]['Association']['PublicIp']
+
+
+def change_ec2_state(instances, new_state, log, region):
+    client = boto3.client('ec2', region_name=region)
+
+    if len(instances) == 0:
+        log.error(ec2_name + ' not found as AWS EC2 instance.')
+        sys.exit(1)
+
+    if new_state == 'stopped':
+        for instance in instances:
+            if instance['State']['Name'] == 'running':
+                response = client.stop_instances(
+                    InstanceIds=[instance['InstanceId']]
+                )
+                log.info('Successfully stopped instance with ID ' +
+                      instance['InstanceId'] + ' .')
+
+    elif new_state == 'running':
+        for instance in instances:
+            if instance['State']['Name'] == 'stopped':
+                response = client.start_instances(
+                    InstanceIds=[instance['InstanceId']]
+                )
+                log.info('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
