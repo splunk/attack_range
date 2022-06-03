@@ -10,13 +10,12 @@
     name: DisableRealtimeMonitoring
     type: dword
     data: 1
-  when: ansible_distribution | regex_search("Microsoft Windows 10 Enterprise")
+  when: ansible_distribution | regex_search("Microsoft Windows 10") or
+        ansible_distribution | regex_search("Microsoft Windows 11")
 
 
 - name: Disable Windows Defender in Windows Server windows_domain_controller
   win_shell: 'Uninstall-WindowsFeature -Name Windows-Defender'
-  when: ansible_distribution == "Microsoft Windows Server 2016 Datacenter" or
-        ansible_distribution == "Microsoft Windows Server 2016 Standard Evaluation" or
-        ansible_distribution == "Microsoft Windows Server 2019 Datacenter" or
-        ansible_distribution == "Microsoft Windows Server 2019 Standard Evaluation"
+  when: not (ansible_distribution | regex_search("Microsoft Windows 10") or
+        ansible_distribution | regex_search("Microsoft Windows 11"))
 

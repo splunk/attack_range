@@ -26,6 +26,8 @@ class AzureController(AttackRangeController):
         if not return_code:
             self.logger.info("attack_range has been built using terraform successfully")
 
+        self.show()
+
     def destroy(self) -> None:
         self.logger.info("[action] > destroy\n")
         return_code, stdout, stderr = self.terraform.destroy(
@@ -69,7 +71,7 @@ class AzureController(AttackRangeController):
                 elif instance_name.startswith("ar-phantom"):
                     messages.append("\nAccess Phantom via:\n\tWeb > https://" + instance['public_ip'] + "\n\tSSH > ssh -i" + self.config['azure']['private_key_path'] + " centos@" + instance['public_ip'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                 elif instance_name.startswith("ar-win"):
-                    messages.append("\nAccess Windows via:\n\tRDP > rdp://" + instance['public_ip'] + ":3389\n\tusername: Administrator \n\tpassword: " + self.config['general']['attack_range_password'])
+                    messages.append("\nAccess Windows via:\n\tRDP > rdp://" + instance['public_ip'] + ":3389\n\tusername: AzureAdmin \n\tpassword: " + self.config['general']['attack_range_password'])
                 elif instance_name.startswith("ar-linux"):
                     messages.append("\nAccess Linux via:\n\tSSH > ssh -i" + self.config['azure']['private_key_path'] + " ubuntu@" + instance['public_ip'] + "\n\tusername: ubuntu \n\tpassword: " + self.config['general']['attack_range_password'])
                 elif instance_name.startswith("ar-kali"):

@@ -36,11 +36,14 @@ starting program loaded for B1 battle droid """ + Back.BLACK + Fore.BLUE + Style
     # parse config
     config = ConfigHandler.read_config(config_path)
     ConfigHandler.validate_config(config)
-    
-    if 'aws' in config:
+
+    if config['general']['cloud_provider'] == 'aws':
+        config.pop('azure')
         controller = AwsController(config)
-    elif 'azure' in config:
+    elif config['general']['cloud_provider'] == 'azure':
+        config.pop('aws')
         controller = AzureController(config)
+   
     return controller
 
 
