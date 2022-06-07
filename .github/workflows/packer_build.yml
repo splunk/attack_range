@@ -21,10 +21,10 @@ jobs:
 
       - name: Install Ansible
         run: |
-          apt update
-          apt install software-properties-common
-          add-apt-repository --yes --update ppa:ansible/ansible
-          apt install ansible
+          sudo apt-get update
+          sudo apt-get install software-properties-common
+          sudo add-apt-repository --yes --update ppa:ansible/ansible
+          sudo apt-get install ansible
 
       - name: Build Packer Images
         uses: hashicorp/packer-github-actions@master
