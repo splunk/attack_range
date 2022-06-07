@@ -19,12 +19,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
 
-      - name: Install Ansible
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9' 
+          architecture: 'x64' 
+
+      - name: Install Python dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install software-properties-common
-          sudo add-apt-repository --yes --update ppa:ansible/ansible
-          sudo apt-get install ansible
+          python3 -m pip install ansible
 
       - name: Build Packer Images
         uses: hashicorp/packer-github-actions@master
