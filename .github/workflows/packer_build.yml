@@ -36,4 +36,5 @@ jobs:
 
       - name: Build Packer Image
         run: |
+          cd packer
           packer build -only=amazon-ebs.windows windows_server/windows_2016.pkr.hcl
