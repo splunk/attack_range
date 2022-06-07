@@ -26,7 +26,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ansible requests
+          python3 -m pip install ansible requests pywinrm
 
       - name: Install Packer
         run: |
