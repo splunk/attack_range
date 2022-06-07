@@ -1,4 +1,4 @@
-name: packer
+name: packer build images
 on:
   push:
     branches:
@@ -7,7 +7,7 @@ on:
 jobs:
   packer:
     runs-on: ubuntu-latest
-    name: packer
+    name: packer build images
 
     steps:
       - name: Checkout repo
