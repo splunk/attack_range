@@ -34,8 +34,32 @@ jobs:
           sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
           sudo apt-get update && sudo apt-get install packer
 
-      - name: Build Packer Image
+      - name: Build Packer Image Splunk
+        run: |
+          cd packer
+          packer build -only=amazon-ebs.windows splunk_server/splunk-ubuntu.pkr.hcl
+          cd ..
+
+      - name: Build Packer Image Windows 2016
         run: |
           cd packer
           packer build -only=amazon-ebs.windows windows_server/windows_2016.pkr.hcl
+          cd ..
 
+      - name: Build Packer Image Windows 2019
+        run: |
+          cd packer
+          packer build -only=amazon-ebs.windows windows_server/windows_2019.pkr.hcl
+          cd ..
+
+      - name: Build Packer Image Linux Server
+        run: |
+          cd packer
+          packer build -only=amazon-ebs.windows linux_server/linux-ubuntu-18-04.pkr.hcl
+          cd ..
+
+      - name: Build Packer Image Nginx
+        run: |
+          cd packer
+          packer build -only=amazon-ebs.windows nginx_server/nginx_web_proxy.pkr.hcl
+          cd ..
