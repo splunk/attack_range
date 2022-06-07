@@ -28,12 +28,12 @@ jobs:
         run: |
           python3 -m pip install ansible
 
-      - name: Build Packer Images
-        uses: hashicorp/packer-github-actions@master
-        with:
-          command: build
-          arguments: "-color=false -on-error=abort -only=amazon-ebs.windows"
-          target: windows_server/windows_2016.pkr.hcl
-          working_directory: packer
-        env:
-          PACKER_LOG: 1
+      - name: Install Packer
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install packer
+
+      - name: Build Packer Image
+        run: |
+          packer build -only=amazon-ebs.windows windows_server/windows_2016.pkr.hcl
