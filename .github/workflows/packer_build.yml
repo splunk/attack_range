@@ -1,0 +1,24 @@
+name: packer
+on:
+  push:
+    branches:
+    - attack_range_3
+
+jobs:
+  packer:
+    runs-on: ubuntu-latest
+    name: packer
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          ref: 'attack_range_3'
+
+      - name: Build Packer Images
+        uses: hashicorp/packer-github-actions@master
+        with:
+          command: build
+          arguments: "-color=false -on-error=abort -only=amazon-ebs.windows"
+          target: windows_server/windows_2016.pkr.hcl
+          working_directory: packer

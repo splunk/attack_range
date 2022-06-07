@@ -5,7 +5,7 @@ general:
   key_name: "attack-range-key-pair"
   ip_whitelist: "0.0.0.0/0"
 aws:
-  region: "us-west-2"
+  region: "eu-central-1"
   private_key_path: "~/.ssh/id_rsa"
   image_owner: "591511147606"
   cloudtrail: "0"
