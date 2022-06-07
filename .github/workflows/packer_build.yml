@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-        with:
-          ref: 'attack_range_3'
 
       - name: Build Packer Images
         uses: hashicorp/packer-github-actions@master
@@ -22,3 +20,5 @@ jobs:
           arguments: "-color=false -on-error=abort -only=amazon-ebs.windows"
           target: windows_server/windows_2016.pkr.hcl
           working_directory: packer
+        env:
+          PACKER_LOG: 1
