@@ -2,6 +2,6 @@
   gather_facts: False
   become: true
   roles:
-    - linux_common
+    - reboot
     - linux_universal_forwarder
     - nginx_web_proxy
