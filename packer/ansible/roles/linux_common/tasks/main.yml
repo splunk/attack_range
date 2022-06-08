@@ -1,4 +1,5 @@
 ---
 #- include: set-hostname.yml
+- include: update_packages.yml
 - include: disable-dnssec.yml
 - include: disable-autoupgrade.yml
