@@ -6,7 +6,7 @@ data "aws_ami" "linux_server" {
 
   filter {
     name   = "name"
-    values = [var.linux_servers[count.index].image_owner]
+    values = [var.linux_servers[count.index].image]
   }
 }
 
@@ -26,7 +26,7 @@ resource "aws_instance" "linux_server" {
   }
 
   tags = {
-    Name = "ar-linux-${var.general.key_name}-${count.index}"
+    Name = "ar-linux-${var.general.key_name}-${count.index}-${var.general.attack_range_name}"
   }
 
   provisioner "remote-exec" {

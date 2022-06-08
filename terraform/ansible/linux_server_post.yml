@@ -2,5 +2,6 @@
   gather_facts: False
   become: true
   roles:
+    - set_hostname_linux
     - linux_server_post
     - update_sysmon_config_linux

@@ -25,7 +25,7 @@ resource "aws_instance" "splunk-server" {
   }
 
   tags = {
-    Name = "ar-splunk-${var.general.key_name}"
+    Name = "ar-splunk-${var.general.key_name}-${var.general.attack_range_name}"
   }
 
   provisioner "remote-exec" {

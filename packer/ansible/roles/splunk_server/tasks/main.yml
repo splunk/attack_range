@@ -31,6 +31,7 @@
     - "ta-for-zeek_105.tgz"
     - "splunk-add-on-for-nginx_310.tgz"
     - "phantom-app-for-splunk_4035.tgz"
+    - "TA-osquery.tar.gz"
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: configure_cim.yml

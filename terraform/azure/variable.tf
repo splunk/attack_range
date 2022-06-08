@@ -5,6 +5,7 @@ variable "general" {
     default = {
         attack_range_password = "Pl3ase-k1Ll-me:p1"
         key_name = "attack-range-key-pair"
+        attack_range_name = "ar"
         ip_whitelist = "0.0.0.0/0"
     }
 }

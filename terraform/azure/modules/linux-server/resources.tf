@@ -1,6 +1,6 @@
 resource "azurerm_public_ip" "linux-publicip" {
   count = length(var.linux_servers)
-  name                = "ar-linux-ip-${var.general.key_name}-${count.index}"
+  name                = "ar-linux-ip-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
   location            = var.azure.region
   resource_group_name = var.rg_name
   allocation_method   = "Static"
@@ -8,12 +8,12 @@ resource "azurerm_public_ip" "linux-publicip" {
 
 resource "azurerm_network_interface" "linux-nic" {
   count = length(var.linux_servers)
-  name                = "ar-linux-nic-${var.general.key_name}-${count.index}"
+  name                = "ar-linux-nic-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
   location            = var.azure.region
   resource_group_name = var.rg_name
 
   ip_configuration {
-    name                          = "ar-linux-nic-conf-${var.general.key_name}-${count.index}"
+    name                          = "ar-linux-nic-conf-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
     private_ip_address            = "10.0.1.${21 + count.index}"
@@ -29,7 +29,7 @@ data "azurerm_image" "search" {
 
 resource "azurerm_virtual_machine" "linux" {
   count = length(var.linux_servers)
-  name = "ar-linux-${var.general.key_name}-${count.index}"
+  name = "ar-linux-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
   location = var.azure.region
   resource_group_name  = var.rg_name
   network_interface_ids = [azurerm_network_interface.linux-nic[count.index].id]
@@ -37,7 +37,7 @@ resource "azurerm_virtual_machine" "linux" {
   delete_os_disk_on_termination = true
 
   storage_os_disk {
-    name              = "disk-linux-${var.general.key_name}-${count.index}"
+    name              = "disk-linux-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"

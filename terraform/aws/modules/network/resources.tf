@@ -2,13 +2,13 @@
 data "aws_availability_zones" "available" {}
 
 locals {
-  cluster_name = "cluster_${var.general.key_name}"
+  cluster_name = "cluster_${var.general.key_name}_${var.general.attack_range_name}"
 }
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
 
-  name                 = "vpc_${var.general.key_name}"
+  name                 = "vpc_${var.general.key_name}_${var.general.attack_range_name}"
   cidr                 = "10.0.0.0/16"
   azs                  = data.aws_availability_zones.available.names
   public_subnets       = ["10.0.1.0/24"]
@@ -18,7 +18,7 @@ module "vpc" {
 
 
 resource "aws_security_group" "default" {
-  name   = "sg_public_subnets_${var.general.key_name}"
+  name   = "sg_public_subnets_${var.general.key_name}_${var.general.attack_range_name}"
   vpc_id = module.vpc.vpc_id
 
   ingress {

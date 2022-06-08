@@ -24,7 +24,7 @@ resource "aws_instance" "kali_machine" {
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip             = "10.0.1.30"
   tags = {
-    Name = "ar-kali-${var.general.key_name}"
+    Name = "ar-kali-${var.general.key_name}-${var.general.attack_range_name}"
   }
 
   provisioner "remote-exec" {

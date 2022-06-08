@@ -39,10 +39,10 @@ class AzureController(AttackRangeController):
         self.logger.info("attack_range has been destroy using terraform successfully")
 
     def stop(self) -> None:
-        azure_service.change_instance_state(self.config['general']['key_name'], 'stopped', self.logger)
+        azure_service.change_instance_state(self.config['general']['key_name'], self.config['general']['attack_range_name'], 'stopped', self.logger)
 
     def resume(self) -> None:
-        azure_service.change_instance_state(self.config['general']['key_name'], 'running', self.logger)
+        azure_service.change_instance_state(self.config['general']['key_name'], self.config['general']['attack_range_name'], 'running', self.logger)
 
     def simulate(self, engine, target, technique, playbook) -> None:
         self.logger.info("[action] > simulate\n")
@@ -53,7 +53,7 @@ class AzureController(AttackRangeController):
 
     def show(self) -> None:
         self.logger.info("[action] > show\n")
-        instances = azure_service.get_all_instances(self.config['general']['key_name'])
+        instances = azure_service.get_all_instances(self.config['general']['key_name'], self.config['general']['attack_range_name'])
         response = []
         messages = []
         instances_running = False
@@ -105,8 +105,8 @@ class AzureController(AttackRangeController):
         self.logger.info("Dumping Splunk Search: " + dump_search)
         out = open(os.path.join(os.path.dirname(__file__), "../" + dump_name), 'wb')
 
-        splunk_instance = "ar-splunk-" + self.config['general']['key_name']
-        splunk_sdk.export_search(azure_service.get_instance(splunk_instance, self.config['general']['key_name'])['public_ip'],
+        splunk_instance = "ar-splunk-" + self.config['general']['key_name'] + '-' + self.config['general']['attack_range_name']
+        splunk_sdk.export_search(azure_service.get_instance(splunk_instance, self.config['general']['key_name'], self.config['general']['attack_range_name'])['public_ip'],
                                     s=dump_search,
                                     password=self.config['general']['attack_range_password'],
                                     out=out)
@@ -125,8 +125,8 @@ class AzureController(AttackRangeController):
         ansible_vars['source'] = source
         ansible_vars['index'] = index
 
-        splunk_instance = "ar-splunk-" + self.config['general']['key_name']
-        splunk_ip = azure_service.get_instance(splunk_instance, self.config['general']['key_name'])['public_ip']
+        splunk_instance = "ar-splunk-" + self.config['general']['key_name'] + '-' + self.config['general']['attack_range_name']
+        splunk_ip = azure_service.get_instance(splunk_instance, self.config['general']['key_name'], self.config['general']['attack_range_name'])['public_ip']
         cmdline = "-i %s, -u %s" % (splunk_ip, ansible_vars['ansible_user'])
         runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                     cmdline=cmdline,

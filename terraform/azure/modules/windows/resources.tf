@@ -5,12 +5,12 @@ locals {
 
 resource "azurerm_network_interface" "windows-nic" {
   count = length(var.windows_servers)
-  name = "ar-windows-nic-${var.general.key_name}-${count.index}"
+  name = "ar-windows-nic-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
   location = var.azure.region
   resource_group_name  = var.rg_name
 
   ip_configuration {
-    name                          = "ar-windows-nic-conf-${var.general.key_name}-${count.index}"
+    name                          = "ar-windows-nic-conf-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
     private_ip_address            = "10.0.1.${14 + count.index}"
@@ -20,7 +20,7 @@ resource "azurerm_network_interface" "windows-nic" {
 
 resource "azurerm_public_ip" "windows-publicip" {
   count       = length(var.windows_servers)
-  name                = "ar-windows-ip-${var.general.key_name}-${count.index}"
+  name                = "ar-windows-ip-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
   location            = var.azure.region
   resource_group_name = var.rg_name
   allocation_method   = "Static"
@@ -34,7 +34,7 @@ data "azurerm_image" "search" {
 
 resource "azurerm_virtual_machine" "windows" {
   count = length(var.windows_servers)
-  name = "ar-win-${var.general.key_name}-${count.index}"
+  name = "ar-win-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
   location = var.azure.region
   resource_group_name   = var.rg_name
   network_interface_ids = [azurerm_network_interface.windows-nic[count.index].id]
@@ -75,7 +75,7 @@ resource "azurerm_virtual_machine" "windows" {
   }
 
   storage_os_disk {
-    name              = "disk-windows-${var.general.key_name}-${count.index}"
+    name              = "disk-windows-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"

@@ -39,11 +39,11 @@ class AwsController(AttackRangeController):
         self.logger.info("attack_range has been destroy using terraform successfully")
 
     def stop(self) -> None:
-        instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['aws']['region'])
+        instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
         aws_service.change_ec2_state(instances, 'stopped', self.logger, self.config['aws']['region'])
 
     def resume(self) -> None:
-        instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['aws']['region'])
+        instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
         aws_service.change_ec2_state(instances, 'running', self.logger, self.config['aws']['region'])
 
     def simulate(self, engine, target, technique, playbook) -> None:
@@ -54,7 +54,7 @@ class AwsController(AttackRangeController):
 
     def show(self) -> None:
         self.logger.info("[action] > show\n")
-        instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['aws']['region'])
+        instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
         response = []
         messages = []
         instances_running = False
@@ -105,8 +105,8 @@ class AwsController(AttackRangeController):
         self.logger.info("Dumping Splunk Search: " + dump_search)
         out = open(os.path.join(os.path.dirname(__file__), "../" + dump_name), 'wb')
 
-        splunk_instance = "ar-splunk-" + self.config['general']['key_name']
-        splunk_sdk.export_search(aws_service.get_single_instance_public_ip(splunk_instance, self.config['general']['key_name'], self.config['aws']['region']),
+        splunk_instance = "ar-splunk-" + self.config['general']['key_name'] + '-' + self.config['general']['attack_range_name']
+        splunk_sdk.export_search(aws_service.get_single_instance_public_ip(splunk_instance, self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region']),
                                     s=dump_search,
                                     password=self.config['general']['attack_range_password'],
                                     out=out)
@@ -124,8 +124,8 @@ class AwsController(AttackRangeController):
         ansible_vars['source'] = source
         ansible_vars['index'] = index
 
-        splunk_instance = "ar-splunk-" + self.config['general']['key_name']
-        splunk_ip = aws_service.get_single_instance_public_ip(splunk_instance, self.config['general']['key_name'], self.config['aws']['region'])
+        splunk_instance = "ar-splunk-" + self.config['general']['key_name'] + '-' + self.config['general']['attack_range_name']
+        splunk_ip = aws_service.get_single_instance_public_ip(splunk_instance, self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
         cmdline = "-i %s, -u %s" % (splunk_ip, ansible_vars['ansible_user'])
         runner = ansible_runner.run(private_data_dir=os.path.join(os.path.dirname(__file__), '../'),
                                     cmdline=cmdline,

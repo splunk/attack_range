@@ -1,18 +1,18 @@
 
 resource "azurerm_public_ip" "splunk-publicip" {
-  name                = "ar-splunk-ip-${var.general.key_name}"
+  name                = "ar-splunk-ip-${var.general.key_name}-${var.general.attack_range_name}"
   location            = var.azure.region
   resource_group_name = var.rg_name
   allocation_method   = "Static"
 }
 
 resource "azurerm_network_interface" "splunk-nic" {
-  name                = "ar-splunk-nic-${var.general.key_name}"
+  name                = "ar-splunk-nic-${var.general.key_name}-${var.general.attack_range_name}"
   location            = var.azure.region
   resource_group_name = var.rg_name
 
   ip_configuration {
-    name                          = "ar-splunk-nic-conf-${var.general.key_name}"
+    name                          = "ar-splunk-nic-conf-${var.general.key_name}-${var.general.attack_range_name}"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
     private_ip_address            = "10.0.1.12"
@@ -26,7 +26,7 @@ data "azurerm_image" "search" {
 }
 
 resource "azurerm_virtual_machine" "splunk" {
-  name = "ar-splunk-${var.general.key_name}"
+  name = "ar-splunk-${var.general.key_name}-${var.general.attack_range_name}"
   location = var.azure.region
   resource_group_name  = var.rg_name
   network_interface_ids = [azurerm_network_interface.splunk-nic.id]
@@ -35,7 +35,7 @@ resource "azurerm_virtual_machine" "splunk" {
   delete_os_disk_on_termination = true
 
   storage_os_disk {
-    name              = "disk-splunk-${var.general.key_name}"
+    name              = "disk-splunk-${var.general.key_name}-${var.general.attack_range_name}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"

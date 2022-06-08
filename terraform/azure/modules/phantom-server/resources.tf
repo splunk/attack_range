@@ -1,6 +1,6 @@
 resource "azurerm_public_ip" "phantom-publicip" {
   count       = var.phantom_server.phantom_server == "1" ? 1 : 0
-  name                = "ar-phantom-ip-${var.general.key_name}"
+  name                = "ar-phantom-ip-${var.general.key_name}-${var.general.attack_range_name}"
   location            = var.azure.region
   resource_group_name = var.rg_name
   allocation_method   = "Static"
@@ -8,12 +8,12 @@ resource "azurerm_public_ip" "phantom-publicip" {
 
 resource "azurerm_network_interface" "phantom-nic" {
   count       = var.phantom_server.phantom_server == "1" ? 1 : 0
-  name                = "ar-phantom-nic-${var.general.key_name}"
+  name                = "ar-phantom-nic-${var.general.key_name}-${var.general.attack_range_name}"
   location            = var.azure.region
   resource_group_name = var.rg_name
 
   ip_configuration {
-    name                          = "ar-phantom-nic-conf-${var.general.key_name}"
+    name                          = "ar-phantom-nic-conf-${var.general.key_name}-${var.general.attack_range_name}"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
     private_ip_address            = "10.0.1.13"
@@ -23,7 +23,7 @@ resource "azurerm_network_interface" "phantom-nic" {
 
 resource "azurerm_virtual_machine" "phantom" {
   count       = var.phantom_server.phantom_server == "1" ? 1 : 0
-  name = "ar-phantom-${var.general.key_name}"
+  name = "ar-phantom-${var.general.key_name}-${var.general.attack_range_name}"
   location = var.azure.region
   resource_group_name  = var.rg_name
   network_interface_ids = [azurerm_network_interface.phantom-nic[count.index].id]
@@ -32,7 +32,7 @@ resource "azurerm_virtual_machine" "phantom" {
   delete_os_disk_on_termination = true
 
   storage_os_disk {
-    name              = "disk-phantom-${var.general.key_name}"
+    name              = "disk-phantom-${var.general.key_name}-${var.general.attack_range_name}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"

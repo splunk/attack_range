@@ -4,4 +4,5 @@
   vars:  
     hostname: splunk-server
   roles:
+    - set_hostname_linux
     - splunk_server_post

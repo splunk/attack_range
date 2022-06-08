@@ -27,7 +27,7 @@ resource "aws_instance" "nginx_server" {
   }
 
   tags = {
-    Name = "ar-nginx-${var.general.key_name}"
+    Name = "ar-nginx-${var.general.key_name}-${var.general.attack_range_name}"
   }
 
   provisioner "remote-exec" {

@@ -1,0 +1,10 @@
+---
+
+- name: Change Splunk password
+  win_command: '"C:\Program Files\SplunkUniversalForwarder\bin\splunk.exe" edit user admin -password {{ attack_range_password }} -auth admin:Pl3ase-k1Ll-me:p'
+
+- name: Change Hostname
+  win_command: '"C:\Program Files\SplunkUniversalForwarder\bin\splunk.exe" set default-hostname {{ hostname }} -auth admin:{{ attack_range_password }}'
+
+- name: Restart
+  win_command: '"C:\Program Files\SplunkUniversalForwarder\bin\splunk.exe" restart'
