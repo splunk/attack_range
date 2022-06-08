@@ -21,12 +21,12 @@
   debug: msg='splunk is already installed under /opt/splunkforwarder'
   when: splunk_path.stat.exists
 
-- name: Wait for sudo
+- name: Wait for automatic system updates to complete
+  shell: while pgrep unattended; do sleep 10; done;
   become: yes
-  shell:  while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done;
 
 - name: Install splunk uf
-  become: true
+  become: yes
   apt: deb="{{ splunk_uf_url }}"
   when: splunk_path.stat.exists == false
 
