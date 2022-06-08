@@ -10,15 +10,14 @@
     - "HKLM:\\SOFTWARE\\Microsoft\\.NetFramework\\v4.0.30319"
     - "HKLM:\\SOFTWARE\\Wow6432Node\\Microsoft\\.NetFramework\\v4.0.30319"
 
-# - name: Check installed providers
-#   win_shell: Get-PackageProvider
-#   register: providers
-#   changed_when: false
+- name: Check installed providers
+  win_shell: Get-PackageProvider -ListAvailable
+  register: providers
 
 - name: Install NuGet Provider
   win_shell: |
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-#  when: providers.stdout is not search("NuGet")
+  when: providers.stdout is not search("NuGet")
 
 - name: Install Atomic Red Team
   win_shell: |
