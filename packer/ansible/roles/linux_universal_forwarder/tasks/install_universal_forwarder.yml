@@ -21,6 +21,14 @@
   debug: msg='splunk is already installed under /opt/splunkforwarder'
   when: splunk_path.stat.exists
 
+- name: who lock the file
+  become: true
+  command: lsof /var/lib/dpkg/lock-frontend
+  register: output
+
+- debug:
+    var: output
+
 - name: Install splunk uf
   become: yes
   apt: deb="{{ splunk_uf_url }}"
