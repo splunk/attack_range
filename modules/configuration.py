@@ -95,7 +95,7 @@ def create_key_pair_azure():
     return priv_key_name, pub_key_name
 
 
-def check_for_generated_keys():
+def check_for_generated_keys(answers):
     """
     check_for_generated_keys function checks for the presence of .key file in the project directory.
 
