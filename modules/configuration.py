@@ -6,7 +6,6 @@ Helps configure your attack_range before using.
 
 from Crypto.PublicKey import RSA
 from pathlib import Path
-from PyInquirer import prompt, Separator
 from botocore.config import Config
 import sys
 import argparse
@@ -17,6 +16,7 @@ import string
 import boto3
 import getpass
 import time
+import questionary
 
 import os
 
@@ -118,7 +118,7 @@ def new(config):
         },
         ]
 
-        answers = prompt(questions)
+        answers = questionary.prompt(questions)
         if answers['continue']:
             print("> continuing with attack_range configuration...")
         else:
@@ -161,17 +161,11 @@ starting configuration for AT-ST mech walker
     questions = [
         {
             # get provider
-            'type': 'list',
+            'type': 'select',
             'message': 'select cloud provider',
             'name': 'provider',
-            'choices': [
-                {
-                    'name': 'aws'
-                },
-                {
-                    'name': 'azure'
-                },
-            ],
+            'choices': ['aws','azure'],
+            'default': 'aws'
         },
         {
             # get api_key
@@ -188,7 +182,8 @@ starting configuration for AT-ST mech walker
             'default': get_random_password(),
         },
     ]
-    answers = prompt(questions)
+
+    answers = questionary.prompt(questions)
     if answers['provider'] == 'aws':
         aws_session = boto3.Session()
         if aws_session.region_name:
@@ -235,7 +230,7 @@ starting configuration for AT-ST mech walker
     ]
 
     # check if we should generate a key pair
-    answers = prompt(questions)
+    answers = questionary.prompt(questions)
     if 'reuse_keys' in answers:
         if answers['reuse_keys']:
             priv_key_name = os.path.basename(os.path.normpath(priv_key))
@@ -270,7 +265,7 @@ starting configuration for AT-ST mech walker
     questions = [
         {
             # get api_key
-            'type': 'input',
+            'type': 'text',
             'message': 'enter ssh key name',
             'name': 'key_name',
             'default': 'attack-range-key-pair',
@@ -278,7 +273,7 @@ starting configuration for AT-ST mech walker
         },
         {
             # get private_key_path
-            'type': 'input',
+            'type': 'text',
             'message': 'enter private key path for machine access',
             'name': 'private_key_path',
             'default': "~/.ssh/id_rsa",
@@ -286,7 +281,7 @@ starting configuration for AT-ST mech walker
         },
         {
             # get public_key_path
-            'type': 'input',
+            'type': 'text',
             'message': 'enter public key path for machine access',
             'name': 'public_key_path',
             'default': "~/.ssh/id_rsa.pub",
@@ -301,14 +296,14 @@ starting configuration for AT-ST mech walker
         },
         {
             # get whitelist
-            'type': 'input',
+            'type': 'text',
             'message': 'enter public ips that are allowed to reach the attack_range.\nExample: {0}/32,0.0.0.0/0'.format(external_ip),
             'name': 'ip_whitelist',
             'default': external_ip + "/32"
         },
         {
             # get range name
-            'type': 'input',
+            'type': 'text',
             'message': 'enter attack_range name, multiple can be build under different names in the same region',
             'name': 'range_name',
             'default': "default",
@@ -316,7 +311,7 @@ starting configuration for AT-ST mech walker
 
     ]
 
-    answers = prompt(questions)
+    answers = questionary.prompt(questions)
     # manage keys first
     if 'key_name' in answers:
         configuration._sections['range_settings']['key_name'] = answers['key_name']
@@ -390,17 +385,15 @@ starting configuration for AT-ST mech walker
             'default': False,
         },
         {
-            'type': 'list',
+            'type': 'select',
             'message': 'would you like to supply your own Splunk SOAR environment',
             'name': 'phantom_type',
-            'choices': ['New', 'BYO'],
+            'choices': ['new', 'byo'],
             'when': lambda answers: answers['phantom_inclusion'],
-            'filter': lambda val : val.lower(),
-            'default': False,
         },
 
     ]
-    answers = prompt(questions)
+    answers = questionary.prompt(questions)
     enabled = lambda x : 1 if x else 0
 
     if (enabled(answers['phantom_inclusion'])):
@@ -429,19 +422,19 @@ starting configuration for AT-ST mech walker
     if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "byo":
         questions=[
             {
-            'type': 'input',
+            'type': 'text',
             'message': 'SOAR api token, required for bring your own SOAR',
             'name': 'phantom_api_token',
             'default': 'FIX_ME',
         },
         {
-            'type': 'input',
+            'type': 'text',
             'message': 'SOAR server ip address, required for bring your own SOAR',
             'name': 'phantom_byo_ip',
             'default': '8.8.8.8',
         },
         ]
-        answers = prompt(questions)
+        answers = questionary.prompt(questions)
         enabled = lambda x : 1 if x else 0
         if 'phantom_api_token' in answers:
             configuration._sections['phantom_settings']['phantom_api_token'] = answers['phantom_api_token']
@@ -453,19 +446,19 @@ starting configuration for AT-ST mech walker
     if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "new":
         questions = [
             {
-                'type': 'input',
+                'type': 'text',
                 'message': 'phantom community username (my.phantom.us), required for SOAR server',
                 'name': 'phantom_community_username',
                 'default': 'user',
             },
             {
-                'type': 'input',
+                'type': 'text',
                 'message': 'phantom community password (my.phantom.us), required for SOAR server',
                 'name': 'phantom_community_password',
                 'default': 'password',
             },
         ]
-        answers = prompt(questions)
+        answers = questionary.prompt(questions)
         enabled = lambda x : 1 if x else 0
         if 'phantom_community_username' in answers:
             configuration._sections['phantom_settings']['phantom_community_username'] = answers['phantom_community_username']
