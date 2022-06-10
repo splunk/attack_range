@@ -1,5 +1,8 @@
 import os
 import ansible_runner
+import subprocess
+import sys
+import signal
 
 from python_terraform import Terraform, IsNotFlagged
 from tabulate import tabulate
@@ -18,6 +21,22 @@ class AzureController(AttackRangeController):
 
     def build(self) -> None:
         self.logger.info("[action] > build\n")
+
+        images = []
+        images.append(self.config['splunk_server']['image'])
+        for windows_server in self.config['windows_servers']:
+            images.append(windows_server['image'])
+        for linux_server in self.config['linux_servers']:
+            images.append(linux_server['image'])       
+
+        for ar_image in images:
+            self.logger.info("Check if image " + ar_image + " are available in region " + self.config['azure']['region'])
+            if not azure_service.check_image_available(ar_image, self.config['azure']['region']):
+                self.logger.info("Image " + ar_image + " not available in region " + self.config['azure']['region'] + ". Create a golden image with packer.")
+                self.packer(ar_image)
+            else:
+                self.logger.info("Image " + ar_image + " available in region " + self.config['azure']['region'])
+
         return_code, stdout, stderr = self.terraform.apply(
             capture_output='yes', 
             skip_plan=True, 
@@ -27,6 +46,7 @@ class AzureController(AttackRangeController):
             self.logger.info("attack_range has been built using terraform successfully")
 
         self.show()
+ 
 
     def destroy(self) -> None:
         self.logger.info("[action] > destroy\n")
@@ -43,6 +63,48 @@ class AzureController(AttackRangeController):
 
     def resume(self) -> None:
         azure_service.change_instance_state(self.config['general']['key_name'], self.config['general']['attack_range_name'], 'running', self.logger)
+
+    def packer(self, image_name) -> None:
+        self.logger.info("Create golden image for " + image_name + ". This can take up to 30 minutes.\n")
+        azure_service.create_ressource_group(self.config['azure']['region'])
+        only_cmd_arg = ""
+        path_packer_file = ""
+        if image_name.startswith("splunk"):
+            only_cmd_arg = "azure-arm.splunk-ubuntu-18-04"
+            path_packer_file = "packer/splunk_server/splunk-ubuntu.pkr.hcl"
+        elif image_name.startswith("linux"):
+            only_cmd_arg = "azure-arm.ubuntu-18-04"
+            path_packer_file = "packer/linux_server/linux-ubuntu-18-04.pkr.hcl"
+        elif image_name.startswith("windows-2016"):
+            only_cmd_arg = "azure-arm.windows"
+            path_packer_file = "packer/windows_server/windows_2016.pkr.hcl"                      
+        elif image_name.startswith("windows-2019"):
+            only_cmd_arg = "azure-arm.windows"
+            path_packer_file = "packer/windows_server/windows_2019.pkr.hcl"  
+        elif image_name.startswith("windows-10"):
+            only_cmd_arg = "azure-arm.windows"
+            path_packer_file = "packer/windows_server/windows_10.pkr.hcl"  
+        elif image_name.startswith("windows-11"):
+            only_cmd_arg = "azure-arm.windows"
+            path_packer_file = "packer/windows_server/windows_10.pkr.hcl"  
+
+        if only_cmd_arg == "":
+            self.logger.error("Image not supported.")
+            sys.exit(1)
+
+        try:
+            process = subprocess.Popen(["packer", "build", "-force", "-var", "location_azure=" + self.config['azure']['region'] , "-only=" + only_cmd_arg, path_packer_file],shell=False,stdout=subprocess.PIPE)
+        except KeyboardInterrupt:
+            process.send_signal(signal.SIGINT)
+
+        while True:
+            output = process.stdout.readline()
+            if process.poll() is not None:
+                break
+            if output:
+                print(output.strip())
+        rc = process.poll()
+
 
     def simulate(self, engine, target, technique, playbook) -> None:
         self.logger.info("[action] > simulate\n")

@@ -2,7 +2,7 @@
 
 data "aws_ami" "splunk_server" {
   most_recent = true
-  owners      = [var.aws.image_owner] 
+  owners      = ["self"] 
 
   filter {
     name   = "name"

@@ -1,5 +1,8 @@
 import os
 import ansible_runner
+import subprocess
+import sys
+import signal
 
 from python_terraform import Terraform, IsNotFlagged
 from modules import aws_service, splunk_sdk
@@ -13,11 +16,50 @@ class AwsController(AttackRangeController):
 
     def __init__(self, config: dict):
         super().__init__(config)
+
+        if not aws_service.check_region(self.config['aws']['region']):
+            self.logger.error("AWS cli region and region in config file are not the same.")
+            sys.exit(1)
+
         working_dir = os.path.join(os.path.dirname(__file__), '../terraform/aws')
         self.terraform = Terraform(working_dir=working_dir,variables=config, parallelism=15)
 
     def build(self) -> None:
         self.logger.info("[action] > build\n")
+
+        images = []
+        images.append(self.config['splunk_server']['image'])
+        for windows_server in self.config['windows_servers']:
+            images.append(windows_server['image'])
+        for linux_server in self.config['linux_servers']:
+            images.append(linux_server['image'])
+        if self.config["nginx_server"]["nginx_server"] == "1":
+            images.append(self.config["nginx_server"]["image"])        
+
+        self.logger.info("Check if images are available in region " + self.config['aws']['region'])
+        not_found_images = aws_service.query_amis(images, self.config['aws']['region'])
+        
+        if not_found_images: 
+            self.logger.info("Images " + ", ".join(not_found_images) + " are not available in region " + self.config['aws']['region'])
+            self.logger.info("Checking if images " + ", ".join(not_found_images) + " are available in other regions.")
+            ami_region = aws_service.query_amis_all_regions(images, not_found_images)
+            for ami_name in ami_region.keys():
+                self.logger.info("Found image " + ami_name + " in region " + ami_region[ami_name][0]['region'] + ". Copy it to region " + self.config['aws']['region'])
+                aws_service.copy_image(
+                    ami_name, 
+                    ami_region[ami_name][0]['image_id'], 
+                    ami_region[ami_name][0]['region'],
+                    self.config['aws']['region']
+                )
+            
+            images_to_build = list(set(images) - set(ami_region.keys()))
+            for image in images_to_build:
+                self.logger.info("Image " + image + " need to be built with packer.")
+                self.packer(image) 
+
+        else:
+            self.logger.info("Images " + ", ".join(images) + " are available in region " + self.config['aws']['region'])
+
         return_code, stdout, stderr = self.terraform.apply(
             capture_output='yes', 
             skip_plan=True, 
@@ -28,6 +70,7 @@ class AwsController(AttackRangeController):
 
         self.show()
 
+
     def destroy(self) -> None:
         self.logger.info("[action] > destroy\n")
         return_code, stdout, stderr = self.terraform.destroy(
@@ -37,6 +80,44 @@ class AwsController(AttackRangeController):
             auto_approve=True
         )
         self.logger.info("attack_range has been destroy using terraform successfully")
+
+    def packer(self, image_name) -> None:
+        self.logger.info("Create golden image for " + image_name + ". This can take up to 30 minutes.\n")
+        only_cmd_arg = ""
+        path_packer_file = ""
+        if image_name.startswith("splunk"):
+            only_cmd_arg = "amazon-ebs.splunk-ubuntu-18-04"
+            path_packer_file = "packer/splunk_server/splunk-ubuntu.pkr.hcl"
+        elif image_name.startswith("linux"):
+            only_cmd_arg = "amazon-ebs.ubuntu-18-04"
+            path_packer_file = "packer/linux_server/linux-ubuntu-18-04.pkr.hcl"
+        elif image_name.startswith("nginx"):
+            only_cmd_arg = "amazon-ebs.nginx-web-proxy"
+            path_packer_file = "packer/nginx_server/nginx_web_proxy.pkr.hcl"
+        elif image_name.startswith("windows-2016"):
+            only_cmd_arg = "amazon-ebs.windows"
+            path_packer_file = "packer/windows_server/windows_2016.pkr.hcl"                      
+        elif image_name.startswith("windows-2019"):
+            only_cmd_arg = "amazon-ebs.windows"
+            path_packer_file = "packer/windows_server/windows_2019.pkr.hcl"  
+
+        if only_cmd_arg == "":
+            self.logger.error("Image not supported.")
+            sys.exit(1)
+
+        try:
+            process = subprocess.Popen(["packer", "build", "-force", "-only=" + only_cmd_arg, path_packer_file],shell=False,stdout=subprocess.PIPE)
+        except KeyboardInterrupt:
+            process.send_signal(signal.SIGINT)
+
+        while True:
+            output = process.stdout.readline()
+            if process.poll() is not None:
+                break
+            if output:
+                print(output.strip())
+        rc = process.poll()
+
 
     def stop(self) -> None:
         instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])

@@ -2,7 +2,7 @@
 data "aws_ami" "windows_ami" {
   count = length(var.windows_servers)
   most_recent = true
-  owners      = [var.aws.image_owner]
+  owners      = ["self"]
 
   filter {
     name   = "name"

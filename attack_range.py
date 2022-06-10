@@ -75,6 +75,10 @@ def resume(args):
     controller = init(args)
     controller.resume()
 
+def packer(args):
+    controller = init(args)
+    
+
 def configure(args):
     pass
 
@@ -98,6 +102,7 @@ def main(args):
     destroy_parser = actions_parser.add_parser("destroy", help="destroy attack range instances")
     stop_parser = actions_parser.add_parser("stop", help="stops attack range instances")
     resume_parser = actions_parser.add_parser("resume", help="resumes previously stopped attack range instances")
+    packer_parser = actions_parser.add_parser("packer", help="create golden images")
     show_parser = actions_parser.add_parser("show", help="list machines")
     dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
     replay_parser = actions_parser.add_parser("replay", help="replay dumps into the splunk server")
@@ -113,6 +118,11 @@ def main(args):
 
     # Resume arguments
     resume_parser.set_defaults(func=resume)
+
+    # Packer agruments
+    configure_parser.add_argument("-in", "--image_name", required=True, type=str,
+                                    help="provide image name such as splunk, linux, windows-2016, windows-2019, nginx, windows-10, windows-11")
+    packer_parser.set_defaults(func=packer)
 
     # Configure arguments
     configure_parser.add_argument("-c", "--config", required=False, type=str, default='attack_range.yml',

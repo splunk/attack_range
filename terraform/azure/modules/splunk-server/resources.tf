@@ -22,7 +22,7 @@ resource "azurerm_network_interface" "splunk-nic" {
 
 data "azurerm_image" "search" {
   name                = var.splunk_server.image
-  resource_group_name = "packer"
+  resource_group_name = "packer_${replace(var.azure.region, " ", "_")}"
 }
 
 resource "azurerm_virtual_machine" "splunk" {

@@ -68,3 +68,29 @@ def change_instance_state(key_name, ar_name, new_state, log):
             if instance['vm_obj'].instance_view.statuses[1].display_status == "VM stopped":
                 async_vm_start = compute_client.virtual_machines.begin_start("ar-rg-" + key_name + '-' + ar_name, instance['vm_obj'].name)
                 log.info('Successfully started instance ' + instance['vm_obj'].name + ' .')
+
+
+def create_ressource_group(region):
+    credential = AzureCliCredential()
+    subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]    
+    resource_client = ResourceManagementClient(credential, subscription_id)
+    rg_result = resource_client.resource_groups.create_or_update(
+        "packer_" + region.replace(" ", "_"),
+        {
+            "location": region.replace(" ", "").lower()
+        }
+    )
+
+
+def check_image_available(ar_image, region):
+    credential = AzureCliCredential()
+    subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]
+    compute_client = ComputeManagementClient(credential, subscription_id)
+
+    rg_name = "packer_" + region.replace(" ", "_")
+
+    try:
+        compute_client.images.get(rg_name, ar_image)
+        return True
+    except:
+        return False

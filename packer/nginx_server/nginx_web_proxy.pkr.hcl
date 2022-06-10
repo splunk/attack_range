@@ -40,7 +40,7 @@ build {
 
   provisioner "ansible" {
     extra_arguments = ["--extra-vars", "splunk_uf_url=${var.splunk_uf_url}"]
-    playbook_file   = "ansible/nginx_web_proxy.yml"
+    playbook_file   = "packer/ansible/nginx_web_proxy.yml"
   }
 
 }

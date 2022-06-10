@@ -29,7 +29,7 @@ resource "azurerm_public_ip" "windows-publicip" {
 data "azurerm_image" "search" {
   count = length(var.windows_servers) > 0 ? 1 : 0
   name                = var.windows_servers[count.index].image
-  resource_group_name = "packer"
+  resource_group_name = "packer_${replace(var.azure.region, " ", "_")}"
 }
 
 resource "azurerm_virtual_machine" "windows" {

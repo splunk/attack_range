@@ -19,15 +19,21 @@ variable "version" {
   default = "2.0.0"
 }
 
+variable "location_azure" {
+  type    = string
+  default = "West Europe"
+}
+
+
 source "azure-arm" "windows" {
-  managed_image_resource_group_name = "packer"
+  managed_image_resource_group_name = "packer_${replace(var.location_azure, " ", "_")}"
   managed_image_name = "windows-10-${replace(var.version, ".", "-")}"
   subscription_id = "adf9dc10-01d2-4d80-99ff-5c90142e6293"
   os_type = "Windows"
   image_publisher = "microsoftwindowsdesktop"
   image_offer = "windows-10"
   image_sku = "win10-21h2-pro"
-  location = "West Europe"
+  location = var.location_azure
   vm_size = "Standard_D4_v4"
   communicator = "winrm"
   winrm_insecure = true
@@ -44,12 +50,12 @@ build {
 
   provisioner "powershell" {
     only = ["azure-arm.windows"]
-    script = "windows_server/AnsibleSetup.ps1"
+    script = "packer/windows_server/AnsibleSetup.ps1"
   }
 
   provisioner "ansible" {
     only = ["azure-arm.windows"]
-    playbook_file = "ansible/windows.yml"
+    playbook_file = "packer/ansible/windows.yml"
     user = "packer"
     use_proxy = false
     local_port = 5986
@@ -59,7 +65,7 @@ build {
 
   provisioner "powershell" {
     only = ["azure-arm.windows"]
-    script = "windows_server/sysprep.ps1"
+    script = "packer/windows_server/sysprep.ps1"
   }
 
 }

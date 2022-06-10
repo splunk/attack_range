@@ -24,6 +24,11 @@ variable "version" {
   default = "2.0.0"
 }
 
+variable "location_azure" {
+  type    = string
+  default = "West Europe"
+}
+
 data "amazon-ami" "ubuntu-ami" {
   filters = {
     name                = "*ubuntu-bionic-18.04-amd64-server-*"
@@ -48,14 +53,14 @@ source "amazon-ebs" "splunk-ubuntu-18-04" {
 }
 
 source "azure-arm" "splunk-ubuntu-18-04" {
-  managed_image_resource_group_name = "packer"
+  managed_image_resource_group_name = "packer_${replace(var.location_azure, " ", "_")}"
   managed_image_name = "splunk-${replace(var.splunk_version, ".", "-")}-v${replace(var.version, ".", "-")}"
   subscription_id = "adf9dc10-01d2-4d80-99ff-5c90142e6293"
   os_type = "Linux"
   image_publisher = "Canonical"
   image_offer = "UbuntuServer"
   image_sku = "18.04-LTS"
-  location = "West Europe"
+  location = var.location_azure
   vm_size = "Standard_A8_v2"
 }
 
@@ -68,7 +73,7 @@ build {
 
   provisioner "ansible" {
     extra_arguments = ["--extra-vars", "splunk_admin_password=${var.splunk_admin_password} splunk_url=${var.splunk_url} s3_bucket_url=${var.s3_bucket_url}"]
-    playbook_file   = "ansible/splunk_server.yml"
+    playbook_file   = "packer/ansible/splunk_server.yml"
   }
 
 }
