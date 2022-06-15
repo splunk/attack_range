@@ -57,7 +57,7 @@ platformdirs==2.5.1
 pluggy==1.0.0
 portalocker==2.4.0
 pre-commit==2.18.1
-prompt-toolkit==1.0.14
+prompt-toolkit==3.0.29
 protobuf==3.20.0
 psutil==5.9.0
 ptyprocess==0.7.0
@@ -76,6 +76,7 @@ python-dateutil==2.8.2
 python-terraform==0.10.1
 pywinrm==0.4.2
 PyYAML==6.0
+questionary==1.10.0
 regex==2022.3.15
 requests==2.27.1
 requests-ntlm==1.1.0
