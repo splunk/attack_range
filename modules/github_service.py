@@ -2,6 +2,12 @@ from github import Github
 
 
 def create_issue(detection_name, config):
+    """
+    create_issue function creates Github issue
+
+    :param detection_name: detection name
+    :param config: python dictionary having the configuration 
+    """
     title = detection_name + " needs testing"
 
     g = Github(config["github_token"])
