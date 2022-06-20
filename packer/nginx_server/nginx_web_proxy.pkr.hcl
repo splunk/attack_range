@@ -6,7 +6,7 @@ variable "splunk_uf_url" {
 
 variable "version" {
   type    = string
-  default = "2.0.0"
+  default = "3.0.0"
 }
 
 data "amazon-ami" "nginx-ami" {

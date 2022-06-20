@@ -14,14 +14,9 @@ variable "splunk_url" {
   default = "https://download.splunk.com/products/splunk/releases/8.2.5/linux/splunk-8.2.5-77015bc7a462-Linux-x86_64.tgz"
 }
 
-variable "splunk_version" {
-  type    = string
-  default = "8.2.5"
-}
-
 variable "version" {
   type    = string
-  default = "2.0.0"
+  default = "3.0.0"
 }
 
 variable "location_azure" {
@@ -40,7 +35,7 @@ data "amazon-ami" "ubuntu-ami" {
 }
 
 source "amazon-ebs" "splunk-ubuntu-18-04" {
-  ami_name              = "splunk-${replace(var.splunk_version, ".", "-")}-v${replace(var.version, ".", "-")}"
+  ami_name              = "splunk-v${replace(var.version, ".", "-")}"
   instance_type         = "t3.2xlarge"
   launch_block_device_mappings {
     device_name = "/dev/sda1"
@@ -54,7 +49,7 @@ source "amazon-ebs" "splunk-ubuntu-18-04" {
 
 source "azure-arm" "splunk-ubuntu-18-04" {
   managed_image_resource_group_name = "packer_${replace(var.location_azure, " ", "_")}"
-  managed_image_name = "splunk-${replace(var.splunk_version, ".", "-")}-v${replace(var.version, ".", "-")}"
+  managed_image_name = "splunk-v${replace(var.version, ".", "-")}"
   subscription_id = "adf9dc10-01d2-4d80-99ff-5c90142e6293"
   os_type = "Linux"
   image_publisher = "Canonical"

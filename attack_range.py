@@ -7,6 +7,7 @@ from colorama import Fore, Back, Style
 from modules.config_handler import ConfigHandler
 from modules.aws_controller import AwsController
 from modules.azure_controller import AzureController
+from modules import configuration
 
 # need to set this ENV var due to a OSX High Sierra forking bug
 # see this discussion for more details: https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
@@ -80,7 +81,7 @@ def packer(args):
     
 
 def configure(args):
-    pass
+    configuration.new(args.config)
 
 def show(args):
     controller = init(args)
@@ -120,7 +121,7 @@ def main(args):
     resume_parser.set_defaults(func=resume)
 
     # Packer agruments
-    configure_parser.add_argument("-in", "--image_name", required=True, type=str,
+    packer_parser.add_argument("-in", "--image_name", required=True, type=str,
                                     help="provide image name such as splunk, linux, windows-2016, windows-2019, nginx, windows-10, windows-11")
     packer_parser.set_defaults(func=packer)
 

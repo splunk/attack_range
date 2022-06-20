@@ -20,6 +20,9 @@ azure-mgmt-network = "^19.3.0"
 azure-mgmt-compute = "^26.1.0"
 azure-identity = "^1.10.0"
 splunk-sdk = "^1.6.19"
+urllib3 = "^1.26.9"
+pycryptodome = "^3.14.1"
+questionary = "^1.10.0"
 
 [tool.poetry.dev-dependencies]
 

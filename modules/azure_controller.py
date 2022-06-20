@@ -17,6 +17,10 @@ class AzureController(AttackRangeController):
     def __init__(self, config: dict):
         super().__init__(config)
         working_dir = os.path.join(os.path.dirname(__file__), '../terraform/azure')
+        if self.config["azure"]["subscription_id"] == "xxx":
+            print("ERROR: please add subcription_id into the azure configuration section in attack_range.yml.")
+            sys.exit(1)
+        os.environ["AZURE_SUBSCRIPTION_ID"] = self.config["azure"]["subscription_id"]
         self.terraform = Terraform(working_dir=working_dir,variables=config, parallelism=15)
 
     def build(self) -> None:

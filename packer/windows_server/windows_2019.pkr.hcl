@@ -16,7 +16,7 @@ variable "win_password" {
 
 variable "version" {
   type    = string
-  default = "2.0.0"
+  default = "3.0.0"
 }
 
 variable "location_azure" {
@@ -36,7 +36,7 @@ data "amazon-ami" "windows" {
 }
 
 source "amazon-ebs" "windows" {
-  ami_name              = "windows-2019-${replace(var.version, ".", "-")}"
+  ami_name              = "windows-2019-v${replace(var.version, ".", "-")}"
   force_delete_snapshot = "true"
   force_deregister      = "true"
   instance_type         = "t3.xlarge"
@@ -50,7 +50,7 @@ source "amazon-ebs" "windows" {
 
 source "azure-arm" "windows" {
   managed_image_resource_group_name = "packer_${replace(var.location_azure, " ", "_")}"
-  managed_image_name = "windows-2019-${replace(var.version, ".", "-")}"
+  managed_image_name = "windows-2019-v${replace(var.version, ".", "-")}"
   subscription_id = "adf9dc10-01d2-4d80-99ff-5c90142e6293"
   os_type = "Windows"
   image_publisher = "microsoftwindowsserver"
