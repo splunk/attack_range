@@ -32,10 +32,10 @@ class AzureController(AttackRangeController):
         for ar_image in images:
             self.logger.info("Check if image " + ar_image + " are available in region " + self.config['azure']['region'])
             if not azure_service.check_image_available(ar_image, self.config['azure']['region']):
-                self.logger.info("Image " + ar_image + " not available in region " + self.config['azure']['region'] + ". Create a golden image with packer.")
+                self.logger.info("Image " + ar_image + " is not available in region " + self.config['azure']['region'] + ". Create a golden image with packer.")
                 self.packer(ar_image)
             else:
-                self.logger.info("Image " + ar_image + " available in region " + self.config['azure']['region'])
+                self.logger.info("Image " + ar_image + " is available in region " + self.config['azure']['region'])
 
         return_code, stdout, stderr = self.terraform.apply(
             capture_output='yes', 
