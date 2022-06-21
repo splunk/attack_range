@@ -135,11 +135,11 @@ def main(args):
                                  help="simulation engine to use. Available options are: PurpleSharp and ART (default)")
     simulate_parser.add_argument("-t", "--target", required=True,
                                  help="target for attack simulation. Use the name of the aws EC2 name")
-    simulate_parser.add_argument("-te", "--technique", required=True, type=str, default="",
+    simulate_parser.add_argument("-te", "--technique", required=False, type=str, default="",
                                  help="comma delimited list of MITRE ATT&CK technique ID to simulate in the "
                                       "attack_range, example: T1117, T1118")
     simulate_parser.add_argument("-p", "--playbook", required=False, type=str, default="",
-                                 help="file path for a PurpleSharp JSON simulation playbook")
+                                 help="file path for a simulation playbook")
 
     simulate_parser.set_defaults(func=simulate)
 

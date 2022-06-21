@@ -94,11 +94,9 @@ python attack_range.py show
 
 ### Perform Attack Simulations with Atomic Red Team or PurpleSharp
 ```
-python attack_range.py simulate -e ART -st T1003.001 -t ar-win-dc-default-username-33048
+python attack_range.py simulate -e ART -st T1003.001 -t ar-win-ar-ar-0
 
-python attack_range.py simulate -e PurpleSharp -st T1003.001 -t ar-win-dc-default-username-33048
-
-python attack_range.py simulate -e PurpleSharp -sp AD_Discovery.json -t ar-win-dc-default-username-33048
+python attack_range.py simulate -e PurpleSharp -st T1003.001 -t ar-win-ar-ar-0
 ```
 
 ### Destroy Attack Range

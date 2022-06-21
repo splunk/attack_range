@@ -1,0 +1,17 @@
+
+- debug:
+    var: techniques
+    
+- name: Run PurpleSharp Simulation Techniques
+  win_command: PurpleSharp.exe /t "{{ techniques }}" 
+  register: output_purplesharp
+  args:
+    chdir: C:\\Tools\\PurpleSharp  
+
+- name: Save PurpleSharp output
+  set_fact:
+    output_purplesharp: "{{ output_purplesharp }}"
+    cacheable: yes
+
+- debug:
+    var: output_purplesharp

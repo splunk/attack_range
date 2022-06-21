@@ -10,6 +10,7 @@ from tabulate import tabulate
 
 from modules.attack_range_controller import AttackRangeController
 from modules.art_simulation_controller import ArtSimulationController
+from modules.purplesharp_simulation_controller import PurplesharpSimulationController
 
 
 class AwsController(AttackRangeController):
@@ -37,28 +38,25 @@ class AwsController(AttackRangeController):
             images.append(self.config["nginx_server"]["image"])        
 
         self.logger.info("Check if images are available in region " + self.config['aws']['region'])
-        not_found_images = aws_service.query_amis(images, self.config['aws']['region'])
-        
-        if not_found_images: 
-            self.logger.info("Images " + ", ".join(not_found_images) + " are not available in region " + self.config['aws']['region'])
-            self.logger.info("Checking if images " + ", ".join(not_found_images) + " are available in other regions.")
-            ami_region = aws_service.query_amis_all_regions(images, not_found_images)
-            for ami_name in ami_region.keys():
-                self.logger.info("Found image " + ami_name + " in region " + ami_region[ami_name][0]['region'] + ". Copy it to region " + self.config['aws']['region'])
-                aws_service.copy_image(
-                    ami_name, 
-                    ami_region[ami_name][0]['image_id'], 
-                    ami_region[ami_name][0]['region'],
-                    self.config['aws']['region']
-                )
-            
-            images_to_build = list(set(images) - set(ami_region.keys()))
-            for image in images_to_build:
-                self.logger.info("Image " + image + " need to be built with packer.")
-                self.packer(image) 
 
-        else:
-            self.logger.info("Images " + ", ".join(images) + " are available in region " + self.config['aws']['region'])
+        for image in images:
+            if not aws_service.ami_available(image, self.config['aws']['region']):
+                self.logger.info("Image " + image + " is not available in region " + self.config['aws']['region'])
+                self.logger.info("Checking if image " + image + " is available in other regions.")
+                result = aws_service.ami_available_other_region(image)
+                if result:
+                    self.logger.info("Found image " + image + " in region " + result['region'] + ". Copy it to region " + self.config['aws']['region'])
+                    aws_service.copy_image(
+                        image, 
+                        result['image_id'], 
+                        result['region'],
+                        self.config['aws']['region']
+                    )
+                else:
+                    self.logger.info("Image " + image + " need to be built with packer.")
+                    self.packer(image)  
+            else:
+                self.logger.info("Image " + image + " is available in region " + self.config['aws']['region'])                 
 
         return_code, stdout, stderr = self.terraform.apply(
             capture_output='yes', 
@@ -132,6 +130,10 @@ class AwsController(AttackRangeController):
         if engine == "ART":
             simulation_controller = ArtSimulationController(self.config)
             simulation_controller.simulate(target, technique)
+        if engine == "PurpleSharp":
+            simulation_controller = PurplesharpSimulationController(self.config)
+            simulation_controller.simulate(target, technique, playbook)
+        
 
     def show(self) -> None:
         self.logger.info("[action] > show\n")

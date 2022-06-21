@@ -10,6 +10,7 @@ from tabulate import tabulate
 from modules import azure_service, splunk_sdk
 from modules.attack_range_controller import AttackRangeController
 from modules.art_simulation_controller import ArtSimulationController
+from modules.purplesharp_simulation_controller import PurplesharpSimulationController
 
 
 class AzureController(AttackRangeController):
@@ -34,7 +35,7 @@ class AzureController(AttackRangeController):
             images.append(linux_server['image'])       
 
         for ar_image in images:
-            self.logger.info("Check if image " + ar_image + " are available in region " + self.config['azure']['region'])
+            self.logger.info("Check if image " + ar_image + " is available in region " + self.config['azure']['region'])
             if not azure_service.check_image_available(ar_image, self.config['azure']['region']):
                 self.logger.info("Image " + ar_image + " is not available in region " + self.config['azure']['region'] + ". Create a golden image with packer.")
                 self.packer(ar_image)
@@ -115,6 +116,9 @@ class AzureController(AttackRangeController):
         if engine == "ART":
             simulation_controller = ArtSimulationController(self.config)
             simulation_controller.simulate(target, technique)
+        elif engine == "PurpleSharp":
+            simulation_controller = PurplesharpSimulationController(self.config)
+            simulation_controller.simulate(target, technique, playbook)
 
 
     def show(self) -> None:
