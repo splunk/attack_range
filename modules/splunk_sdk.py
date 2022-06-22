@@ -124,6 +124,15 @@ def test_detection_search(splunk_host, splunk_password, search, pass_condition, 
 
 
 def search(splunk_host, splunk_password, search_name, log, splunk_rest_port=8089):
+    """
+    search function executes the saved search on the splunk server.
+
+    :param splunk_host: splunk server address
+    :param splunk_password: Splunk server password
+    :param search_name: saved search name
+    :param log: logger object for logging
+    :param splunk_rest_port: Splunk server port
+    """
     print('\nexecute savedsearch: ' + search_name + '\n')
 
     service = client.connect(
@@ -177,6 +186,13 @@ def search(splunk_host, splunk_password, search_name, log, splunk_rest_port=8089
 
 
 def list_searches(splunk_host, splunk_password, splunk_rest_port=8089):
+    """
+    list_searches function returns the saved searches under current user.
+
+    :param splunk_host: splunk server address
+    :param splunk_password: Splunk server password
+    :param splunk_rest_port: Splunk server port
+    """
     service = client.connect(
         host=splunk_host,
         port=splunk_rest_port,
@@ -189,6 +205,9 @@ def list_searches(splunk_host, splunk_password, splunk_rest_port=8089):
 
 
 def test():
+    """
+    test function uploads the test data to test index
+    """
     service = client.connect(
         host='52.29.172.70',
         port=8089,
@@ -211,13 +230,13 @@ def export_search(host, s, password, export_mode="raw", out=sys.stdout, username
 
     This is faster than performing a search/export from Splunk Python SDK.
 
-    @param host: splunk server address
-    @param s: search that matches events
-    @param password: Splunk server password
-    @param export_mode: default `raw`. `csv`, `xml`, or `json`
-    @param out: local file pointer to write the results
-    @param username: Splunk server username
-    @param port: Splunk server port
+    :param host: splunk server address
+    :param s: search that matches events
+    :param password: Splunk server password
+    :param export_mode: default `raw`. `csv`, `xml`, or `json`
+    :param out: local file pointer to write the results
+    :param username: Splunk server username
+    :param port: Splunk server port
     """
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -232,6 +251,13 @@ def export_search(host, s, password, export_mode="raw", out=sys.stdout, username
 
 
 def delete_attack_data(splunk_host, splunk_password, splunk_rest_port=8089):
+    """
+    delete_attack_data function creates a delete job on the splunk server.
+
+    :param splunk_host: splunk server address
+    :param splunk_password: Splunk server password
+    :param splunk_rest_port: Splunk server port
+    """
     try:
         service = client.connect(
             host=splunk_host,
@@ -259,6 +285,16 @@ def delete_attack_data(splunk_host, splunk_password, splunk_rest_port=8089):
 
 
 def execute_savedsearch(splunk_host, splunk_password, search_name, earliest, latest, splunk_rest_port=8089):
+    """
+    execute_savedsearch function executes the saved search on the splunk server.
+
+    :param splunk_host: splunk server address
+    :param splunk_password: Splunk server password
+    :param search_name: saved search name
+    :param earliest: earliest time to pick
+    :param latest: latest time to pick
+    :param splunk_rest_port: Splunk server port
+    """
     try:
         service = client.connect(
             host=splunk_host,

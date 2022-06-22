@@ -11,6 +11,11 @@ class CustomConfigParser:
         self.settings = {}
 
     def _config_rules(self, CONFIG_PATH):
+        """
+        _config_rules function checks for the error in configuration and enforces rules.
+
+        :param CONFIG_PATH: configuration file path 
+        """
         if self.settings['windows_domain_controller'] == "0" and self.settings['windows_server_join_domain'] == "1":
             print("ERROR - with configuration file at {0} 'windows_server_join_domain' must be set to '0' "
                   "if the number of 'windows_domain_controller' is set to '0'".format(CONFIG_PATH))

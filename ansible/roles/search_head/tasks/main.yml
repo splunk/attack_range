@@ -30,8 +30,6 @@
     - "{{ splunk_attack_range_dashboard }}"
     - "{{ splunk_cim_app }}"
     - "{{ splunk_escu_app }}"
-    - "{{ splunk_python_app }}"
-    - "{{ splunk_mltk_app }}"
     - "{{ splunk_security_essentials_app }}"
     - "{{ splunk_sysmon_ta }}"
     - "{{ splunk_sysmon_linux_ta }}"
@@ -41,6 +39,11 @@
     - "{{ splunk_linux_ta }}"
     - "{{ ta_for_zeek }}"
     - "{{ splunk_nginx_ta }}"
+- include: install_app_from_s3.yml
+  with_items:
+    - "{{ splunk_python_app }}"
+    - "{{ splunk_mltk_app }}"
+  when: install_es == "0"
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: configure_cim.yml
