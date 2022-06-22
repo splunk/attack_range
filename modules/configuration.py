@@ -502,7 +502,7 @@ starting configuration for AT-ST mech walker
         prelude_question=[
         {
             'type': 'input',
-            'message': 'Prelude Operator Account Email, can be found on the GUI under connect>deploy manual redirector> accountEmail.',
+            'message': 'Prelude Operator Account Email, see https://github.com/splunk/attack_range/wiki/Prelude-Operator for details.',
             'name': 'prelude_account_email',
         }
         ]

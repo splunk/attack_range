@@ -448,7 +448,7 @@ class TerraformController(IEnvironmentController):
         splunk_ip = self.getIP(response, 'splunk')
         if self.config['prelude'] == "1":
             prelude_token = self.getPreludeToken('/var/tmp/.prelude_session_token')
-            msg = "Access Prelude Operator UI via:\n\tredirector FQDN > " + splunk_ip + "\n\tToken: " + prelude_token
+            msg = "Access Prelude Operator UI via:\n\tredirector FQDN > " + splunk_ip + "\n\tToken: " + prelude_token + "\n\tSee guide details: https://github.com/splunk/attack_range/wiki/Prelude-Operator"
             print_messages.append(msg)
 
         # windows domain controller
