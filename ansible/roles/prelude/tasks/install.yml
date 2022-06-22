@@ -21,6 +21,10 @@
     dest: /opt/prelude
     remote_src: yes
 
+- name: Generate Session Token 
+  shell: uuidgen
+  register: prelude_session_token
+
 - name: Copy env, configures Prelude Email Account 
   template:
     src: env
@@ -36,14 +40,6 @@
   systemd:
     name: prelude-operator.service
     state: started
-
-- name: Get Session Token
-  shell: journalctl -t prelude-operator | egrep -e '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$' -o | tail -n1
-  register: prelude_session_token
-
-- name: Print Session Token
-  debug: 
-    var: prelude_session_token
 
 - name: Write Session Token to file
   delegate_to: localhost
