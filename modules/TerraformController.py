@@ -150,7 +150,6 @@ class TerraformController(IEnvironmentController):
                     else:
                         attack_data['update_timestamp'] = False
                     #attack_data['update_timestamp'] = True
-                    attack_data['index'] = 'test'
                     self.replay_attack_data(dump_name, attack_data)
 
                 # wait for indexing
@@ -214,8 +213,11 @@ class TerraformController(IEnvironmentController):
                                                       test['earliest_time'], test['latest_time'], self.log, splunk_rest_port)
 
             if test_delete_data:
+                indexes = set()
+                for attack_data in test.get('attack_data'):
+                    indexes.add(attack_data.get('custom_index', 'test'))
                 self.log.info("deleting test data from splunk for test {0}".format(test['file']))
-                splunk_sdk.delete_attack_data(instance_ip, str(self.config['attack_range_password']), splunk_rest_port)
+                splunk_sdk.delete_attack_data(instance_ip, str(self.config['attack_range_password']), splunk_rest_port, list(indexes))
 
         return result
 
@@ -618,7 +620,7 @@ class TerraformController(IEnvironmentController):
         ansible_vars['out'] = attack_data['file_name']
         ansible_vars['sourcetype'] = attack_data['sourcetype']
         ansible_vars['source'] = attack_data['source']
-        ansible_vars['index'] = attack_data['index']
+        ansible_vars['index'] = attack_data.get('custom_index', 'test')
         ansible_vars['update_timestamp'] = attack_data['update_timestamp']
 
         if 'data' in attack_data:

@@ -250,7 +250,7 @@ def export_search(host, s, password, export_mode="raw", out=sys.stdout, username
 
 
 
-def delete_attack_data(splunk_host, splunk_password, splunk_rest_port=8089):
+def delete_attack_data(splunk_host, splunk_password, splunk_rest_port=8089, indexes=['test']):
     """
     delete_attack_data function creates a delete job on the splunk server.
 
@@ -268,18 +268,19 @@ def delete_attack_data(splunk_host, splunk_password, splunk_rest_port=8089):
     except Exception as e:
         print("Unable to connect to Splunk instance: " + str(e))
         return False
+    
+    for index in indexes:
+        splunk_search = f'search index={index}* | delete'
 
-    splunk_search = 'search index=test* | delete'
+        kwargs = {"exec_mode": "blocking",
+                "dispatch.earliest_time": "-1d",
+                "dispatch.latest_time": "now"}
 
-    kwargs = {"exec_mode": "blocking",
-              "dispatch.earliest_time": "-1d",
-              "dispatch.latest_time": "now"}
-
-    try:
-        job = service.jobs.create(splunk_search, **kwargs)
-    except Exception as e:
-        print("Unable to execute search: " + str(e))
-        return False
+        try:
+            job = service.jobs.create(splunk_search, **kwargs)
+        except Exception as e:
+            print("Unable to execute search: " + str(e))
+            return False
 
     return True
 
