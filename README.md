@@ -58,14 +58,16 @@ An approximate **cost estimate** for running attack_range on AWS can be found [h
 ## Logging
 The following log sources are collected from the machines:
 
-- Windows Event Logs (```index = win```)
-- Sysmon Logs (```index = win```)
-- Powershell Logs (```index = win```)
-- Aurora EDR (```index = win```)
-- Sysmon for Linux Logs (```index = unix```)
-- Nginx logs (```index = proxy```)
-- Network Logs with Splunk Stream (```index = main```)
-- Attack Simulation Logs from Atomic Red Team and Caldera (```index = attack```)
+- Windows Event (```index = win```)
+- Windows Powershell (```index = win```)
+- Sysmon for Windows EDR (```index = win```)
+- Aurora for Windows EDR (```index = win```)
+- Sysmon for Linux EDR (```index = unix```)
+- OSquery for Linux EDR (```index = osquery```)
+- Nginx Proxy (```index = proxy```)
+- Splunk Streams Network (```index = main```)
+- Zeek Network (```index = main```)
+- Attack Simulations from Atomic Red Team (```index = attack```)
 
 ## Running 🏃‍♀️
 Attack Range supports different actions:
