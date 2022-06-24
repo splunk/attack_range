@@ -20,9 +20,9 @@ The Attack Range is a detection development platform, which solves three main ch
 
 
 ## Demo 📺
-[A short demo (< 3 min)](https://www.youtube.com/watch?v=yE7ytM3VNDQ) which shows the basic functions of the attack range. It builds a testing environment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [Splunk Security Content](https://github.com/splunk/security-content) searches are used to detect the attack.
+[A demo (~12 min)](https://youtu.be/gSEUnFJuw-s) which shows the basic functions of the attack range. It builds a testing environment using terraform, walks through the data collected by Splunk. Then attacks it using [Atomic Red Team]() with MITRE ATT&CK Technique [T1003.002](https://attack.mitre.org/techniques/T1003/002), and Threat Actor simulation playbook using [PurpleSharp](https://github.com/mvelazc0/PurpleSharp). Finally showcases how [Splunk Security Content](https://github.com/splunk/security-content) searches are used to detect the attack.
 
-[![Attack Range Demo](https://img.youtube.com/vi/yE7ytM3VNDQ/1.jpg)](https://www.youtube.com/watch?v=yE7ytM3VNDQ)
+![Attack Range Demo](docs/demo.gif)
 
 ## Installation 🏗
 
@@ -165,7 +165,7 @@ python attack_range.py replay -dn data_dump -fn FILE_NAME --source SOURCE --sour
 
 - [Prelude Operator](https://www.prelude.org/operator)
   * Adversary Emulation with [Prelude Operator](https://www.prelude.org/operator)
-  * Installed on the Splunk Server and available over TCP port 2323 
+  * Headless v1.6 Installed on the Splunk Server, see [guide](https://github.com/splunk/attack_range/wiki/Prelude-Operator) for more details.
   * Preinstalled Prelude Operator [Pneuma agent](https://github.com/preludeorg/pneuma) across Windows and Linux machines 
 
 - [Kali Linux](https://www.kali.org/)
