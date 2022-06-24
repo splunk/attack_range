@@ -72,10 +72,12 @@ class TerraformController(IEnvironmentController):
         os.system('cd ' + cwd)
         return_code, stdout, stderr = self.terraform.apply(
             capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
+
         if not return_code:
             self.log.info(
                 "attack_range has been built using terraform successfully")
             self.list_machines()
+        
 
     def destroy(self):
         """
@@ -397,7 +399,14 @@ class TerraformController(IEnvironmentController):
                     target))
                 sys.exit(1)
 
-
+    def getPreludeToken(self, TOKEN_PATH):
+        TOKEN = ''
+        try:
+            prelude_token_file = open(TOKEN_PATH,'r')
+            TOKEN = prelude_token_file.read()
+        except Exception as e:
+            self.log.error("was not able to read prelude token from {}".format(TOKEN_PATH))
+        return TOKEN
     def getIP(self, response, machine_type):
         """
         getIP function returns the IP of the machine
@@ -433,6 +442,13 @@ class TerraformController(IEnvironmentController):
             print_messages.append(msg)
         else:
             msg = "\n\nAccess Splunk via:\n\tWeb > http://" + splunk_ip + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        # prelude operator headless
+        splunk_ip = self.getIP(response, 'splunk')
+        if self.config['prelude'] == "1":
+            prelude_token = self.getPreludeToken('/var/tmp/.prelude_session_token')
+            msg = "Access Prelude Operator UI via:\n\tredirector FQDN > " + splunk_ip + "\n\tToken: " + prelude_token + "\n\tSee guide details: https://github.com/splunk/attack_range/wiki/Prelude-Operator"
             print_messages.append(msg)
 
         # windows domain controller

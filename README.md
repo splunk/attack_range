@@ -15,14 +15,14 @@
 ## Purpose 🛡
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering:
 * The user is able to quickly build a small lab infrastructure as close as possible to a production environment.
-* The Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. 
+* The Attack Range performs attack simulation using different engines such as Atomic Red Team or Prelude Operator in order to generate real attack data. 
 * It integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
 
 
 ## Demo 📺
-[A short demo (< 3 min)](https://www.youtube.com/watch?v=yE7ytM3VNDQ) which shows the basic functions of the attack range. It builds a testing environment using terraform, walks through the data collected by Splunk. Then attacks it using MITRE ATT&CK Technique [T1003](https://attack.mitre.org/techniques/T1003/) and finally showcases how [Splunk Security Content](https://github.com/splunk/security-content) searches are used to detect the attack.
+[A demo (~12 min)](https://youtu.be/gSEUnFJuw-s) which shows the basic functions of the attack range. It builds a testing environment using terraform, walks through the data collected by Splunk. Then attacks it using [Atomic Red Team]() with MITRE ATT&CK Technique [T1003.002](https://attack.mitre.org/techniques/T1003/002), and Threat Actor simulation playbook using [PurpleSharp](https://github.com/mvelazc0/PurpleSharp). Finally showcases how [Splunk Security Content](https://github.com/splunk/security-content) searches are used to detect the attack.
 
-[![Attack Range Demo](https://img.youtube.com/vi/yE7ytM3VNDQ/1.jpg)](https://www.youtube.com/watch?v=yE7ytM3VNDQ)
+![Attack Range Demo](docs/demo.gif)
 
 ## Installation 🏗
 
@@ -165,10 +165,10 @@ python attack_range.py replay -dn data_dump -fn FILE_NAME --source SOURCE --sour
   * Will be automatically downloaded on target during first execution of simulate
   * Supports two parameters **-st** for comma separated ATT&CK techniques and **-sp** for a simulation playbook
 
-- [Caldera](https://github.com/mitre/caldera)
-  * Adversary Emulation with [Caldera](https://github.com/mitre/caldera)
-  * Installed on the Splunk Server and available over port 8888 with user admin
-  * Preinstalled Caldera agents on windows machines
+- [Prelude Operator](https://www.prelude.org/operator)
+  * Adversary Emulation with [Prelude Operator](https://www.prelude.org/operator)
+  * Headless v1.6 Installed on the Splunk Server, see [guide](https://github.com/splunk/attack_range/wiki/Prelude-Operator) for more details.
+  * Preinstalled Prelude Operator [Pneuma agent](https://github.com/preludeorg/pneuma) across Windows and Linux machines 
 
 - [Kali Linux](https://www.kali.org/)
   * Preconfigured Kali Linux machine for penetration testing

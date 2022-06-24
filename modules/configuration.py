@@ -16,6 +16,7 @@ import string
 import boto3
 import getpass
 import time
+import uuid
 import questionary
 
 import os
@@ -427,6 +428,18 @@ starting configuration for AT-ST mech walker
         },
         {
             'type': 'confirm',
+            'message': 'shall we build Prelude Operator headless for testing',
+            'name': 'prelude',
+            'default': False,
+        },
+        {
+            'type': 'confirm',
+            'message': 'shall we pre-install red team tools on Windows. The tool list can be found here: https://github.com/splunk/attack_range/wiki/Red-Team-Tools',
+            'name': 'install_red_team_tools',
+            'default': False,
+        },
+        {
+            'type': 'confirm',
             'message': 'shall we build zeek sensors',
             'name': 'zeek_sensor',
             'default': False,
@@ -479,18 +492,26 @@ starting configuration for AT-ST mech walker
         configuration._sections['windows_server']['windows_server_join_domain'] = 0
         configuration._sections['windows_client']['windows_client_join_domain'] = 0
 
-    configuration._sections['environment']['windows_server'] = enabled(
-        answers['windows_server'])
-    configuration._sections['environment']['kali_machine'] = enabled(
-        answers['kali_machine'])
-    configuration._sections['environment']['windows_client'] = enabled(
-        answers['windows_client'])
-    configuration._sections['environment']['zeek_sensor'] = enabled(
-        answers['zeek_sensor'])
-    configuration._sections['environment']['nginx_web_proxy'] = enabled(
-        answers['nginx_web_proxy'])
-    configuration._sections['environment']['sysmon_linux'] = enabled(
-        answers['sysmon_linux'])
+    configuration._sections['environment']['windows_server'] = enabled(answers['windows_server'])
+    configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
+    configuration._sections['environment']['windows_client'] = enabled(answers['windows_client'])
+    configuration._sections['environment']['zeek_sensor'] = enabled(answers['zeek_sensor'])
+
+    if (enabled(answers['prelude'])):
+        configuration._sections['simulation']['prelude'] = enabled(answers['prelude'])
+        prelude_question=[
+        {
+            'type': 'input',
+            'message': 'Prelude Operator Account Email, see https://github.com/splunk/attack_range/wiki/Prelude-Operator for details.',
+            'name': 'prelude_account_email',
+        }
+        ]
+        prelude_answer = questionary.prompt(prelude_question)
+        configuration._sections['simulation']['prelude_account_email'] = prelude_answer['prelude_account_email']
+
+    configuration._sections['environment']['install_red_team_tools'] = enabled(answers['install_red_team_tools'])
+    configuration._sections['environment']['nginx_web_proxy'] = enabled(answers['nginx_web_proxy'])
+    configuration._sections['environment']['sysmon_linux'] = enabled(answers['sysmon_linux'])
 
     if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "byo":
         questions = [

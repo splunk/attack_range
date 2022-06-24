@@ -1,0 +1,4 @@
+## Prelude Creds
+ACCOUNT_EMAIL={{ prelude_account_email }}
+SESSION_TOKEN= {{ prelude_session_token.stdout }}
+

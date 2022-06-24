@@ -10,5 +10,6 @@
     - windows_domain_client
     - windows_universal_forwarder
     - windows_aurora_agent
-    - windows_caldera_agent
+    - windows_prelude_agent
     - sysmon
+   - red_team_tools
