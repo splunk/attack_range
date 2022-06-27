@@ -6,3 +6,4 @@
   roles:
     - set_hostname_linux
     - splunk_server_post
+    - cloudtrail_logs

@@ -1,0 +1,4 @@
+---
+
+- include: configure_inputs.yml
+  when: cloudtrail == "1"

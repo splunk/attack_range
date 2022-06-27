@@ -10,6 +10,63 @@ data "aws_ami" "splunk_server" {
   }
 }
 
+
+resource "aws_iam_role" "splunk_role" {
+  name = "splunk_role_${var.general.key_name}"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+
+}
+
+resource "aws_iam_instance_profile" "splunk_profile" {
+  name = "splunk_profile_${var.general.key_name}"
+  role = aws_iam_role.splunk_role.name
+}
+
+
+data "aws_iam_policy_document" "splunk_logging" {
+
+  statement {
+    actions = [
+      "sqs:GetQueueAttributes",
+      "sqs:ListQueues",
+      "sqs:ReceiveMessage",
+      "sqs:GetQueueUrl",
+      "sqs:DeleteMessage",
+      "s3:Get*",
+      "s3:List*",
+      "s3:Delete*",
+      "kms:Decrypt",
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "splunk_logging_policy" {
+  count = var.aws.cloudtrail == "1" ? 1 : 0
+  name = "splunk_logging_policy_${var.general.key_name}"
+  role = aws_iam_role.splunk_role.id
+  policy = data.aws_iam_policy_document.splunk_logging.json
+}
+
+
 resource "aws_instance" "splunk-server" {
   ami                    = data.aws_ami.splunk_server.id
   instance_type          = "t3.2xlarge"
@@ -17,6 +74,7 @@ resource "aws_instance" "splunk-server" {
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip             = "10.0.1.12"
+  iam_instance_profile   = aws_iam_instance_profile.splunk_profile.name
 
   root_block_device {
     volume_type = "gp2"
