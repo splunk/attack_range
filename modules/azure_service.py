@@ -7,6 +7,14 @@ from azure.mgmt.network import NetworkManagementClient
 
 
 def change_instance_state(config, new_state, log):
+    """
+    change_instance_state functions change the state of the instances on Azure.
+
+    :param config: python dictionary having the configuration 
+    :param new_state: The new state for the instances
+    :param log: logger object for logging
+    :return: No return value
+    """
     credential = AzureCliCredential()
     subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]
     compute_client = ComputeManagementClient(credential, subscription_id)
@@ -26,6 +34,12 @@ def change_instance_state(config, new_state, log):
                 log.info('Successfully started instance ' + instance['vm_obj'].name + ' .')
 
 def get_all_instances(config):
+    """
+    get_all_instances function gets all the non-terminated Azure instances.
+
+    :param config: python dictionary having the configuration
+    :return: returns the running instances
+    """
     credential = AzureCliCredential()
     subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]
     compute_client = ComputeManagementClient(credential, subscription_id)
@@ -45,6 +59,14 @@ def get_all_instances(config):
 
 
 def get_instance(config, instance_name, log):
+    """
+    get_instance function gets all the Azure instance by instance_name.
+
+    :param config: python dictionary having the configuration
+    :param instance_name: instance name
+    :param log: logger object for logging 
+    :return: returns the running instances
+    """
     instances = get_all_instances(config)
 
     for instance in instances:
@@ -56,6 +78,12 @@ def get_instance(config, instance_name, log):
 
 
 def get_public_ip(vm_obj):
+    """
+    get_public_ip function returns the public ip of the vm.
+
+    :param vm_obj: vm to find the public IP for
+    :return: public IP
+    """
     credential = AzureCliCredential()
     subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]
     network_client = NetworkManagementClient(credential ,subscription_id)

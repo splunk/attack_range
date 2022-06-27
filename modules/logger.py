@@ -1,7 +1,12 @@
 import logging
 
 def setup_logging(LOG_PATH,LOG_LEVEL):
-    """Creates a shared logging object for the application"""
+    """
+    Creates a shared logging object for the application
+
+    :param LOG_PATH: log file path
+    :param LOG_LEVEL: log level
+    """
 
     # create logging object
     logger = logging.getLogger('attack_range')

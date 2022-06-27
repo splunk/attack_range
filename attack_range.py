@@ -12,7 +12,6 @@ from colorama import Fore, Back, Style
 colorama.init(autoreset=True)
 
 
-
 # need to set this ENV var due to a OSX High Sierra forking bug
 # see this discussion for more details: https://github.com/ansible/ansible/issues/34056#issuecomment-352862252
 os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
@@ -21,6 +20,12 @@ VERSION = 1
 
 
 def init(args):
+    """
+    init function parses the config file and returns a TerraformController object.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: Returns TerraformController object, parsed configuration, shared log object.
+    """
     config = args.config
     print(Back.BLACK + Fore.GREEN + """
 starting program loaded for B1 battle droid """ + Back.BLACK + Fore.BLUE + Style.BRIGHT + """
@@ -65,7 +70,8 @@ starting program loaded for B1 battle droid """ + Back.BLACK + Fore.BLUE + Style
         sys.exit(1)
 
     if config['provider'] == 'azure' and config['zeek_sensor'] == '1':
-        log.error('ERROR: zeek sensor only available for aws in the moment. Please change zeek_sensor to 0 and try again.')
+        log.error(
+            'ERROR: zeek sensor only available for aws in the moment. Please change zeek_sensor to 0 and try again.')
         sys.exit(1)
 
     if config['provider'] == 'aws' and config['windows_client'] == '1':
@@ -73,22 +79,42 @@ starting program loaded for B1 battle droid """ + Back.BLACK + Fore.BLUE + Style
         sys.exit(1)
 
     if config['provider'] == 'azure' and config['nginx_web_proxy'] == '1':
-        log.error('ERROR: nginx web proxy is only support for aws at the moment. Please change nginx_web_proxy to 0 and try again.')
+        log.error(
+            'ERROR: nginx web proxy is only support for aws at the moment. Please change nginx_web_proxy to 0 and try again.')
         sys.exit(1)
 
     return TerraformController(config, log), config, log
 
 
 def configure(args):
+    """
+    configure function calls a function in configuration module to create a attack_range.conf file that contains the attack range configuration.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: No return value.
+    """
     configuration.new(args.config)
 
+
 def show(args):
+    """
+    show function lists the machines in the range by calling the list_machines function on the TerraformController object.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: No return value.
+    """
     controller, _, _ = init(args)
     if args.machines:
         controller.list_machines()
 
 
 def simulate(args):
+    """
+    simulate function simulates the attack in the attack range environment through ART or Purplesharp.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: No return value.
+    """
     controller, config, _ = init(args)
     target = args.target
     simulation_engine = args.engine
@@ -110,50 +136,93 @@ def simulate(args):
     # Give CLI priority over the config file for pre-configured techniques
     if not simulation_playbook:
         simulation_playbook = config['purplesharp_simulation_playbook']
- 
+
     if not simulation_atomics:
         simulation_atomics = 'no'
 
     return controller.simulate(simulation_engine, target, simulation_techniques_param, simulation_techniques, simulation_atomics, simulation_playbook)
 
+
 def dump(args):
+    """
+    dump function saves the search result events by calling the splunk API.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: No return value.
+    """
     controller, _, _ = init(args)
     controller.dump_attack_data(args.dump_name, {"out": args.out,
-                                                "search": args.search,
-                                                "earliest": args.earliest,
-                                                "latest": args.latest})
+                                                 "search": args.search,
+                                                 "earliest": args.earliest,
+                                                 "latest": args.latest})
 
 
 def replay(args):
+    """
+    replay function replays previously saved dumps from Attack Range.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: No return value.
+    """
     controller, _, log = init(args)
     controller.replay_attack_data(args.dump_name, {"source": args.source,
-                                                "index": args.index,
-                                                "sourcetype": args.sourcetype,
-                                                "update_timestamp": args.update_timestamp,
-                                                "file_name": args.file_name})
+                                                   "index": args.index,
+                                                   "sourcetype": args.sourcetype,
+                                                   "update_timestamp": args.update_timestamp,
+                                                   "file_name": args.file_name})
 
 
 def search(args):
+    """
+    search function runs a saved search using splunk API.
+    
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: No return value. 
+    """
     controller, _, log = init(args)
     controller.execute_savedsearch(args.search, args.earliest, args.latest)
 
 
 def build(args):
+    """
+    build function builds the attack range using terraform.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: No return value.
+    """
     controller, _, _ = init(args)
     controller.build()
 
 
 def destroy(args):
+    """
+    destroy function destroys the attack range using terraform.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: No return value.
+    """   
     controller, _, _ = init(args)
     controller.destroy()
 
 
 def stop(args):
+    """
+    stop function pauses the attack range using boto3.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: No return value.   
+    """
     controller, _, _ = init(args)
     controller.stop()
 
 
 def resume(args):
+    """
+    resume function resumes the attack range using boto3.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: No return value.   
+    """
     controller, _, _ = init(args)
     controller.resume()
 
@@ -166,6 +235,12 @@ def test(args):
 
 
 def main(args):
+    """
+    main function parses the arguments passed to the script and calls the respctive method.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: returns the output of the function called.     
+    """
     # grab arguments
     parser = argparse.ArgumentParser(
         description="Use `attack_range.py action -h` to get help with any Attack Range action")
@@ -175,18 +250,28 @@ def main(args):
                         help="shows current attack_range version")
     parser.set_defaults(func=lambda _: parser.print_help())
 
-    actions_parser = parser.add_subparsers(title="attack Range actions", dest="action")
-    configure_parser = actions_parser.add_parser("configure", help="configure a new attack range")
-    build_parser = actions_parser.add_parser("build", help="builds attack range instances")
-    simulate_parser = actions_parser.add_parser("simulate", help="simulates attack techniques")
-    destroy_parser = actions_parser.add_parser("destroy", help="destroy attack range instances")
-    stop_parser = actions_parser.add_parser("stop", help="stops attack range instances")
-    resume_parser = actions_parser.add_parser("resume", help="resumes previously stopped attack range instances")
+    actions_parser = parser.add_subparsers(
+        title="attack Range actions", dest="action")
+    configure_parser = actions_parser.add_parser(
+        "configure", help="configure a new attack range")
+    build_parser = actions_parser.add_parser(
+        "build", help="builds attack range instances")
+    simulate_parser = actions_parser.add_parser(
+        "simulate", help="simulates attack techniques")
+    destroy_parser = actions_parser.add_parser(
+        "destroy", help="destroy attack range instances")
+    stop_parser = actions_parser.add_parser(
+        "stop", help="stops attack range instances")
+    resume_parser = actions_parser.add_parser(
+        "resume", help="resumes previously stopped attack range instances")
     show_parser = actions_parser.add_parser("show", help="list machines")
     test_parser = actions_parser.add_parser("test", help="test detections")
-    dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
-    replay_parser = actions_parser.add_parser("replay", help="replay dumps into the splunk server")
-    search_parser = actions_parser.add_parser("search", help="execute a splunk savedsearch on the splunk server")
+    dump_parser = actions_parser.add_parser(
+        "dump", help="dump locally logs from attack range instances")
+    replay_parser = actions_parser.add_parser(
+        "replay", help="replay dumps into the splunk server")
+    search_parser = actions_parser.add_parser(
+        "search", help="execute a splunk savedsearch on the splunk server")
 
     # Build arguments
     build_parser.set_defaults(func=build)
@@ -202,7 +287,7 @@ def main(args):
 
     # Configure arguments
     configure_parser.add_argument("-c", "--config", required=False, type=str, default='attack_range.conf',
-                                    help="provide path to write configuration to")
+                                  help="provide path to write configuration to")
     configure_parser.set_defaults(func=configure)
 
     # Simulation arguments
@@ -240,13 +325,13 @@ def main(args):
     replay_parser.add_argument("-fn", "--file_name", required=True,
                                help="file name of the attack_data")
     replay_parser.add_argument("--source", required=True,
-                        help="source of replayed data")
+                               help="source of replayed data")
     replay_parser.add_argument("--sourcetype", required=True,
-                        help="sourcetype of replayed data")
+                               help="sourcetype of replayed data")
     replay_parser.add_argument("--index", required=True,
-                        help="index of replayed data")
+                               help="index of replayed data")
     replay_parser.add_argument("--update_timestamp", required=False, default=False,
-                             action="store_true", help="update timestamps of replayed data")
+                               action="store_true", help="update timestamps of replayed data")
     replay_parser.set_defaults(func=replay)
 
     # Test Arguments
@@ -260,13 +345,12 @@ def main(args):
 
     # Search Arguments
     search_parser.add_argument("--search", required=True,
-                             help="savedsearch on splunk server")
+                               help="savedsearch on splunk server")
     search_parser.add_argument("--earliest", required=True,
-                             help="earliest time of the splunk search")
+                               help="earliest time of the splunk search")
     search_parser.add_argument("--latest", required=False, default="now",
-                             help="latest time of the splunk search")
+                               help="latest time of the splunk search")
     search_parser.set_defaults(func=search)
-
 
     # Show arguments
     show_parser.add_argument("-m", "--machines", required=False, default=False,

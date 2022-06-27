@@ -6,3 +6,4 @@
   roles:
     - linux_common
     - sysmon_linux
+    - linux_prelude_agent
