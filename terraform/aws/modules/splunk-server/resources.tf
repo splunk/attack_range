@@ -91,6 +91,7 @@ data "aws_iam_policy_document" "splunk_logging" {
 }
 
 resource "aws_iam_role_policy" "splunk_logging_policy" {
+  count = var.config.aws_cloudtrail == "1" ? 1 : 0
   name = "splunk_logging_policy_${var.config.key_name}"
   role = aws_iam_role.splunk_role.id
   policy = data.aws_iam_policy_document.splunk_logging.json
