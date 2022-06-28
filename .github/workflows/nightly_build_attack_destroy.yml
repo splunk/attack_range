@@ -1,7 +1,8 @@
 name: nightly-build-attack-destroy
 on:
-  schedule:
-    - cron: '35 6 * * *'
+  push:
+    branches:
+    - attack_range_3
 
 jobs:
   nightly-build-attack-destroy:
