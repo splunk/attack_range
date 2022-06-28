@@ -41,11 +41,10 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v1
 
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
-
       - name: Install Dependencies using Poetry
-        run: poetry install
+        run: |
+          pip3 install poetry
+          poetry install
 
       - name: Copy Attack Range config
         run: |
