@@ -1,0 +1,66 @@
+name: nightly-build-attack-destroy
+on:
+  schedule:
+    - cron: '6 25 * * *'
+
+jobs:
+  nightly-build-attack-destroy:
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          ref: 'attack_range_3'
+
+      - name: Install System Packages
+        run: |
+          sudo apt update -qq        
+          #The following installation is required for the ssh-key-action to work
+          sudo apt install -y openssh-client poetry
+      
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9' #Available versions here - https://github.com/actions/python-versions/releases  easy to change/make a matrix/use pypy
+          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+
+      - name: Install Python dependencies
+        run: |
+          poetry install
+      
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.AR_SSH_PRIVATE_KEY }}
+          name: ar-github-actions
+          known_hosts: unnecessary
+          if_key_exists: fail 
+
+      - uses: hashicorp/setup-terraform@v1
+
+      - name: Copy Attack Range cobfig
+        run: |
+          cp -f configs/github_actions_config.yml attack_range.yml
+
+      - name: Test Terraform Build, Attack, Destroy
+        run: |
+          cd terraform/aws/
+          terraform init
+          cd ../..
+          python3 attack_range.py build
+          python3 attack_range.py simulate --target ar-win-ar-github-actions-ar-0 --simulation_technique T1003.002
+          python3 attack_range.py destroy
+        
+      
+      - name: Cleanup terraform on failures
+        if: failure()
+        run: |
+          source venv/bin/activate
+          python3 attack_range.py destroy
