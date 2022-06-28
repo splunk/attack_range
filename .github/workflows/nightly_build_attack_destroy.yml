@@ -17,11 +17,8 @@ jobs:
 
       - name: Install System Packages
         run: |
-          sudo apt update -qq        
-          #The following installation is required for the ssh-key-action to work
+          sudo apt update -qq
           sudo apt install -y openssh-client
-          python3 -m pip install poetry
-          poetry install
       
       - uses: actions/setup-python@v2
         with:
@@ -43,6 +40,11 @@ jobs:
           if_key_exists: fail 
 
       - uses: hashicorp/setup-terraform@v1
+
+      - name: Install Poetry
+        run: |
+          pip3 install poetry
+          poetry install
 
       - name: Copy Attack Range config
         run: |
