@@ -42,9 +42,10 @@ jobs:
       - uses: hashicorp/setup-terraform@v1
 
       - name: Install Poetry
-        run: |
-          pip3 install poetry
-          poetry install
+        uses: abatilo/actions-poetry@v2.0.0
+
+      - name: Install Dependencies using Poetry
+        run: poetry install
 
       - name: Copy Attack Range config
         run: |
@@ -52,15 +53,16 @@ jobs:
 
       - name: Test Terraform Build, Attack, Destroy
         run: |
+
           cd terraform/aws/
           terraform init
           cd ../..
-          python3 attack_range.py build
-          python3 attack_range.py simulate --target ar-win-ar-github-actions-ar-0 --simulation_technique T1003.002
-          python3 attack_range.py destroy
+          poetry run python attack_range.py build
+          poetry run python attack_range.py simulate --target ar-win-ar-github-actions-ar-0 --simulation_technique T1003.002
+          poetry run python attack_range.py destroy
         
       
       - name: Cleanup terraform on failures
         if: failure()
         run: |
-          python3 attack_range.py destroy
+          poetry run python attack_range.py destroy

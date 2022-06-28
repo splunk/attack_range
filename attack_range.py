@@ -2,7 +2,7 @@ import os
 import sys
 import argparse
 
-#from colorama import Fore, Back, Style
+from colorama import Fore, Back, Style
 
 from modules.config_handler import ConfigHandler
 from modules.aws_controller import AwsController
