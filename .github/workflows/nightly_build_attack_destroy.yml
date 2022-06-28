@@ -49,6 +49,7 @@ jobs:
 
       - name: Test Terraform Build, Attack, Destroy
         run: |
+          poetry shell
           poetry install
           cd terraform/aws/
           terraform init
@@ -61,5 +62,6 @@ jobs:
       - name: Cleanup terraform on failures
         if: failure()
         run: |
-          source venv/bin/activate
+          poetry shell
+          poetry install
           python3 attack_range.py destroy
