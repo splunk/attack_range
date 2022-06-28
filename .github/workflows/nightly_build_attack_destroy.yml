@@ -1,8 +1,7 @@
 name: nightly-build-attack-destroy
 on:
-  push:
-    branches:
-    - attack_range_3
+  schedule:
+    - cron: '45 8 * * *'
 
 jobs:
   nightly-build-attack-destroy:
@@ -12,8 +11,6 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v2
-        with:
-          ref: 'attack_range_3'
 
       - name: Install System Packages
         run: |
