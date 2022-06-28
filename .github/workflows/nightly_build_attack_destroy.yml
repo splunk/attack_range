@@ -20,7 +20,8 @@ jobs:
           sudo apt update -qq        
           #The following installation is required for the ssh-key-action to work
           sudo apt install -y openssh-client
-          pip install poetry
+          python3 -m pip install poetry
+          poetry install
       
       - uses: actions/setup-python@v2
         with:
@@ -49,8 +50,6 @@ jobs:
 
       - name: Test Terraform Build, Attack, Destroy
         run: |
-          poetry shell
-          poetry install
           cd terraform/aws/
           terraform init
           cd ../..
@@ -62,6 +61,4 @@ jobs:
       - name: Cleanup terraform on failures
         if: failure()
         run: |
-          poetry shell
-          poetry install
           python3 attack_range.py destroy
