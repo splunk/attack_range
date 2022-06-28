@@ -26,10 +26,6 @@ jobs:
         with:
           python-version: '3.9' #Available versions here - https://github.com/actions/python-versions/releases  easy to change/make a matrix/use pypy
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
-
-      - name: Install Python dependencies
-        run: |
-          poetry install
       
       - uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -47,12 +43,13 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v1
 
-      - name: Copy Attack Range cobfig
+      - name: Copy Attack Range config
         run: |
           cp -f configs/github_actions_config.yml attack_range.yml
 
       - name: Test Terraform Build, Attack, Destroy
         run: |
+          poetry install
           cd terraform/aws/
           terraform init
           cd ../..
