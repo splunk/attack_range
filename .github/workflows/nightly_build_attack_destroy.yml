@@ -1,7 +1,7 @@
 name: nightly-build-attack-destroy
 on:
   schedule:
-    - cron: '6 25 * * *'
+    - cron: '27 6 * * *'
 
 jobs:
   nightly-build-attack-destroy:
