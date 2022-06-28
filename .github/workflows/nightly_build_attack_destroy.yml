@@ -19,7 +19,8 @@ jobs:
         run: |
           sudo apt update -qq        
           #The following installation is required for the ssh-key-action to work
-          sudo apt install -y openssh-client poetry
+          sudo apt install -y openssh-client
+          pip install poetry
       
       - uses: actions/setup-python@v2
         with:
