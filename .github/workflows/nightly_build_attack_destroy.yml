@@ -57,7 +57,7 @@ jobs:
           terraform init
           cd ../..
           poetry run python attack_range.py build
-          poetry run python attack_range.py simulate --target ar-win-ar-github-actions-ar-0 --simulation_technique T1003.002
+          poetry run python attack_range.py simulate --target ar-win-ar-github-actions-ar-0 --technique T1003.002
           poetry run python attack_range.py destroy
         
       
