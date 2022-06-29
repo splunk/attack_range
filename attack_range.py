@@ -7,6 +7,7 @@ from colorama import Fore, Back, Style
 from modules.config_handler import ConfigHandler
 from modules.aws_controller import AwsController
 from modules.azure_controller import AzureController
+from modules.vagrant_controller import VagrantController
 from modules import configuration
 
 # need to set this ENV var due to a OSX High Sierra forking bug
@@ -40,10 +41,16 @@ starting program loaded for B1 battle droid """ + Back.BLACK + Fore.BLUE + Style
 
     if config['general']['cloud_provider'] == 'aws':
         config.pop('azure')
+        config.pop('local')
         controller = AwsController(config)
     elif config['general']['cloud_provider'] == 'azure':
         config.pop('aws')
+        config.pop('local')
         controller = AzureController(config)
+    elif config['general']['cloud_provider'] == 'local':
+        config.pop('azure')
+        config.pop('aws')
+        controller = VagrantController(config)
    
     return controller
 

@@ -1,7 +1,7 @@
 
 general:
-  attack_range_password: "ChangeMe123!"
-  cloud_provider: "aws"
+  attack_range_password: "ChangeMe123!1"
+  cloud_provider: "local"
   key_name: "ar"
 windows_servers: 
   - hostname: ar-win

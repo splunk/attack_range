@@ -16,6 +16,8 @@ azure:
   subscription_id: "xxx"
   private_key_path: "~/.ssh/id_rsa"
   public_key_path: "~/.ssh/id_rsa.pub"
+local:
+  provider: "Virtual Box"
 splunk_server:
   image: "splunk-v3-0-0"
   install_es: "0"

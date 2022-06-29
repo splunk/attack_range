@@ -23,6 +23,8 @@ splunk-sdk = "^1.6.19"
 urllib3 = "^1.26.9"
 pycryptodome = "^3.14.1"
 questionary = "^1.10.0"
+Jinja2 = "^3.1.2"
+python-vagrant = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 
