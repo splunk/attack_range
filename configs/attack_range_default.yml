@@ -47,3 +47,6 @@ nginx_server:
 simulation:
   atomic_red_team_repo: redcanaryco
   atomic_red_team_branch: master
+  prelude: "0"
+  prelude_operator_url: "https://download.prelude.org/latest?arch=x64&platform=linux&variant=zip&edition=headless"
+  prelude_account_email: "test@test.com"

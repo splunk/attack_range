@@ -3,7 +3,9 @@
   become: true
   vars:  
     hostname: splunk-server
+    cloudtrail: "0"
   roles:
     - set_hostname_linux
     - splunk_server_post
     - cloudtrail_logs
+    - prelude

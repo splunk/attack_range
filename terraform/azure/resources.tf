@@ -13,6 +13,7 @@ module "splunk-server" {
   splunk_server = var.splunk_server
   phantom_server = var.phantom_server
   general = var.general
+  simulation = var.simulation
 }
 
 module "phantom-server" {
@@ -31,6 +32,7 @@ module "windows-server" {
   general = var.general
   azure = var.azure
   windows_servers = var.windows_servers
+  simulation = var.simulation
 }
 
 module "linux-server" {
@@ -40,6 +42,7 @@ module "linux-server" {
   azure = var.azure
   general = var.general
   linux_servers = var.linux_servers
+  simulation = var.simulation
 }
 
 # kali linux image was removed from Azure marketplace

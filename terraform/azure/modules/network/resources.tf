@@ -134,6 +134,42 @@ resource "azurerm_network_security_group" "attackrange-nsg" {
     source_address_prefixes    = [var.general.ip_whitelist]
     destination_address_prefix = "*"
   }
+
+  security_rule {
+    name                       = "Prelude1"
+    priority                   = 1011
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3391"
+    source_address_prefixes    = [var.general.ip_whitelist]
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "Prelude2"
+    priority                   = 1012
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "2323"
+    source_address_prefixes    = [var.general.ip_whitelist]
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "Prelude3"
+    priority                   = 1013
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "50051"
+    source_address_prefixes    = [var.general.ip_whitelist]
+    destination_address_prefix = "*"
+  }
 }
 
 resource "azurerm_subnet_network_security_group_association" "attackrange-nsga" {

@@ -11,3 +11,4 @@
     - update_sysmon_config
     - red_team_tools
     - join_domain
+    - windows_agent_prelude

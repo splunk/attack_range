@@ -1,0 +1,20 @@
+---
+
+- name: Wait for redirector to be ready
+  wait_for:
+    port: 2323
+    host: "10.0.1.12"
+    connect_timeout: 30
+    delay: 60
+    timeout: 900
+
+- name: Download Prelude Pneuma from headless Operator
+  get_url:
+    url: http://10.0.1.12:3391/payloads/pneuma/v1.6/pneuma-linux
+    dest: /opt/prelude-pneuma
+    mode: 755
+
+- name: Start Prelude Pneuma and Connect to headless Operator
+  shell: /opt/prelude-pneuma -name "$(hostname)" -address 10.0.1.12:2323 &
+  async: 10
+  poll: 0

@@ -4,3 +4,4 @@ variable "ec2_subnet_id" { }
 variable "general" { }
 variable "aws" { }
 variable "linux_servers" { }
+variable "simulation" { }

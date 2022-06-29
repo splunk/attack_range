@@ -141,6 +141,7 @@ class AwsController(AttackRangeController):
         response = []
         messages = []
         instances_running = False
+        splunk_ip = ""
         for instance in instances:
             if instance['State']['Name'] == 'running':
                 instances_running = True
@@ -148,6 +149,7 @@ class AwsController(AttackRangeController):
                                     instance['NetworkInterfaces'][0]['Association']['PublicIp']])
                 instance_name = instance['Tags'][0]['Value']
                 if instance_name.startswith("ar-splunk"):
+                    splunk_ip = instance['NetworkInterfaces'][0]['Association']['PublicIp']
                     if self.config["splunk_server"]["install_es"] == "1":
                         messages.append("\nAccess Splunk via:\n\tWeb > https://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":8000\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                     else:
@@ -165,6 +167,10 @@ class AwsController(AttackRangeController):
             else:
                 response.append([instance['Tags'][0]['Value'],
                                     instance['State']['Name']])
+
+        if self.config['simulation']['prelude'] == "1":
+            prelude_token = self.get_prelude_token('/var/tmp/.prelude_session_token')
+            messages.append("\nAccess Prelude Operator UI via:\n\tredirector FQDN > " + splunk_ip + "\n\tToken: " + prelude_token + "\n\tSee guide details: https://github.com/splunk/attack_range/wiki/Prelude-Operator")
 
         print()
         print('Status Virtual Machines\n')
@@ -215,3 +221,13 @@ class AwsController(AttackRangeController):
                                     roles_path=os.path.join(os.path.dirname(__file__), 'ansible/roles'),
                                     playbook=os.path.join(os.path.dirname(__file__), 'ansible/data_replay.yml'),
                                     extravars=ansible_vars)
+
+
+    def get_prelude_token(self, token_path):
+        token = ''
+        try:
+            prelude_token_file = open(token_path,'r')
+            token = prelude_token_file.read()
+        except Exception as e:
+            self.logger.error("was not able to read prelude token from {}".format(token_path))
+        return token
