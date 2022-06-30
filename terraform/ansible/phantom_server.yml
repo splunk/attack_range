@@ -2,5 +2,4 @@
   gather_facts: False
   become: true
   roles:
-    - set_hostname_linux
     - phantom

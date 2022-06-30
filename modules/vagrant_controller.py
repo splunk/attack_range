@@ -19,12 +19,25 @@ class VagrantController(AttackRangeController):
     def build(self) -> None:
         self.logger.info("[action] > build\n")
         vagrantfile = 'Vagrant.configure("2") do |config| \n \n'
-        vagrantfile += self.read_vagrant_file('splunk_server/Vagrantfile')
-        vagrantfile += '\n\n'
+
+        if self.config['phantom_server']['phantom_server'] == "1":
+            vagrantfile += self.read_vagrant_file('phantom_server/Vagrantfile')
+            vagrantfile += '\n\n'            
+
+        # vagrantfile += self.read_vagrant_file('splunk_server/Vagrantfile')
+        # vagrantfile += '\n\n'
 
         for idx, x in enumerate(self.config['windows_servers']):
             vagrantfile += self.read_vagrant_file_array('windows_server/Vagrantfile', x, idx)
             vagrantfile += '\n\n'
+
+        for idx, x in enumerate(self.config['linux_servers']):
+            vagrantfile += self.read_vagrant_file_array('linux_server/Vagrantfile', x, idx)
+            vagrantfile += '\n\n'
+
+        if self.config['kali_server']['kali_server'] == "1":
+            vagrantfile += self.read_vagrant_file('kali_server/Vagrantfile')
+            vagrantfile += '\n\n'  
 
         vagrantfile += '\nend'
         with open('vagrant/Vagrantfile', 'w') as file:
