@@ -474,6 +474,19 @@ starting configuration for AT-ST mech walker
     answers = questionary.prompt(questions)
     enabled = lambda x : 1 if x else 0
 
+    if (enabled(answers['windows_domain_controller'])):
+        badblood_question=[
+        {
+            'type': 'confirm',
+            'message': 'would you like to pre-populate the domain controller with BadBlood (user, groups, and computers).',
+            'name': 'windows_domain_controller_run_badblood',
+            'default': False,
+        }
+        ]
+        badblood_answer = questionary.prompt(badblood_question)
+        configuration._sections['windows_domain_controller']['windows_domain_controller_run_badblood'] = enabled(badblood_answer['windows_domain_controller_run_badblood'])
+
+
     if (enabled(answers['phantom_inclusion'])):
         configuration._sections['environment']['phantom_inclusion'] = enabled(
             answers['phantom_inclusion'])
