@@ -385,7 +385,7 @@ windows_domain_controller_zeek_capture = 0
 #specify if you want to capture wire data from the Windows Domain Controller
 # possible values: 1, 0
 
-windows_domain_controller_run_badblood = 1
+windows_domain_controller_run_badblood = 0
 # specify if you want to install and run BadBlood on the Domain Controller
 # possible values: 1, 0
 

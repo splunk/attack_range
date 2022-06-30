@@ -11,6 +11,7 @@
     - windows_common
     - windows_dns_server
     - windows_domain_controller
+    - badblood
     - windows_universal_forwarder
     - windows_aurora_agent
     - windows_caldera_agent
