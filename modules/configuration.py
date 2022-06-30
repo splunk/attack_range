@@ -6,7 +6,6 @@ Helps configure your attack_range before using.
 
 from Crypto.PublicKey import RSA
 from pathlib import Path
-from PyInquirer import prompt, Separator
 from botocore.config import Config
 import sys
 import argparse
@@ -17,12 +16,21 @@ import string
 import boto3
 import getpass
 import time
+import uuid
+import questionary
 
 import os
 
 CONFIG_TEMPLATE = 'attack_range.conf.template'
 
+
 def load_config_template(CONFIG_TEMPLATE):
+    """
+    load_config_template function reads the CONFIG_TEMPLATE and returns a RawConfigParser object. The object will have all the values from the CONFIG_TEMPLATE.
+
+    :param CONFIG_TEMPLATE: configuration template file path
+    :return: RawConfigParser object
+    """
     settings = {}
     config = configparser.RawConfigParser()
     config.read(CONFIG_TEMPLATE)
@@ -30,6 +38,11 @@ def load_config_template(CONFIG_TEMPLATE):
 
 
 def get_random_password():
+    """
+    get_random_password function generates random password.
+
+    :return: returns the generated password
+    """
     random_source = string.ascii_letters + string.digits
     password = random.choice(string.ascii_lowercase)
     password += random.choice(string.ascii_uppercase)
@@ -43,7 +56,15 @@ def get_random_password():
     password = ''.join(password_list)
     return password
 
+
 def create_key_pair_aws(client):
+    """
+    create_key_pair_aws function reates an ED25519 or 2048-bit RSA key pair with the specified name and in the specified PEM or PPK format. 
+    Amazon EC2 stores the public key and displays the private key for you to save to a file.
+
+    :param client: EC2 client object
+    :return: ssh key name
+    """
     # create new ssh key
     epoch_time = str(int(time.time()))
     ssh_key_name = getpass.getuser() + "-" + epoch_time[-5:] + ".key"
@@ -54,7 +75,13 @@ def create_key_pair_aws(client):
     os.chmod(ssh_key_name, 0o600)
     return ssh_key_name
 
+
 def create_key_pair_azure():
+    """
+    create_key_pair_azure function creates public and private key for Azure.
+
+    :return: private and public key name
+    """
     # create new ssh key
     epoch_time = str(int(time.time()))
     key = RSA.generate(2048)
@@ -68,7 +95,13 @@ def create_key_pair_azure():
         content_file.write(pubkey.exportKey('OpenSSH'))
     return priv_key_name, pub_key_name
 
+
 def check_for_generated_keys(answers):
+    """
+    check_for_generated_keys function checks for the presence of .key file in the project directory.
+
+    :return: Boolean output based on the existance of the .key file
+    """
     keys = []
     for file in os.listdir("."):
         if file.endswith(".key"):
@@ -77,7 +110,13 @@ def check_for_generated_keys(answers):
         return True
     return False
 
+
 def get_generated_keys():
+    """
+    get_generated_keys function gets the .key & .pub files in the project directory.
+
+    :return: private and public key file name
+    """
     priv_keys = []
     pub_keys = []
     for file in os.listdir("."):
@@ -97,7 +136,13 @@ def get_generated_keys():
 
     return priv_key, pub_key
 
+
 def check_reuse_keys(answers):
+    """
+    check_reuse_keys function checks for key reuse.
+
+    :return: boolean output
+    """
     if 'reuse_keys' in answers:
         if answers['reuse_keys']:
             return False
@@ -106,23 +151,31 @@ def check_reuse_keys(answers):
     else:
         return True
 
+
 def new(config):
+    """
+    new function creates a new configuration file based on the user input on the terminal.
+
+    :param config: python dictionary having the configuration 
+    :return: No return value
+    """
     attack_range_config = Path(config)
     if attack_range_config.is_file():
         questions = [
-        {
-            'type': 'confirm',
-            'message': 'File {0} already exist, are you sure you want to continue?\nTHIS WILL OVERWRITE YOUR CURRENT CONFIG!'.format(attack_range_config),
-            'name': 'continue',
-            'default': True,
-        },
+            {
+                'type': 'confirm',
+                'message': 'File {0} already exist, are you sure you want to continue?\nTHIS WILL OVERWRITE YOUR CURRENT CONFIG!'.format(attack_range_config),
+                'name': 'continue',
+                'default': True,
+            },
         ]
 
-        answers = prompt(questions)
+        answers = questionary.prompt(questions)
         if answers['continue']:
             print("> continuing with attack_range configuration...")
         else:
-            print("> exiting, to create a unique configuration file in another location use the --config flag")
+            print(
+                "> exiting, to create a unique configuration file in another location use the --config flag")
             sys.exit(0)
 
         configpath = str(attack_range_config)
@@ -161,17 +214,11 @@ starting configuration for AT-ST mech walker
     questions = [
         {
             # get provider
-            'type': 'list',
+            'type': 'select',
             'message': 'select cloud provider',
             'name': 'provider',
-            'choices': [
-                {
-                    'name': 'aws'
-                },
-                {
-                    'name': 'azure'
-                },
-            ],
+            'choices': ['aws','azure'],
+            'default': 'aws'
         },
         {
             # get api_key
@@ -188,13 +235,15 @@ starting configuration for AT-ST mech walker
             'default': get_random_password(),
         },
     ]
-    answers = prompt(questions)
+
+    answers = questionary.prompt(questions)
     if answers['provider'] == 'aws':
         aws_session = boto3.Session()
         if aws_session.region_name:
             aws_configured_region = aws_session.region_name
         else:
-            print("ERROR aws region not configured, please run `aws configure` to setup awscli")
+            print(
+                "ERROR aws region not configured, please run `aws configure` to setup awscli")
             sys.exit(1)
     else:
         aws_configured_region = ''
@@ -209,13 +258,14 @@ starting configuration for AT-ST mech walker
 
     # get external IP for default suggestion on whitelist question
     try:
-        external_ip = urllib.request.urlopen('https://v4.ident.me').read().decode('utf8')
+        external_ip = urllib.request.urlopen(
+            'https://v4.ident.me').read().decode('utf8')
     except:
         print("WARNING, unable to determine the public ip")
         external_ip = ''
 
     # get the latest key generated
-    priv_key, pub_key  = get_generated_keys()
+    priv_key, pub_key = get_generated_keys()
 
     questions = [
         {   # reuse key pair?
@@ -235,42 +285,50 @@ starting configuration for AT-ST mech walker
     ]
 
     # check if we should generate a key pair
-    answers = prompt(questions)
+    answers = questionary.prompt(questions)
     if 'reuse_keys' in answers:
         if answers['reuse_keys']:
             priv_key_name = os.path.basename(os.path.normpath(priv_key))
-            configuration._sections['range_settings']['key_name'] = str(priv_key_name)[:-4]
-            configuration._sections['range_settings']['private_key_path'] = str(priv_key)
-            configuration._sections['range_settings']['public_key_path'] = str(pub_key)
+            configuration._sections['range_settings']['key_name'] = str(priv_key_name)[
+                :-4]
+            configuration._sections['range_settings']['private_key_path'] = str(
+                priv_key)
+            configuration._sections['range_settings']['public_key_path'] = str(
+                pub_key)
             print("> included ssh private key: {}".format(priv_key))
 
     if 'new_key_pair' in answers:
         if answers['new_key_pair']:
             # create new ssh key for aws
             if configuration._sections['global']['provider'] == "aws":
-                new_key_name = create_key_pair_aws(aws_session.client('ec2', region_name=aws_configured_region))
+                new_key_name = create_key_pair_aws(aws_session.client(
+                    'ec2', region_name=aws_configured_region))
                 new_key_path = Path(new_key_name).resolve()
                 configuration._sections['range_settings']['key_name'] = new_key_name[:-4]
-                configuration._sections['range_settings']['private_key_path'] = str(new_key_path)
-                configuration._sections['range_settings']['public_key_path'] = str(pub_key)
+                configuration._sections['range_settings']['private_key_path'] = str(
+                    new_key_path)
+                configuration._sections['range_settings']['public_key_path'] = str(
+                    pub_key)
                 print("> new aws ssh created: {}".format(new_key_path))
             elif configuration._sections['global']['provider'] == "azure":
                 priv_key_name, pub_key_name = create_key_pair_azure()
                 priv_key_path = Path(priv_key_name).resolve()
                 pub_key_path = Path(pub_key_name).resolve()
                 configuration._sections['range_settings']['key_name'] = priv_key_name[:-4]
-                configuration._sections['range_settings']['private_key_path'] = str(priv_key_path)
-                configuration._sections['range_settings']['public_key_path'] = str(pub_key_path)
-                print("> new azure ssh pair created:\nprivate key: {0}\npublic key:{1}".format(priv_key_path, pub_key_path))
+                configuration._sections['range_settings']['private_key_path'] = str(
+                    priv_key_path)
+                configuration._sections['range_settings']['public_key_path'] = str(
+                    pub_key_path)
+                print("> new azure ssh pair created:\nprivate key: {0}\npublic key:{1}".format(
+                    priv_key_path, pub_key_path))
             else:
-                print("ERROR, we do not support generating a key pair for the selected provider: {}".format(configuration._sections['global']['provider']))
-
-
+                print("ERROR, we do not support generating a key pair for the selected provider: {}".format(
+                    configuration._sections['global']['provider']))
 
     questions = [
         {
             # get api_key
-            'type': 'input',
+            'type': 'text',
             'message': 'enter ssh key name',
             'name': 'key_name',
             'default': 'attack-range-key-pair',
@@ -278,7 +336,7 @@ starting configuration for AT-ST mech walker
         },
         {
             # get private_key_path
-            'type': 'input',
+            'type': 'text',
             'message': 'enter private key path for machine access',
             'name': 'private_key_path',
             'default': "~/.ssh/id_rsa",
@@ -286,7 +344,7 @@ starting configuration for AT-ST mech walker
         },
         {
             # get public_key_path
-            'type': 'input',
+            'type': 'text',
             'message': 'enter public key path for machine access',
             'name': 'public_key_path',
             'default': "~/.ssh/id_rsa.pub",
@@ -301,14 +359,14 @@ starting configuration for AT-ST mech walker
         },
         {
             # get whitelist
-            'type': 'input',
+            'type': 'text',
             'message': 'enter public ips that are allowed to reach the attack_range.\nExample: {0}/32,0.0.0.0/0'.format(external_ip),
             'name': 'ip_whitelist',
             'default': external_ip + "/32"
         },
         {
             # get range name
-            'type': 'input',
+            'type': 'text',
             'message': 'enter attack_range name, multiple can be build under different names in the same region',
             'name': 'range_name',
             'default': "default",
@@ -316,20 +374,23 @@ starting configuration for AT-ST mech walker
 
     ]
 
-    answers = prompt(questions)
+    answers = questionary.prompt(questions)
     # manage keys first
     if 'key_name' in answers:
         configuration._sections['range_settings']['key_name'] = answers['key_name']
     else:
-        print("> using ssh key name: {}".format(configuration._sections['range_settings']['key_name']))
+        print("> using ssh key name: {}".format(
+            configuration._sections['range_settings']['key_name']))
     if 'private_key_path' in answers:
         configuration._sections['range_settings']['private_key_path'] = answers['private_key_path']
     else:
-        print("> using ssh private key: {}".format(configuration._sections['range_settings']['private_key_path']))
+        print("> using ssh private key: {}".format(
+            configuration._sections['range_settings']['private_key_path']))
     if 'public_key_path' in answers:
         configuration._sections['range_settings']['public_key_path'] = answers['public_key_path']
     else:
-        print("> using ssh public key: {}".format(configuration._sections['range_settings']['public_key_path']))
+        print("> using ssh public key: {}".format(
+            configuration._sections['range_settings']['public_key_path']))
     # get region
     if 'region' in answers:
         configuration._sections['range_settings']['region'] = answers['region']
@@ -367,6 +428,18 @@ starting configuration for AT-ST mech walker
         },
         {
             'type': 'confirm',
+            'message': 'shall we build Prelude Operator headless for testing',
+            'name': 'prelude',
+            'default': False,
+        },
+        {
+            'type': 'confirm',
+            'message': 'shall we pre-install red team tools on Windows. The tool list can be found here: https://github.com/splunk/attack_range/wiki/Red-Team-Tools',
+            'name': 'install_red_team_tools',
+            'default': False,
+        },
+        {
+            'type': 'confirm',
             'message': 'shall we build zeek sensors',
             'name': 'zeek_sensor',
             'default': False,
@@ -390,31 +463,45 @@ starting configuration for AT-ST mech walker
             'default': False,
         },
         {
-            'type': 'list',
+            'type': 'select',
             'message': 'would you like to supply your own Splunk SOAR environment',
             'name': 'phantom_type',
-            'choices': ['New', 'BYO'],
+            'choices': ['new', 'byo'],
             'when': lambda answers: answers['phantom_inclusion'],
-            'filter': lambda val : val.lower(),
-            'default': False,
         },
 
     ]
-    answers = prompt(questions)
+    answers = questionary.prompt(questions)
     enabled = lambda x : 1 if x else 0
 
+    if (enabled(answers['windows_domain_controller'])):
+        badblood_question=[
+        {
+            'type': 'confirm',
+            'message': 'would you like to pre-populate the domain controller with BadBlood (user, groups, and computers).',
+            'name': 'windows_domain_controller_run_badblood',
+            'default': False,
+        }
+        ]
+        badblood_answer = questionary.prompt(badblood_question)
+        configuration._sections['windows_domain_controller']['windows_domain_controller_run_badblood'] = enabled(badblood_answer['windows_domain_controller_run_badblood'])
+
+
     if (enabled(answers['phantom_inclusion'])):
-        configuration._sections['environment']['phantom_inclusion'] = enabled(answers['phantom_inclusion'])
+        configuration._sections['environment']['phantom_inclusion'] = enabled(
+            answers['phantom_inclusion'])
         configuration._sections['environment']['phantom_type'] = answers['phantom_type']
     else:
-        configuration._sections['environment']['phantom_inclusion'] = enabled(answers['phantom_inclusion'])
+        configuration._sections['environment']['phantom_inclusion'] = enabled(
+            answers['phantom_inclusion'])
         configuration._sections['environment']['phantom_type'] = 0
 
-
     if (enabled(answers['windows_domain_controller'])):
-        configuration._sections['environment']['windows_domain_controller'] = enabled(answers['windows_domain_controller'])
+        configuration._sections['environment']['windows_domain_controller'] = enabled(
+            answers['windows_domain_controller'])
     else:
-        configuration._sections['environment']['windows_domain_controller'] = enabled(answers['windows_domain_controller'])
+        configuration._sections['environment']['windows_domain_controller'] = enabled(
+            answers['windows_domain_controller'])
         configuration._sections['windows_server']['windows_server_join_domain'] = 0
         configuration._sections['windows_client']['windows_client_join_domain'] = 0
 
@@ -422,26 +509,39 @@ starting configuration for AT-ST mech walker
     configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
     configuration._sections['environment']['windows_client'] = enabled(answers['windows_client'])
     configuration._sections['environment']['zeek_sensor'] = enabled(answers['zeek_sensor'])
+
+    if (enabled(answers['prelude'])):
+        configuration._sections['simulation']['prelude'] = enabled(answers['prelude'])
+        prelude_question=[
+        {
+            'type': 'input',
+            'message': 'Prelude Operator Account Email, see https://github.com/splunk/attack_range/wiki/Prelude-Operator for details.',
+            'name': 'prelude_account_email',
+        }
+        ]
+        prelude_answer = questionary.prompt(prelude_question)
+        configuration._sections['simulation']['prelude_account_email'] = prelude_answer['prelude_account_email']
+
+    configuration._sections['environment']['install_red_team_tools'] = enabled(answers['install_red_team_tools'])
     configuration._sections['environment']['nginx_web_proxy'] = enabled(answers['nginx_web_proxy'])
     configuration._sections['environment']['sysmon_linux'] = enabled(answers['sysmon_linux'])
 
-
     if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "byo":
-        questions=[
+        questions = [
             {
-            'type': 'input',
+            'type': 'text',
             'message': 'SOAR api token, required for bring your own SOAR',
             'name': 'phantom_api_token',
             'default': 'FIX_ME',
         },
         {
-            'type': 'input',
+            'type': 'text',
             'message': 'SOAR server ip address, required for bring your own SOAR',
             'name': 'phantom_byo_ip',
             'default': '8.8.8.8',
         },
         ]
-        answers = prompt(questions)
+        answers = questionary.prompt(questions)
         enabled = lambda x : 1 if x else 0
         if 'phantom_api_token' in answers:
             configuration._sections['phantom_settings']['phantom_api_token'] = answers['phantom_api_token']
@@ -453,19 +553,19 @@ starting configuration for AT-ST mech walker
     if 'phantom_inclusion' in configuration._sections['environment'] and configuration._sections['environment']['phantom_type'] == "new":
         questions = [
             {
-                'type': 'input',
+                'type': 'text',
                 'message': 'phantom community username (my.phantom.us), required for SOAR server',
                 'name': 'phantom_community_username',
                 'default': 'user',
             },
             {
-                'type': 'input',
+                'type': 'text',
                 'message': 'phantom community password (my.phantom.us), required for SOAR server',
                 'name': 'phantom_community_password',
                 'default': 'password',
             },
         ]
-        answers = prompt(questions)
+        answers = questionary.prompt(questions)
         enabled = lambda x : 1 if x else 0
         if 'phantom_community_username' in answers:
             configuration._sections['phantom_settings']['phantom_community_username'] = answers['phantom_community_username']
@@ -474,10 +574,10 @@ starting configuration for AT-ST mech walker
         configuration._sections['environment']['phantom_server'] = 1
         configuration._sections['environment']['phantom_byo'] = 0
 
-
     # write config file
     with open(attack_range_config, 'w') as configfile:
         configuration.write(configfile)
-    print("> configuration file was written to: {0}, run `python attack_range.py build` to create a new attack_range\nyou can also edit this file to configure advance parameters".format(Path(attack_range_config).resolve()))
+    print("> configuration file was written to: {0}, run `python attack_range.py build` to create a new attack_range\nyou can also edit this file to configure advance parameters".format(
+        Path(attack_range_config).resolve()))
     print("> setup has finished successfully ... exiting")
     sys.exit(0)

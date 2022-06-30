@@ -1,0 +1,4 @@
+---
+
+- include: install.yml
+  when: prelude == "1"

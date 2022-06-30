@@ -12,6 +12,15 @@ import argparse
 class DataManipulation:
 
     def manipulate_timestamp(self, file_path, logger, sourcetype, source):
+        """
+        manipulate_timestamp function manipulates the timestamp of the log file.
+
+        :param file_path: file path location
+        :param logger: logger object
+        :param sourcetype: log source type
+        :param source: source type
+        :return: No return values
+        """
 
         self.logger = logger
 
@@ -26,6 +35,13 @@ class DataManipulation:
 
 
     def manipulate_timestamp_exchange_logs(self, file_path, logger):
+        """
+        manipulate_timestamp_exchange_logs function manipulates exchange logs
+
+        :param file_path: file path location
+        :param logger: logger object
+        :return: No return values        
+        """
         f = io.open(file_path, "r", encoding="utf-8")
 
         first_line = f.readline()
@@ -50,6 +66,13 @@ class DataManipulation:
 
 
     def manipulate_timestamp_windows_event_log_raw(self, file_path, logger):
+        """
+        manipulate_timestamp_windows_event_log_raw function manipulates windows event logs
+
+        :param file_path: file path location
+        :param logger: logger object
+        :return: No return values        
+        """
         f = io.open(file_path, "r", encoding="utf-8")
         self.now = datetime.now()
         self.now = self.now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
@@ -84,6 +107,13 @@ class DataManipulation:
 
 
     def manipulate_timestamp_cloudtrail(self, file_path, logger):
+        """
+        manipulate_timestamp_cloudtrail function manipulates AWS cloudtrail logs
+
+        :param file_path: file path location
+        :param logger: logger object
+        :return: No return values        
+        """
         f = io.open(file_path, "r", encoding="utf-8")
 
         try:
@@ -125,7 +155,9 @@ class DataManipulation:
                 print (line.replace(original_time, new_time),end ='')
 
 def setup_logging():
-    """Creates a shared logging object for the application"""
+    """
+    Creates a shared logging object for the application
+    """
     # create logging object
     logger = logging.getLogger('datamanipulator')
     logger.setLevel('INFO')
@@ -138,6 +170,12 @@ def setup_logging():
     return logger
 
 def main(args):
+    """
+    main function parses the commandline arguments
+
+    :param args: commandline arguments
+    :return: No return values
+    """
     # grab arguments
     parser = argparse.ArgumentParser(
         description="Use `datamanipulator.py -h` to get help with any datamanipulation command")

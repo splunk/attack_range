@@ -24,6 +24,12 @@ import pyperclip
 class TerraformController(IEnvironmentController):
 
     def __init__(self, config, log):
+        """
+        __init__ function intializes the terraform
+
+        :param config: python dictionary having the configuration 
+        :param log: logger object for logging 
+        """
         super().__init__(config, log)
         statefile = self.config['range_name'] + ".terraform.tfstate"
         if self.config['provider'] == 'aws':
@@ -55,18 +61,30 @@ class TerraformController(IEnvironmentController):
 
 
     def build(self):
+        """
+        build function builds the attack range using terraform.
+
+        :return: No return value
+        """
         self.log.info("[action] > build\n")
         cwd = os.getcwd()
         os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform', self.config['provider'], self.config['tf_backend']) + ' && terraform init ')
         os.system('cd ' + cwd)
         return_code, stdout, stderr = self.terraform.apply(
             capture_output='yes', skip_plan=True, no_color=IsNotFlagged)
+
         if not return_code:
             self.log.info(
                 "attack_range has been built using terraform successfully")
             self.list_machines()
+        
 
     def destroy(self):
+        """
+        destroy function destroys the attack range using terraform.
+
+        :return: No return value
+        """
         self.log.info("[action] > destroy\n")
         cwd = os.getcwd()
         os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform', self.config['provider'], self.config['tf_backend']) + ' && terraform init ')
@@ -86,6 +104,11 @@ class TerraformController(IEnvironmentController):
             "attack_range has been destroy using terraform successfully")
 
     def stop(self):
+        """
+        stop function pauses the instances in the attack range.
+
+        :return: No return value
+        """
         if self.config['provider'] == 'aws':
             instances = aws_service.get_all_instances(self.config)
             aws_service.change_ec2_state(instances, 'stopped', self.log, self.config)
@@ -93,6 +116,11 @@ class TerraformController(IEnvironmentController):
             azure_service.change_instance_state(self.config, 'stopped', self.log)
 
     def resume(self):
+        """
+        resume function resumes the paused instance in the attack range.
+
+        :return: No return value
+        """
         if self.config['provider'] == 'aws':
             instances = aws_service.get_all_instances(self.config)
             aws_service.change_ec2_state(instances, 'running', self.log, self.config)
@@ -194,6 +222,11 @@ class TerraformController(IEnvironmentController):
         return result
 
     def get_instance_ip_and_port(self):
+        """
+        get_instance_ip_and_port function gets the public IP and port of the splunk server.
+
+        :return: instance public IP and port
+        """
         instance_ip = None
         splunk_rest_port = 8089
 
@@ -225,6 +258,12 @@ class TerraformController(IEnvironmentController):
         return instance_ip, splunk_rest_port
 
     def load_file(self, file_path):
+        """
+        local_file function loads the yaml file and  convert it into a list
+
+        :param file_path: path to the yaml file
+        :return: file list
+        """
         with open(file_path, 'r', encoding="utf-8") as stream:
             try:
                 file = list(yaml.safe_load_all(stream))[0]
@@ -235,6 +274,16 @@ class TerraformController(IEnvironmentController):
 
 
     def simulate(self, simulation_engine, target, simulation_techniques_param, simulation_techniques, simulation_atomics, simulation_playbook, var_str='no'):
+        """
+        simulate function simulates the attack on the attack range
+
+        :param simulation_engine: engine to use for simulation
+        :param target: target instance
+        :param simulation_techniques_param: simulation parameters
+        :param simulation_techniques: technique to use. Ex: T1003.001
+        :param simulation_atomics: Art test name
+        :param simulation_playbook: playbook to simulate
+        """
         if self.config['provider'] == 'aws':
             target_public_ip = aws_service.get_single_instance_public_ip(target, self.config)
             ansible_user = 'Administrator'
@@ -350,8 +399,22 @@ class TerraformController(IEnvironmentController):
                     target))
                 sys.exit(1)
 
-
+    def getPreludeToken(self, TOKEN_PATH):
+        TOKEN = ''
+        try:
+            prelude_token_file = open(TOKEN_PATH,'r')
+            TOKEN = prelude_token_file.read()
+        except Exception as e:
+            self.log.error("was not able to read prelude token from {}".format(TOKEN_PATH))
+        return TOKEN
     def getIP(self, response, machine_type):
+        """
+        getIP function returns the IP of the machine
+
+        :param response: response to parse
+        :param machine_type: machine type
+        :return: return the IP
+        """
         for machine in response:
             for x in machine:
                     if machine_type in x:
@@ -364,6 +427,12 @@ class TerraformController(IEnvironmentController):
 
 
     def show_message(self, response):
+        """
+        show_message function shows the message on the terminal
+        
+        :param response: response to parse    
+        :return: No return value   
+        """
         print_messages = []
 
         # splunk server will always be built
@@ -373,6 +442,13 @@ class TerraformController(IEnvironmentController):
             print_messages.append(msg)
         else:
             msg = "\n\nAccess Splunk via:\n\tWeb > http://" + splunk_ip + ":8000\n\tSSH > ssh -i" + self.config['private_key_path'] + " ubuntu@" + splunk_ip + "\n\tusername: admin \n\tpassword: " + self.config['attack_range_password']
+            print_messages.append(msg)
+
+        # prelude operator headless
+        splunk_ip = self.getIP(response, 'splunk')
+        if self.config['prelude'] == "1":
+            prelude_token = self.getPreludeToken('/var/tmp/.prelude_session_token')
+            msg = "Access Prelude Operator UI via:\n\tredirector FQDN > " + splunk_ip + "\n\tToken: " + prelude_token + "\n\tSee guide details: https://github.com/splunk/attack_range/wiki/Prelude-Operator"
             print_messages.append(msg)
 
         # windows domain controller
@@ -426,6 +502,9 @@ class TerraformController(IEnvironmentController):
 
 
     def list_machines(self):
+        """
+        list_machines function lists all the attack range machines in the cloud.
+        """
         if self.config['provider'] == 'aws':
             instances = aws_service.get_all_instances(self.config)
             response = []
@@ -479,6 +558,12 @@ class TerraformController(IEnvironmentController):
 
 
     def dump_attack_data(self, dump_name, dump_data):
+        """
+        dump_attack_data function dumps the search data from splunk.
+
+        :param dump_name: name of the dump
+        :param dump_data: python dictionary containing parameters for exporting
+        """
         self.log.info("Dump log data")
 
         splunk_rest_port = 8089
@@ -520,6 +605,12 @@ class TerraformController(IEnvironmentController):
 
 
     def replay_attack_data(self, dump_name, attack_data):
+        """
+        replay_attack_data functions replays the attack_data.
+
+        :param dump_name: name of the dump
+        :param attack_data: python dictionary containing parameters for ansible
+        """
         ansible_user = 'ubuntu'
         ansible_port = 22
 
@@ -562,6 +653,9 @@ class TerraformController(IEnvironmentController):
 
 
     def update_ESCU_app(self):
+        """
+        update_ESCU_app function updates the ESCU app using Ansible.
+        """
         ansible_user = 'ubuntu'
         ansible_port = 22
 
@@ -592,6 +686,13 @@ class TerraformController(IEnvironmentController):
 
 
     def execute_savedsearch(self, search_name, earliest, latest):
+        """
+        execute_savedsearch function executes the saved search on the splunk server.
+
+        :param search_name: saved search name
+        :param earliest: earliest time to pick
+        :param latest: latest time to pick
+        """
         self.log.info("Execute savedsearch " + search_name)
 
         # Default splunk rest port

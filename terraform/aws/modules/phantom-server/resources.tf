@@ -7,7 +7,7 @@ data "aws_ami" "latest-centos" {
 
   filter {
     name   = "name"
-    values = ["CentOS Linux 7 x86_64 HVM EBS ENA 1901_01-b7ee8a69-ee97-4a49-9e68-afaee216db2e-ami-05713873c6794f575.4"]
+    values = ["CentOS-7-2111-20220330_2.x86_64*"]
   }
 
   filter {

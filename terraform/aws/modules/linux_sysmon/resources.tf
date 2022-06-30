@@ -46,7 +46,7 @@ resource "aws_instance" "sysmon_linux" {
 
   provisioner "local-exec" {
     working_dir = "../../../ansible/"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.config.private_key_path} -i '${aws_instance.sysmon_linux[0].public_ip},' playbooks/sysmon_linux.yml -e ' sysmon_linux_private_ip=${var.config.sysmon_linux_private_ip} splunk_indexer_ip=${var.config.splunk_server_private_ip} splunk_uf_url=${var.config.splunk_uf_linux_deb_url} key_name=${var.config.key_name} sysmon_linux_template=${var.config.sysmon_linux_template}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.config.private_key_path} -i '${aws_instance.sysmon_linux[0].public_ip},' playbooks/sysmon_linux.yml -e ' sysmon_linux_private_ip=${var.config.sysmon_linux_private_ip} splunk_indexer_ip=${var.config.splunk_server_private_ip} splunk_uf_url=${var.config.splunk_uf_linux_deb_url} key_name=${var.config.key_name} sysmon_linux_template=${var.config.sysmon_linux_template} prelude=${var.config.prelude}'"
   }
 }
 

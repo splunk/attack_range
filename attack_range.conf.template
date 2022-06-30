@@ -309,7 +309,17 @@ purplesharp_simulation_playbook = T1003.001.pb
 
 install_red_team_tools = 0
 # Specify whether to install multiple red team tools for simulating threats.
-# possible values: 1, 0
+# The specific tools are: https://github.com/splunk/attack_range/wiki/Red-Team-Tools
+
+prelude = 0 
+# Specify whether to install Prelude Operator headless on the Splunk server for simulations and agents on each machine
+
+prelude_operator_url = https://download.prelude.org/latest?arch=x64&platform=linux&variant=zip&edition=headless
+# Specify where to download Prelude Operator from
+
+prelude_account_email = 
+# Email account login into a Prelude Operator UI
+# required for connecting to redirector, can be found on the GUI under connect>deploy manual redirector> accountEmail.
 
 [environment]
 # specify your Attack Range environment by enabling (1) or disabling (0) machines
@@ -458,6 +468,10 @@ osquery_linux_private_ip = 10.0.1.19
 # Should be in subnet: 10.0.1.0/24
 
 osquery_custom_config_file = custom_osquery.conf
+# customized osquery config file
+
+osquery_custom_config_flag = custom_osquery.flags
+# customized osquery config flag
 
 [sysmon_linux]
 # customize the sysmon on linux machine
