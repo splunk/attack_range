@@ -208,3 +208,5 @@ We welcome feedback and contributions from the community! Please see our [contri
 * [Teoderick Contreras](https://twitter.com/tccontre18)
 * [Lou Stella](https://twitter.com/ljstella)
 * [Christian Cloutier](https://github.com/ccloutier-splunk)
+* Eric McGinnis 
+* [Micheal Haag](https://twitter.com/M_haggis)
