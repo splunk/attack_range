@@ -24,8 +24,8 @@ class VagrantController(AttackRangeController):
             vagrantfile += self.read_vagrant_file('phantom_server/Vagrantfile')
             vagrantfile += '\n\n'            
 
-        # vagrantfile += self.read_vagrant_file('splunk_server/Vagrantfile')
-        # vagrantfile += '\n\n'
+        vagrantfile += self.read_vagrant_file('splunk_server/Vagrantfile')
+        vagrantfile += '\n\n'
 
         for idx, x in enumerate(self.config['windows_servers']):
             vagrantfile += self.read_vagrant_file_array('windows_server/Vagrantfile', x, idx)
