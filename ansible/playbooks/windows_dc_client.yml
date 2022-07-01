@@ -12,4 +12,4 @@
     - windows_aurora_agent
     - windows_prelude_agent
     - sysmon
-   - red_team_tools
+    - red_team_tools
