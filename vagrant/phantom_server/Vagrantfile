@@ -1,4 +1,4 @@
-config.vm.define "attack-range-phantom-server" do |config|
+config.vm.define "ar-phantom-{{config.general.key_name}}-{{config.general.attack_range_name}}" do |config|
     VM_NAME_P= "ar-phantom"
     config.vm.box = "centos/7"
     config.vm.hostname = "#{VM_NAME_P}"

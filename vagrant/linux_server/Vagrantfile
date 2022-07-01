@@ -1,8 +1,9 @@
-config.vm.define "attack-range-splunk-server-{{ count }}" do |config|
+config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_range_name}}-{{count}}" do |config|
     config.vm.box = "generic/ubuntu2004"
     config.vm.hostname = "{{ server.hostname }}"
     config.vm.boot_timeout = 600
     config.vm.network :private_network, ip: "10.0.1.{{21 + count}}"
+    config.vm.network "forwarded_port", guest: 22, host: {{ 2022 + count }}
   
     config.vm.provision "ansible" do |ansible|
         ansible.playbook = "../packer/ansible/linux_server.yml"

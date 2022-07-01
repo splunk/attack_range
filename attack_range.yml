@@ -1,4 +1,3 @@
-
 general:
   attack_range_password: "ChangeMe123!"
   cloud_provider: "aws"
@@ -6,3 +5,4 @@ general:
 windows_servers:
   - hostname: ar-win 
     image: windows-2016-v3-0-0
+

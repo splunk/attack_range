@@ -1,4 +1,4 @@
-config.vm.define "attack-range-splunk-server" do |config|
+config.vm.define "ar-splunk-{{config.general.key_name}}-{{config.general.attack_range_name}}" do |config|
     VM_NAME= "ar-splunk"
     config.vm.box = "generic/ubuntu2004"
     config.vm.hostname = "#{VM_NAME}"

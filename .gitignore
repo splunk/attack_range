@@ -66,6 +66,7 @@ override.tf.json
 acceptance_config.yml
 boxes/*
 .vagrant
+vagrant/Vagrantfile
 /website/.vagrant
 /website/build
 /vagrant-spec.config.rb

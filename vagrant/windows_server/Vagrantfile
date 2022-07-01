@@ -1,4 +1,4 @@
-config.vm.define "attack-range-windows-server-{{ count }}" do |config|
+config.vm.define "ar-win-{{config.general.key_name}}-{{config.general.attack_range_name}}-{{count}}" do |config|
     config.vm.box = "d1vious/windows2016"
     config.vm.hostname = "{{ server.hostname }}"
     config.vm.boot_timeout = 600
@@ -8,6 +8,7 @@ config.vm.define "attack-range-windows-server-{{ count }}" do |config|
     config.winrm.timeout = 300
     config.winrm.retry_limit = 20
     config.vm.network "forwarded_port", guest: 5985, host: {{ 5985 + count }}
+    config.vm.network "forwarded_port", guest: 3389, host: {{ 5389 + count }}
     config.vm.network :private_network, ip: "10.0.1.{{ 14 + count }}"
     config.vm.synced_folder '.', '/vagrant', disabled: true
   
