@@ -10,13 +10,20 @@ from modules import aws_service, azure_service
 class PurplesharpSimulationController(SimulationController):
 
     def simulate(self, target, technique, playbook) -> None:
-        if 'aws' in self.config:
+        if self.config['general']['cloud_provider'] == 'aws':
             target_public_ip = aws_service.get_single_instance_public_ip(target, self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
             ansible_user = 'Administrator'
+            ansible_port = 5985
 
-        elif 'azure' in self.config:
+        elif self.config['general']['cloud_provider'] == 'azure':
             target_public_ip = azure_service.get_instance(target, self.config['general']['key_name'], self.config['general']['attack_range_name'])['public_ip']
             ansible_user = 'AzureAdmin'
+            ansible_port = 5985
+
+        elif self.config['general']['cloud_provider'] == 'local':
+            target_public_ip = 'localhost'
+            ansible_user = 'Administrator'
+            ansible_port = 5985 + int(target[-1])
 
         techniques = list()
         if technique:
@@ -35,7 +42,7 @@ class PurplesharpSimulationController(SimulationController):
                 roles_path=os.path.join(os.path.dirname(__file__), 'ansible/roles'),
                 playbook=os.path.join(os.path.dirname(__file__), 'ansible/purplesharp.yml'),
                 extravars= {
-                    'ansible_port': 5985, 
+                    'ansible_port': ansible_port, 
                     'ansible_connection': 'winrm',
                     'ansible_winrm_server_cert_validation': 'ignore',
                     'ansible_user': ansible_user, 
@@ -46,3 +53,6 @@ class PurplesharpSimulationController(SimulationController):
                 },
                 verbosity=0
             )
+
+        elif "linux" in target:
+            print("ERROR: Linux is not supported in Purple Sharp.")
