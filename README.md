@@ -38,6 +38,31 @@ Attack Range in AWS:
 
 To install directly on Ubuntu, MacOS follow [these](https://github.com/splunk/attack_range/wiki/Installing-on-Ubuntu-or-MacOS) instructions.
 
+### MacOS
+Install and configure terraform
+```
+brew install terraform
+cd terraform/aws && terraform init && cd ../..
+```
+
+Install awscli
+```
+brew install awscli
+aws configure
+```
+
+Install and run poetry
+```
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+poetry shell
+poetry install
+```
+
+Configure Attack Range
+```
+python attack_range.py configure
+```
+
 
 ## Architecture 🏯
 ![Logical Diagram](docs/attack_range_architecture.png)
