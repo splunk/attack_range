@@ -31,7 +31,7 @@ New demo need to be recorded
 
 Attack Range in AWS:
 
-1. `docker pull splunk/attack_range`
+1. `cd docker & docker build -t splunk/attack_range .`
 2. `docker run -it splunk/attack_range`
 3. `aws configure`  
 4. `python attack_range.py configure` 
