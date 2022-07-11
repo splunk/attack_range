@@ -1,4 +1,5 @@
 # Attack Data
+The data generated with the Attack Range can be exported and imported from the Splunk server.
 
 ## Dump Attack Data
 ```
