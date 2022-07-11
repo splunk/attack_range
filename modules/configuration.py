@@ -197,7 +197,7 @@ starting configuration for AT-ST mech walker
             'type': 'select',
             'message': 'select cloud provider',
             'name': 'provider',
-            'choices': ['aws','azure'],
+            'choices': ['aws','azure', 'local'],
             'default': 'aws'
         },
         {
@@ -247,142 +247,144 @@ starting configuration for AT-ST mech walker
     # get the latest key generated
     priv_key, pub_key = get_generated_keys()
 
-    questions = [
-        {   # reuse key pair?
-            'type': 'confirm',
-            'message': 'detected existing key in {0}, would you like to use it'.format(priv_key),
-            'name': 'reuse_keys',
-            'default': True,
-            'when': check_for_generated_keys,
-        },
-        {   # new key pair?
-            'type': 'confirm',
-            'message': 'generate a new ssh key pair for this range',
-            'name': 'new_key_pair',
-            'default': True,
-            'when': check_reuse_keys,
-        },
-    ]
+    if configuration['general']['cloud_provider'] != 'local':
+        questions = [
+            {   # reuse key pair?
+                'type': 'confirm',
+                'message': 'detected existing key in {0}, would you like to use it'.format(priv_key),
+                'name': 'reuse_keys',
+                'default': True,
+                'when': check_for_generated_keys,
+            },
+            {   # new key pair?
+                'type': 'confirm',
+                'message': 'generate a new ssh key pair for this range',
+                'name': 'new_key_pair',
+                'default': True,
+                'when': check_reuse_keys,
+            },
+        ]
 
-    # check if we should generate a key pair
-    answers = questionary.prompt(questions)
-    if 'reuse_keys' in answers:
-        if answers['reuse_keys']:
-            priv_key_name = os.path.basename(os.path.normpath(priv_key))
-            configuration['general']['key_name'] = str(priv_key_name)[:-4]
-            if configuration['general']['cloud_provider'] == "azure":
-                configuration['azure']['private_key_path'] = str(priv_key)
-                configuration['azure']['public_key_path'] = str(pub_key)
-            else:
-                configuration['aws']['private_key_path'] = str(priv_key)
-            
-            print("> included ssh private key: {}".format(priv_key))
+        # check if we should generate a key pair
+        answers = questionary.prompt(questions)
+        if 'reuse_keys' in answers:
+            if answers['reuse_keys']:
+                priv_key_name = os.path.basename(os.path.normpath(priv_key))
+                configuration['general']['key_name'] = str(priv_key_name)[:-4]
+                if configuration['general']['cloud_provider'] == "azure":
+                    configuration['azure']['private_key_path'] = str(priv_key)
+                    configuration['azure']['public_key_path'] = str(pub_key)
+                else:
+                    configuration['aws']['private_key_path'] = str(priv_key)
+                
+                print("> included ssh private key: {}".format(priv_key))
 
-    if 'new_key_pair' in answers:
-        if answers['new_key_pair']:
-            # create new ssh key for aws
+        if 'new_key_pair' in answers:
+            if answers['new_key_pair']:
+                # create new ssh key for aws
+                if configuration['general']['cloud_provider'] == "aws":
+                    new_key_name = create_key_pair_aws(aws_configured_region)
+                    new_key_path = Path(new_key_name).resolve()
+                    configuration['general']['key_name'] = new_key_name[:-4]
+                    configuration['aws']['private_key_path'] = str(new_key_path)
+                    print("> new aws ssh created: {}".format(new_key_path))
+
+                elif configuration['general']['cloud_provider'] == "azure":
+                    priv_key_name, pub_key_name = create_key_pair_azure()
+                    priv_key_path = Path(priv_key_name).resolve()
+                    pub_key_path = Path(pub_key_name).resolve()
+                    configuration['general']['key_name'] = priv_key_name[:-4]
+                    configuration['azure']['private_key_path'] = str(priv_key_path)
+                    configuration['azure']['public_key_path'] = str(pub_key_path)
+                    print("> new azure ssh pair created:\nprivate key: {0}\npublic key:{1}".format(
+                        priv_key_path, pub_key_path))
+                else:
+                    print("ERROR, we do not support generating a key pair for the selected provider: {}".format(
+                        configuration['general']['cloud_provider']))
+
+
+        questions = [
+            {
+                # get api_key
+                'type': 'text',
+                'message': 'enter ssh key name',
+                'name': 'key_name',
+                'default': 'attack-range-key-pair',
+                'when': lambda answers: 'key_name' not in configuration['general'],
+            },
+            {
+                # get private_key_path
+                'type': 'text',
+                'message': 'enter private key path for machine access',
+                'name': 'private_key_path',
+                'default': "~/.ssh/id_rsa",
+                'when': lambda answers: 'key_name' not in configuration['general'],
+            },
+            {
+                # get public_key_path
+                'type': 'text',
+                'message': 'enter public key path for machine access',
+                'name': 'public_key_path',
+                'default': "~/.ssh/id_rsa.pub",
+                'when': lambda answers: ('key_name' not in configuration['general']) and (configuration['general']['cloud_provider'] == "azure"),
+            },
+            {
+                # get region
+                'type': 'input',
+                'message': 'enter region to build in.',
+                'name': 'region',
+                'default': aws_configured_region,
+            },
+            {
+                # get whitelist
+                'type': 'text',
+                'message': 'enter public ips that are allowed to reach the attack_range.\nExample: {0}/32,0.0.0.0/0'.format(external_ip),
+                'name': 'ip_whitelist',
+                'default': external_ip + "/32"
+            },
+            {
+                # get range name
+                'type': 'text',
+                'message': 'enter attack_range name, multiple can be build under different names in the same region',
+                'name': 'range_name',
+                'default': "ar",
+            },
+
+        ]
+
+        answers = questionary.prompt(questions)
+        # manage keys first
+        if 'key_name' in answers:
+            configuration['general']['key_name'] =  answers['key_name']
+        else:
+            print("> using ssh key name: {}".format(
+                configuration['general']['key_name']))
+        if 'private_key_path' in answers:
             if configuration['general']['cloud_provider'] == "aws":
-                new_key_name = create_key_pair_aws(aws_configured_region)
-                new_key_path = Path(new_key_name).resolve()
-                configuration['general']['key_name'] = new_key_name[:-4]
-                configuration['aws']['private_key_path'] = str(new_key_path)
-                print("> new aws ssh created: {}".format(new_key_path))
-
-            elif configuration['general']['cloud_provider'] == "azure":
-                priv_key_name, pub_key_name = create_key_pair_azure()
-                priv_key_path = Path(priv_key_name).resolve()
-                pub_key_path = Path(pub_key_name).resolve()
-                configuration['general']['key_name'] = priv_key_name[:-4]
-                configuration['azure']['private_key_path'] = str(priv_key_path)
-                configuration['azure']['public_key_path'] = str(pub_key_path)
-                print("> new azure ssh pair created:\nprivate key: {0}\npublic key:{1}".format(
-                    priv_key_path, pub_key_path))
+                configuration['aws']['private_key_path'] = answers['private_key_path']
             else:
-                print("ERROR, we do not support generating a key pair for the selected provider: {}".format(
-                    configuration['general']['cloud_provider']))
+                configuration['azure']['private_key_path'] = answers['private_key_path']
+        if 'public_key_path' in answers:
+            if configuration['general']['cloud_provider'] == "aws":
+                configuration['aws']['public_key_path'] = answers['public_key_path']
+            else:
+                configuration['azure']['public_key_path'] = answers['public_key_path']
 
-    questions = [
-        {
-            # get api_key
-            'type': 'text',
-            'message': 'enter ssh key name',
-            'name': 'key_name',
-            'default': 'attack-range-key-pair',
-            'when': lambda answers: 'key_name' not in configuration['general'],
-        },
-        {
-            # get private_key_path
-            'type': 'text',
-            'message': 'enter private key path for machine access',
-            'name': 'private_key_path',
-            'default': "~/.ssh/id_rsa",
-            'when': lambda answers: 'key_name' not in configuration['general'],
-        },
-        {
-            # get public_key_path
-            'type': 'text',
-            'message': 'enter public key path for machine access',
-            'name': 'public_key_path',
-            'default': "~/.ssh/id_rsa.pub",
-            'when': lambda answers: ('key_name' not in configuration['general']) and (configuration['general']['cloud_provider'] == "azure"),
-        },
-        {
-            # get region
-            'type': 'input',
-            'message': 'enter region to build in.',
-            'name': 'region',
-            'default': aws_configured_region,
-        },
-        {
-            # get whitelist
-            'type': 'text',
-            'message': 'enter public ips that are allowed to reach the attack_range.\nExample: {0}/32,0.0.0.0/0'.format(external_ip),
-            'name': 'ip_whitelist',
-            'default': external_ip + "/32"
-        },
-        {
-            # get range name
-            'type': 'text',
-            'message': 'enter attack_range name, multiple can be build under different names in the same region',
-            'name': 'range_name',
-            'default': "ar",
-        },
-
-    ]
-
-    answers = questionary.prompt(questions)
-    # manage keys first
-    if 'key_name' in answers:
-        configuration['general']['key_name'] =  answers['key_name']
-    else:
-        print("> using ssh key name: {}".format(
-            configuration['general']['key_name']))
-    if 'private_key_path' in answers:
-        if configuration['general']['cloud_provider'] == "aws":
-            configuration['aws']['private_key_path'] = answers['private_key_path']
+        # get region
+        if 'region' in answers:
+            if configuration['general']['cloud_provider'] == "aws":
+                configuration['aws']['region'] = answers['region']
+            else:
+                configuration['azure']['region'] = answers['region']
         else:
-            configuration['azure']['private_key_path'] = answers['private_key_path']
-    if 'public_key_path' in answers:
-        if configuration['general']['cloud_provider'] == "aws":
-            configuration['aws']['public_key_path'] = answers['public_key_path']
-        else:
-            configuration['azure']['public_key_path'] = answers['public_key_path']
-
-    # get region
-    if 'region' in answers:
-        if configuration['general']['cloud_provider'] == "aws":
-            configuration['aws']['region'] = answers['region']
-        else:
-            configuration['azure']['region'] = answers['region']
-    else:
-        if configuration['general']['cloud_provider'] == "aws":
-            configuration['aws']['region'] = 'eu-central-1'
-        else:
-            configuration['azure']['region'] = 'West Europe'
-    
-    # rest of configs
-    configuration['general']['ip_whitelist'] = answers['ip_whitelist']
-    configuration['general']['range_name'] = answers['range_name']
+            if configuration['general']['cloud_provider'] == "aws":
+                configuration['aws']['region'] = 'eu-central-1'
+            else:
+                configuration['azure']['region'] = 'West Europe'
+        
+        # rest of configs
+        configuration['general']['ip_whitelist'] = answers['ip_whitelist']
+        configuration['general']['range_name'] = answers['range_name']
 
     print("> configuring attack_range environment")
 
