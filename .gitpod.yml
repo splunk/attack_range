@@ -4,8 +4,9 @@
 
 tasks:
   - init: |
-      apt-get install -y unzip curl awscli
+      sudo apt-get install -y unzip curl awscli
       curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+      export PATH=$PATH:$HOME/.poetry/bin
       mkdir tmp
       cd tmp
       curl -s https://releases.hashicorp.com/terraform/1.1.8/terraform_1.1.8_linux_amd64.zip -o terraform.zip
