@@ -17,6 +17,20 @@
     owner: splunk
     group: splunk
 
+- name: Copy new mscs_azure_audit_inputs.conf configuration
+  template:
+    src: mscs_azure_audit_inputs.conf.j2
+    dest: /opt/splunk/etc/apps/Splunk_TA_microsoft-cloudservices/local/mscs_azure_audit_inputs.conf
+    owner: splunk
+    group: splunk
+
+- name: Copy new inputs.conf configuration
+  template:
+    src: inputs.conf.j2
+    dest: /opt/splunk/etc/apps/Splunk_TA_microsoft-cloudservices/local/inputs.conf
+    owner: splunk
+    group: splunk
+
 - name: restart splunk
   service: name=splunk state=restarted
   become: yes
