@@ -1,3 +1,5 @@
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/splunk/attack_range/tree/attack_range_3)
+
 <p align="center">
     <a href="https://github.com/splunk/attack_range/releases">
         <img src="https://img.shields.io/github/v/release/splunk/attack_range" /></a>

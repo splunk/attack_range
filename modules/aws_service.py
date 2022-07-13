@@ -109,23 +109,6 @@ def ami_available_other_region(ami_name):
     return {}
 
 
-# def query_amis(ami_names, region):
-#     client = boto3.client('ec2', region_name=region)
-#     images = client.describe_images(Owners=['self'])
-    
-#     not_found_images = []
-
-#     for ami_name in ami_names:
-#         ami_found = False
-#         for ami in images["Images"]:
-#             if ami_name == ami["Name"]:
-#                 ami_found = True
-
-#         if not ami_found:
-#             not_found_images.append(ami_name)   
-
-#     return not_found_images
-
 
 def get_image_id(ami_name, region):
     client = boto3.client('ec2', region_name=region)
@@ -134,43 +117,6 @@ def get_image_id(ami_name, region):
     for ami in images["Images"]:
         if ami_name == ami["Name"]:
             return ami["ImageId"]
-
-# def query_amis_all_regions(ami_names, not_found_images):
-#     regions = [
-#         "us-east-1", 
-#         "us-east-2", 
-#         "us-west-1", 
-#         "us-west-2", 
-#         "ca-central-1", 
-#         "eu-west-1", 
-#         "eu-west-2", 
-#         "eu-central-1", 
-#         "ap-southeast-1", 
-#         "ap-southeast-2", 
-#         "ap-south-1", 
-#         "ap-northeast-1", 
-#         "ap-northeast-2", 
-#         "sa-east-1", 
-#         "cn-north-1"
-#     ]
-
-#     ami_region = {}
-
-#     for region in regions:
-#         try:
-#             not_found_images_region = query_amis(ami_names, region)
-#             diff_images = list(set(not_found_images) - set(not_found_images_region))
-#             if diff_images:
-#                 for image in diff_images:
-#                     if region in ami_region:
-#                         ami_region[image].append({"region": region, "image_id": get_image_id(image, region)})
-#                     else:
-#                         ami_region[image] = [{"region": region, "image_id": get_image_id(image, region)}]
-
-#         except:
-#             pass
-
-#     return ami_region
 
 
 def copy_image(ami_name, ami_image_id, source_region, dest_region):
@@ -182,3 +128,27 @@ def copy_image(ami_name, ami_image_id, source_region, dest_region):
         SourceImageId=ami_image_id,
         SourceRegion=source_region
     )
+
+
+def check_s3_bucket(bucket_name):
+    client = boto3.client('s3')
+    some_binary_data = b'Here we have some data'
+
+    try:
+        client.put_object(Body=some_binary_data, Bucket=bucket_name, Key='test.txt')
+    except:
+        return False
+
+    return True
+
+
+def create_s3_bucket(bucket_name, region):
+    client = boto3.client("s3", region_name=region)
+    location = {'LocationConstraint': region}
+    
+    try:
+        response = client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration=location)
+    except:
+        return False
+
+    return True

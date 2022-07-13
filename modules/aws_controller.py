@@ -22,6 +22,13 @@ class AwsController(AttackRangeController):
             self.logger.error("AWS cli region and region in config file are not the same.")
             sys.exit(1)
 
+        if self.config['aws']['remote_backend'] == "1":
+            if not aws_service.check_s3_bucket(self.config['aws']['remote_backend_name']):
+                 self.logger.info("Can not access remote S3 bucket with name " + self.config['aws']['remote_backend_name'])
+                 self.logger.info("Try to create a S3 for remote backend.")
+                 aws_service.create_s3_bucket(self.config['aws']['remote_backend_name'], self.config['aws']['region'])
+            sys.exit(0)
+
         working_dir = os.path.join(os.path.dirname(__file__), '../terraform/aws')
         self.terraform = Terraform(working_dir=working_dir,variables=config, parallelism=15)
 

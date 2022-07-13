@@ -9,19 +9,21 @@ general:
 aws:
   region: "eu-central-1"
   private_key_path: "~/.ssh/id_rsa"
+  remote_backend: "0"
+  remote_backend_name: "ar_tf_backend"
   cloudtrail: "0"
   cloudtrail_sqs_queue: "https://sqs.us-west-2.amazonaws.com/111111111111/cloudtrail-cloud-attack-range"
-  azure_logging: "0"
-  app_id: "xxx"
-  client_secret: "xxx"
-  tenant_id: "xxx"
-  event_hub_name: "xxx"
-  event_hub_namespace: "xxx"
 azure:
   region: "West Europe"
   subscription_id: "xxx"
   private_key_path: "~/.ssh/id_rsa"
   public_key_path: "~/.ssh/id_rsa.pub"
+  azure_logging: "0"
+  app_id: "xxx"
+  client_secret: "xxx"
+  tenant_id: "xxx"
+  event_hub_name: "xxx"
+  event_hub_host_name: "xxx"
 local:
   provider: "Virtual Box"
 splunk_server:

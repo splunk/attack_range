@@ -94,3 +94,5 @@ def check_image_available(ar_image, region):
         return True
     except:
         return False
+
+
