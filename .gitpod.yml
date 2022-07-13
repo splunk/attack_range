@@ -18,6 +18,6 @@ tasks:
       cd ..
       rm -rf tmp
       poetry shell
-      poetry init
+      poetry install
 
 
