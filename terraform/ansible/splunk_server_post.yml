@@ -9,3 +9,4 @@
     - splunk_server_post
     - cloudtrail_logs
     - prelude
+    - azure_logging

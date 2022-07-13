@@ -1,0 +1,22 @@
+---
+
+- name: Create folder directory for Azure TA
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/Splunk_TA_microsoft-cloudservices/local/
+
+- name: Copy new mscs_azure_accounts.conf configuration
+  template:
+    src: mscs_azure_accounts.conf.j2
+    dest: /opt/splunk/etc/apps/Splunk_TA_microsoft-cloudservices/local/mscs_azure_accounts.conf
+    owner: splunk
+    group: splunk
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes

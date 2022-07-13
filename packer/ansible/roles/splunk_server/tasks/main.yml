@@ -33,6 +33,7 @@
     - "phantom-app-for-splunk_4035.tgz"
     - "TA-osquery.tar.gz"
     - "splunk-app-for-data-science-and-deep-learning_390.tgz"
+    - "splunk-add-on-for-microsoft-cloud-services_433.tgz"
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: configure_cim.yml

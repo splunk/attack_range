@@ -11,6 +11,10 @@ aws:
   private_key_path: "~/.ssh/id_rsa"
   cloudtrail: "0"
   cloudtrail_sqs_queue: "https://sqs.us-west-2.amazonaws.com/111111111111/cloudtrail-cloud-attack-range"
+  azure_logging: "0"
+  app_id: "xxx"
+  client_secret: "xxx"
+  tenant_id: "xxx"
 azure:
   region: "West Europe"
   subscription_id: "xxx"
