@@ -17,7 +17,6 @@ tasks:
       sudo ./aws/install
       cd ..
       rm -rf tmp
-      poetry shell
       poetry install
 
 
