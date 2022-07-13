@@ -4,7 +4,7 @@
 
 tasks:
   - init: |
-      sudo apt-get install -y unzip curl awscli
+      sudo apt-get install -y unzip curl
       curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
       export PATH=$PATH:$HOME/.poetry/bin
       mkdir tmp
@@ -12,9 +12,11 @@ tasks:
       curl -s https://releases.hashicorp.com/terraform/1.1.8/terraform_1.1.8_linux_amd64.zip -o terraform.zip
       unzip terraform.zip 
       sudo mv terraform /usr/local/bin/
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      unzip awscliv2.zip
+      sudo ./aws/install
       cd ..
       rm -rf tmp
-    command: |
       poetry shell
       poetry init
 
