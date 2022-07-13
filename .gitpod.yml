@@ -16,7 +16,12 @@ tasks:
       unzip awscliv2.zip
       sudo ./aws/install
       cd ..
+      cd terraform/aws
+      terraform init
+      cd ../..
       rm -rf tmp
       poetry install
+    command: |
+      poetry shell
 
 
