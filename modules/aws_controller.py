@@ -262,6 +262,9 @@ class AwsController(AttackRangeController):
             key_material = aws_service.create_key_pair(backend_name, self.config['aws']['region'], self.logger)
             aws_service.create_secret(backend_name, key_material, self.config, self.logger)
 
+        with open(os.path.join(os.path.dirname(__file__), '../attack_range.yml'), 'w') as outfile:
+            yaml.dump(self.config, outfile, default_flow_style=False, sort_keys=False)
+
         # write versions.tf
         j2_env = Environment(
             loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), '../terraform/aws')), 
@@ -274,16 +277,16 @@ class AwsController(AttackRangeController):
 
 
     def delete_remote_backend(self, backend_name) -> None:
-        aws_service.delete_s3_bucket(self.config['aws']['remote_backend_name'], self.config['aws']['region'], self.logger)
-        aws_service.delete_dynamo_db(self.config['aws']['remote_backend_name'], self.config['aws']['region'], self.logger)
-        aws_service.delete_secret(self.config['aws']['remote_backend_name'], self.logger)
-        aws_service.delete_key_pair(self.config['aws']['remote_backend_name'], self.config['aws']['region'], self.logger)
+        aws_service.delete_s3_bucket(backend_name, self.config['aws']['region'], self.logger)
+        aws_service.delete_dynamo_db(backend_name, self.config['aws']['region'], self.logger)
+        aws_service.delete_secret(backend_name, self.logger)
+        aws_service.delete_key_pair(backend_name, self.config['aws']['region'], self.logger)
         try:
             os.remove(os.path.join(os.path.dirname(__file__), '../terraform/aws/versions.tf'))
         except Exception as e:
             self.logger.error(e)
         try:
-            os.remove(os.path.join(os.path.dirname(__file__), '../', self.config['aws']['remote_backend_name'] + '.key'))
+            os.remove(os.path.join(os.path.dirname(__file__), '../', backend_name + '.key'))
         except Exception as e:
             self.logger.error(e)
 
@@ -298,5 +301,6 @@ class AwsController(AttackRangeController):
 
         aws_service.get_secret_key(backend_name, self.logger)
         config = aws_service.get_secret_config(backend_name, self.logger)
+        config['aws']['private_key_path'] = str(Path(backend_name + '.key').resolve())
         with open(os.path.join(os.path.dirname(__file__), '../attack_range.yml'), 'w') as outfile:
             yaml.dump(config, outfile, default_flow_style=False, sort_keys=False)

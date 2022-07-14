@@ -1,7 +1,7 @@
 general:
-  attack_range_password: "ChangeMe123!1"
+  attack_range_password: "ChangeMe123!"
   cloud_provider: "aws"
-  key_name: "ar-pbareiss"
+  key_name: "ar"
 windows_servers:
   - hostname: ar-win 
     image: windows-2016-v3-0-0

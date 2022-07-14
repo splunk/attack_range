@@ -265,10 +265,10 @@ def get_secret_config(name, logger):
     client = boto3.client('secretsmanager')
     
     response = client.get_secret_value(
-        SecretId=name + '-key'
+        SecretId=name + '-config'
     )
 
-    return json.load(response['SecretString'])
+    return json.loads(response['SecretString'])
 
 
 def delete_secret(name, logger):
