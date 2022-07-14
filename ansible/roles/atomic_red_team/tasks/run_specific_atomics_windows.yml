@@ -1,0 +1,40 @@
+- set_fact:
+    test: "{{ art_run_tests }}"
+
+- debug:
+    var: art_run_techniques
+
+- debug:
+    var: test
+
+- name: Get requirements for Atomic Red Team Technique
+  win_shell: |
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    Invoke-AtomicTest "{{ art_run_techniques }}" -TestName "{{ test }}" -GetPrereqs
+  register: requirements
+
+# - debug:
+#     var: requirements
+
+- name: Run specified Atomic Red Team Technique
+  win_shell: |
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    Invoke-AtomicTest "{{ art_run_techniques }}" -TestName "{{ test }}" -Confirm:$false -TimeoutSeconds 300 -ExecutionLogPath C:\AtomicRedTeam\atc_execution.csv
+  register: output_art
+
+- name: Save output atomic red team
+  set_fact:
+    output_art: "{{ output_art }}"
+    cacheable: yes
+
+# - debug:
+#     var: output
+
+- name: Cleanup after execution
+  win_shell: |
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    Invoke-AtomicTest "{{ art_run_techniques }}" -TestName "{{ test }}" -Cleanup
+  register: cleanup
+
+# - debug:
+#     var: cleanup

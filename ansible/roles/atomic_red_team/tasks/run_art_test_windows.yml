@@ -1,0 +1,53 @@
+- set_fact:
+    technique: "{{ item }}"
+
+- debug:
+    var: technique
+
+- name: Get requirements for Atomic Red Team Technique
+  win_shell: |
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    Invoke-AtomicTest "{{ technique }}" -GetPrereqs
+  register: requirements
+
+# - debug:
+#     var: requirements
+
+- name: Run specified Atomic Red Team Technique
+  win_shell: |
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    Invoke-AtomicTest "{{ technique }}" -Confirm:$false -TimeoutSeconds 300 -ExecutionLogPath C:\AtomicRedTeam\atc_execution.csv
+  register: output_art
+  when: var_str == 'no'
+
+- name: Save output atomic red team
+  set_fact:
+    output_art: "{{ output_art }}"
+    cacheable: yes
+  when: var_str == 'no'
+
+- name: Run specified Atomic Red Team Technique
+  win_shell: |
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    {{ var_str }}
+    Invoke-AtomicTest "{{ technique }}" -InputArgs $myArgs -Confirm:$false -TimeoutSeconds 300 -ExecutionLogPath C:\AtomicRedTeam\atc_execution.csv
+  register: output_art_var
+  when: var_str != 'no'
+
+- name: Save output atomic red team with vars
+  set_fact:
+    output_art_var: "{{ output_art_var }}"
+    cacheable: yes
+  when: var_str != 'no'
+
+# - debug:
+#     var: output
+
+- name: Cleanup after execution
+  win_shell: |
+    Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
+    Invoke-AtomicTest "{{ technique }}" -Cleanup
+  register: cleanup
+
+# - debug:
+#     var: cleanup
