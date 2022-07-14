@@ -2,6 +2,7 @@
 import boto3
 import sys
 import os
+import json
 
 
 def check_region(config_region):
@@ -138,6 +139,7 @@ def check_s3_bucket(bucket_name):
 
     try:
         client.put_object(Body=some_binary_data, Bucket=bucket_name, Key='test.txt')
+        client.delete_object(Bucket=bucket_name, Key='test.txt')
     except Exception as e:
         return False
 
@@ -220,18 +222,24 @@ def check_secret_exists(name):
     client = boto3.client('secretsmanager')
     response = client.list_secrets()
     for secret in response['SecretList']:
-        if secret['Name'] == name:
+        if secret['Name'] == str(name + '-key'):
             return True
 
     return False
 
 
-def create_secret(name, value, logger):
+def create_secret(name, value, config, logger):
     client = boto3.client('secretsmanager')
+    key_name = name + '-key'
+    config_name = name + '-config'
     try:
         response = client.create_secret(
-            Name=name,
+            Name=key_name,
             SecretString=value
+        )
+        response = client.create_secret(
+            Name=config_name,
+            SecretString=json.dumps(config)
         )
     except Exception as e:
         logger.error("Couldn't create secret with name " + name)
@@ -241,11 +249,11 @@ def create_secret(name, value, logger):
     logger.info("Created secret with name " + name)
 
 
-def get_secret(name, logger):
+def get_secret_key(name, logger):
     client = boto3.client('secretsmanager')
 
     response = client.get_secret_value(
-        SecretId=name
+        SecretId=name + '-key'
     )
     ssh_key_name = name + ".key"
     with open(ssh_key_name, "w") as ssh_key:
@@ -253,12 +261,26 @@ def get_secret(name, logger):
     os.chmod(ssh_key_name, 0o600)
 
 
+def get_secret_config(name, logger):
+    client = boto3.client('secretsmanager')
+    
+    response = client.get_secret_value(
+        SecretId=name + '-key'
+    )
+
+    return json.load(response['SecretString'])
+
+
 def delete_secret(name, logger):
     client = boto3.client('secretsmanager')
 
     try:
         response = client.delete_secret(
-            SecretId=name,
+            SecretId=name + '-key',
+            ForceDeleteWithoutRecovery=True
+        )
+        response = client.delete_secret(
+            SecretId=name + '-config',
             ForceDeleteWithoutRecovery=True
         )
     except Exception as e:

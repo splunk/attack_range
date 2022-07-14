@@ -96,15 +96,15 @@ def show(args):
 
 def create_remote_backend(args):
     controller = init(args)
-    controller.show()
+    controller.create_remote_backend(args.backend_name)
 
 def delete_remote_backend(args):
     controller = init(args)
-    controller.show()
+    controller.delete_remote_backend(args.backend_name)
 
 def init_remote_backend(args):
     controller = init(args)
-    controller.show()
+    controller.init_remote_backend(args.backend_name)
 
 def main(args):
     # grab arguments

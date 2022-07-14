@@ -3,6 +3,7 @@ import ansible_runner
 import subprocess
 import sys
 import signal
+import yaml
 
 from python_terraform import Terraform, IsNotFlagged
 from modules import aws_service, splunk_sdk
@@ -288,4 +289,14 @@ class AwsController(AttackRangeController):
 
 
     def init_remote_backend(self, backend_name) -> None:
-        pass
+        if not aws_service.check_s3_bucket(backend_name):
+            self.logger.error("Can't find S3 bucket with name " + backend_name)
+            sys.exit(1)
+        if not aws_service.check_secret_exists(backend_name):
+            self.logger.error("Secret doesn't exist with name " + backend_name)
+            sys.exit(1)
+
+        aws_service.get_secret_key(backend_name, self.logger)
+        config = aws_service.get_secret_config(backend_name, self.logger)
+        with open(os.path.join(os.path.dirname(__file__), '../attack_range.yml'), 'w') as outfile:
+            yaml.dump(config, outfile, default_flow_style=False, sort_keys=False)
