@@ -12,6 +12,7 @@ class ArtSimulationController(SimulationController):
     def simulate(self, target, technique) -> None:
         if self.config['general']['cloud_provider'] == 'aws':
             target_public_ip = aws_service.get_single_instance_public_ip(target, self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
+            private_key_path = self.config['aws']['private_key_path']
             if "win" in target:
                 ansible_user = 'Administrator'
                 ansible_port = 5985
@@ -20,7 +21,6 @@ class ArtSimulationController(SimulationController):
                 ansible_user = 'ubuntu'
                 ansible_port = 22
                 cmd_line = '-u ' + ansible_user + ' --private-key ' + private_key_path + ' -i ' + target_public_ip + ', '
-            private_key_path = self.config['aws']['private_key_path']
 
         elif self.config['general']['cloud_provider'] == 'azure':
             target_public_ip = azure_service.get_instance(target, self.config['general']['key_name'], self.config['general']['attack_range_name'])['public_ip']

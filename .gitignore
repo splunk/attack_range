@@ -1,6 +1,9 @@
 # ignore attack_range.conf that might include local custom changes
 attack_range.conf
 
+#keys
+*.key
+
 # ignore appbinaries directory we don't want this uploaded
 ansible/roles/*/files/splunk*.tgz
 ansible/roles/*/files/splunk*.msi
@@ -27,6 +30,7 @@ terraform/aws/.terraform/
 terraform/azure/.terraform/
 terraform/aws/state/
 terraform/azure/state/
+terraform/aws/versions.tf
 
 # .tfstate files
 *.tfstate

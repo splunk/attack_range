@@ -1,0 +1,9 @@
+terraform {
+  backend "s3" {
+    bucket         = "{{ backend_name }}"
+    key            = "attack-range/terraform.tfstate"
+    region         = "{{ region }}"    
+    dynamodb_table = "{{ backend_name }}"
+    encrypt        = true
+  }
+}

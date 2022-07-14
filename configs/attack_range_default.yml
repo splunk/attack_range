@@ -10,7 +10,7 @@ aws:
   region: "eu-central-1"
   private_key_path: "~/.ssh/id_rsa"
   remote_backend: "0"
-  remote_backend_name: "ar_tf_backend"
+  remote_backend_name: "ar-tf-backend"
   cloudtrail: "0"
   cloudtrail_sqs_queue: "https://sqs.us-west-2.amazonaws.com/111111111111/cloudtrail-cloud-attack-range"
 azure:

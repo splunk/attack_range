@@ -1,5 +1,7 @@
 
 import boto3
+import sys
+import os
 
 
 def check_region(config_region):
@@ -136,19 +138,151 @@ def check_s3_bucket(bucket_name):
 
     try:
         client.put_object(Body=some_binary_data, Bucket=bucket_name, Key='test.txt')
-    except:
+    except Exception as e:
         return False
 
     return True
 
 
-def create_s3_bucket(bucket_name, region):
+def create_s3_bucket(bucket_name, region, logger):
     client = boto3.client("s3", region_name=region)
     location = {'LocationConstraint': region}
     
     try:
         response = client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration=location)
-    except:
-        return False
+    except Exception as e:
+        logger.error("Couldn't create S3 bucket with name " + bucket_name)
+        logger.error(e)
+        sys.exit(1)
 
-    return True
+    logger.info("Created S3 bucket with name " + bucket_name)
+
+
+def create_dynamoo_db(name, region, logger):
+    client = boto3.client('dynamodb', region_name=region)
+    try:
+        response = client.create_table(
+            TableName=name,
+            KeySchema=[
+                {
+                    'AttributeName': 'LockID',
+                    'KeyType': 'HASH'  # Partition key
+                }
+            ],
+            AttributeDefinitions=[
+                {
+                    'AttributeName': 'LockID',
+                    'AttributeType': 'S'
+                }
+            ],
+            ProvisionedThroughput={
+                'ReadCapacityUnits': 10,
+                'WriteCapacityUnits': 10
+            }
+        )
+    except client.exceptions.ResourceInUseException:
+        logger.info("DynamoDB table already exists with name " + name)
+        return
+    except Exception as e:
+        logger.error("Couldn't create DynamoDB table with name " + name)
+        logger.error(e)
+        sys.exit(1)
+
+    logger.info("Created DynamoDB table with name " + name)
+
+
+def delete_s3_bucket(bucket_name, region, logger):
+    s3 = boto3.resource('s3', region_name=region)
+    try:
+        bucket = s3.Bucket(bucket_name)
+        bucket.objects.all().delete()
+        bucket.delete()
+    except Exception as e:
+        logger.error("Couldn't delete S3 bucket with name " + bucket_name)
+        logger.error(e)
+        return
+    logger.info("Deleted S3 bucket with name " + bucket_name)
+
+
+def delete_dynamo_db(name, region, logger):
+    dynamodb = boto3.resource('dynamodb', region_name=region)
+    try:
+        table = dynamodb.Table(name)
+        table.delete()
+    except Exception as e:
+        logger.error("Couldn't delete DynamoDB table with name " + name)
+        logger.error(e)
+        return
+    logger.info("Deleted DynamoDB table with name " + name)
+
+
+def check_secret_exists(name):
+    client = boto3.client('secretsmanager')
+    response = client.list_secrets()
+    for secret in response['SecretList']:
+        if secret['Name'] == name:
+            return True
+
+    return False
+
+
+def create_secret(name, value, logger):
+    client = boto3.client('secretsmanager')
+    try:
+        response = client.create_secret(
+            Name=name,
+            SecretString=value
+        )
+    except Exception as e:
+        logger.error("Couldn't create secret with name " + name)
+        logger.error(e)
+        sys.exit(1)
+
+    logger.info("Created secret with name " + name)
+
+
+def get_secret(name, logger):
+    client = boto3.client('secretsmanager')
+
+    response = client.get_secret_value(
+        SecretId=name
+    )
+    ssh_key_name = name + ".key"
+    with open(ssh_key_name, "w") as ssh_key:
+        ssh_key.write(response['SecretString'])
+    os.chmod(ssh_key_name, 0o600)
+
+
+def delete_secret(name, logger):
+    client = boto3.client('secretsmanager')
+
+    try:
+        response = client.delete_secret(
+            SecretId=name,
+            ForceDeleteWithoutRecovery=True
+        )
+    except Exception as e:
+        logger.error("Couldn't delete secret with name " + name)
+        return
+
+    logger.info("Deleted secret with name " + name)
+
+
+def create_key_pair(name, region, logger):
+    aws_session = boto3.Session()
+    client = aws_session.client('ec2', region_name=region)
+
+    response = client.create_key_pair(KeyName=name)
+    ssh_key_name = name + ".key"
+    with open(ssh_key_name, "w") as ssh_key:
+        ssh_key.write(response['KeyMaterial'])
+    os.chmod(ssh_key_name, 0o600)
+    
+    logger.info("Created key pair with name " + name)
+
+    return response['KeyMaterial']
+
+
+def delete_key_pair(name, region, logger):
+    ec2 = boto3.client('ec2', region_name=region)
+    response = ec2.delete_key_pair(KeyName=name)

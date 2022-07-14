@@ -7,6 +7,8 @@ import signal
 from python_terraform import Terraform, IsNotFlagged
 from modules import aws_service, splunk_sdk
 from tabulate import tabulate
+from jinja2 import Environment, FileSystemLoader
+from pathlib import Path
 
 from modules.attack_range_controller import AttackRangeController
 from modules.art_simulation_controller import ArtSimulationController
@@ -22,18 +24,47 @@ class AwsController(AttackRangeController):
             self.logger.error("AWS cli region and region in config file are not the same.")
             sys.exit(1)
 
-        if self.config['aws']['remote_backend'] == "1":
-            if not aws_service.check_s3_bucket(self.config['aws']['remote_backend_name']):
-                 self.logger.info("Can not access remote S3 bucket with name " + self.config['aws']['remote_backend_name'])
-                 self.logger.info("Try to create a S3 for remote backend.")
-                 aws_service.create_s3_bucket(self.config['aws']['remote_backend_name'], self.config['aws']['region'])
-            sys.exit(0)
-
         working_dir = os.path.join(os.path.dirname(__file__), '../terraform/aws')
         self.terraform = Terraform(working_dir=working_dir,variables=config, parallelism=15)
 
+        if self.config['aws']['remote_backend'] == "1":
+            if aws_service.check_secret_exists(self.config['aws']['remote_backend_name']):
+                aws_service.get_secret(self.config['aws']['remote_backend_name'], self.logger)      
+
+            self.config['aws']['private_key_path'] = str(Path(self.config['aws']['remote_backend_name'] + '.key').resolve())
+            self.config['general']['key_name'] = self.config['aws']['remote_backend_name']
+
+
     def build(self) -> None:
         self.logger.info("[action] > build\n")
+
+        if self.config['aws']['remote_backend'] == "1":
+            # create S3 bucket
+            if not aws_service.check_s3_bucket(self.config['aws']['remote_backend_name']):
+                self.logger.info("Can not access remote S3 bucket with name " + self.config['aws']['remote_backend_name'])
+                self.logger.info("Try to create a S3 for remote backend.")
+                aws_service.create_s3_bucket(self.config['aws']['remote_backend_name'], self.config['aws']['region'], self.logger)
+
+            # create DynamoDB
+            aws_service.create_dynamoo_db(self.config['aws']['remote_backend_name'], self.config['aws']['region'], self.logger)
+                
+            # privat key in secrets manager
+            if not aws_service.check_secret_exists(self.config['aws']['remote_backend_name']):
+                key_material = aws_service.create_key_pair(self.config['aws']['remote_backend_name'], self.config['aws']['region'], self.logger)
+                aws_service.create_secret(self.config['aws']['remote_backend_name'], key_material, self.logger)
+
+            self.config['aws']['private_key_path'] = str(Path(self.config['aws']['remote_backend_name'] + '.key').resolve())
+            self.config['general']['key_name'] = self.config['aws']['remote_backend_name']
+
+            # write versions.tf
+            j2_env = Environment(
+                loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), '../terraform/aws')), 
+                trim_blocks=True)
+            template = j2_env.get_template('versions.tf.j2')
+            output = template.render(backend_name=self.config['aws']['remote_backend_name'], region=self.config['aws']['region'])
+            with open('terraform/aws/versions.tf', 'w') as f:
+                output = output.encode('ascii', 'ignore').decode('ascii')
+                f.write(output)
 
         images = []
         images.append(self.config['splunk_server']['image'])
@@ -65,11 +96,16 @@ class AwsController(AttackRangeController):
             else:
                 self.logger.info("Image " + image + " is available in region " + self.config['aws']['region'])                 
 
+        cwd = os.getcwd()
+        os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform/aws') + '&& terraform init ')
+        os.system('cd ' + cwd)
+
         return_code, stdout, stderr = self.terraform.apply(
             capture_output='yes', 
             skip_plan=True, 
             no_color=IsNotFlagged
         )
+
         if not return_code:
             self.logger.info("attack_range has been built using terraform successfully")
 
@@ -78,13 +114,30 @@ class AwsController(AttackRangeController):
 
     def destroy(self) -> None:
         self.logger.info("[action] > destroy\n")
+
         return_code, stdout, stderr = self.terraform.destroy(
             capture_output='yes', 
             no_color=IsNotFlagged, 
             force=IsNotFlagged, 
             auto_approve=True
         )
+
+        if self.config['aws']['remote_backend'] == "1":
+            aws_service.delete_s3_bucket(self.config['aws']['remote_backend_name'], self.config['aws']['region'], self.logger)
+            aws_service.delete_dynamo_db(self.config['aws']['remote_backend_name'], self.config['aws']['region'], self.logger)
+            aws_service.delete_secret(self.config['aws']['remote_backend_name'], self.logger)
+            aws_service.delete_key_pair(self.config['aws']['remote_backend_name'], self.config['aws']['region'], self.logger)
+            try:
+                os.remove(os.path.join(os.path.dirname(__file__), '../terraform/aws/versions.tf'))
+            except Exception as e:
+                self.logger.error(e)
+            try:
+                os.remove(os.path.join(os.path.dirname(__file__), '../', self.config['aws']['remote_backend_name'] + '.key'))
+            except Exception as e:
+                self.logger.error(e)
+            
         self.logger.info("attack_range has been destroy using terraform successfully")
+
 
     def packer(self, image_name) -> None:
         self.logger.info("Create golden image for " + image_name + ". This can take up to 30 minutes.\n")
