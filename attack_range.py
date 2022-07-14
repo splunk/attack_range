@@ -190,12 +190,18 @@ def main(args):
     show_parser.set_defaults(func=show, machines=True)
 
     # Create Remote Backend
+    create_remote_backend_parser.add_argument("-bn", "--backend_name", required=True,
+                               help="name of the remote backend")
     create_remote_backend_parser.set_defaults(func=create_remote_backend)
 
     # Delete Remote Backend
+    delete_remote_backend_parser.add_argument("-bn", "--backend_name", required=True,
+                               help="name of the remote backend")
     delete_remote_backend_parser.set_defaults(func=delete_remote_backend)
-
+    
     # Init Remote Backend
+    init_remote_backend_parser.add_argument("-bn", "--backend_name", required=True,
+                               help="name of the remote backend")
     init_remote_backend_parser.set_defaults(func=init_remote_backend)
 
     # # parse them
