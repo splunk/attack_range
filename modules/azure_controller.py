@@ -219,3 +219,15 @@ class AzureController(AttackRangeController):
         except Exception as e:
             self.logger.error("was not able to read prelude token from {}".format(token_path))
         return token
+
+
+    def create_remote_backend(self, backend_name) -> None:
+        pass
+
+
+    def delete_remote_backend(self, backend_name) -> None:
+        pass
+
+
+    def init_remote_backend(self, backend_name) -> None:
+        pass

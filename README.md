@@ -52,6 +52,12 @@ brew install terraform
 cd terraform/aws && terraform init && cd ../..
 ```
 
+Install packer
+````console
+brew tap hashicorp/tap
+brew install hashicorp/tap/packer
+````
+
 Install awscli
 ```
 brew install awscli

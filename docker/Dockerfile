@@ -8,6 +8,10 @@ RUN curl -s https://releases.hashicorp.com/terraform/1.1.8/terraform_1.1.8_linux
          unzip terraform.zip && \
          mv terraform /usr/local/bin/
 
+RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - && \
+        apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
+        apt-get update && apt-get install packer
+
 RUN git clone -b attack_range_3 https://github.com/splunk/attack_range.git
 RUN echo 'alias python=python3' >> ~/.bashrc
 

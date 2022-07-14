@@ -17,6 +17,12 @@ brew install terraform
 cd terraform/aws && terraform init && cd ../..
 ````
 
+Install packer
+````console
+brew tap hashicorp/tap
+brew install hashicorp/tap/packer
+````
+
 Install awscli
 ````console
 brew install awscli
@@ -47,6 +53,13 @@ Install and configure terraform
 curl -s https://releases.hashicorp.com/terraform/1.1.8/terraform_1.1.8_linux_amd64.zip -o terraform.zip && \
 unzip terraform.zip && \
 mv terraform /usr/local/bin/
+````
+
+Install packer
+````console
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+sudo apt-get update && sudo apt-get install packer
 ````
 
 Install awscli

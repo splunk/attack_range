@@ -94,6 +94,14 @@ def show(args):
     controller = init(args)
     controller.show()
 
+def create_remote_backend(args):
+    pass
+
+def delete_remote_backend(args):
+    pass
+
+def init_remote_backend(args):
+    pass
 
 def main(args):
     # grab arguments
@@ -114,6 +122,9 @@ def main(args):
     show_parser = actions_parser.add_parser("show", help="list machines")
     dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
     replay_parser = actions_parser.add_parser("replay", help="replay dumps into the splunk server")
+    create_remote_backend_parser = actions_parser.add_parser("create_remote_backend", help="Create a Remote Backend")
+    delete_remote_backend_parser = actions_parser.add_parser("delete_remote_backend", help="Delete a Remote Backend")
+    init_remote_backend_parser = actions_parser.add_parser("init_remote_backend", help="Init a Remote Backend")
 
     # Build arguments
     build_parser.set_defaults(func=build)
@@ -172,11 +183,17 @@ def main(args):
                         help="index of replayed data")
     replay_parser.set_defaults(func=replay)
 
-
     # Show arguments
-    show_parser.add_argument("-m", "--machines", required=False, default=False,
-                             action="store_true", help="prints out all available machines")
     show_parser.set_defaults(func=show, machines=True)
+
+    # Create Remote Backend
+    create_remote_backend_parser.set_defaults(func=create_remote_backend)
+
+    # Delete Remote Backend
+    delete_remote_backend_parser.set_defaults(func=delete_remote_backend)
+
+    # Init Remote Backend
+    init_remote_backend_parser.set_defaults(func=init_remote_backend)
 
     # # parse them
     args = parser.parse_args()

@@ -49,3 +49,15 @@ class AttackRangeController(abc.ABC):
     @abc.abstractmethod
     def replay(self, file_name, index, sourcetype, source) -> None:
         pass
+
+    @abc.abstractmethod
+    def create_remote_backend(self, backend_name) -> None:
+        pass
+
+    @abc.abstractmethod
+    def delete_remote_backend(self, backend_name) -> None:
+        pass
+
+    @abc.abstractmethod
+    def init_remote_backend(self, backend_name) -> None:
+        pass
