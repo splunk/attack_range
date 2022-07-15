@@ -304,3 +304,13 @@ class AwsController(AttackRangeController):
         config['aws']['private_key_path'] = str(Path(backend_name + '.key').resolve())
         with open(os.path.join(os.path.dirname(__file__), '../attack_range.yml'), 'w') as outfile:
             yaml.dump(config, outfile, default_flow_style=False, sort_keys=False)
+
+        # write versions.tf
+        j2_env = Environment(
+            loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), '../terraform/aws')), 
+            trim_blocks=True)
+        template = j2_env.get_template('versions.tf.j2')
+        output = template.render(backend_name=backend_name, region=self.config['aws']['region'])
+        with open('terraform/aws/versions.tf', 'w') as f:
+            output = output.encode('ascii', 'ignore').decode('ascii')
+            f.write(output)
