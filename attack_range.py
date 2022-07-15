@@ -2,8 +2,6 @@ import os
 import sys
 import argparse
 
-from colorama import Fore, Back, Style
-
 from modules.config_handler import ConfigHandler
 from modules.aws_controller import AwsController
 from modules.azure_controller import AzureController
@@ -17,8 +15,8 @@ os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
 
 def init(args):
     config_path = args.config
-    print(Back.BLACK + Fore.GREEN + """
-starting program loaded for B1 battle droid """ + Back.BLACK + Fore.BLUE + Style.BRIGHT + """
+    print("""
+starting program loaded for B1 battle droid 
           ||/__'`.
           |//()'-.:
           |-.||

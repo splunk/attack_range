@@ -81,6 +81,10 @@ class AwsController(AttackRangeController):
     def destroy(self) -> None:
         self.logger.info("[action] > destroy\n")
 
+        cwd = os.getcwd()
+        os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform/aws') + '&& terraform init ')
+        os.system('cd ' + cwd)
+
         return_code, stdout, stderr = self.terraform.destroy(
             capture_output='yes', 
             no_color=IsNotFlagged, 
