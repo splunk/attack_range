@@ -1,0 +1,9 @@
+---
+
+- name: Copy crowdstrike falcon agent 
+  win_copy:
+    src: "../../apps/{{ crowdstrike_agent_name }}"
+    dest: c:\temp\WindowsSensor.exe
+
+- name: install crowdstrike falcon agent 
+  win_command: 'C:\Temp\WindowsSensor.exe /install /quiet /norestart CID={{ crowdstrike_customer_ID }}'

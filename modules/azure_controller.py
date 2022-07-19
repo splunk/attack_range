@@ -42,6 +42,10 @@ class AzureController(AttackRangeController):
             else:
                 self.logger.info("Image " + ar_image + " is available in region " + self.config['azure']['region'])
 
+        cwd = os.getcwd()
+        os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform/azure') + '&& terraform init ')
+        os.system('cd ' + cwd)
+
         return_code, stdout, stderr = self.terraform.apply(
             capture_output='yes', 
             skip_plan=True, 

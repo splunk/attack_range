@@ -63,3 +63,6 @@ class ConfigHandler:
             print("ERROR: Kali Server not supported in Azure.")
             sys.exit(1)   
         
+        if config['general']['carbon_black_cloud'] == "1" or config['general']['crowdstrike_falcon'] == "1":
+            print("ERROR: Carbon Black Cloud or Crowdstrike Falcon can only used in AWS.")
+            sys.exit(1)

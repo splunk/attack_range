@@ -12,3 +12,5 @@
     - red_team_tools
     - join_domain
     - windows_agent_prelude
+    - crowdstrike_falcon_agent
+    - carbon_black_cloud_agent
