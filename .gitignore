@@ -1,5 +1,5 @@
-# ignore attack_range.conf that might include local custom changes
-attack_range.conf
+# ignore attack_range.yml that might include local custom changes
+attack_range.yml
 
 #keys
 *.key
@@ -189,4 +189,3 @@ venv.bak/
 #state directories
 terraform/state/*
 !terraform/state/state.md
-attack_range.yml
