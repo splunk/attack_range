@@ -189,3 +189,4 @@ venv.bak/
 #state directories
 terraform/state/*
 !terraform/state/state.md
+attack_range.yml
