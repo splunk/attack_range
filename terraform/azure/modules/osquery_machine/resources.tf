@@ -71,7 +71,7 @@ resource "azurerm_virtual_machine" "linux-osquery" {
 
   provisioner "local-exec" {
     working_dir = "../../../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.config.private_key_path} -i '${azurerm_public_ip.linux-osquery-publicip[count.index].ip_address},' playbooks/osquery_machine.yml -e 'splunk_indexer_ip=${var.config.splunk_server_private_ip} splunk_uf_url=${var.config.splunk_uf_linux_deb_url} custom_osquery_conf=${var.config.osquery_custom_config_file}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.config.private_key_path} -i '${azurerm_public_ip.linux-osquery-publicip[count.index].ip_address},' playbooks/osquery_machine.yml -e 'splunk_indexer_ip=${var.config.splunk_server_private_ip} splunk_uf_url=${var.config.splunk_uf_linux_deb_url} custom_osquery_conf_flag=${var.config.osquery_custom_config_flag} custom_osquery_conf=${var.config.osquery_custom_config_file} key_name=${var.config.key_name}'"
 
   }
 
