@@ -1,0 +1,45 @@
+---
+
+- name: Update apt-get repo and cache
+  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
+- name: Install each and every of the dependencies that our Guacamole server will require to breath and live.
+  apt:
+    pkg:
+      - gcc
+      - vim
+      - curl
+      - wget
+      - g++
+      - libcairo2-dev
+      - libjpeg-turbo8-dev
+      - libpng-dev
+      - libtool-bin
+      - libossp-uuid-dev
+      - libavcodec-dev
+      - libavformat-dev
+      - libavutil-dev
+      - libswscale-dev
+      - build-essential
+      - libpango1.0-dev
+      - libssh2-1-dev
+      - libvncserver-dev
+      - libtelnet-dev
+      - libpulse-dev
+      - libssl-dev
+      - libvorbis-dev
+      - libwebp-dev
+      - openjdk-11-jdk
+
+- name: Install FreeRDP2 (add-apt-repository)
+  apt_repository:
+    repo: ppa:remmina-ppa-team/remmina-next-daily
+
+- name: Update apt-get repo and cache
+  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
+- name: Install FreeRDP
+  apt:
+    pkg:
+      - freerdp2-dev
+      - freerdp2-x11

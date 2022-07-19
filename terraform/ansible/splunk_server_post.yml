@@ -11,3 +11,4 @@
     - cloudtrail_logs
     - prelude
     - azure_logging
+    - guacamole

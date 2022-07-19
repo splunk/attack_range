@@ -1,0 +1,7 @@
+---
+
+- include: install_packages.yml
+- include: setup_tomcat.yml
+- include: guacamole_server.yml
+- include: guacamole_client.yml
+- include: guacamole_server_post.yml

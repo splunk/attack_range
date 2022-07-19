@@ -1,0 +1,37 @@
+---
+
+- name: Download Guacamole
+  get_url: 
+    url: https://downloads.apache.org/guacamole/1.4.0/source/guacamole-server-1.4.0.tar.gz
+    dest: /tmp/guacamole-server-1.4.0.tar.gz
+
+- name: Extract the source tarball after download
+  shell:
+    cmd: |
+      tar -xzf /tmp/guacamole-server-1.4.0.tar.gz -C /tmp/
+
+- name: Configure and install Guacamole
+  shell:
+    cmd: |
+      ./configure --with-init-dir=/etc/init.d
+      make
+      sudo make install
+      sudo ldconfig
+    chdir: /tmp/guacamole-server-1.4.0
+
+- name: System daemon reload
+  become: true
+  systemd:
+    daemon_reload: yes
+
+- name: Enable guacd
+  become: true
+  systemd:
+    name: guacd
+    enabled: yes
+
+- name: Restart guacd
+  become: true
+  systemd:
+    name: guacd
+    state: reloaded

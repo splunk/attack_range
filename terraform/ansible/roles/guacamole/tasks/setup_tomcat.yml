@@ -1,0 +1,46 @@
+---
+
+- name: Create Tomcat system user
+  shell:
+    cmd: sudo useradd -m -U -d /opt/tomcat -s /bin/false tomcat
+
+- name: Download Apache Tomcat
+  get_url:
+    url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.64/bin/apache-tomcat-9.0.64.tar.gz
+    dest: /tmp/apache-tomcat.tar.gz
+
+- name: Extract the tar file to the /opt/tomcat directory
+  shell:
+    cmd: |
+      sudo mkdir /opt/tomcat
+      sudo tar -xzf /tmp/apache-tomcat.tar.gz -C /opt/tomcat/
+      sudo mv /opt/tomcat/apache-tomcat-9.0.64 /opt/tomcat/tomcatapp
+
+- name: Give neccessary permissions
+  shell:
+    cmd: |
+      sudo chown -R tomcat: /opt/tomcat
+      sudo find /opt/tomcat/tomcatapp/bin/ -type f -iname "*.sh" -exec chmod +x {} \;
+
+- name: Copy tomcat.service file
+  become: true
+  copy:
+    src: tomcat.service
+    dest: /etc/systemd/system/tomcat.service
+
+- name: System daemon reload
+  become: true
+  systemd:
+    daemon_reload: yes
+
+- name: Enable tomcat
+  become: true
+  systemd:
+    name: tomcat.service
+    enabled: yes
+
+- name: Restart tomcat
+  become: true
+  systemd:
+    name: tomcat.service
+    state: reloaded

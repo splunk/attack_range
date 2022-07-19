@@ -1,0 +1,21 @@
+<user-mapping>
+    <authorize 
+            username="Admin"
+            password="{{attack_range_password|hash('md5')}}"
+            encoding="md5">
+
+        {% for server in windows|from_json|map('string')|list %}
+        {% set server_name = server %}
+        <connection name="{{server_name}}">
+            <protocol>rdp</protocol>
+            <param name="hostname">10.0.1.{{loop.index-1+14}}</param>
+            <param name="port">3389</param>
+            <param name="username">Administrator</param>
+            <param name="password">{{attack_range_password}}</param>
+            <param name="ignore-cert">true</param>
+        </connection>
+        {% endfor %}
+
+    </authorize>
+
+</user-mapping>
