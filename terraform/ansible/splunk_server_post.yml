@@ -12,3 +12,4 @@
     - prelude
     - azure_logging
     - carbon_black_cloud_logs
+    - crowdstrike_falcon_logging

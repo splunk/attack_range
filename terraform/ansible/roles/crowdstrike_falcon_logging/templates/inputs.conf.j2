@@ -1,0 +1,12 @@
+[simple_consumer_input://crowdstrike_input]
+aws_collection = crowdstrike_falcon
+aws_sqs_url = {{ crowdstrike_logs_sqs_url }}
+aws_sqs_visibility_timeout = 21600
+collect_external_events = 0
+collect_inventory_aidmaster = 1
+collect_inventory_managedassets = 0
+collect_inventory_notmanaged = 0
+collect_ztha_events = 0
+cs_event_filter_name = Drop Heartbeats
+index = crowdstrike_falcon
+interval = 200

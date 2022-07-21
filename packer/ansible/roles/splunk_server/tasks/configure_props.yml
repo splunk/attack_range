@@ -5,3 +5,10 @@
     dest: /opt/splunk/etc/system/local/props.conf
     owner: splunk
     group: splunk
+
+- name: Copy new local.meta configuration
+  copy:
+    src: local.meta
+    dest: /opt/splunk/etc/apps/vmware_app_for_splunk/metadata/local.meta
+    owner: splunk
+    group: splunk
