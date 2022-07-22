@@ -166,6 +166,7 @@ class AwsController(AttackRangeController):
                 instance_name = instance['Tags'][0]['Value']
                 if instance_name.startswith("ar-splunk"):
                     splunk_ip = instance['NetworkInterfaces'][0]['Association']['PublicIp']
+                    messages.append("\nAccess Guacamole via:\n\tWeb > http://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":8080/guacamole" + "\n\tusername: Admin \n\tpassword: " + self.config['general']['attack_range_password'])
                     if self.config["splunk_server"]["install_es"] == "1":
                         messages.append("\nAccess Splunk via:\n\tWeb > https://" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + ":8000\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                     else:

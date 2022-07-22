@@ -7,3 +7,4 @@
     - linux_common
     - splunk_server
     - install_docker
+    - guacamole

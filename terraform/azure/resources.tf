@@ -14,6 +14,8 @@ module "splunk-server" {
   phantom_server = var.phantom_server
   general = var.general
   simulation = var.simulation
+  windows_servers = var.windows_servers
+  linux_servers = var.linux_servers
 }
 
 module "phantom-server" {

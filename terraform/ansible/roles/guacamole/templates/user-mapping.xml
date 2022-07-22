@@ -1,0 +1,62 @@
+<user-mapping>
+    <authorize 
+            username="Admin"
+            password="{{attack_range_password|hash('md5')}}"
+            encoding="md5">
+
+        <connection name="ar-splunk-{{ key_name }}-{{ attack_range_name }}">
+            <protocol>ssh</protocol>
+            <param name="hostname">localhost</param>
+            <param name="port">22</param>
+            <param name="username">ubuntu</param>
+            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
+        </connection>        
+
+        {% if phantom_server == '1' %}
+        <connection name="ar-phantom-{{ key_name }}-{{ attack_range_name }}">
+            <protocol>ssh</protocol>
+            <param name="hostname">10.0.1.13</param>
+            <param name="port">22</param>
+            <param name="username">centos</param>
+            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
+        </connection>    
+        {% endif %}
+
+        {% for server in windows|from_json|map('string')|list %}
+        <connection name="ar-win-{{ key_name }}-{{ attack_range_name }}-{{ loop.index-1 }}">
+            <protocol>rdp</protocol>
+            <param name="hostname">10.0.1.{{loop.index-1+14}}</param>
+            <param name="port">3389</param>
+             {% if cloud_provider == 'azure' %}
+            <param name="username">AzureAdmin</param>
+            {% else %}
+            <param name="username">Administrator</param>
+            {% endif %}
+            <param name="password">{{attack_range_password}}</param>
+            <param name="ignore-cert">true</param>
+        </connection>
+        {% endfor %}
+
+        {% for server in linux|from_json|map('string')|list %}
+        <connection name="ar-linux-{{ key_name }}-{{ attack_range_name }}-{{ loop.index-1 }}">
+            <protocol>ssh</protocol>
+            <param name="hostname">10.0.1.{{loop.index-1+21}}</param>
+            <param name="port">22</param>
+            <param name="username">ubuntu</param>
+            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
+        </connection>
+        {% endfor %}
+
+        {% if kali_server == '1' %}
+        <connection name="ar-kali-{{ key_name }}-{{ attack_range_name }}">
+            <protocol>ssh</protocol>
+            <param name="hostname">10.0.1.30</param>
+            <param name="port">22</param>
+            <param name="username">kali</param>
+            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
+        </connection>    
+        {% endif %}
+
+    </authorize>
+
+</user-mapping>

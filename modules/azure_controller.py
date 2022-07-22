@@ -140,6 +140,7 @@ class AzureController(AttackRangeController):
                 instance_name = instance['vm_obj'].name
                 if instance_name.startswith("ar-splunk"):
                     splunk_ip = instance['public_ip']
+                    messages.append("\nAccess Guacamole via:\n\tWeb > http://" + instance['public_ip'] + ":8080/guacamole" + "\n\tusername: Admin \n\tpassword: " + self.config['general']['attack_range_password'])
                     if self.config["splunk_server"]["install_es"] == "1":
                         messages.append("\n\nAccess Splunk via:\n\tWeb > https://" + instance['public_ip'] + ":8000\n\tSSH > ssh -i" + self.config['azure']['private_key_path'] + " ubuntu@" + instance['public_ip'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                     else:

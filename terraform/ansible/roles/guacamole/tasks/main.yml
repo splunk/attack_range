@@ -1,0 +1,3 @@
+---
+
+- include: guacamole_server_post.yml
