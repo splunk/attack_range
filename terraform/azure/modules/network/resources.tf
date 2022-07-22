@@ -170,6 +170,18 @@ resource "azurerm_network_security_group" "attackrange-nsg" {
     source_address_prefixes    = [var.general.ip_whitelist]
     destination_address_prefix = "*"
   }
+
+  security_rule {
+    name                       = "Guacamole"
+    priority                   = 1014
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "8080"
+    source_address_prefixes    = [var.general.ip_whitelist]
+    destination_address_prefix = "*"
+  }
 }
 
 resource "azurerm_subnet_network_security_group_association" "attackrange-nsga" {

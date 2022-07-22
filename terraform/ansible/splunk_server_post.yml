@@ -5,6 +5,7 @@
     hostname: splunk-server
     cloudtrail: "0"
     azure_logging: "0"
+    kali_server: "0"
   roles:
     - set_hostname_linux
     - splunk_server_post
