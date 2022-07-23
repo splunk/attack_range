@@ -1,0 +1,10 @@
+---
+
+- name: check if c:\BadBlood dir exist
+  win_stat:
+    path: 'C:\BadBlood'
+  register: badblood_path
+
+- name: Git clone BadBlood
+  win_shell: git clone https://github.com/davidprowe/BadBlood.git C:\BadBlood
+  when: badblood_path.stat.exists == false

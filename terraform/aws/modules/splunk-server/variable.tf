@@ -9,3 +9,4 @@ variable "simulation" { }
 variable "windows_servers" { }
 variable "linux_servers" { }
 variable "kali_server" { }
+variable "zeek_server" { }

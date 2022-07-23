@@ -52,6 +52,7 @@ windows_servers_default:
   join_domain: "0"
   win_sysmon_config: "SwiftOnSecurity.xml"
   install_red_team_tools: "0"
+  bad_blood: "0"
 linux_servers_default:
   hostname: ar-linux
   image: linux-v3-0-0
@@ -63,6 +64,9 @@ nginx_server:
   image: nginx-web-proxy-v3-0-0
   proxy_server_ip: "10.0.1.12"
   proxy_server_port: "8000"
+zeek_server:
+  zeek_server: "0"
+  image: "zeek-v3-0-0"
 simulation:
   atomic_red_team_repo: redcanaryco
   atomic_red_team_branch: master

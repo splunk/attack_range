@@ -57,6 +57,16 @@
         </connection>    
         {% endif %}
 
+        {% if zeek_server == '1' %}
+        <connection name="ar-zeek-{{ key_name }}-{{ attack_range_name }}">
+            <protocol>ssh</protocol>
+            <param name="hostname">10.0.1.50</param>
+            <param name="port">22</param>
+            <param name="username">ubuntu</param>
+            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
+        </connection>    
+        {% endif %}
+
     </authorize>
 
 </user-mapping>

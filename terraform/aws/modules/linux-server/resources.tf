@@ -13,7 +13,7 @@ data "aws_ami" "linux_server" {
 resource "aws_instance" "linux_server" {
   count                  = length(var.linux_servers)
   ami                    = data.aws_ami.linux_server[count.index].id
-  instance_type          = "t3.xlarge"
+  instance_type          = var.zeek_server.zeek_server == "1" ? "m5.2xlarge" : "t3.xlarge"
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
@@ -26,7 +26,7 @@ resource "aws_instance" "linux_server" {
   }
 
   tags = {
-    Name = "ar-linux-${var.general.key_name}-${count.index}-${var.general.attack_range_name}"
+    Name = "ar-linux-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
   }
 
   provisioner "remote-exec" {

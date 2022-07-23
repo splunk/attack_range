@@ -2,5 +2,4 @@
   gather_facts: False
   become: true
   roles:
-    - linux_universal_forwarder
-    - zeek_sensor
+    - zeek_server_post

@@ -14,3 +14,4 @@
     - windows_agent_prelude
     - crowdstrike_falcon_agent
     - carbon_black_cloud_agent
+    - bad_blood

@@ -12,7 +12,7 @@ class ConfigHandler:
         yml_dict_default = YmlReader.load_file(os.path.join(os.path.dirname(__file__), '../configs/attack_range_default.yml'))
         yml_dict = YmlReader.load_file(os.path.join(os.path.dirname(__file__), '../', config_path))
 
-        parent_keys = ['general', 'aws', 'azure', 'splunk_server', 'phantom_server', 'kali_server', 'nginx_server', 'simulation']
+        parent_keys = ['general', 'aws', 'azure', 'splunk_server', 'phantom_server', 'kali_server', 'nginx_server', 'simulation', 'zeek_server']
 
         for parent_key in parent_keys:
             if parent_key in yml_dict:
@@ -48,6 +48,10 @@ class ConfigHandler:
 
         i = 0
         for windows_server in config['windows_servers']:
+            if windows_server['create_domain'] == "0" and windows_server['bad_blood'] == "1":
+                print("ERROR: bad_blood is only allowed on the domain controller.")
+                sys.exit(1) 
+
             if (i > 0) and windows_server['create_domain'] == "1":
                 print("ERROR: create_domain=1 is only allowed for the first windows server in the list windows_servers.")
                 sys.exit(1)                      
@@ -62,7 +66,11 @@ class ConfigHandler:
         if config['kali_server']['kali_server'] == "1" and config['general']['cloud_provider'] == "azure":
             print("ERROR: Kali Server not supported in Azure.")
             sys.exit(1)   
-        
-        if (config['general']['carbon_black_cloud'] == "1" or config['general']['crowdstrike_falcon'] == "1") and config['general']['cloud_provider'] == "azure":
+
+        if config['zeek_server']['zeek_server'] == "1" and config['general']['cloud_provider'] == "azure":
+            print("ERROR: Zeek Server not supported in Azure.")
+            sys.exit(1)   
+
+        if config['general']['carbon_black_cloud'] == "1" and config['general']['cloud_provider'] == "azure":
             print("ERROR: Carbon Black Cloud or Crowdstrike Falcon can only used in AWS.")
             sys.exit(1)

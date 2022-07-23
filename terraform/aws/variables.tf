@@ -87,3 +87,5 @@ variable "nginx_server" {
         proxy_server_port = "8000"
     }
 }
+
+variable "zeek_server" { }

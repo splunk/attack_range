@@ -5,3 +5,4 @@ variable "general" { }
 variable "aws" { }
 variable "linux_servers" { }
 variable "simulation" { }
+variable "zeek_server" { }

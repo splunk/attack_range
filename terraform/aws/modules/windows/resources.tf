@@ -13,7 +13,7 @@ data "aws_ami" "windows_ami" {
 resource "aws_instance" "windows_server" {
   count = length(var.windows_servers)
   ami = data.aws_ami.windows_ami[count.index].id
-  instance_type = "t3.xlarge"
+  instance_type = var.zeek_server.zeek_server == "1" ? "m5.2xlarge" : "t3.xlarge"
   key_name = var.general.key_name
   subnet_id = var.ec2_subnet_id
   private_ip = "10.0.1.${14 + count.index}"
