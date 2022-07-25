@@ -25,10 +25,9 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
 
-      - name: 'Set Up Environmen'
+      - name: Store public key
         run: |
-          az account show
-          az group list
+          cat ${{ secrets.AR_SSH_PUBLIC_KEY }} >> ~/.ssh/ar-github-actions.pub
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
