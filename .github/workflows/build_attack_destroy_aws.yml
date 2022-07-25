@@ -1,9 +1,6 @@
 name: build-attack-destroy-aws
 on:
-  pull_request:
-    types:
-      - opened
-      - edited
+  push
 
 jobs:
   nightly-build-attack-destroy:
