@@ -1,6 +1,8 @@
 name: build-attack-destroy-azure
 on:
-  push
+  push:
+    branches:
+    - develop
 
 jobs:
   build-attack-destroy-azure:

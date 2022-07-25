@@ -1,6 +1,8 @@
 name: build-attack-destroy-aws
 on:
-  pull_request
+  push:
+    branches:
+    - develop
 
 jobs:
   build-attack-destroy-aws:

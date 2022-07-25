@@ -19,3 +19,4 @@
   win_shell: .\aurora-agent.exe --install -c agent-config-standard.yml --json --logfile aurora_alerts.json.log
   args:
     chdir: C:\aurora-agent-lite-win-pack
+  ignore_errors: yes
