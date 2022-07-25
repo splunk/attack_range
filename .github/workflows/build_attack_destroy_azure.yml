@@ -1,0 +1,61 @@
+name: build-attack-destroy-azure
+on:
+  push
+
+jobs:
+  build-attack-destroy-azure:
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install System Packages
+        run: |
+          sudo apt update -qq
+          sudo apt install -y openssh-client
+      
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9' #Available versions here - https://github.com/actions/python-versions/releases  easy to change/make a matrix/use pypy
+          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+      
+      - uses: Azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+
+      - name: 'Run az commands'
+        run: |
+          az account show
+          az group list
+
+      # - name: Install SSH key
+      #   uses: shimataro/ssh-key-action@v2
+      #   with:
+      #     key: ${{ secrets.AR_SSH_PRIVATE_KEY }}
+      #     name: ar-github-actions
+      #     known_hosts: unnecessary
+      #     if_key_exists: fail 
+
+      # - uses: hashicorp/setup-terraform@v1
+
+      # - name: Install Dependencies using Poetry
+      #   run: |
+      #     pip3 install poetry
+      #     poetry install
+
+      # - name: Copy Attack Range config
+      #   run: |
+      #     cp -f configs/github_actions_config_aws.yml attack_range.yml
+
+      # - name: Test Terraform Build, Attack, Destroy
+      #   run: |
+      #     poetry run python attack_range.py build
+      #     poetry run python attack_range.py simulate --target ar-win-ar-github-actions-ar-0 --technique T1003.002
+      #     poetry run python attack_range.py destroy
+        
+      # - name: Cleanup terraform on failures
+      #   if: failure()
+      #   run: |
+      #     poetry run python attack_range.py destroy

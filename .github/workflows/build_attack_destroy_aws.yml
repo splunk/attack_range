@@ -1,9 +1,9 @@
 name: build-attack-destroy-aws
 on:
-  push
+  pull_request
 
 jobs:
-  nightly-build-attack-destroy:
+  build-attack-destroy-aws:
 
     runs-on: ubuntu-latest
     steps:
