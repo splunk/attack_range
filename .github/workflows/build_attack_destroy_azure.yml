@@ -35,7 +35,7 @@ jobs:
 
       - name: Store public key
         run: |
-          cat ${{ secrets.AR_SSH_PUBLIC_KEY }} > ~/.ssh/ar-github-actions.pub
+          cat "${{ secrets.AR_SSH_PUBLIC_KEY }}" > ~/.ssh/ar-github-actions.pub
 
       - uses: hashicorp/setup-terraform@v1
 
