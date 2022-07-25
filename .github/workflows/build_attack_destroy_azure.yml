@@ -25,7 +25,7 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
 
-      - name: 'Run az commands'
+      - name: 'Set Up Environmen'
         run: |
           az account show
           az group list
@@ -52,6 +52,10 @@ jobs:
 
       - name: Test Terraform Build, Attack, Destroy
         run: |
+          export ARM_CLIENT_ID="${{ secrets.CLIENT_ID }}"
+          export ARM_CLIENT_SECRET="${{ secrets.CLIENT_SECRET }}"
+          export ARM_SUBSCRIPTION_ID="${{ secrets.SUBSCRIPTION_ID }}"
+          export ARM_TENANT_ID="${{ secrets.TENANT_ID }}"
           poetry run python attack_range.py build
           poetry run python attack_range.py simulate --target ar-win-ar-github-actions-ar-0 --technique T1003.002
           poetry run python attack_range.py destroy
