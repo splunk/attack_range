@@ -8,3 +8,4 @@ variable "general" { }
 variable "simulation" { }
 variable "windows_servers" { }
 variable "linux_servers" { }
+variable "zeek_server" { }
