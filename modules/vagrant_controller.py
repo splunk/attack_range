@@ -161,3 +161,15 @@ class VagrantController(AttackRangeController):
                                     roles_path=os.path.join(os.path.dirname(__file__), 'ansible/roles'),
                                     playbook=os.path.join(os.path.dirname(__file__), 'ansible/data_replay.yml'),
                                     extravars=ansible_vars)
+
+    def create_remote_backend(self, backend_name) -> None:
+        self.logger.error("Command not supported with local provider.")
+        sys.exit(1)
+
+    def delete_remote_backend(self, backend_name) -> None:
+        self.logger.error("Command not supported with local provider.")
+        sys.exit(1)
+
+    def init_remote_backend(self, backend_name) -> None:
+        self.logger.error("Command not supported with local provider.")
+        sys.exit(1)

@@ -1,6 +1,10 @@
 ---
 
 - include: install_packages.yml
+  when: cloud_provider != "local"
 - include: setup_tomcat.yml
+  when: cloud_provider != "local"
 - include: guacamole_server.yml
+  when: cloud_provider != "local"
 - include: guacamole_client.yml
+  when: cloud_provider != "local"

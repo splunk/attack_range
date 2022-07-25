@@ -1,7 +1,9 @@
-name: nightly-build-attack-destroy
+name: build-attack-destroy-aws
 on:
-  schedule:
-    - cron: '45 8 * * *'
+  pull_request:
+    types:
+      - opened
+      - edited
 
 jobs:
   nightly-build-attack-destroy:
@@ -45,19 +47,14 @@ jobs:
 
       - name: Copy Attack Range config
         run: |
-          cp -f configs/github_actions_config.yml attack_range.yml
+          cp -f configs/github_actions_config_aws.yml attack_range.yml
 
       - name: Test Terraform Build, Attack, Destroy
         run: |
-
-          cd terraform/aws/
-          terraform init
-          cd ../..
           poetry run python attack_range.py build
           poetry run python attack_range.py simulate --target ar-win-ar-github-actions-ar-0 --technique T1003.002
           poetry run python attack_range.py destroy
         
-      
       - name: Cleanup terraform on failures
         if: failure()
         run: |

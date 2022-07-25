@@ -1,3 +1,4 @@
 ---
 
 - include: guacamole_server_post.yml
+  when: cloud_provider != "local"

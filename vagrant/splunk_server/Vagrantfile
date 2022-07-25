@@ -14,7 +14,10 @@ config.vm.define "ar-splunk-{{config.general.key_name}}-{{config.general.attack_
           ansible_python_interpreter: "/usr/bin/python3",
           splunk_admin_password: 'Pl3ase-k1Ll-me:p',
           s3_bucket_url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com',
-          splunk_url: 'https://download.splunk.com/products/splunk/releases/8.2.5/linux/splunk-8.2.5-77015bc7a462-Linux-x86_64.tgz'
+          splunk_url: 'https://download.splunk.com/products/splunk/releases/8.2.5/linux/splunk-8.2.5-77015bc7a462-Linux-x86_64.tgz',
+{% for key, value in config.general.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
         }
     end
 
