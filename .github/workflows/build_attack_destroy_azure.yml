@@ -25,10 +25,6 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
 
-      - name: Store public key
-        run: |
-          cat ${{ secrets.AR_SSH_PUBLIC_KEY }} > ~/.ssh/ar-github-actions.pub
-
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
@@ -36,6 +32,10 @@ jobs:
           name: ar-github-actions
           known_hosts: unnecessary
           if_key_exists: fail 
+
+      - name: Store public key
+        run: |
+          cat ${{ secrets.AR_SSH_PUBLIC_KEY }} > ~/.ssh/ar-github-actions.pub
 
       - uses: hashicorp/setup-terraform@v1
 
