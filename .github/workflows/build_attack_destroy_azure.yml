@@ -30,32 +30,33 @@ jobs:
           az account show
           az group list
 
-      # - name: Install SSH key
-      #   uses: shimataro/ssh-key-action@v2
-      #   with:
-      #     key: ${{ secrets.AR_SSH_PRIVATE_KEY }}
-      #     name: ar-github-actions
-      #     known_hosts: unnecessary
-      #     if_key_exists: fail 
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.AR_SSH_PRIVATE_KEY }}
+          name: ar-github-actions
+          known_hosts: unnecessary
+          if_key_exists: fail 
 
-      # - uses: hashicorp/setup-terraform@v1
+      - uses: hashicorp/setup-terraform@v1
 
-      # - name: Install Dependencies using Poetry
-      #   run: |
-      #     pip3 install poetry
-      #     poetry install
+      - name: Install Dependencies using Poetry
+        run: |
+          pip3 install poetry
+          poetry install
 
-      # - name: Copy Attack Range config
-      #   run: |
-      #     cp -f configs/github_actions_config_aws.yml attack_range.yml
+      - name: Copy Attack Range config
+        run: |
+          cp -f configs/github_actions_config_azure.yml attack_range.yml
+          sed -i "s/xxx/${{ secrets.SUBSCRIPTION_ID }}/g" attack_range.yml
 
-      # - name: Test Terraform Build, Attack, Destroy
-      #   run: |
-      #     poetry run python attack_range.py build
-      #     poetry run python attack_range.py simulate --target ar-win-ar-github-actions-ar-0 --technique T1003.002
-      #     poetry run python attack_range.py destroy
+      - name: Test Terraform Build, Attack, Destroy
+        run: |
+          poetry run python attack_range.py build
+          poetry run python attack_range.py simulate --target ar-win-ar-github-actions-ar-0 --technique T1003.002
+          poetry run python attack_range.py destroy
         
-      # - name: Cleanup terraform on failures
-      #   if: failure()
-      #   run: |
-      #     poetry run python attack_range.py destroy
+      - name: Cleanup terraform on failures
+        if: failure()
+        run: |
+          poetry run python attack_range.py destroy
