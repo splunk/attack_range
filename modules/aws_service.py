@@ -3,6 +3,7 @@ import boto3
 import sys
 import os
 import json
+import time
 
 
 def check_region(config_region):
@@ -80,8 +81,10 @@ def ami_available(ami_name, region):
         return False
 
     for image in images["Images"]:
-        if ami_name == image["Name"]:
-            return True
+        if 'Name' in image:
+            if ami_name == image["Name"]:
+                if image["State"] == "available":
+                    return True
 
     return False
 
@@ -131,6 +134,16 @@ def copy_image(ami_name, ami_image_id, source_region, dest_region):
         SourceImageId=ami_image_id,
         SourceRegion=source_region
     )
+
+    for x in range(0, 10):
+        if ami_available(ami_name, dest_region):
+            break
+        print("Image not yet available. " + str(10-x) + " tries left.")
+        time.sleep(60)
+
+    if not ami_available(ami_name, dest_region):
+        print("Error: Copying of AMI took longer as expected.")
+        sys.exit(1)
 
 
 def check_s3_bucket(bucket_name):
