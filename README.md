@@ -90,10 +90,9 @@ The deployment of Attack Range consists of:
 - Splunk SOAR Server
 - Nginx Server
 - Linux Server
+- Zeek Server
 
 Which can be added/removed/configured using [attack_range.yml](https://github.com/splunk/attack_range/blob/develop/attack_range.yml). 
-
-An approximate **cost estimate** for running attack_range on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates).
 
 ## Logging
 The following log sources are collected from the machines:
@@ -236,3 +235,6 @@ We welcome feedback and contributions from the community! Please see our [contri
 * [Teoderick Contreras](https://twitter.com/tccontre18)
 * [Lou Stella](https://twitter.com/ljstella)
 * [Christian Cloutier](https://github.com/ccloutier-splunk)
+* Eric McGinnis
+* [Micheal Haag](https://twitter.com/M_haggis)
+* Gowthamaraj Rajendran
