@@ -2,7 +2,7 @@ name: build-attack-destroy-azure
 on:
   push:
     branches:
-    - attack_range_3
+    - develop
 
 jobs:
   build-attack-destroy-azure:
