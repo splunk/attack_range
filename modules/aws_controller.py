@@ -20,13 +20,15 @@ class AwsController(AttackRangeController):
 
     def __init__(self, config: dict):
         super().__init__(config)
+        statefile = self.config['general']['attack_range_name'] + ".terraform.tfstate"
+        self.config['general']["statepath"] = os.path.join(os.path.dirname(__file__), '../terraform/aws/state', statefile)
 
         if not aws_service.check_region(self.config['aws']['region']):
             self.logger.error("AWS cli region and region in config file are not the same.")
             sys.exit(1)
 
         working_dir = os.path.join(os.path.dirname(__file__), '../terraform/aws')
-        self.terraform = Terraform(working_dir=working_dir,variables=config, parallelism=15)
+        self.terraform = Terraform(working_dir=working_dir,variables=config, parallelism=15, state= self.config['general']["statepath"])
 
 
     def build(self) -> None:
