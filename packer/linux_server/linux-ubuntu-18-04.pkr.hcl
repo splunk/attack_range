@@ -1,22 +1,42 @@
 
-variable "splunk_admin_password" {
-  type    = string
-  default = "Pl3ase-k1Ll-me:p"
+variable "general" {
+    type = map(string)
+
+    default = {
+        attack_range_password = "Pl3ase-k1Ll-me:p1"
+        key_name = "attack-range-key-pair"
+        attack_range_name = "ar"
+        ip_whitelist = "0.0.0.0/0"
+    }
 }
 
-variable "splunk_uf_url" {
-  type    = string
-  default = "https://download.splunk.com/products/universalforwarder/releases/8.2.5/linux/splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb"
+variable "azure" {
+    type = map(string)
+
+    default = {
+        location = "West Europe"
+        private_key_path = "~/.ssh/id_rsa"
+        public_key_path = "~/.ssh/id_rsa.pub"
+    }
 }
 
-variable "version" {
-  type    = string
-  default = "3.0.0"
+variable "aws" {
+    type = map(string)
+
+    default = {
+        region = "eu-central-1"
+        private_key_path = "~/.ssh/id_rsa"
+        image_owner = "591511147606"
+    }
 }
 
-variable "location_azure" {
-  type    = string
-  default = "West Europe"
+variable "splunk_server" {
+    type = map(string)
+
+    default = {
+        install_es = "0"
+        splunk_es_app = "splunk-enterprise-security_701.spl"
+    }
 }
 
 data "amazon-ami" "ubuntu-ami" {
@@ -30,7 +50,9 @@ data "amazon-ami" "ubuntu-ami" {
 }
 
 source "amazon-ebs" "ubuntu-18-04" {
-  ami_name              = "linux-v${replace(var.version, ".", "-")}"
+  ami_name              = "linux-v${replace(var.general.version, ".", "-")}"
+  ami_regions           = ["eu-central-1", "us-west-2", "us-west-1", "us-east-2"]
+  region                = var.aws.region
   instance_type         = "t3.xlarge"
   launch_block_device_mappings {
     device_name = "/dev/sda1"
@@ -43,15 +65,15 @@ source "amazon-ebs" "ubuntu-18-04" {
 }
 
 source "azure-arm" "ubuntu-18-04" {
-  managed_image_resource_group_name = "packer_${replace(var.location_azure, " ", "_")}"
-  managed_image_name = "linux-v${replace(var.version, ".", "-")}"
-  subscription_id = "adf9dc10-01d2-4d80-99ff-5c90142e6293"
+  managed_image_resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
+  managed_image_name = "linux-v${replace(var.general.version, ".", "-")}"
   os_type = "Linux"
   image_publisher = "Canonical"
   image_offer = "UbuntuServer"
   image_sku = "18.04-LTS"
-  location = var.location_azure
+  location = var.azure.location
   vm_size = "Standard_A4_v2"
+  use_azure_cli_auth = true
 }
 
 build {
@@ -62,7 +84,7 @@ build {
   ]
 
   provisioner "ansible" {
-    extra_arguments = ["--extra-vars", "splunk_uf_url=${var.splunk_uf_url}"]
+    extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}"]
     playbook_file   = "packer/ansible/linux_server.yml"
   }
 

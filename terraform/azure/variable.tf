@@ -14,7 +14,7 @@ variable "azure" {
     type = map(string)
 
     default = {
-        region = "West Europe"
+        location = "West Europe"
         private_key_path = "~/.ssh/id_rsa"
         public_key_path = "~/.ssh/id_rsa.pub"
     }

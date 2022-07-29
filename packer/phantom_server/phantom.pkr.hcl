@@ -30,6 +30,17 @@ variable "aws" {
     }
 }
 
+variable "phantom_server" {
+    type = map(string)
+    default = {
+        phantom_server = "0"
+        phantom_community_username = "user"
+        phantom_community_password = "password"
+        phantom_repo_url = "https://repo.phantom.us/phantom/5.2/base/7/x86_64/phantom_repo-5.2.1.78411-1.x86_64.rpm"
+        phantom_version = "5.2.1.78411-1"
+    }
+}
+
 variable "splunk_server" {
     type = map(string)
 
@@ -39,53 +50,54 @@ variable "splunk_server" {
     }
 }
 
-data "amazon-ami" "ubuntu-ami" {
+data "amazon-ami" "centos-ami" {
   filters = {
-    name                = "*ubuntu-bionic-18.04-amd64-server-*"
+    name                = "CentOS-7-2111-20220330_2.x86_64*"
     root-device-type    = "ebs"
     virtualization-type = "hvm"
   }
   most_recent = true
-  owners      = ["099720109477"]
+  owners      = ["679593333241"]
 }
 
-source "amazon-ebs" "splunk-ubuntu-18-04" {
-  ami_name              = "splunk-v${replace(var.general.version, ".", "-")}"
+source "amazon-ebs" "phantom" {
+  ami_name              = "phantom-v${replace(var.general.version, ".", "-")}"
   ami_regions = ["eu-central-1", "us-west-2", "us-west-1", "us-east-2"]
   region = var.aws.region
   instance_type         = "t3.2xlarge"
   launch_block_device_mappings {
     device_name = "/dev/sda1"
-    volume_size = "50"
+    volume_size = "20"
   }
-  source_ami   = "${data.amazon-ami.ubuntu-ami.id}"
-  ssh_username = "ubuntu"
+  source_ami   = "${data.amazon-ami.centos-ami.id}"
+  ssh_username = "centos"
   force_deregister = true
   force_delete_snapshot = true
 }
 
-source "azure-arm" "splunk-ubuntu-18-04" {
+source "azure-arm" "phantom" {
   managed_image_resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
-  managed_image_name = "splunk-v${replace(var.general.version, ".", "-")}"
+  managed_image_name = "phantom-v${replace(var.general.version, ".", "-")}"
   os_type = "Linux"
-  image_publisher = "Canonical"
-  image_offer = "UbuntuServer"
-  image_sku = "18.04-LTS"
+  image_publisher = "OpenLogic"
+  image_offer = "CentOS"
+  image_sku = "7.6"
   location = var.azure.location
   vm_size = "Standard_A8_v2"
   use_azure_cli_auth = true
 }
 
+
 build {
 
   sources = [
-    "source.azure-arm.splunk-ubuntu-18-04",
-    "source.amazon-ebs.splunk-ubuntu-18-04"
+    "source.azure-arm.phantom",
+    "source.amazon-ebs.phantom"
   ]
 
   provisioner "ansible" {
-    extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}"]
-    playbook_file   = "packer/ansible/splunk_server.yml"
+    extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])}"]
+    playbook_file   = "packer/ansible/phantom_server.yml"
   }
 
 }

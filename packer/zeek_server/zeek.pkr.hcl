@@ -1,22 +1,32 @@
 
-variable "splunk_admin_password" {
-  type    = string
-  default = "Pl3ase-k1Ll-me:p"
+variable "general" {
+    type = map(string)
+
+    default = {
+        attack_range_password = "Pl3ase-k1Ll-me:p1"
+        key_name = "attack-range-key-pair"
+        attack_range_name = "ar"
+        ip_whitelist = "0.0.0.0/0"
+    }
 }
 
-variable "splunk_uf_url" {
-  type    = string
-  default = "https://download.splunk.com/products/universalforwarder/releases/8.2.5/linux/splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb"
+variable "aws" {
+    type = map(string)
+
+    default = {
+        region = "eu-central-1"
+        private_key_path = "~/.ssh/id_rsa"
+        image_owner = "591511147606"
+    }
 }
 
-variable "version" {
-  type    = string
-  default = "3.0.0"
-}
+variable "splunk_server" {
+    type = map(string)
 
-variable "location_azure" {
-  type    = string
-  default = "West Europe"
+    default = {
+        install_es = "0"
+        splunk_es_app = "splunk-enterprise-security_701.spl"
+    }
 }
 
 data "amazon-ami" "ubuntu-ami" {
@@ -30,11 +40,13 @@ data "amazon-ami" "ubuntu-ami" {
 }
 
 source "amazon-ebs" "ubuntu-18-04" {
-  ami_name              = "zeek-v${replace(var.version, ".", "-")}"
+  ami_name              = "zeek-v${replace(var.general.version, ".", "-")}"
+  ami_regions = ["eu-central-1", "us-west-2", "us-west-1", "us-east-2"]
+  region = var.aws.region
   instance_type         = "t3.xlarge"
   launch_block_device_mappings {
     device_name = "/dev/sda1"
-    volume_size = "50"
+    volume_size = "30"
   }
   source_ami   = "${data.amazon-ami.ubuntu-ami.id}"
   ssh_username = "ubuntu"
@@ -49,7 +61,7 @@ build {
   ]
 
   provisioner "ansible" {
-    extra_arguments = ["--extra-vars", "splunk_uf_url=${var.splunk_uf_url}"]
+    extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}"]
     playbook_file   = "packer/ansible/zeek.yml"
   }
 

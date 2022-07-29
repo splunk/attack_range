@@ -4,6 +4,7 @@ import subprocess
 import sys
 import signal
 import yaml
+import json
 
 from python_terraform import Terraform, IsNotFlagged
 from modules import aws_service, splunk_sdk
@@ -41,7 +42,11 @@ class AwsController(AttackRangeController):
         for linux_server in self.config['linux_servers']:
             images.append(linux_server['image'])
         if self.config["nginx_server"]["nginx_server"] == "1":
-            images.append(self.config["nginx_server"]["image"])        
+            images.append(self.config["nginx_server"]["image"])
+        if self.config["zeek_server"]["zeek_server"] == "1":
+            images.append(self.config["zeek_server"]["image"])        
+        if self.config["phantom_server"]["phantom_server"] == "1":
+            images.append(self.config["phantom_server"]["image"])    
 
         self.logger.info("Check if images are available in region " + self.config['aws']['region'])
 
@@ -101,31 +106,116 @@ class AwsController(AttackRangeController):
         self.logger.info("Create golden image for " + image_name + ". This can take up to 30 minutes.\n")
         only_cmd_arg = ""
         path_packer_file = ""
+        
         if image_name.startswith("splunk"):
             only_cmd_arg = "amazon-ebs.splunk-ubuntu-18-04"
             path_packer_file = "packer/splunk_server/splunk-ubuntu.pkr.hcl"
+            command = ["packer", "build", "-force", 
+                "-var", "general=" + json.dumps(self.config["general"]), 
+                "-var", "aws=" + json.dumps(self.config["aws"]), 
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+                "-only=" + only_cmd_arg, path_packer_file]
+        
+        elif image_name.startswith("windows"):
+            only_cmd_arg = "amazon-ebs.windows"
+            path_packer_file = "packer/windows_server/windows.pkr.hcl"  
+            
+            if image_name.startswith("windows-2016"):
+                images = {
+                    "aws_image": "Windows_Server-2016-English-Full-Base-*",
+                    "azure_publisher": "MicrosoftWindowsServer",
+                    "azure_offer": "WindowsServer",
+                    "azure_sku": "2016-Datacenter",
+                    "name": "windows-2016"
+                }            
+            elif image_name.startswith("windows-2019"):
+                images = {
+                    "aws_image": "Windows_Server-2019-English-Full-Base-*",
+                    "azure_publisher": "MicrosoftWindowsServer",
+                    "azure_offer": "WindowsServer",
+                    "azure_sku": "2019-Datacenter",
+                    "name": "windows-2019"
+                }
+            elif image_name.startswith("windows-2022"):
+                images = {
+                    "aws_image": "Windows_Server-2022-English-Full-Base-*",
+                    "azure_publisher": "MicrosoftWindowsServer",
+                    "azure_offer": "WindowsServer",
+                    "azure_sku": "2022-Datacenter",
+                    "name": "windows-2022"
+                }
+            elif image_name.startswith("windows-10"):
+                images = {
+                    "aws_image": "Windows_Server-2016-English-Full-Base-*",
+                    "azure_publisher": "microsoftwindowsdesktop",
+                    "azure_offer": "windows-10",
+                    "azure_sku": "win10-21h2-pro",
+                    "name": "windows-10"
+                }
+            elif image_name.startswith("windows-11"):
+                images = {
+                    "aws_image": "Windows_Server-2016-English-Full-Base-*",
+                    "azure_publisher": "microsoftwindowsdesktop",
+                    "azure_offer": "windows-11",
+                    "azure_sku": "win11-21h2-pro",
+                    "name": "windows-11"
+                }
+            else:
+                self.logger.error("Image not supported.")
+                sys.exit(1)
+
+            command = ["packer", "build", "-force", 
+                "-var", "general=" + json.dumps(self.config["general"]), 
+                "-var", "aws=" + json.dumps(self.config["aws"]), 
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]),  
+                "-var", "images=" + json.dumps(images),  
+                "-only=" + only_cmd_arg, path_packer_file]
+
         elif image_name.startswith("linux"):
             only_cmd_arg = "amazon-ebs.ubuntu-18-04"
             path_packer_file = "packer/linux_server/linux-ubuntu-18-04.pkr.hcl"
-        elif image_name.startswith("nginx"):
-            only_cmd_arg = "amazon-ebs.nginx-web-proxy"
-            path_packer_file = "packer/nginx_server/nginx_web_proxy.pkr.hcl"
-        elif image_name.startswith("windows-2016"):
-            only_cmd_arg = "amazon-ebs.windows"
-            path_packer_file = "packer/windows_server/windows_2016.pkr.hcl"                      
-        elif image_name.startswith("windows-2019"):
-            only_cmd_arg = "amazon-ebs.windows"
-            path_packer_file = "packer/windows_server/windows_2019.pkr.hcl"  
+            command = ["packer", "build", "-force", 
+                "-var", "general=" + json.dumps(self.config["general"]), 
+                "-var", "aws=" + json.dumps(self.config["aws"]), 
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+                "-only=" + only_cmd_arg, path_packer_file]
+        
+        elif image_name.startswith("phantom"):
+            only_cmd_arg = "amazon-ebs.phantom"
+            path_packer_file = "packer/phantom_server/phantom.pkr.hcl"
+            command = ["packer", "build", "-force", 
+                "-var", "general=" + json.dumps(self.config["general"]), 
+                "-var", "aws=" + json.dumps(self.config["aws"]), 
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+                "-var", "phantom_server=" + json.dumps(self.config["phantom_server"]), 
+                "-only=" + only_cmd_arg, path_packer_file]
+
+        elif image_name.startswith("zeek"):
+            only_cmd_arg = "amazon-ebs.phantom"
+            path_packer_file = "packer/zeek_server/zeek.pkr.hcl"
+            command = ["packer", "build", "-force", 
+                "-var", "general=" + json.dumps(self.config["general"]), 
+                "-var", "aws=" + json.dumps(self.config["aws"]), 
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+                "-only=" + only_cmd_arg, path_packer_file]
+                
+        elif image_name.startswith("zeek"):
+            only_cmd_arg = "amazon-ebs.phantom"
+            path_packer_file = "packer/zeek_server/zeek.pkr.hcl"
+            command = ["packer", "build", "-force", 
+                "-var", "general=" + json.dumps(self.config["general"]), 
+                "-var", "aws=" + json.dumps(self.config["aws"]), 
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+                "-only=" + only_cmd_arg, path_packer_file]
 
         if only_cmd_arg == "":
             self.logger.error("Image not supported.")
             sys.exit(1)
 
         try:
-            process = subprocess.Popen(["packer", "build", "-force", "-only=" + only_cmd_arg, path_packer_file],shell=False,stdout=subprocess.PIPE)
+            process = subprocess.Popen(command ,shell=False, stdout=subprocess.PIPE)
         except KeyboardInterrupt:
             process.send_signal(signal.SIGINT)
-
         while True:
             output = process.stdout.readline()
             if process.poll() is not None:

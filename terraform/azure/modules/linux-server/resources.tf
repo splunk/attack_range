@@ -1,7 +1,7 @@
 resource "azurerm_public_ip" "linux-publicip" {
   count = length(var.linux_servers)
   name                = "ar-linux-ip-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
-  location            = var.azure.region
+  location            = var.azure.location
   resource_group_name = var.rg_name
   allocation_method   = "Static"
 }
@@ -9,7 +9,7 @@ resource "azurerm_public_ip" "linux-publicip" {
 resource "azurerm_network_interface" "linux-nic" {
   count = length(var.linux_servers)
   name                = "ar-linux-nic-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
-  location            = var.azure.region
+  location            = var.azure.location
   resource_group_name = var.rg_name
 
   ip_configuration {
@@ -24,13 +24,13 @@ resource "azurerm_network_interface" "linux-nic" {
 data "azurerm_image" "search" {
   count = length(var.linux_servers)
   name                = var.linux_servers[count.index].image
-  resource_group_name = "packer_${replace(var.azure.region, " ", "_")}"
+  resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
 }
 
 resource "azurerm_virtual_machine" "linux" {
   count = length(var.linux_servers)
   name = "ar-linux-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
-  location = var.azure.region
+  location = var.azure.location
   resource_group_name  = var.rg_name
   network_interface_ids = [azurerm_network_interface.linux-nic[count.index].id]
   vm_size               = "Standard_A4_v2"

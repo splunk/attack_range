@@ -6,7 +6,7 @@ locals {
 resource "azurerm_network_interface" "windows-nic" {
   count = length(var.windows_servers)
   name = "ar-windows-nic-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
-  location = var.azure.region
+  location = var.azure.location
   resource_group_name  = var.rg_name
 
   ip_configuration {
@@ -21,7 +21,7 @@ resource "azurerm_network_interface" "windows-nic" {
 resource "azurerm_public_ip" "windows-publicip" {
   count       = length(var.windows_servers)
   name                = "ar-windows-ip-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
-  location            = var.azure.region
+  location            = var.azure.location
   resource_group_name = var.rg_name
   allocation_method   = "Static"
 }
@@ -29,13 +29,13 @@ resource "azurerm_public_ip" "windows-publicip" {
 data "azurerm_image" "search" {
   count = length(var.windows_servers) > 0 ? 1 : 0
   name                = var.windows_servers[count.index].image
-  resource_group_name = "packer_${replace(var.azure.region, " ", "_")}"
+  resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
 }
 
 resource "azurerm_virtual_machine" "windows" {
   count = length(var.windows_servers)
   name = "ar-win-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
-  location = var.azure.region
+  location = var.azure.location
   resource_group_name   = var.rg_name
   network_interface_ids = [azurerm_network_interface.windows-nic[count.index].id]
   vm_size               = "Standard_D4_v4"

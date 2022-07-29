@@ -1,6 +1,0 @@
----
-
-- include: change_splunk_password.yml
-
-- include: configure_phantom_app.yml
-  when: phantom_server == "1"

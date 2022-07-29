@@ -2,16 +2,11 @@
 data "aws_ami" "latest-centos" {
   count       = var.phantom_server.phantom_server == "1" ? 1 : 0
   most_recent = true
-  owners      = ["679593333241"] # owned by AWS Marketplace
+  owners      = ["self"] 
 
   filter {
     name   = "name"
-    values = ["CentOS-7-2111-20220330_2.x86_64*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+    values = [var.phantom_server.image]
   }
 }
 

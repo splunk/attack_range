@@ -45,40 +45,4 @@
       ph-auth-token: "{{api_token.json.key}}"
     validate_certs: no
 
-# install a list of apps using RPMs. URL's can be found at https://repo.phantom.us/phantom/4.8/apps/x86_64/
 
-- name: install whois app
-  yum:
-    name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_whois-2.1.0.x86_64.rpm
-    state: present
-
-- name: install maxmind app
-  yum:
-    name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_maxmind-2.0.23.x86_64.rpm
-    state: present
-
-- name: install dns app
-  yum:
-    name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_dns-2.0.22.x86_64.rpm
-    state: present
-
-- name: install phishtank app
-  yum:
-    name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_phishtank-2.0.1.x86_64.rpm
-    state: present
-
-- name: install splunk app
-  yum:
-    name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_splunk-2.2.3.x86_64.rpm
-    state: present
-
-- name: install winrm app
-  yum:
-    name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_winrm-2.0.1.x86_64.rpm
-    state: present
-
-# template to install more apps
-#- name: install <> app
-#  yum:
-#    name:
-#    state: present

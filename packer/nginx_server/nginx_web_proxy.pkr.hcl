@@ -1,13 +1,34 @@
 
-variable "splunk_uf_url" {
-  type    = string
-  default = "https://download.splunk.com/products/universalforwarder/releases/8.2.5/linux/splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb"
+variable "general" {
+    type = map(string)
+
+    default = {
+        attack_range_password = "Pl3ase-k1Ll-me:p1"
+        key_name = "attack-range-key-pair"
+        attack_range_name = "ar"
+        ip_whitelist = "0.0.0.0/0"
+    }
 }
 
-variable "version" {
-  type    = string
-  default = "3.0.0"
+variable "aws" {
+    type = map(string)
+
+    default = {
+        region = "eu-central-1"
+        private_key_path = "~/.ssh/id_rsa"
+        image_owner = "591511147606"
+    }
 }
+
+variable "splunk_server" {
+    type = map(string)
+
+    default = {
+        install_es = "0"
+        splunk_es_app = "splunk-enterprise-security_701.spl"
+    }
+}
+
 
 data "amazon-ami" "nginx-ami" {
   filters = {
@@ -20,7 +41,9 @@ data "amazon-ami" "nginx-ami" {
 }
 
 source "amazon-ebs" "nginx-web-proxy" {
-  ami_name              = "nginx-web-proxy-v${replace(var.version, ".", "-")}"
+  ami_name              = "nginx-web-proxy-v${replace(var.general.version, ".", "-")}"
+  ami_regions = ["eu-central-1", "us-west-2", "us-west-1", "us-east-2"]
+  region = var.aws.region
   instance_type         = "t3.small"
   launch_block_device_mappings {
     device_name = "/dev/sda1"
@@ -39,7 +62,7 @@ build {
   ]
 
   provisioner "ansible" {
-    extra_arguments = ["--extra-vars", "splunk_uf_url=${var.splunk_uf_url}"]
+    extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}"]
     playbook_file   = "packer/ansible/nginx_web_proxy.yml"
   }
 

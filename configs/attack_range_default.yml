@@ -18,17 +18,17 @@ general:
   carbon_black_cloud_company_code: ""
   carbon_black_cloud_s3_bucket: ""
 aws:
-  region: "eu-central-1"
+  region: "us-west-2"
   private_key_path: "~/.ssh/id_rsa"
   cloudtrail: "0"
   cloudtrail_sqs_queue: "https://sqs.us-west-2.amazonaws.com/111111111111/cloudtrail-cloud-attack-range"
 azure:
-  region: "West Europe"
+  location: "West Europe"
   subscription_id: "xxx"
   private_key_path: "~/.ssh/id_rsa"
   public_key_path: "~/.ssh/id_rsa.pub"
   azure_logging: "0"
-  app_id: "xxx"
+  client_id: "xxx"
   client_secret: "xxx"
   tenant_id: "xxx"
   event_hub_name: "xxx"
@@ -39,8 +39,13 @@ splunk_server:
   image: "splunk-v3-0-0"
   install_es: "0"
   splunk_es_app: "splunk-enterprise-security_701.spl"
+  s3_bucket_url: "https://attack-range-appbinaries.s3-us-west-2.amazonaws.com"
+  splunk_url: "https://download.splunk.com/products/splunk/releases/8.2.5/linux/splunk-8.2.5-77015bc7a462-Linux-x86_64.tgz"
+  splunk_uf_url: "https://download.splunk.com/products/universalforwarder/releases/8.2.5/linux/splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb"
+  splunk_uf_win_url: "https://download.splunk.com/products/universalforwarder/releases/8.2.5/windows/splunkforwarder-8.2.5-77015bc7a462-x64-release.msi"
 phantom_server:
   phantom_server: "0"
+  image: "phantom-v3-0-0"
   phantom_community_username: user
   phantom_community_password: password
   phantom_repo_url: https://repo.phantom.us/phantom/5.2/base/7/x86_64/phantom_repo-5.2.1.78411-1.x86_64.rpm

@@ -1,7 +1,7 @@
 resource "azurerm_public_ip" "kali-publicip" {
   count       = var.kali_server.kali_server == "1" ? 1 : 0
   name                = "ar-kali-ip-${var.general.key_name}"
-  location            = var.azure.region
+  location            = var.azure.location
   resource_group_name = var.rg_name
   allocation_method   = "Static"
 }
@@ -9,7 +9,7 @@ resource "azurerm_public_ip" "kali-publicip" {
 resource "azurerm_network_interface" "kali-nic" {
   count       = var.kali_server.kali_server == "1" ? 1 : 0
   name                = "ar-kali-nic-${var.general.key_name}"
-  location            = var.azure.region
+  location            = var.azure.location
   resource_group_name = var.rg_name
 
   ip_configuration {
@@ -24,7 +24,7 @@ resource "azurerm_network_interface" "kali-nic" {
 resource "azurerm_virtual_machine" "kali" {
   count       = var.kali_server.kali_server == "1" ? 1 : 0
   name = "ar-kali-${var.general.key_name}"
-  location = var.azure.region
+  location = var.azure.location
   resource_group_name  = var.rg_name
   network_interface_ids = [azurerm_network_interface.kali-nic[count.index].id]
   vm_size               = "Standard_D4_v4"

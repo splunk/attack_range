@@ -1,14 +1,14 @@
 
 resource "azurerm_public_ip" "splunk-publicip" {
   name                = "ar-splunk-ip-${var.general.key_name}-${var.general.attack_range_name}"
-  location            = var.azure.region
+  location            = var.azure.location
   resource_group_name = var.rg_name
   allocation_method   = "Static"
 }
 
 resource "azurerm_network_interface" "splunk-nic" {
   name                = "ar-splunk-nic-${var.general.key_name}-${var.general.attack_range_name}"
-  location            = var.azure.region
+  location            = var.azure.location
   resource_group_name = var.rg_name
 
   ip_configuration {
@@ -22,12 +22,12 @@ resource "azurerm_network_interface" "splunk-nic" {
 
 data "azurerm_image" "search" {
   name                = var.splunk_server.image
-  resource_group_name = "packer_${replace(var.azure.region, " ", "_")}"
+  resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
 }
 
 resource "azurerm_virtual_machine" "splunk" {
   name = "ar-splunk-${var.general.key_name}-${var.general.attack_range_name}"
-  location = var.azure.region
+  location = var.azure.location
   resource_group_name  = var.rg_name
   network_interface_ids = [azurerm_network_interface.splunk-nic.id]
   vm_size               = "Standard_D4_v4"

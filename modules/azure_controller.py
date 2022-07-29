@@ -3,6 +3,7 @@ import ansible_runner
 import subprocess
 import sys
 import signal
+import json
 
 from python_terraform import Terraform, IsNotFlagged
 from tabulate import tabulate
@@ -35,15 +36,17 @@ class AzureController(AttackRangeController):
         for windows_server in self.config['windows_servers']:
             images.append(windows_server['image'])
         for linux_server in self.config['linux_servers']:
-            images.append(linux_server['image'])       
+            images.append(linux_server['image'])      
+        if self.config["phantom_server"]["phantom_server"] == "1":
+            images.append(self.config["phantom_server"]["image"])   
 
         for ar_image in images:
-            self.logger.info("Check if image " + ar_image + " is available in region " + self.config['azure']['region'])
-            if not azure_service.check_image_available(ar_image, self.config['azure']['region']):
-                self.logger.info("Image " + ar_image + " is not available in region " + self.config['azure']['region'] + ". Create a golden image with packer.")
+            self.logger.info("Check if image " + ar_image + " is available in region " + self.config['azure']['location'])
+            if not azure_service.check_image_available(ar_image, self.config['azure']['location']):
+                self.logger.info("Image " + ar_image + " is not available in region " + self.config['azure']['location'] + ". Create a golden image with packer.")
                 self.packer(ar_image)
             else:
-                self.logger.info("Image " + ar_image + " is available in region " + self.config['azure']['region'])
+                self.logger.info("Image " + ar_image + " is available in region " + self.config['azure']['location'])
 
         cwd = os.getcwd()
         os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform/azure') + '&& terraform init ')
@@ -78,34 +81,99 @@ class AzureController(AttackRangeController):
 
     def packer(self, image_name) -> None:
         self.logger.info("Create golden image for " + image_name + ". This can take up to 30 minutes.\n")
-        azure_service.create_ressource_group(self.config['azure']['region'])
+        azure_service.create_ressource_group(self.config['azure']['location'])
         only_cmd_arg = ""
         path_packer_file = ""
+        
         if image_name.startswith("splunk"):
             only_cmd_arg = "azure-arm.splunk-ubuntu-18-04"
             path_packer_file = "packer/splunk_server/splunk-ubuntu.pkr.hcl"
+            command = ["packer", "build", "-force", 
+                "-var", "general=" + json.dumps(self.config["general"]), 
+                "-var", "azure=" + json.dumps(self.config["azure"]), 
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+                "-only=" + only_cmd_arg, path_packer_file]
+        
+        elif image_name.startswith("windows"):
+            only_cmd_arg = "azure-arm.windows"
+            path_packer_file = "packer/windows_server/windows.pkr.hcl"  
+            
+            if image_name.startswith("windows-2016"):
+                images = {
+                    "aws_image": "Windows_Server-2016-English-Full-Base-*",
+                    "azure_publisher": "MicrosoftWindowsServer",
+                    "azure_offer": "WindowsServer",
+                    "azure_sku": "2016-Datacenter",
+                    "name": "windows-2016"
+                }            
+            elif image_name.startswith("windows-2019"):
+                images = {
+                    "aws_image": "Windows_Server-2019-English-Full-Base-*",
+                    "azure_publisher": "MicrosoftWindowsServer",
+                    "azure_offer": "WindowsServer",
+                    "azure_sku": "2019-Datacenter",
+                    "name": "windows-2019"
+                }
+            elif image_name.startswith("windows-2022"):
+                images = {
+                    "aws_image": "Windows_Server-2022-English-Full-Base-*",
+                    "azure_publisher": "MicrosoftWindowsServer",
+                    "azure_offer": "WindowsServer",
+                    "azure_sku": "2022-Datacenter",
+                    "name": "windows-2022"
+                }
+            elif image_name.startswith("windows-10"):
+                images = {
+                    "aws_image": "Windows_Server-2016-English-Full-Base-*",
+                    "azure_publisher": "microsoftwindowsdesktop",
+                    "azure_offer": "windows-10",
+                    "azure_sku": "win10-21h2-pro",
+                    "name": "windows-10"
+                }
+            elif image_name.startswith("windows-11"):
+                images = {
+                    "aws_image": "Windows_Server-2016-English-Full-Base-*",
+                    "azure_publisher": "microsoftwindowsdesktop",
+                    "azure_offer": "windows-11",
+                    "azure_sku": "win11-21h2-pro",
+                    "name": "windows-11"
+                }
+            else:
+                self.logger.error("Image not supported.")
+                sys.exit(1)
+
+            command = ["packer", "build", "-force", 
+                "-var", "general=" + json.dumps(self.config["general"]), 
+                "-var", "azure=" + json.dumps(self.config["azure"]), 
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]),  
+                "-var", "images=" + json.dumps(images),  
+                "-only=" + only_cmd_arg, path_packer_file]
+
         elif image_name.startswith("linux"):
             only_cmd_arg = "azure-arm.ubuntu-18-04"
             path_packer_file = "packer/linux_server/linux-ubuntu-18-04.pkr.hcl"
-        elif image_name.startswith("windows-2016"):
-            only_cmd_arg = "azure-arm.windows"
-            path_packer_file = "packer/windows_server/windows_2016.pkr.hcl"                      
-        elif image_name.startswith("windows-2019"):
-            only_cmd_arg = "azure-arm.windows"
-            path_packer_file = "packer/windows_server/windows_2019.pkr.hcl"  
-        elif image_name.startswith("windows-10"):
-            only_cmd_arg = "azure-arm.windows"
-            path_packer_file = "packer/windows_server/windows_10.pkr.hcl"  
-        elif image_name.startswith("windows-11"):
-            only_cmd_arg = "azure-arm.windows"
-            path_packer_file = "packer/windows_server/windows_10.pkr.hcl"  
+            command = ["packer", "build", "-force", 
+                "-var", "general=" + json.dumps(self.config["general"]), 
+                "-var", "azure=" + json.dumps(self.config["azure"]), 
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+                "-only=" + only_cmd_arg, path_packer_file]
+        
+        elif image_name.startswith("phantom"):
+            only_cmd_arg = "azure-arm.phantom"
+            path_packer_file = "packer/phantom_server/phantom.pkr.hcl"
+            command = ["packer", "build", "-force", 
+                "-var", "general=" + json.dumps(self.config["general"]), 
+                "-var", "azure=" + json.dumps(self.config["azure"]), 
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+                "-var", "phantom_server=" + json.dumps(self.config["phantom_server"]), 
+                "-only=" + only_cmd_arg, path_packer_file]
 
         if only_cmd_arg == "":
             self.logger.error("Image not supported.")
             sys.exit(1)
 
         try:
-            process = subprocess.Popen(["packer", "build", "-force", "-var", "location_azure=" + self.config['azure']['region'] , "-only=" + only_cmd_arg, path_packer_file],shell=False,stdout=subprocess.PIPE)
+            process = subprocess.Popen(command ,shell=False, stdout=subprocess.PIPE)
         except KeyboardInterrupt:
             process.send_signal(signal.SIGINT)
 
@@ -230,12 +298,15 @@ class AzureController(AttackRangeController):
 
 
     def create_remote_backend(self, backend_name) -> None:
+        self.logger.error("Command not supported with azure provider.")
         pass
 
 
     def delete_remote_backend(self, backend_name) -> None:
+        self.logger.error("Command not supported with azure provider.")
         pass
 
 
     def init_remote_backend(self, backend_name) -> None:
+        self.logger.error("Command not supported with azure provider.")
         pass

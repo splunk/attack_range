@@ -83,7 +83,7 @@ def resume(args):
 
 def packer(args):
     controller = init(args)
-    
+    controller.packer(args.image_name)
 
 def configure(args):
     configuration.new(args.config)

@@ -1,13 +1,13 @@
 
 resource "azurerm_resource_group" "attackrange" {
   name = "ar-rg-${var.general.key_name}-${var.general.attack_range_name}"
-  location = var.azure.region
+  location = var.azure.location
 }
 
 resource "azurerm_virtual_network" "attackrange-network" {
   name = "ar-vnet-${var.general.key_name}-${var.general.attack_range_name}"
   address_space = ["10.0.0.0/16"]
-  location = var.azure.region
+  location = var.azure.location
   resource_group_name = azurerm_resource_group.attackrange.name
 }
 
@@ -20,7 +20,7 @@ resource "azurerm_subnet" "attackrange-subnet" {
 
 resource "azurerm_network_security_group" "attackrange-nsg" {
   name                = "ar-nsg-${var.general.key_name}-${var.general.attack_range_name}"
-  location = var.azure.region
+  location = var.azure.location
   resource_group_name  = azurerm_resource_group.attackrange.name
 
   security_rule {
