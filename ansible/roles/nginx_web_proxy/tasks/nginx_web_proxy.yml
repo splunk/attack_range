@@ -1,6 +1,6 @@
 ---
 - name: copy nginx.conf to add kv logging to nginx plus
-  file:
+  copy:
     src: nginx.conf
     dest: /etc/nginx/nginx.conf
 
