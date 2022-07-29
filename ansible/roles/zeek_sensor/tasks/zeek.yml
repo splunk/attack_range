@@ -43,7 +43,7 @@
 - name: Install Zeek
   become: true
   apt:
-    name: zeek
+    name: zeek-lts
     update_cache: yes
     state: latest
 

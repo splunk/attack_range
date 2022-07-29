@@ -453,7 +453,7 @@ windows_client_zeek_capture = 0
 splunk_uf_linux_deb_url = https://download.splunk.com/products/universalforwarder/releases/8.2.5/linux/splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb
 # Specify the download URL of the Splunk Linux (debian based) universal forwarder
 
-splunk_uf_binary = splunkforwarder-8.2.2.1-ae6821b7c64b-linux-2.6-amd64.deb
+splunk_uf_binary = splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb
 # Specify the name of the Splunk binary installer
 
 zeek_sensor_private_ip = 10.0.1.18
