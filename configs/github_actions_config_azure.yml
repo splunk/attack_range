@@ -1,6 +1,6 @@
 
 general:
-  attack_range_password: "Pl3ase-k1Ll-me:p123"
+  attack_range_password: "Pl3ase-k1Ll-me:p23"
   cloud_provider: "azure"
   key_name: "ar-github-actions"
 azure:

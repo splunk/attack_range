@@ -1,7 +1,10 @@
 general:
-  attack_range_password: "ChangeMe123!"
+  attack_range_password: "ChangeMe123!1"
   cloud_provider: "aws"
   key_name: "ar"
+aws:
+  region: "eu-central-1"
+  private_key_path: "~/.ssh/ar"
 windows_servers:
   - hostname: ar-win 
     image: windows-2016-v3-0-0

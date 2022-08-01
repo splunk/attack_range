@@ -7,7 +7,7 @@ attack_range.yml is the configuration file for Attack Range. Attack Range reads 
 The attack_range_default.yml defines all default values for the Attack Range. The following file contains some comments to describe the different parameters:
 ````
 general:
-  attack_range_password: "Pl3ase-k1Ll-me:p1"
+  attack_range_password: "Pl3ase-k1Ll-me:p"
 # Attack Range Master Password for all accounts in Attack Range.
 
   cloud_provider: "aws"

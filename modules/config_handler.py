@@ -42,7 +42,7 @@ class ConfigHandler:
 
     @classmethod
     def validate_config(self, config: dict) -> None:
-        if config['general']['attack_range_password'] in ['ChangeMe123!', 'Pl3ase-k1Ll-me:p1']:
+        if config['general']['attack_range_password'] in ['ChangeMe123!', 'Pl3ase-k1Ll-me:p']:
             print("ERROR: please change attack_range_password in attack_range.yml")
             sys.exit(1)      
 

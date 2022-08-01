@@ -15,7 +15,7 @@
     url: "https://127.0.0.1:8089/services/apps/local"
     method: POST
     user: "admin"
-    password: "{{ attack_range_password }}"
+    password: "Pl3ase-k1Ll-me:p"
     validate_certs: false
     body: "name=/tmp/splunk-app-for-stream_730.tgz&update=true&filename=true"
     headers:
@@ -42,7 +42,7 @@
     url: "https://127.0.0.1:8089/services/apps/local"
     method: POST
     user: "admin"
-    password: "{{ attack_range_password }}"
+    password: "Pl3ase-k1Ll-me:p"
     validate_certs: false
     body: "name=/tmp/splunk-add-on-for-stream-wire-data_730.tgz&update=true&filename=true"
     headers:
@@ -69,7 +69,7 @@
     url: "https://127.0.0.1:8089/services/apps/local"
     method: POST
     user: "admin"
-    password: "{{ attack_range_password }}"
+    password: "Pl3ase-k1Ll-me:p"
     validate_certs: false
     body: "name=/tmp/splunk-add-on-for-stream-forwarders_730.tgz&update=true&filename=true"
     headers:

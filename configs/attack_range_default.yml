@@ -1,6 +1,6 @@
 
 general:
-  attack_range_password: "Pl3ase-k1Ll-me:p1"
+  attack_range_password: "Pl3ase-k1Ll-me:p"
   cloud_provider: "aws"
   key_name: "attack-range-key-pair"
   attack_range_name: "ar"

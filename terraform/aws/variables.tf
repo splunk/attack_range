@@ -3,7 +3,7 @@ variable "general" {
     type = map(string)
 
     default = {
-        attack_range_password = "Pl3ase-k1Ll-me:p1"
+        attack_range_password = "Pl3ase-k1Ll-me:p"
         key_name = "attack-range-key-pair"
         ip_whitelist = "0.0.0.0/0"
     }
