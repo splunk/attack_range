@@ -60,7 +60,7 @@ EOF
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ansible-playbook -i '${self.public_ip},' windows_post.yml --extra-vars 'ansible_user=Administrator ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.windows_servers[count.index] : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}'"
+    command = "ansible-playbook -i '${self.public_ip},' windows_post.yml --extra-vars 'ansible_user=Administrator ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.windows_servers[count.index] : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
   }
 
 }

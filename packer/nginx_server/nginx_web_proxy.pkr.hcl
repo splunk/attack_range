@@ -42,7 +42,6 @@ data "amazon-ami" "nginx-ami" {
 
 source "amazon-ebs" "nginx-web-proxy" {
   ami_name              = "nginx-web-proxy-v${replace(var.general.version, ".", "-")}"
-  ami_regions = ["eu-central-1", "us-west-2", "us-west-1", "us-east-2"]
   region = var.aws.region
   instance_type         = "t3.small"
   launch_block_device_mappings {

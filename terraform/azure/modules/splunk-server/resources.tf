@@ -1,5 +1,6 @@
 
 resource "azurerm_public_ip" "splunk-publicip" {
+  count               = var.splunk_server.byo_splunk == "0" ? 1 : 0
   name                = "ar-splunk-ip-${var.general.key_name}-${var.general.attack_range_name}"
   location            = var.azure.location
   resource_group_name = var.rg_name
@@ -7,6 +8,7 @@ resource "azurerm_public_ip" "splunk-publicip" {
 }
 
 resource "azurerm_network_interface" "splunk-nic" {
+  count               = var.splunk_server.byo_splunk == "0" ? 1 : 0
   name                = "ar-splunk-nic-${var.general.key_name}-${var.general.attack_range_name}"
   location            = var.azure.location
   resource_group_name = var.rg_name
@@ -16,20 +18,22 @@ resource "azurerm_network_interface" "splunk-nic" {
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
     private_ip_address            = "10.0.1.12"
-    public_ip_address_id          = azurerm_public_ip.splunk-publicip.id
+    public_ip_address_id          = azurerm_public_ip.splunk-publicip[0].id
   }
 }
 
 data "azurerm_image" "search" {
+  count               = var.splunk_server.byo_splunk == "0" ? 1 : 0
   name                = var.splunk_server.image
   resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
 }
 
 resource "azurerm_virtual_machine" "splunk" {
+  count = var.splunk_server.byo_splunk == "0" ? 1 : 0
   name = "ar-splunk-${var.general.key_name}-${var.general.attack_range_name}"
   location = var.azure.location
   resource_group_name  = var.rg_name
-  network_interface_ids = [azurerm_network_interface.splunk-nic.id]
+  network_interface_ids = [azurerm_network_interface.splunk-nic[0].id]
   vm_size               = "Standard_D4_v4"
 #  depends_on             = [var.phantom_server_instance]
   delete_os_disk_on_termination = true
@@ -42,7 +46,7 @@ resource "azurerm_virtual_machine" "splunk" {
   }
 
   storage_image_reference {
-    id = data.azurerm_image.search.id
+    id = data.azurerm_image.search[0].id
   }
 
   os_profile {
@@ -65,14 +69,14 @@ resource "azurerm_virtual_machine" "splunk" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      host        = azurerm_public_ip.splunk-publicip.ip_address
+      host        = azurerm_public_ip.splunk-publicip[0].ip_address
       private_key = file(var.azure.private_key_path)
     }
   }
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.azure.private_key_path} -i '${azurerm_public_ip.splunk-publicip.ip_address},' splunk_server_post.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.azure : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.zeek_server : "${key}=\"${value}\""])} windows=${jsonencode(var.windows_servers)} linux=${jsonencode(var.linux_servers)}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.azure.private_key_path} -i '${azurerm_public_ip.splunk-publicip[0].ip_address},' splunk_server_post.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.azure : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.zeek_server : "${key}=\"${value}\""])} windows=${jsonencode(var.windows_servers)} linux=${jsonencode(var.linux_servers)}'"
   }
 
 }

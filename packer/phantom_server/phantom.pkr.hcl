@@ -62,7 +62,6 @@ data "amazon-ami" "centos-ami" {
 
 source "amazon-ebs" "phantom" {
   ami_name              = "phantom-v${replace(var.general.version, ".", "-")}"
-  ami_regions = ["eu-central-1", "us-west-2", "us-west-1", "us-east-2"]
   region = var.aws.region
   instance_type         = "t3.2xlarge"
   launch_block_device_mappings {

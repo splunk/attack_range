@@ -36,7 +36,8 @@ class AwsController(AttackRangeController):
         self.logger.info("[action] > build\n")
 
         images = []
-        images.append(self.config['splunk_server']['image'])
+        if self.config['splunk_server']['byo_splunk'] == "0":
+            images.append(self.config['splunk_server']['image'])
         for windows_server in self.config['windows_servers']:
             images.append(windows_server['image'])
         for linux_server in self.config['linux_servers']:

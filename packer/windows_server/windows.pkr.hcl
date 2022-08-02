@@ -64,7 +64,6 @@ data "amazon-ami" "windows" {
 
 source "amazon-ebs" "windows" {
   ami_name              = "${var.images.name}-v${replace(var.general.version, ".", "-")}"
-  ami_regions           = ["eu-central-1", "us-west-2", "us-west-1", "us-east-2"]
   region                = var.aws.region
   force_delete_snapshot = "true"
   force_deregister      = "true"

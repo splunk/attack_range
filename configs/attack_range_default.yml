@@ -43,6 +43,8 @@ splunk_server:
   splunk_url: "https://download.splunk.com/products/splunk/releases/8.2.5/linux/splunk-8.2.5-77015bc7a462-Linux-x86_64.tgz"
   splunk_uf_url: "https://download.splunk.com/products/universalforwarder/releases/8.2.5/linux/splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb"
   splunk_uf_win_url: "https://download.splunk.com/products/universalforwarder/releases/8.2.5/windows/splunkforwarder-8.2.5-77015bc7a462-x64-release.msi"
+  byo_splunk: "0"
+  byo_splunk_ip: ""
 phantom_server:
   phantom_server: "0"
   image: "phantom-v3-0-0"

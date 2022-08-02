@@ -1,0 +1,11 @@
+---
+
+- name: Copy an outputs.conf using templating
+  win_template:
+    src: outputs.conf.j2
+    dest: C:\Program Files\SplunkUniversalForwarder\etc\apps\win_outputs_app\local\outputs.conf
+
+- name: Restart splunk
+  win_command: splunk.exe restart
+  args:
+    chdir: C:\Program Files\SplunkUniversalForwarder\bin\

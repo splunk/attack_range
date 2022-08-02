@@ -1,0 +1,13 @@
+---
+
+- name: copy outputs.conf to forward data to splunk server
+  template:
+    src: outputs.conf.j2
+    dest: /opt/splunkforwarder/etc/system/local/outputs.conf
+    owner: splunk
+    group: splunk
+    force: yes
+
+- name: restart splunk
+  become: true
+  command: "/opt/splunkforwarder/bin/splunk restart"

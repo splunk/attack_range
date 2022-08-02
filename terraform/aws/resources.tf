@@ -38,6 +38,7 @@ module "windows-server" {
   windows_servers = var.windows_servers
   simulation = var.simulation
   zeek_server = var.zeek_server
+  splunk_server = var.splunk_server
 }
 
 module "linux-server" {
@@ -49,6 +50,7 @@ module "linux-server" {
   linux_servers = var.linux_servers
   simulation = var.simulation
   zeek_server = var.zeek_server
+  splunk_server = var.splunk_server
 }
 
 module "kali-server" {
@@ -67,6 +69,7 @@ module "nginx-server" {
   general = var.general
   nginx_server = var.nginx_server
   aws = var.aws
+  splunk_server = var.splunk_server
 }
 
 module "zeek-server" {
@@ -80,4 +83,5 @@ module "zeek-server" {
   windows_server_instances = module.windows-server.windows_servers
   linux_servers = var.linux_servers
   linux_server_instances = module.linux-server.linux_servers
+  splunk_server = var.splunk_server
 }

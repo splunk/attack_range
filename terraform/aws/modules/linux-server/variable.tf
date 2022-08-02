@@ -6,3 +6,4 @@ variable "aws" { }
 variable "linux_servers" { }
 variable "simulation" { }
 variable "zeek_server" { }
+variable "splunk_server" { }
