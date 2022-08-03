@@ -1,0 +1,38 @@
+name: destroy old attack ranges
+on:
+  push:
+    branches:
+    - attack_range_3
+
+jobs:
+  destroy_old_attack_ranges:
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Install System Packages
+        run: |
+          sudo apt update -qq
+      
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9' #Available versions here - https://github.com/actions/python-versions/releases  easy to change/make a matrix/use pypy
+          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+      
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Install Dependencies using Poetry
+        run: |
+          pip3 install poetry
+          poetry install
+
+      - name: Destroy and stop old attack ranges
+        run: |
+          poetry run python scripts/attack_range_destroyer.py
