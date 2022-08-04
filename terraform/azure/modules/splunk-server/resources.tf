@@ -24,7 +24,7 @@ resource "azurerm_network_interface" "splunk-nic" {
 
 data "azurerm_image" "search" {
   count               = var.splunk_server.byo_splunk == "0" ? 1 : 0
-  name                = var.splunk_server.image
+  name                = var.splunk_server.splunk_image
   resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
 }
 

@@ -6,7 +6,7 @@ data "aws_ami" "windows_ami" {
 
   filter {
     name   = "name"
-    values = [var.windows_servers[count.index].image]
+    values = [var.windows_servers[count.index].windows_image]
   }
 }
 

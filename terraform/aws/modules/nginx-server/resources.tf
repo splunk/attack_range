@@ -7,7 +7,7 @@ data "aws_ami" "nginx_server" {
 
   filter {
     name   = "name"
-    values = [var.nginx_server.image]
+    values = [var.nginx_server.nginx_image]
   }
 }
 

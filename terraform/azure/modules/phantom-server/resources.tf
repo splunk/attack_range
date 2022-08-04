@@ -21,13 +21,19 @@ resource "azurerm_network_interface" "phantom-nic" {
   }
 }
 
+data "azurerm_image" "phantom" {
+  count               = var.phantom_server.phantom_server == "1" ? 1 : 0
+  name                = var.phantom_server.phantom_image
+  resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
+}
+
 resource "azurerm_virtual_machine" "phantom" {
   count       = var.phantom_server.phantom_server == "1" ? 1 : 0
   name = "ar-phantom-${var.general.key_name}-${var.general.attack_range_name}"
   location = var.azure.location
   resource_group_name  = var.rg_name
   network_interface_ids = [azurerm_network_interface.phantom-nic[count.index].id]
-  vm_size               = "Standard_D4_v4"
+  vm_size               = "Standard_A4_v2"
 
   delete_os_disk_on_termination = true
 
@@ -39,10 +45,7 @@ resource "azurerm_virtual_machine" "phantom" {
   }
 
   storage_image_reference {
-    publisher = "OpenLogic"
-    offer     = "CentOS"
-    sku       = "7.6"
-    version   = "latest"
+    id = data.azurerm_image.phantom[0].id
   }
 
   os_profile {

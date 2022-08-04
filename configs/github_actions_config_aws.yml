@@ -8,6 +8,6 @@ aws:
   private_key_path: "~/.ssh/ar-github-actions"
 windows_servers: 
   - hostname: ar-win
-    image: windows-2016-v3-0-0
+    windows_image: windows-2016-v3-0-0
 linux_servers: 
   - hostname: ar-linux

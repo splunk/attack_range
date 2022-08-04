@@ -36,7 +36,7 @@ azure:
 local:
   provider: "Virtual Box"
 splunk_server:
-  image: "splunk-v3-0-0"
+  splunk_image: "splunk-v3-0-0"
   install_es: "0"
   splunk_es_app: "splunk-enterprise-security_701.spl"
   s3_bucket_url: "https://attack-range-appbinaries.s3-us-west-2.amazonaws.com"
@@ -47,14 +47,14 @@ splunk_server:
   byo_splunk_ip: ""
 phantom_server:
   phantom_server: "0"
-  image: "phantom-v3-0-0"
+  phantom_image: "phantom-v3-0-0"
   phantom_community_username: user
   phantom_community_password: password
   phantom_repo_url: https://repo.phantom.us/phantom/5.2/base/7/x86_64/phantom_repo-5.2.1.78411-1.x86_64.rpm
   phantom_version: "5.2.1.78411-1"
 windows_servers_default:
   hostname: ar-win 
-  image: windows-2016-v3-0-0
+  windows_image: windows-2016-v3-0-0
   create_domain: "0"
   join_domain: "0"
   win_sysmon_config: "SwiftOnSecurity.xml"
@@ -62,18 +62,18 @@ windows_servers_default:
   bad_blood: "0"
 linux_servers_default:
   hostname: ar-linux
-  image: linux-v3-0-0
+  linux_image: linux-v3-0-0
   sysmon_config: "SysMonLinux-CatchAll.xml"
 kali_server:
   kali_server: "0"
 nginx_server:
   nginx_server: "0"
-  image: nginx-web-proxy-v3-0-0
+  nginx_image: nginx-web-proxy-v3-0-0
   proxy_server_ip: "10.0.1.12"
   proxy_server_port: "8000"
 zeek_server:
   zeek_server: "0"
-  image: "zeek-v3-0-0"
+  zeek_image: "zeek-v3-0-0"
 simulation:
   atomic_red_team_repo: redcanaryco
   atomic_red_team_branch: master

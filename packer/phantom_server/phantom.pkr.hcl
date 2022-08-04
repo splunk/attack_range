@@ -78,14 +78,13 @@ source "azure-arm" "phantom" {
   managed_image_resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
   managed_image_name = "phantom-v${replace(var.general.version, ".", "-")}"
   os_type = "Linux"
-  image_publisher = "OpenLogic"
-  image_offer = "CentOS"
-  image_sku = "7.6"
+  image_publisher = "openlogic"
+  image_offer = "centos"
+  image_sku = "7_9"
   location = var.azure.location
   vm_size = "Standard_A8_v2"
   use_azure_cli_auth = true
 }
-
 
 build {
 

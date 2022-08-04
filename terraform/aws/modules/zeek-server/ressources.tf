@@ -6,7 +6,7 @@ data "aws_ami" "zeek_server" {
 
   filter {
     name   = "name"
-    values = [var.zeek_server.image]
+    values = [var.zeek_server.zeek_image]
   }
 }
 

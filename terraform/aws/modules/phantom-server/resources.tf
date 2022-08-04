@@ -6,7 +6,7 @@ data "aws_ami" "latest-centos" {
 
   filter {
     name   = "name"
-    values = [var.phantom_server.image]
+    values = [var.phantom_server.phantom_image]
   }
 }
 

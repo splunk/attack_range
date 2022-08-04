@@ -7,7 +7,7 @@ data "aws_ami" "splunk_server" {
 
   filter {
     name   = "name"
-    values = [var.splunk_server.image]
+    values = [var.splunk_server.splunk_image]
   }
 }
 

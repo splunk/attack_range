@@ -6,7 +6,7 @@ data "aws_ami" "linux_server" {
 
   filter {
     name   = "name"
-    values = [var.linux_servers[count.index].image]
+    values = [var.linux_servers[count.index].linux_image]
   }
 }
 

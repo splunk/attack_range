@@ -23,7 +23,7 @@ resource "azurerm_network_interface" "linux-nic" {
 
 data "azurerm_image" "search" {
   count = length(var.linux_servers)
-  name                = var.linux_servers[count.index].image
+  name                = var.linux_servers[count.index].linux_image
   resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
 }
 

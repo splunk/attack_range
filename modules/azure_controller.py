@@ -33,13 +33,13 @@ class AzureController(AttackRangeController):
 
         images = []
         if self.config['splunk_server']['byo_splunk'] == "0":
-            images.append(self.config['splunk_server']['image'])
+            images.append(self.config['splunk_server']['splunk_image'])
         for windows_server in self.config['windows_servers']:
-            images.append(windows_server['image'])
+            images.append(windows_server['windows_image'])
         for linux_server in self.config['linux_servers']:
-            images.append(linux_server['image'])      
+            images.append(linux_server['linux_image'])      
         if self.config["phantom_server"]["phantom_server"] == "1":
-            images.append(self.config["phantom_server"]["image"])   
+            images.append(self.config["phantom_server"]["phantom_image"])   
 
         for ar_image in images:
             self.logger.info("Check if image " + ar_image + " is available in region " + self.config['azure']['location'])
