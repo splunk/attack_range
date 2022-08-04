@@ -1,8 +1,7 @@
 name: destroy old attack ranges
 on:
-  push:
-    branches:
-    - attack_range_3
+  schedule:
+    - cron: '15 13 * * *'
 
 jobs:
   destroy_old_attack_ranges:

@@ -2,6 +2,9 @@ import os
 import sys
 import boto3
 import time
+import requests
+import json
+
 
 from datetime import datetime, timezone, timedelta
 
@@ -49,7 +52,7 @@ def get_instances():
         "sa-east-1"
     ]
 
-    regions = ["eu-west-2"]
+    #regions = ["eu-west-2"]
     
     instances = []
     for region in regions:
@@ -63,13 +66,17 @@ def change_instance_state(instances):
         stop_time_reached = instance['LaunchTime'] < datetime.now(timezone.utc) - timedelta(days=DAYS_TO_STOP)
         instance_name = instance['Tags'][0]['Value']
         if instance['State']['Name']=='running' and stop_time_reached:
-            print("Stop instance " + instance_name + " . Age:" + str(datetime.now(timezone.utc) - instance['LaunchTime'])  + " region: " + instance['region'])
+            msg = "Stop instance " + instance_name + " . Age:" + str(datetime.now(timezone.utc) - instance['LaunchTime'])  + " region: " + instance['region']
+            print(msg)
+            send_slack_message(msg)
             stop_instance(instance)
 
         if instance['StateTransitionReason']:
             terminate_time_reached = datetime.strptime(instance['StateTransitionReason'][16:-5], '%Y-%m-%d %H:%M:%S') < datetime.utcnow() - timedelta(days=DAYS_TO_TERMINATE )
             if instance['State']['Name']=='stopped' and terminate_time_reached:
-                print("Terminate instance " + instance_name + " . Age:" + str(datetime.utcnow() - datetime.strptime(instance['StateTransitionReason'][16:-5], '%Y-%m-%d %H:%M:%S')) + " region: " + instance['region'])
+                msg = "Terminate instance " + instance_name + " . Age:" + str(datetime.utcnow() - datetime.strptime(instance['StateTransitionReason'][16:-5], '%Y-%m-%d %H:%M:%S')) + " region: " + instance['region']
+                print(msg)
+                send_slack_message(msg)
                 terminate_instance(instance)
 
 
@@ -181,6 +188,13 @@ def terminate_instance(instance):
         )
     except Exception as e:
         print(e)
+
+
+def send_slack_message(msg):
+    if os.environ["SLACK_WEBHOOK"]:
+        state = requests.post(os.environ["SLACK_WEBHOOK"], json.dumps({"text": msg}))
+    else:
+        print("ERROR: couldn't find environment variable SLACK_WEBHOOK")
 
 
 if __name__ == "__main__":
