@@ -14,7 +14,7 @@ data "aws_ami" "splunk_server" {
 
 resource "aws_iam_role" "splunk_role" {
   count       = var.splunk_server.byo_splunk == "0" ? 1 : 0
-  name = "splunk_role_${var.general.key_name}"
+  name = "splunk_role_${var.general.key_name}_${var.general.attack_range_name}"
 
   assume_role_policy = <<EOF
 {
@@ -36,7 +36,7 @@ EOF
 
 resource "aws_iam_instance_profile" "splunk_profile" {
   count = var.splunk_server.byo_splunk == "0" ? 1 : 0
-  name = "splunk_profile_${var.general.key_name}"
+  name = "splunk_profile_${var.general.key_name}_${var.general.attack_range_name}"
   role = aws_iam_role.splunk_role[0].name
 }
 
@@ -65,7 +65,7 @@ data "aws_iam_policy_document" "splunk_logging" {
 
 resource "aws_iam_role_policy" "splunk_logging_policy" {
   count = ((var.aws.cloudtrail == "1") || (var.general.carbon_black_cloud == "1")) && (var.splunk_server.byo_splunk == "0") ? 1 : 0
-  name = "splunk_logging_policy_${var.general.key_name}"
+  name = "splunk_logging_policy_${var.general.key_name}_${var.general.attack_range_name}"
   role = aws_iam_role.splunk_role[0].id
   policy = data.aws_iam_policy_document.splunk_logging[0].json
 }

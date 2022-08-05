@@ -9,6 +9,7 @@
   roles:
     - set_hostname_linux
     - splunk_server_post
+    - phantom_byo_splunk
     - cloudtrail_logs
     - prelude
     - azure_logging
