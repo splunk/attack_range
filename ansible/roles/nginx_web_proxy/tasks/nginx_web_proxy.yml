@@ -1,4 +1,10 @@
 ---
+- name: install nginx
+  apt:
+    name:  nginx 
+    state: latest
+    update_cache: yes
+    
 - name: copy nginx.conf to add kv logging to nginx plus
   copy:
     src: nginx.conf
