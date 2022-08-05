@@ -486,7 +486,7 @@ starting configuration for AT-ST mech walker
             'message': 'shall we build a kali linux machine',
             'name': 'kali_machine',
             'default': False,
-            'when': lambda answers: configuration['general']['cloud_provider'] == "aws",
+            'when': lambda answers: configuration['general']['cloud_provider'] != "azure",
         },
         {
             'type': 'confirm',
@@ -533,6 +533,12 @@ starting configuration for AT-ST mech walker
         if answers['nginx_web_proxy']:
             configuration['nginx_server'] = dict()
             configuration['nginx_server']['nginx_server'] = '1'
+
+    if configuration['general']['cloud_provider'] in ("local-vbox","local-vmware"):
+        if answers['kali_machine']:
+            configuration['kali_server'] = dict()
+            configuration['kali_server']['kali_server'] = '1'
+
 
     if answers['phantom']:
         configuration['phantom_server'] = dict()
