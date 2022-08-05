@@ -1,0 +1,15 @@
+
+config.vm.define "ar-kali-{{config.general.key_name}}-{{config.general.attack_range_name}}" do |config|
+    VM_NAME_KALI= "attack-range-kali"
+    config.vm.box = "kalilinux/rolling"
+    config.vm.boot_timeout = 600
+    config.vm.hostname = "kali"
+    config.vm.network :private_network, ip: "10.0.1.30"
+    config.ssh.password = "vagrant"
+  
+    config.vm.provider "vmware_desktop" do |vb|
+      vb.gui = true
+      vb.vmx["memsize"] = "2048"
+      vb.vmx["numvcpus"] = "1"
+    end
+  end

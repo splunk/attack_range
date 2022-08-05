@@ -34,15 +34,24 @@ class ArtSimulationController(SimulationController):
                 cmd_line = '-u ' + ansible_user + ' --private-key ' + private_key_path + ' -i ' + target_public_ip + ', '
             private_key_path = self.config['azure']['private_key_path']
 
-        elif self.config['general']['cloud_provider'] == 'local':
+        elif self.config['general']['cloud_provider'] == 'local-vbox':
             ansible_user = 'Administrator'
             target_public_ip = '127.0.0.1'
             if "win" in target:
                 ansible_port = 5985 + int(target[-1])
             else:
                 ansible_port = 2022 + int(target[-1])
-            cmd_line = '-u vagrant --private-key vagrant/.vagrant/machines/' + target + '/virtualbox/private_key -i ' + target_public_ip + ', '
+            cmd_line = '-u vagrant --private-key vagrant/vbox/.vagrant/machines/' + target + '/virtualbox/private_key -i ' + target_public_ip + ', '
 
+        elif self.config['general']['cloud_provider'] == 'local-vmware':
+            ansible_user = 'Administrator'
+            target_public_ip = '127.0.0.1'
+            if "win" in target:
+                ansible_port = 5985 + int(target[-1])
+            else:
+                ansible_port = 2022 + int(target[-1])
+            cmd_line = '-u vagrant --private-key vagrant/vmware/.vagrant/machines/' + target + '/vmware_desktop/private_key -i ' + target_public_ip + ', '
+            
         techniques = technique.split(',')
 
         if "win" in target:

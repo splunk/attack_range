@@ -7,7 +7,7 @@ config.vm.define "ar-phantom-{{config.general.key_name}}-{{config.general.attack
     config.vm.network :private_network, ip: "10.0.1.13"
   
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../terraform/ansible/phantom_server.yml"
+        ansible.playbook = "../../terraform/ansible/phantom_server.yml"
         ansible.compatibility_mode = "2.0"
         ansible.extra_vars = {
 {% for key, value in config.general.items() %}
@@ -22,10 +22,9 @@ config.vm.define "ar-phantom-{{config.general.key_name}}-{{config.general.attack
         }
     end
   
-    config.vm.provider "virtualbox" do |vb, override|
+    config.vm.provider "vmware_desktop" do |vb, override|
       vb.gui = true
-      vb.name = "#{VM_NAME_P}"
-      vb.customize ["modifyvm", :id, "--memory", "4096"]
-      vb.customize ["modifyvm", :id, "--cpus", "4"]
+      vb.vmx["memsize"] = "4096"
+      vb.vmx["numvcpus"] = "4"
     end
   end

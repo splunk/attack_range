@@ -1,6 +1,6 @@
 ---
 
-- include: change_splunk_password.yml
+#- include: change_splunk_password.yml
 
 - include: phantom_server_configure.yml
   when: phantom_server == "1"

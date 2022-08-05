@@ -5,7 +5,8 @@ import argparse
 from modules.config_handler import ConfigHandler
 from modules.aws_controller import AwsController
 from modules.azure_controller import AzureController
-from modules.vagrant_controller import VagrantController
+from modules.vagrant_vbox_controller import VagrantVboxController
+from modules.vagrant_vmware_controller import VagrantVmwareController
 from modules import configuration
 
 # need to set this ENV var due to a OSX High Sierra forking bug
@@ -39,16 +40,22 @@ starting program loaded for B1 battle droid
 
     if config['general']['cloud_provider'] == 'aws':
         config.pop('azure')
-        config.pop('local')
+        config.pop('local-vbox')
+        config.pop('local-vmware')
         controller = AwsController(config)
     elif config['general']['cloud_provider'] == 'azure':
         config.pop('aws')
-        config.pop('local')
+        config.pop('local-vbox')
+        config.pop('local-vmware')
         controller = AzureController(config)
-    elif config['general']['cloud_provider'] == 'local':
+    elif config['general']['cloud_provider'] == 'local-vbox':
         config.pop('azure')
         config.pop('aws')
-        controller = VagrantController(config)
+        controller = VagrantVboxController(config)
+    elif config['general']['cloud_provider'] == 'local-vmware':
+        config.pop('azure')
+        config.pop('aws')
+        controller = VagrantVmwareController(config)
    
     return controller
 

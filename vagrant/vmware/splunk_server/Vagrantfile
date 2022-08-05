@@ -8,7 +8,7 @@ config.vm.define "ar-splunk-{{config.general.key_name}}-{{config.general.attack_
     config.vm.network :private_network, ip: "10.0.1.12"
   
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../packer/ansible/splunk_server.yml"
+        ansible.playbook = "../../packer/ansible/splunk_server.yml"
         ansible.compatibility_mode = "2.0"
         ansible.extra_vars = {
           ansible_python_interpreter: "/usr/bin/python3",
@@ -22,7 +22,7 @@ config.vm.define "ar-splunk-{{config.general.key_name}}-{{config.general.attack_
     end
 
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../terraform/ansible/splunk_server_post.yml"
+        ansible.playbook = "../../terraform/ansible/splunk_server_post.yml"
         ansible.compatibility_mode = "2.0"
         ansible.extra_vars = {
           ansible_python_interpreter: "/usr/bin/python3",  
@@ -41,11 +41,10 @@ config.vm.define "ar-splunk-{{config.general.key_name}}-{{config.general.attack_
         }
     end
   
-    config.vm.provider "virtualbox" do |vb, override|
+    config.vm.provider "vmware_desktop" do |vb, override|
       vb.gui = true
-      vb.name = "#{VM_NAME}"
-      vb.customize ["modifyvm", :id, "--memory", "6144"]
-      vb.customize ["modifyvm", :id, "--cpus", "4"]
+      vb.vmx["memsize"] = "6144"
+      vb.vmx["numvcpus"] = "4"      
     end
   end
   

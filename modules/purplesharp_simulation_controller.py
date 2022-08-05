@@ -20,7 +20,7 @@ class PurplesharpSimulationController(SimulationController):
             ansible_user = 'AzureAdmin'
             ansible_port = 5985
 
-        elif self.config['general']['cloud_provider'] == 'local':
+        elif self.config['general']['cloud_provider'] in ('local-vbox','local-vmware'):
             target_public_ip = 'localhost'
             ansible_user = 'Administrator'
             ansible_port = 5985 + int(target[-1])

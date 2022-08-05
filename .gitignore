@@ -189,3 +189,7 @@ venv.bak/
 #state directories
 terraform/state/*
 !terraform/state/state.md
+
+# Vagrantfile file
+vagrant/vbox/Vagrantfile
+vagrant/vmware/Vagrantfile

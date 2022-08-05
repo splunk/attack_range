@@ -1,10 +1,10 @@
 ---
 
 - include: install_packages.yml
-  when: cloud_provider != "local"
+  when: cloud_provider != "local-vmware" and cloud_provider != "local-vbox"
 - include: setup_tomcat.yml
-  when: cloud_provider != "local"
+  when: cloud_provider != "local-vmware" and cloud_provider != "local-vbox"
 - include: guacamole_server.yml
-  when: cloud_provider != "local"
+  when: cloud_provider != "local-vmware" and cloud_provider != "local-vbox"
 - include: guacamole_client.yml
-  when: cloud_provider != "local"
+  when: cloud_provider != "local-vmware" and cloud_provider != "local-vbox"

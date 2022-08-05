@@ -197,7 +197,7 @@ starting configuration for AT-ST mech walker
             'type': 'select',
             'message': 'select cloud provider',
             'name': 'provider',
-            'choices': ['aws','azure', 'local'],
+            'choices': ['aws','azure', 'local-vbox', 'local-vmware'],
             'default': 'aws'
         },
         {
@@ -247,7 +247,7 @@ starting configuration for AT-ST mech walker
     # get the latest key generated
     priv_key, pub_key = get_generated_keys()
 
-    if configuration['general']['cloud_provider'] != 'local':
+    if configuration['general']['cloud_provider'] not in ('local-vbox','local-vmware'):
         questions = [
             {   # reuse key pair?
                 'type': 'confirm',

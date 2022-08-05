@@ -6,7 +6,7 @@ config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_r
     config.vm.network "forwarded_port", guest: 22, host: {{ 2022 + count }}
   
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../packer/ansible/linux_server.yml"
+        ansible.playbook = "../../packer/ansible/linux_server.yml"
         ansible.compatibility_mode = "2.0"
         ansible.extra_vars = {
           ansible_python_interpreter: "/usr/bin/python3",
@@ -16,7 +16,7 @@ config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_r
     end
 
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../terraform/ansible/linux_server_post.yml"
+        ansible.playbook = "../../terraform/ansible/linux_server_post.yml"
         ansible.compatibility_mode = "2.0"
         ansible.extra_vars = {
           ansible_python_interpreter: "/usr/bin/python3",  

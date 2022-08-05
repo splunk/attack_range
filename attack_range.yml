@@ -1,7 +1,7 @@
 general:
-  attack_range_password: "ChangeMe123!"
-  cloud_provider: "aws"
-  key_name: "ar"
+  cloud_provider: local-vmware
+  attack_range_password: AeG5fFIDgz9nEuXA367
+local-vmware: {}
 windows_servers:
-  - hostname: ar-win 
-    image: windows-2016-v3-0-0
+- hostname: ar-win
+  image: windows-2016-v3-0-0
