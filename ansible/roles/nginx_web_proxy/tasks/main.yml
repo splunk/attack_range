@@ -8,3 +8,7 @@
 - name: restart splunk
   become: true
   command: "/opt/splunkforwarder/bin/splunk restart"
+
+- name: restart nginx again
+  become: true
+  command: "nginx -s reload"
