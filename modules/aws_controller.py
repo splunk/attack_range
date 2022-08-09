@@ -36,17 +36,18 @@ class AwsController(AttackRangeController):
         self.logger.info("[action] > build\n")
 
         images = []
-        images.append(self.config['splunk_server']['image'])
+        if self.config['splunk_server']['byo_splunk'] == "0":
+            images.append(self.config['splunk_server']['splunk_image'])
         for windows_server in self.config['windows_servers']:
-            images.append(windows_server['image'])
+            images.append(windows_server['windows_image'])
         for linux_server in self.config['linux_servers']:
-            images.append(linux_server['image'])
+            images.append(linux_server['linux_image'])
         if self.config["nginx_server"]["nginx_server"] == "1":
-            images.append(self.config["nginx_server"]["image"])
+            images.append(self.config["nginx_server"]["nginx_image"])
         if self.config["zeek_server"]["zeek_server"] == "1":
-            images.append(self.config["zeek_server"]["image"])        
+            images.append(self.config["zeek_server"]["zeek_image"])        
         if self.config["phantom_server"]["phantom_server"] == "1":
-            images.append(self.config["phantom_server"]["image"])    
+            images.append(self.config["phantom_server"]["phantom_image"])    
 
         self.logger.info("Check if images are available in region " + self.config['aws']['region'])
 
@@ -199,9 +200,9 @@ class AwsController(AttackRangeController):
                 "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
                 "-only=" + only_cmd_arg, path_packer_file]
                 
-        elif image_name.startswith("zeek"):
-            only_cmd_arg = "amazon-ebs.phantom"
-            path_packer_file = "packer/zeek_server/zeek.pkr.hcl"
+        elif image_name.startswith("nginx"):
+            only_cmd_arg = "amazon-ebs.nginx-web-proxy"
+            path_packer_file = "packer/nginx_server/nginx_web_proxy.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
                 "-var", "aws=" + json.dumps(self.config["aws"]), 

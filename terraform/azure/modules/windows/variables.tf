@@ -5,3 +5,4 @@ variable "general" { }
 variable "azure" { }
 variable "windows_servers" { }
 variable "simulation" { }
+variable "splunk_server" { }

@@ -8,3 +8,4 @@ variable "windows_servers" { }
 variable "windows_server_instances" { }
 variable "linux_servers" { }
 variable "linux_server_instances" { }
+variable "splunk_server" { }

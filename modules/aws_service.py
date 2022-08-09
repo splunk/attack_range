@@ -29,7 +29,7 @@ def get_all_instances(key_name, ar_name, region):
                 if len(instance['Tags']) > 0:
                     tag_value = instance['Tags'][0]['Value']
                     if tag_value.startswith('ar-'):
-                        if (key_name in tag_value) and (key_name in tag_value):
+                        if (key_name in tag_value) and (ar_name in tag_value):
                             instances.append(instance)
 
     return instances

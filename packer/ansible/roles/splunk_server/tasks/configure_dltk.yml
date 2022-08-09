@@ -45,3 +45,34 @@
     groups: docker
     append: yes
   become: yes
+
+- name: Create folder directory for configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/mltk-container/local/
+
+- name: copy docker.conf to splunk server
+  copy:
+    src: docker.conf
+    dest: /opt/splunk/etc/apps/mltk-container/local/docker.conf
+    owner: splunk
+    group: splunk
+  notify: restart splunk
+
+- name: pull docker containers
+  become: true
+  become_user: splunk
+  command: docker pull phdrieger/mltk-container-golden-image-cpu:3.9.0
+
+- name: copy local.meta for mltk
+  copy:
+    src: mltk.local.meta
+    dest: /opt/splunk/etc/apps//Splunk_ML_Toolkit/metadata/local.meta
+    owner: splunk
+    group: splunk
+  notify: restart splunk

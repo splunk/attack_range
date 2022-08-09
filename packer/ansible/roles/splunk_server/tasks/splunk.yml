@@ -40,7 +40,7 @@
       storageEngine=wiredTiger
 
 - name: accept license and start splunk
-  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd {{attack_range_password}}
+  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd Pl3ase-k1Ll-me:p
   become: yes
   become_user: splunk
   when: splunk_path.stat.exists == false

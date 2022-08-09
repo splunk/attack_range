@@ -42,7 +42,7 @@ class ConfigHandler:
 
     @classmethod
     def validate_config(self, config: dict) -> None:
-        if config['general']['attack_range_password'] in ['ChangeMe123!', 'Pl3ase-k1Ll-me:p1']:
+        if config['general']['attack_range_password'] in ['ChangeMe123!', 'Pl3ase-k1Ll-me:p']:
             print("ERROR: please change attack_range_password in attack_range.yml")
             sys.exit(1)      
 
@@ -73,4 +73,12 @@ class ConfigHandler:
 
         if config['general']['carbon_black_cloud'] == "1" and config['general']['cloud_provider'] == "azure":
             print("ERROR: Carbon Black Cloud or Crowdstrike Falcon can only used in AWS.")
+            sys.exit(1)
+
+        if config['phantom_server']['phantom_server'] == "1" and config['phantom_server']['phantom_byo'] == "1":
+            print("ERROR: You can either create a phantom server or activate bring your own phantom but not both.")
+            sys.exit(1)
+
+        if config['splunk_server']['byo_splunk'] == "1" and (config['phantom_server']['phantom_byo'] == "1" or config['phantom_server']['phantom_server'] == "1"):
+            print("ERROR: You can not use a phantom server or bring your own phantom when you use a bring your own splunk.")
             sys.exit(1)

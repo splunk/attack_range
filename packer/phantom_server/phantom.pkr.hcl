@@ -3,7 +3,7 @@ variable "general" {
     type = map(string)
 
     default = {
-        attack_range_password = "Pl3ase-k1Ll-me:p1"
+        attack_range_password = "Pl3ase-k1Ll-me:p"
         key_name = "attack-range-key-pair"
         attack_range_name = "ar"
         ip_whitelist = "0.0.0.0/0"
@@ -62,7 +62,6 @@ data "amazon-ami" "centos-ami" {
 
 source "amazon-ebs" "phantom" {
   ami_name              = "phantom-v${replace(var.general.version, ".", "-")}"
-  ami_regions = ["eu-central-1", "us-west-2", "us-west-1", "us-east-2"]
   region = var.aws.region
   instance_type         = "t3.2xlarge"
   launch_block_device_mappings {
@@ -79,14 +78,13 @@ source "azure-arm" "phantom" {
   managed_image_resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
   managed_image_name = "phantom-v${replace(var.general.version, ".", "-")}"
   os_type = "Linux"
-  image_publisher = "OpenLogic"
-  image_offer = "CentOS"
-  image_sku = "7.6"
+  image_publisher = "openlogic"
+  image_offer = "centos"
+  image_sku = "7_9"
   location = var.azure.location
   vm_size = "Standard_A8_v2"
   use_azure_cli_auth = true
 }
-
 
 build {
 
