@@ -200,9 +200,9 @@ class AwsController(AttackRangeController):
                 "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
                 "-only=" + only_cmd_arg, path_packer_file]
                 
-        elif image_name.startswith("zeek"):
-            only_cmd_arg = "amazon-ebs.phantom"
-            path_packer_file = "packer/zeek_server/zeek.pkr.hcl"
+        elif image_name.startswith("nginx"):
+            only_cmd_arg = "amazon-ebs.nginx-web-proxy"
+            path_packer_file = "packer/nginx_server/nginx_web_proxy.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
                 "-var", "aws=" + json.dumps(self.config["aws"]), 

@@ -399,7 +399,7 @@ starting configuration for AT-ST mech walker
             'type': 'select',
             'message': 'which version should it be',
             'name': 'windows_server_one_version',
-            'choices': ['2016', '2019'],
+            'choices': ['2016', '2019', '2022'],
             'when': lambda answers: answers['windows_server_one'],
         },
         {
@@ -419,7 +419,7 @@ starting configuration for AT-ST mech walker
             configuration['windows_servers'].append(
                 {
                     'hostname': 'ar-win-dc',
-                    'image': 'windows-' + answers['windows_server_one_version'] + '-v' + VERSION.replace(".","-"),
+                    'windows_image': 'windows-' + answers['windows_server_one_version'] + '-v' + VERSION.replace(".","-"),
                     'create_domain': '1'
                 }
             )
@@ -427,7 +427,7 @@ starting configuration for AT-ST mech walker
             configuration['windows_servers'].append(
                 {
                     'hostname': 'ar-win',
-                    'image': 'windows-' + answers['windows_server_one_version'] + '-v' + VERSION.replace(".","-")
+                    'windows_image': 'windows-' + answers['windows_server_one_version'] + '-v' + VERSION.replace(".","-")
                 }
             )       
 
@@ -461,7 +461,7 @@ starting configuration for AT-ST mech walker
                 configuration['windows_servers'].append(
                     {
                         'hostname': 'ar-win-2',
-                        'image': 'windows-' + answers['windows_server_two_version'] + '-v' + VERSION.replace(".","-"),
+                        'windows_image': 'windows-' + answers['windows_server_two_version'] + '-v' + VERSION.replace(".","-"),
                         'join_domain': '1'
                     }
                 )
@@ -469,7 +469,7 @@ starting configuration for AT-ST mech walker
                 configuration['windows_servers'].append(
                     {
                         'hostname': 'ar-win-2',
-                        'image': 'windows-' + answers['windows_server_two_version'] + '-v' + VERSION.replace(".","-")
+                        'windows_image': 'windows-' + answers['windows_server_two_version'] + '-v' + VERSION.replace(".","-")
                     }
                 )
 
