@@ -43,6 +43,9 @@ config.vm.define "ar-win-{{config.general.key_name}}-{{config.general.attack_ran
 {% for key, value in config.simulation.items() %}
           {{ key }}: "{{ value }}",
 {% endfor %}
+{% for key, value in config.splunk_server.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
         }
         ansible.playbook = "../terraform/ansible/windows_post.yml"
         ansible.compatibility_mode = "2.0"
