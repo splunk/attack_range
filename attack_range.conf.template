@@ -493,7 +493,7 @@ nginx_web_proxy_private_ip = 10.0.1.21
 nginx_web_proxy_host = 10.0.1.20
 # what machine to proxy web traffic to, defaults to sysmon_linux_private_ip
 
-nginx_web_proxy_port = 8000
+nginx_web_proxy_port = 8080
 # what port to proxy web traffic to, defaults to 8080
 
 [aurora_agent]
