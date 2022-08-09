@@ -1,7 +1,11 @@
 general:
   cloud_provider: local-vmware
-  attack_range_password: AeG5fFIDgz9nEuXA367
+  attack_range_password: f78ZcZQPgV6YmYfo24j
 local-vmware: {}
 windows_servers:
 - hostname: ar-win
   image: windows-2016-v3-0-0
+linux_servers:
+- hostname: ar-linux
+kali_server:
+  kali_server: '1'

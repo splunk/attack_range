@@ -42,10 +42,10 @@ class VagrantVboxController(AttackRangeController):
             vagrantfile += '\n\n'  
 
         vagrantfile += '\nend'
-        with open('vagrant/vbox/Vagrantfile', 'w') as file:
+        with open('vagrant/Vagrantfile', 'w') as file:
             file.write(vagrantfile)
         
-        v1 = vagrant.Vagrant('vagrant/vbox', quiet_stdout=False, quiet_stderr=False)
+        v1 = vagrant.Vagrant('vagrant', quiet_stdout=False, quiet_stderr=False)
         try:
             v1.up(provision=True, provider="virtualbox")
         except:
@@ -57,7 +57,7 @@ class VagrantVboxController(AttackRangeController):
         
 
     def read_vagrant_file(self, path):
-        j2_env = Environment(loader=FileSystemLoader('vagrant/vbox'),trim_blocks=True)
+        j2_env = Environment(loader=FileSystemLoader('vagrant'),trim_blocks=True)
         template = j2_env.get_template(path)
         vagrant_file = template.render(
             config = self.config
@@ -65,7 +65,7 @@ class VagrantVboxController(AttackRangeController):
         return vagrant_file
 
     def read_vagrant_file_array(self, path, server, count):
-        j2_env = Environment(loader=FileSystemLoader('vagrant/vbox'),trim_blocks=True)
+        j2_env = Environment(loader=FileSystemLoader('vagrant'),trim_blocks=True)
         template = j2_env.get_template(path)
         vagrant_file = template.render(
             config = self.config,
@@ -76,18 +76,18 @@ class VagrantVboxController(AttackRangeController):
 
     def destroy(self) -> None:
         self.logger.info("[action] > destroy\n")
-        v1 = vagrant.Vagrant('vagrant/vbox', quiet_stdout=False)
+        v1 = vagrant.Vagrant('vagrant', quiet_stdout=False)
         v1.destroy()
         self.logger.info("attack_range has been destroy using vagrant successfully")
 
     def stop(self) -> None:
         self.logger.info("[action] > stop\n")
-        v1 = vagrant.Vagrant('vagrant/vbox', quiet_stdout=False)
+        v1 = vagrant.Vagrant('vagrant', quiet_stdout=False)
         v1.halt()
 
     def resume(self) -> None:
         self.logger.info("[action] > resume\n")
-        v1 = vagrant.Vagrant('vagrant/vbox', quiet_stdout=False)
+        v1 = vagrant.Vagrant('vagrant', quiet_stdout=False)
         v1.up()
 
     def packer(self, image_name) -> None:
@@ -104,7 +104,7 @@ class VagrantVboxController(AttackRangeController):
 
     def show(self) -> None:
         self.logger.info("[action] > show\n")
-        v1 = vagrant.Vagrant('vagrant/vbox', quiet_stdout=False)
+        v1 = vagrant.Vagrant('vagrant', quiet_stdout=False)
         result = v1.status()
         instances = []
         messages = []
@@ -148,7 +148,7 @@ class VagrantVboxController(AttackRangeController):
         ansible_vars = {}
         ansible_vars['file_name'] = file_name
         ansible_vars['ansible_user'] = 'vagrant'
-        ansible_vars['ansible_ssh_private_key_file'] = 'vagrant/vbox/.vagrant/machines/ar-splunk-' + self.config['general']['key_name'] + '-' + self.config['general']['attack_range_name'] + '/virtualbox/private_key'
+        ansible_vars['ansible_ssh_private_key_file'] = 'vagrant/.vagrant/machines/ar-splunk-' + self.config['general']['key_name'] + '-' + self.config['general']['attack_range_name'] + '/virtualbox/private_key'
         ansible_vars['attack_range_password'] = self.config['general']['attack_range_password']
         ansible_vars['ansible_port'] = 2222
         ansible_vars['sourcetype'] = sourcetype

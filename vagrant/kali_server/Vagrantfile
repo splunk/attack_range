@@ -7,9 +7,17 @@ config.vm.define "ar-kali-{{config.general.key_name}}-{{config.general.attack_ra
     config.vm.network :private_network, ip: "10.0.1.30"
     config.ssh.password = "vagrant"
   
+    {% if "local-vbox" in config.general.cloud_provider %}
+    config.vm.provider "virtualbox" do |vb, override|
+      vb.gui = true
+      vb.name = "#{VM_NAME_KALI}"
+      vb.customize ["modifyvm", :id, "--memory", "2048"]
+      vb.customize ["modifyvm", :id, "--cpus", "1"]
+    {% else %}
     config.vm.provider "vmware_desktop" do |vb|
       vb.gui = true
       vb.vmx["memsize"] = "2048"
       vb.vmx["numvcpus"] = "1"
+    {% endif %}
     end
   end

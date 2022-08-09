@@ -42,10 +42,10 @@ class VagrantVmwareController(AttackRangeController):
             vagrantfile += '\n\n'  
 
         vagrantfile += '\nend'
-        with open('vagrant/vmware/Vagrantfile', 'w') as file:
+        with open('vagrant/Vagrantfile', 'w') as file:
             file.write(vagrantfile)
         
-        v1 = vagrant.Vagrant('vagrant/vmware/', quiet_stdout=False, quiet_stderr=False)
+        v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False, quiet_stderr=False)
         try:
             v1.up(provision=True, provider="vmware_desktop")
         except:
@@ -57,7 +57,7 @@ class VagrantVmwareController(AttackRangeController):
         
 
     def read_vagrant_file(self, path):
-        j2_env = Environment(loader=FileSystemLoader('vagrant/vmware'),trim_blocks=True)
+        j2_env = Environment(loader=FileSystemLoader('vagrant'),trim_blocks=True)
         template = j2_env.get_template(path)
         vagrant_file = template.render(
             config = self.config
@@ -65,7 +65,7 @@ class VagrantVmwareController(AttackRangeController):
         return vagrant_file
 
     def read_vagrant_file_array(self, path, server, count):
-        j2_env = Environment(loader=FileSystemLoader('vagrant/vmware'),trim_blocks=True)
+        j2_env = Environment(loader=FileSystemLoader('vagrant'),trim_blocks=True)
         template = j2_env.get_template(path)
         vagrant_file = template.render(
             config = self.config,
@@ -76,18 +76,18 @@ class VagrantVmwareController(AttackRangeController):
 
     def destroy(self) -> None:
         self.logger.info("[action] > destroy\n")
-        v1 = vagrant.Vagrant('vagrant/vmware/', quiet_stdout=False)
+        v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         v1.destroy()
         self.logger.info("attack_range has been destroy using vagrant successfully")
 
     def stop(self) -> None:
         self.logger.info("[action] > stop\n")
-        v1 = vagrant.Vagrant('vagrant/vmware/', quiet_stdout=False)
+        v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         v1.halt()
 
     def resume(self) -> None:
         self.logger.info("[action] > resume\n")
-        v1 = vagrant.Vagrant('vagrant/vmware/', quiet_stdout=False)
+        v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         v1.up()
 
     def packer(self, image_name) -> None:
@@ -104,7 +104,7 @@ class VagrantVmwareController(AttackRangeController):
 
     def show(self) -> None:
         self.logger.info("[action] > show\n")
-        v1 = vagrant.Vagrant('vagrant/vmware/', quiet_stdout=False)
+        v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         result = v1.status()
         instances = []
         messages = []
@@ -112,17 +112,17 @@ class VagrantVmwareController(AttackRangeController):
             instances.append([status.name, status.state])
             if status.name.startswith("ar-splunk"):
                 if self.config["splunk_server"]["install_es"] == "1":
-                    messages.append("\nAccess Splunk via:\n\tWeb > https://localhost:8000\n\tSSH > cd vagrant-vmware & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                    messages.append("\nAccess Splunk via:\n\tWeb > https://localhost:8000\n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                 else:
-                    messages.append("\nAccess Splunk via:\n\tWeb > http://localhost:8000\n\tSSH > cd vagrant-vmware & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                    messages.append("\nAccess Splunk via:\n\tWeb > http://localhost:8000\n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
             elif status.name.startswith("ar-phantom"):
-                messages.append("\nAccess Phantom via:\n\tWeb > https://localhost:443 \n\tSSH > cd vagrant-vmware & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                messages.append("\nAccess Phantom via:\n\tWeb > https://localhost:443 \n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
             elif status.name.startswith("ar-win"):
                 messages.append("\nAccess Windows via:\n\tRDP > rdp://localhost:" + str(5389 + int(status.name[-1])) + " \n\tusername: Administrator \n\tpassword: " + self.config['general']['attack_range_password'])
             elif status.name.startswith("ar-linux"):
-                messages.append("\nAccess Linux via:\n\tSSH > cd vagrant-vmware & vagrant ssh " + status.name)
+                messages.append("\nAccess Linux via:\n\tSSH > cd vagrant & vagrant ssh " + status.name)
             elif status.name.startswith("ar-kali"):
-                messages.append("\nAccess Kali via:\n\tSSH > cd vagrant-vmware & vagrant ssh " + status.name)
+                messages.append("\nAccess Kali via:\n\tSSH > cd vagrant & vagrant ssh " + status.name)
 
         messages.append("\n")
 
@@ -148,7 +148,7 @@ class VagrantVmwareController(AttackRangeController):
         ansible_vars = {}
         ansible_vars['file_name'] = file_name
         ansible_vars['ansible_user'] = 'vagrant'
-        ansible_vars['ansible_ssh_private_key_file'] = 'vagrant/vmware/.vagrant/machines/ar-splunk-' + self.config['general']['key_name'] + '-' + self.config['general']['attack_range_name'] + '/vmware_desktop/private_key'
+        ansible_vars['ansible_ssh_private_key_file'] = 'vagrant/.vagrant/machines/ar-splunk-' + self.config['general']['key_name'] + '-' + self.config['general']['attack_range_name'] + '/vmware_desktop/private_key'
         ansible_vars['attack_range_password'] = self.config['general']['attack_range_password']
         ansible_vars['ansible_port'] = 2222
         ansible_vars['sourcetype'] = sourcetype

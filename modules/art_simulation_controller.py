@@ -41,7 +41,7 @@ class ArtSimulationController(SimulationController):
                 ansible_port = 5985 + int(target[-1])
             else:
                 ansible_port = 2022 + int(target[-1])
-            cmd_line = '-u vagrant --private-key vagrant/vbox/.vagrant/machines/' + target + '/virtualbox/private_key -i ' + target_public_ip + ', '
+            cmd_line = '-u vagrant --private-key vagrant/.vagrant/machines/' + target + '/virtualbox/private_key -i ' + target_public_ip + ', '
 
         elif self.config['general']['cloud_provider'] == 'local-vmware':
             ansible_user = 'Administrator'
@@ -50,7 +50,7 @@ class ArtSimulationController(SimulationController):
                 ansible_port = 5985 + int(target[-1])
             else:
                 ansible_port = 2022 + int(target[-1])
-            cmd_line = '-u vagrant --private-key vagrant/vmware/.vagrant/machines/' + target + '/vmware_desktop/private_key -i ' + target_public_ip + ', '
+            cmd_line = '-u vagrant --private-key vagrant/.vagrant/machines/' + target + '/vmware_desktop/private_key -i ' + target_public_ip + ', '
             
         techniques = technique.split(',')
 

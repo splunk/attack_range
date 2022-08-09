@@ -1,5 +1,9 @@
 config.vm.define "ar-win-{{config.general.key_name}}-{{config.general.attack_range_name}}-{{count}}" do |config|
+  {% if "local-vbox" in config.general.cloud_provider %}
+    config.vm.box = "d1vious/windows2016"
+  {% else %}
     config.vm.box = "StefanScherer/windows_2019"
+  {% endif %}
     config.vm.hostname = "{{ server.hostname }}"
     config.vm.boot_timeout = 600
     config.vm.communicator = "winrm"
@@ -10,7 +14,7 @@ config.vm.define "ar-win-{{config.general.key_name}}-{{config.general.attack_ran
     config.vm.network "forwarded_port", guest: 5985, host: {{ 5985 + count }}
     config.vm.network "forwarded_port", guest: 3389, host: {{ 5389 + count }}
     config.vm.network :private_network, ip: "10.0.1.{{ 14 + count }}"
-    config.vm.synced_folder '.', '/vagrant/vmware', disabled: true
+    config.vm.synced_folder '.', '/vagrant/vbox', disabled: true
   
     config.vm.provision "shell", inline: "net user Administrator {{ config.general.attack_range_password }}"
 
@@ -23,7 +27,7 @@ config.vm.define "ar-win-{{config.general.key_name}}-{{config.general.attack_ran
           splunk_uf_win_url: 'https://download.splunk.com/products/universalforwarder/releases/8.2.5/windows/splunkforwarder-8.2.5-77015bc7a462-x64-release.msi',
           win_password: 'Pl3ase-k1Ll-me:p'
         }
-        ansible.playbook = "../../packer/ansible/windows.yml"
+        ansible.playbook = "../packer/ansible/windows.yml"
         ansible.compatibility_mode = "2.0"
     end
 
@@ -45,13 +49,24 @@ config.vm.define "ar-win-{{config.general.key_name}}-{{config.general.attack_ran
           {{ key }}: "{{ value }}",
 {% endfor %}
         }
-        ansible.playbook = "../../terraform/ansible/windows_post.yml"
+        ansible.playbook = "../terraform/ansible/windows_post.yml"
         ansible.compatibility_mode = "2.0"
     end
   
+    {% if "local-vbox" in config.general.cloud_provider %}
+    config.vm.provider "virtualbox" do |vb, override|
+      vb.gui = true
+      vb.name = "{{ server.hostname }}"
+      vb.customize ["modifyvm", :id, "--memory", "2048"]
+      vb.customize ["modifyvm", :id, "--cpus", "1"]
+      vb.customize ["modifyvm", :id, "--vram", "32"]
+      vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+      vb.customize ["setextradata", "global", "GUI/SuppressMessages", "all" ]
+    {% else %}
     config.vm.provider "vmware_desktop" do |vb|
       vb.gui = true
       vb.vmx["memsize"] = "3072"
       vb.vmx["numvcpus"] = "2" 
+    {% endif %}
     end
   end

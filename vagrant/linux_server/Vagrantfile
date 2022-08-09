@@ -6,7 +6,7 @@ config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_r
     config.vm.network "forwarded_port", guest: 22, host: {{ 2022 + count }}
   
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../../packer/ansible/linux_server.yml"
+        ansible.playbook = "../packer/ansible/linux_server.yml"
         ansible.compatibility_mode = "2.0"
         ansible.extra_vars = {
           ansible_python_interpreter: "/usr/bin/python3",
@@ -16,7 +16,7 @@ config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_r
     end
 
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../../terraform/ansible/linux_server_post.yml"
+        ansible.playbook = "../terraform/ansible/linux_server_post.yml"
         ansible.compatibility_mode = "2.0"
         ansible.extra_vars = {
           ansible_python_interpreter: "/usr/bin/python3",  
@@ -31,11 +31,17 @@ config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_r
 {% endfor %}
         }
     end
-  
+    {% if "local-vbox" in config.general.cloud_provider %}
     config.vm.provider "virtualbox" do |vb, override|
       vb.gui = true
       vb.name = "{{ server.hostname }}"
       vb.customize ["modifyvm", :id, "--memory", "2048"]
       vb.customize ["modifyvm", :id, "--cpus", "1"]
+    {% else %}
+    config.vm.provider "vmware_desktop" do |vb, override|
+      vb.gui = true
+      vb.vmx["memsize"] = "2048"
+      vb.vmx["numvcpus"] = "1"
+    {% endif %}
     end
   end
