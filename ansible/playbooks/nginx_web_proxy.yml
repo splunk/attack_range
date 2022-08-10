@@ -2,4 +2,5 @@
   gather_facts: False
   become: true
   roles:
+    - linux_common
     - nginx_web_proxy
