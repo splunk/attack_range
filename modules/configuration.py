@@ -490,7 +490,7 @@ starting configuration for AT-ST mech walker
         },
         {
             'type': 'confirm',
-            'message': 'shall we build nginx plus web proxy',
+            'message': 'shall we build nginx web proxy',
             'name': 'nginx_web_proxy',
             'default': False,
             'when': lambda answers: configuration['general']['cloud_provider'] == "aws",

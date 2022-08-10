@@ -1,4 +1,17 @@
 ---
+
+- name: install nginx
+  apt:
+    name: nginx
+    state: latest 
+    update_cache: yes
+
+- name: add nginx user
+  ansible.builtin.user:
+    name: nginx
+    shell: /bin/false
+    create_home: no
+
 - name: copy nginx.conf to add kv logging to nginx plus
   copy:
     src: nginx.conf
