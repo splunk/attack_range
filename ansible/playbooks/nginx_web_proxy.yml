@@ -1,6 +1,8 @@
 - hosts: all
   gather_facts: False
   become: true
+  vars:  
+    hostname: nginx
   roles:
     - linux_common
     - nginx_web_proxy
