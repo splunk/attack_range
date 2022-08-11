@@ -1,11 +1,11 @@
 data "aws_ami" "latest-nginx-plus" {
 count = var.config.nginx_web_proxy == "1" ? 1 : 0
   most_recent = true
-  owners      = ["679593333241"] # Nginx
+  owners      = ["099720109477"] # Nginx
 
   filter {
     name   = "name"
-    values = ["nginx-plus-app-protect-ubuntu-18.04-v2.4-x86_64-developer*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server*"]
   }
 
   filter {
