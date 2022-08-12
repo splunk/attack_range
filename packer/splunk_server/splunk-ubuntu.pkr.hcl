@@ -39,6 +39,11 @@ variable "splunk_server" {
     }
 }
 
+variable "version" {
+  type = string
+  default = "3.0.0"
+}
+
 data "amazon-ami" "ubuntu-ami" {
   filters = {
     name                = "*ubuntu-bionic-18.04-amd64-server-*"
