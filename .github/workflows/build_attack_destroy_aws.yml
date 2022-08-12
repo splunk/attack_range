@@ -1,8 +1,7 @@
 name: build-attack-destroy-aws
 on:
-  push:
-    branches:
-    - attack_range_3
+  schedule:
+    - cron: '15 13 * * *'
 
 jobs:
   build-attack-destroy-aws:
@@ -38,6 +37,12 @@ jobs:
           if_key_exists: fail 
 
       - uses: hashicorp/setup-terraform@v1
+
+      - name: Install Packer
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install packer
 
       - name: Install Dependencies using Poetry
         run: |

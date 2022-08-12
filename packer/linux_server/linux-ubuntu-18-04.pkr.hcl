@@ -85,6 +85,7 @@ build {
   provisioner "ansible" {
     extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}"]
     playbook_file   = "packer/ansible/linux_server.yml"
+    user            = "ubuntu"
   }
 
 }

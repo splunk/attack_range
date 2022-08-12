@@ -63,6 +63,7 @@ build {
   provisioner "ansible" {
     extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}"]
     playbook_file   = "packer/ansible/nginx_web_proxy.yml"
+    user            = "ubuntu"
   }
 
 }
