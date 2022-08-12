@@ -7,6 +7,7 @@ variable "general" {
         key_name = "attack-range-key-pair"
         attack_range_name = "ar"
         ip_whitelist = "0.0.0.0/0"
+        version = "3.0.0"
     }
 }
 
@@ -37,11 +38,6 @@ variable "splunk_server" {
         install_es = "0"
         splunk_es_app = "splunk-enterprise-security_701.spl"
     }
-}
-
-variable "version" {
-  type = string
-  default = "3.0.0"
 }
 
 data "amazon-ami" "ubuntu-ami" {
@@ -90,6 +86,7 @@ build {
   provisioner "ansible" {
     extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}"]
     playbook_file   = "packer/ansible/splunk_server.yml"
+    user            = "ubuntu"
   }
 
 }
