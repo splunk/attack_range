@@ -110,7 +110,7 @@ class AwsController(AttackRangeController):
         
         if image_name.startswith("splunk"):
             only_cmd_arg = "amazon-ebs.splunk-ubuntu-18-04"
-            path_packer_file = "packer/splunk_server/splunk-ubuntu.pkr.hcl"
+            path_packer_file = "packer/splunk_server/splunk_aws.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
                 "-var", "aws=" + json.dumps(self.config["aws"]), 
@@ -119,7 +119,7 @@ class AwsController(AttackRangeController):
         
         elif image_name.startswith("windows"):
             only_cmd_arg = "amazon-ebs.windows"
-            path_packer_file = "packer/windows_server/windows.pkr.hcl"  
+            path_packer_file = "packer/windows_server/windows_aws.pkr.hcl"  
             
             if image_name.startswith("windows-2016"):
                 images = {
@@ -174,7 +174,7 @@ class AwsController(AttackRangeController):
 
         elif image_name.startswith("linux"):
             only_cmd_arg = "amazon-ebs.ubuntu-18-04"
-            path_packer_file = "packer/linux_server/linux-ubuntu-18-04.pkr.hcl"
+            path_packer_file = "packer/linux_server/linux_aws.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
                 "-var", "aws=" + json.dumps(self.config["aws"]), 
@@ -183,7 +183,7 @@ class AwsController(AttackRangeController):
         
         elif image_name.startswith("phantom"):
             only_cmd_arg = "amazon-ebs.phantom"
-            path_packer_file = "packer/phantom_server/phantom.pkr.hcl"
+            path_packer_file = "packer/phantom_server/phantom_aws.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
                 "-var", "aws=" + json.dumps(self.config["aws"]), 
@@ -193,7 +193,7 @@ class AwsController(AttackRangeController):
 
         elif image_name.startswith("zeek"):
             only_cmd_arg = "amazon-ebs.phantom"
-            path_packer_file = "packer/zeek_server/zeek.pkr.hcl"
+            path_packer_file = "packer/zeek_server/zeek_aws.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
                 "-var", "aws=" + json.dumps(self.config["aws"]), 
@@ -202,7 +202,7 @@ class AwsController(AttackRangeController):
                 
         elif image_name.startswith("nginx"):
             only_cmd_arg = "amazon-ebs.nginx-web-proxy"
-            path_packer_file = "packer/nginx_server/nginx_web_proxy.pkr.hcl"
+            path_packer_file = "packer/nginx_server/nginx_aws.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
                 "-var", "aws=" + json.dumps(self.config["aws"]), 

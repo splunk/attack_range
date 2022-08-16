@@ -88,7 +88,7 @@ class AzureController(AttackRangeController):
         
         if image_name.startswith("splunk"):
             only_cmd_arg = "azure-arm.splunk-ubuntu-18-04"
-            path_packer_file = "packer/splunk_server/splunk-ubuntu.pkr.hcl"
+            path_packer_file = "packer/splunk_server/splunk_azure.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
                 "-var", "azure=" + json.dumps(self.config["azure"]), 
@@ -152,7 +152,7 @@ class AzureController(AttackRangeController):
 
         elif image_name.startswith("linux"):
             only_cmd_arg = "azure-arm.ubuntu-18-04"
-            path_packer_file = "packer/linux_server/linux-ubuntu-18-04.pkr.hcl"
+            path_packer_file = "packer/linux_server/linux_azure.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
                 "-var", "azure=" + json.dumps(self.config["azure"]), 
@@ -161,7 +161,7 @@ class AzureController(AttackRangeController):
         
         elif image_name.startswith("phantom"):
             only_cmd_arg = "azure-arm.phantom"
-            path_packer_file = "packer/phantom_server/phantom.pkr.hcl"
+            path_packer_file = "packer/phantom_server/phantom_azure.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
                 "-var", "azure=" + json.dumps(self.config["azure"]), 
