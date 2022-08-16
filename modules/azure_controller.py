@@ -97,7 +97,7 @@ class AzureController(AttackRangeController):
         
         elif image_name.startswith("windows"):
             only_cmd_arg = "azure-arm.windows"
-            path_packer_file = "packer/windows_server/windows.pkr.hcl"  
+            path_packer_file = "packer/windows_server/windows_azure.pkr.hcl"  
             
             if image_name.startswith("windows-2016"):
                 images = {
