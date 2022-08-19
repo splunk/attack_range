@@ -209,5 +209,5 @@ We welcome feedback and contributions from the community! Please see our [contri
 * [Lou Stella](https://twitter.com/ljstella)
 * [Christian Cloutier](https://github.com/ccl0utier)
 * Eric McGinnis 
-* [Micheal Haag](https://twitter.com/M_haggis)
+* [Michael Haag](https://twitter.com/M_haggis)
 * [Gowthamaraj Rajendran](https://github.com/gowthamarajr)
