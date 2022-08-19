@@ -1,14 +1,21 @@
+
 - debug:
     var: techniques
-    
-- name: Run PurpleSharp Simulation Techniques
-  win_command: PurpleSharp.exe /t "{{ techniques }}" 
-  register: output_purplesharp
-  args:
-    chdir: C:\\Tools\\PurpleSharp  
 
-- name: Save PurpleSharp output
-  set_fact:
-    output_purplesharp: "{{ output_purplesharp }}"
-    cacheable: yes
-  #when: var_str == 'no'
+- name: Run PurpleSharp Simulation Techniques
+  block:
+    - name: Run PurpleSharp Simulation Techniques
+      win_command: PurpleSharp.exe /t "{{ techniques }}"
+      register: output_purplesharp
+      args:
+        chdir: C:\\Tools\\PurpleSharp
+      # Fail this step when PurpleSharp reports the simulation has failed.
+      # The PurpleSharp output details will still be printed for the user to review details.
+      failed_when: "'Simulation Failed' in output_purplesharp.stdout"
+
+  always:
+    - name: Save PurpleSharp output
+      set_fact:
+        output_purplesharp: "{{ output_purplesharp }}"
+        cacheable: yes
+      #when: var_str == 'no'
