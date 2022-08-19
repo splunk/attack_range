@@ -9,9 +9,8 @@
     If (-not (Test-Path c:\Tools\PurpleSharp\PurpleSharp.exe)) { Invoke-WebRequest -Uri $purplesharpDownloadUrl -OutFile c:\Tools\PurpleSharp\PurpleSharp.exe }
     
 - include_tasks: "run_simulation_playbook.yml"
-  when: run_simulation_playbook == "True"
-
+  when: run_simulation_playbook
 
 - include_tasks: "run_simulation_techniques.yml"
   with_items: "{{ techniques }}"
-  when: run_simulation_playbook == "False"
+  when: not run_simulation_playbook
