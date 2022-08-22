@@ -11,5 +11,6 @@ tasks:
       export PATH=$PATH:$HOME/.poetry/bin
       poetry install
       poetry shell
+      
 
 
