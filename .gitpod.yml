@@ -11,14 +11,12 @@ tasks:
       export PATH=$PATH:$HOME/.poetry/bin
       poetry install
       poetry shell
-  
-  - command: |
+      cd terraform/azure 
+      terraform init 
+      cd ../..
       cd terraform/aws 
       terraform init
       cd ../..
 
-  - command: |
-      cd terraform/azure 
-      terraform init 
-      cd ../..
+
 
