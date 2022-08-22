@@ -12,6 +12,3 @@ RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - && \
     sudo apt-get update && sudo apt-get install packer
 
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-
-RUN cd terraform/aws && terraform init
-RUN cd terraform/azure && terraform init
