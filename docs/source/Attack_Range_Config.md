@@ -27,6 +27,9 @@ general:
   version: "3.0.0"
 # The current released version of Attack Range
 
+  use_prebuilt_images_with_packer: "0"
+# Enable/Disable usage of packer to create pre-built images by set it to 1 or 0
+
   crowdstrike_falcon: "0"
 # Enable/Disable Crowdstrike Falcon by setting it to 1 or 0
 
@@ -87,7 +90,7 @@ local:
 # Attack Range Local used Virtualbox and Vagrant to build the Attack Range.
 
 splunk_server:
-  image: "splunk-v3-0-0"
+  splunk_image: "splunk-v3-0-0"
 # name of the image of the Splunk Server. Packer is used to build this images.
 
   install_es: "0"
@@ -121,7 +124,7 @@ windows_servers_default:
   hostname: ar-win 
 # Define the hostname for the Windows Server
 
-  image: windows-2016-v3-0-0
+  windows_image: windows-2016-v3-0-0
 # name of the image of the Windows Server. Packer is used to build this images.
 
   create_domain: "0"
@@ -143,7 +146,7 @@ linux_servers_default:
   hostname: ar-linux
 # Define the hostname for the Linux Server
 
-  image: linux-v3-0-0
+  linux_image: linux-v3-0-0
 # name of the image of the Linux Server. Packer is used to build this images.
 
   sysmon_config: "SysMonLinux-CatchAll.xml"

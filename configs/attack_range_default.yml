@@ -6,6 +6,7 @@ general:
   attack_range_name: "ar"
   ip_whitelist: "0.0.0.0/0"
   version: "3.0.0"
+  use_prebuilt_images_with_packer: "0"
   crowdstrike_falcon: "0"
   crowdstrike_agent_name: "WindowsSensor.exe"
   crowdstrike_customer_ID: ""

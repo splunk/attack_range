@@ -3,9 +3,12 @@
   vars:
     ansible_connection: winrm
     ansible_winrm_server_cert_validation: ignore
-    hostname: win-dc
   roles:
-    - windows_common
-    - windows_universal_forwarder
-    - windows_aurora_agent
-    - sysmon
+    - role: windows_common
+      when: use_prebuilt_images_with_packer == "0"
+    - role: windows_universal_forwarder
+      when: use_prebuilt_images_with_packer == "0"
+    - role: windows_aurora_agent
+      when: use_prebuilt_images_with_packer == "0"
+    - role: sysmon
+      when: use_prebuilt_images_with_packer == "0"

@@ -31,44 +31,57 @@ class AwsController(AttackRangeController):
         working_dir = os.path.join(os.path.dirname(__file__), '../terraform/aws')
         self.terraform = Terraform(working_dir=working_dir,variables=config, parallelism=15, state= self.config['general']["statepath"])
 
+        if self.config['general']['use_prebuilt_images_with_packer'] == "0":
+            for i in range(len(self.config['windows_servers'])):
+                image_name = self.config['windows_servers'][i]['windows_image']
+                if image_name.startswith("windows-2016"):
+                    self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2016-English-Full-Base-*"
+                elif image_name.startswith("windows-2019"):
+                    self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2016-English-Full-Base-*"
+                else:
+                    self.logger.error("Image " + image_name + " not supported.")
+                    sys.exit(1)    
+    
 
     def build(self) -> None:
         self.logger.info("[action] > build\n")
 
-        images = []
-        if self.config['splunk_server']['byo_splunk'] == "0":
-            images.append(self.config['splunk_server']['splunk_image'])
-        for windows_server in self.config['windows_servers']:
-            images.append(windows_server['windows_image'])
-        for linux_server in self.config['linux_servers']:
-            images.append(linux_server['linux_image'])
-        if self.config["nginx_server"]["nginx_server"] == "1":
-            images.append(self.config["nginx_server"]["nginx_image"])
-        if self.config["zeek_server"]["zeek_server"] == "1":
-            images.append(self.config["zeek_server"]["zeek_image"])        
-        if self.config["phantom_server"]["phantom_server"] == "1":
-            images.append(self.config["phantom_server"]["phantom_image"])    
+        if self.config['general']['use_prebuilt_images_with_packer'] == "1":
+            images = []
+            if self.config['splunk_server']['byo_splunk'] == "0":
+                images.append(self.config['splunk_server']['splunk_image'])
+            for windows_server in self.config['windows_servers']:
+                images.append(windows_server['windows_image'])
+            for linux_server in self.config['linux_servers']:
+                images.append(linux_server['linux_image'])
+            if self.config["nginx_server"]["nginx_server"] == "1":
+                images.append(self.config["nginx_server"]["nginx_image"])
+            if self.config["zeek_server"]["zeek_server"] == "1":
+                images.append(self.config["zeek_server"]["zeek_image"])        
+            if self.config["phantom_server"]["phantom_server"] == "1":
+                images.append(self.config["phantom_server"]["phantom_image"])    
 
-        self.logger.info("Check if images are available in region " + self.config['aws']['region'])
+            self.logger.info("Check if images are available in region " + self.config['aws']['region'])
 
-        for image in images:
-            if not aws_service.ami_available(image, self.config['aws']['region']):
-                self.logger.info("Image " + image + " is not available in region " + self.config['aws']['region'])
-                self.logger.info("Checking if image " + image + " is available in other regions.")
-                result = aws_service.ami_available_other_region(image)
-                if result:
-                    self.logger.info("Found image " + image + " in region " + result['region'] + ". Copy it to region " + self.config['aws']['region'])
-                    aws_service.copy_image(
-                        image, 
-                        result['image_id'], 
-                        result['region'],
-                        self.config['aws']['region']
-                    )
+            for image in images:
+                if not aws_service.ami_available(image, self.config['aws']['region']):
+                    self.logger.info("Image " + image + " is not available in region " + self.config['aws']['region'])
+                    self.logger.info("Checking if image " + image + " is available in other regions.")
+                    result = aws_service.ami_available_other_region(image)
+                    if result:
+                        self.logger.info("Found image " + image + " in region " + result['region'] + ". Copy it to region " + self.config['aws']['region'])
+                        aws_service.copy_image(
+                            image, 
+                            result['image_id'], 
+                            result['region'],
+                            self.config['aws']['region']
+                        )
+                    else:
+                        self.logger.info("Image " + image + " need to be built with packer.")
+                        self.packer(image)  
                 else:
-                    self.logger.info("Image " + image + " need to be built with packer.")
-                    self.packer(image)  
-            else:
-                self.logger.info("Image " + image + " is available in region " + self.config['aws']['region'])                 
+                    self.logger.info("Image " + image + " is available in region " + self.config['aws']['region'])                 
+     
 
         cwd = os.getcwd()
         os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform/aws') + '&& terraform init ')
@@ -107,6 +120,8 @@ class AwsController(AttackRangeController):
         self.logger.info("Create golden image for " + image_name + ". This can take up to 30 minutes.\n")
         only_cmd_arg = ""
         path_packer_file = ""
+
+        self.config['general']['use_prebuilt_images_with_packer'] = "0"
         
         if image_name.startswith("splunk"):
             only_cmd_arg = "amazon-ebs.splunk-ubuntu-18-04"
@@ -136,30 +151,6 @@ class AwsController(AttackRangeController):
                     "azure_offer": "WindowsServer",
                     "azure_sku": "2019-Datacenter",
                     "name": "windows-2019"
-                }
-            elif image_name.startswith("windows-2022"):
-                images = {
-                    "aws_image": "Windows_Server-2022-English-Full-Base-*",
-                    "azure_publisher": "MicrosoftWindowsServer",
-                    "azure_offer": "WindowsServer",
-                    "azure_sku": "2022-Datacenter",
-                    "name": "windows-2022"
-                }
-            elif image_name.startswith("windows-10"):
-                images = {
-                    "aws_image": "Windows_Server-2016-English-Full-Base-*",
-                    "azure_publisher": "microsoftwindowsdesktop",
-                    "azure_offer": "windows-10",
-                    "azure_sku": "win10-21h2-pro",
-                    "name": "windows-10"
-                }
-            elif image_name.startswith("windows-11"):
-                images = {
-                    "aws_image": "Windows_Server-2016-English-Full-Base-*",
-                    "azure_publisher": "microsoftwindowsdesktop",
-                    "azure_offer": "windows-11",
-                    "azure_sku": "win11-21h2-pro",
-                    "name": "windows-11"
                 }
             else:
                 self.logger.error("Image not supported.")
@@ -192,7 +183,7 @@ class AwsController(AttackRangeController):
                 "-only=" + only_cmd_arg, path_packer_file]
 
         elif image_name.startswith("zeek"):
-            only_cmd_arg = "amazon-ebs.phantom"
+            only_cmd_arg = "amazon-ebs.ubuntu-18-04"
             path_packer_file = "packer/zeek_server/zeek_aws.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
@@ -224,7 +215,6 @@ class AwsController(AttackRangeController):
             if output:
                 print(output.strip())
         rc = process.poll()
-
 
     def stop(self) -> None:
         instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])

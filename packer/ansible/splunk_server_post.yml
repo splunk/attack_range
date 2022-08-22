@@ -1,7 +1,0 @@
-- hosts: all
-  gather_facts: False
-  become: true
-  vars:  
-    hostname: splunk-server
-  roles:
-    - splunk_server_post

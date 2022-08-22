@@ -27,6 +27,7 @@ module "phantom-server" {
   phantom_server = var.phantom_server
   general = var.general
   aws = var.aws
+  splunk_server = var.splunk_server
 }
 
 module "windows-server" {

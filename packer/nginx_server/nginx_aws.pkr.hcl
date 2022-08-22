@@ -32,12 +32,12 @@ variable "splunk_server" {
 
 data "amazon-ami" "nginx-ami" {
   filters = {
-    name                = "nginx-plus-app-protect-ubuntu-18.04-v2.4-x86_64-developer*"
+    name                = "*ubuntu-bionic-18.04-amd64-server-*"
     root-device-type    = "ebs"
     virtualization-type = "hvm"
   }
   most_recent = true
-  owners      = ["679593333241"]
+  owners      = ["099720109477"]
 }
 
 source "amazon-ebs" "nginx-web-proxy" {
@@ -61,7 +61,7 @@ build {
   ]
 
   provisioner "ansible" {
-    extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}"]
+    extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}"]
     playbook_file   = "packer/ansible/nginx_web_proxy.yml"
     user            = "ubuntu"
   }

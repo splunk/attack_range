@@ -15,15 +15,13 @@
 
 # Splunk Attack Range ⚔️
 ![Attack Range Log](docs/attack_range.png)
+The Splunk Attack Range is an open-source project maintained by the Splunk Threat Research Team. It builds instrumented cloud and local environments, simulates attacks, and forwards the data into a Splunk instance. This environment can then be used to develop and test the effectiveness of detections.
 
 ## Purpose 🛡
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering:
 * The user is able to quickly build a small lab infrastructure as close as possible to a production environment.
 * The Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. 
 * It integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
-
-The Attack Range uses packer to build golden images and then use terraform and ansible to build it. In the first run, it will take around 20 min per server. After that, you can build Attack Ranges within 5 minutes and less because you already
-have the golden images.
 
 
 ## Demo 📺

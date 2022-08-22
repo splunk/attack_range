@@ -27,7 +27,7 @@ resource "azurerm_public_ip" "windows-publicip" {
 }
 
 data "azurerm_image" "search" {
-  count = length(var.windows_servers) > 0 ? 1 : 0
+  count = (var.general.use_prebuilt_images_with_packer == "1") ? length(var.windows_servers) : 0
   name                = var.windows_servers[count.index].windows_image
   resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
 }
@@ -43,7 +43,11 @@ resource "azurerm_virtual_machine" "windows" {
   delete_os_disk_on_termination = true
 
   storage_image_reference {
-    id = data.azurerm_image.search[0].id
+    id = var.general.use_prebuilt_images_with_packer == "1" ? data.azurerm_image.search[count.index].id : null
+    publisher = var.general.use_prebuilt_images_with_packer == "0" ? var.windows_servers[count.index].azure_publisher : null 
+    offer     = var.general.use_prebuilt_images_with_packer == "0" ? var.windows_servers[count.index].azure_offer : null
+    sku       = var.general.use_prebuilt_images_with_packer == "0" ? var.windows_servers[count.index].azure_sku : null
+    version   = var.general.use_prebuilt_images_with_packer == "0" ? "latest" : null
   }
 
   os_profile {
@@ -93,6 +97,11 @@ resource "azurerm_virtual_machine" "windows" {
       insecure = true
       https    = false
     }
+  }
+
+  provisioner "local-exec" {
+    working_dir = "../../packer/ansible"
+    command = "ansible-playbook -i '${azurerm_public_ip.windows-publicip[count.index].ip_address},' windows.yml --extra-vars 'ansible_port=5985 ansible_user=AzureAdmin ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
   }
 
   provisioner "local-exec" {

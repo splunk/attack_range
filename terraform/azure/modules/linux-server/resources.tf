@@ -22,7 +22,7 @@ resource "azurerm_network_interface" "linux-nic" {
 }
 
 data "azurerm_image" "search" {
-  count = length(var.linux_servers)
+  count = (var.general.use_prebuilt_images_with_packer == "1") ? length(var.linux_servers) : 0
   name                = var.linux_servers[count.index].linux_image
   resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
 }
@@ -44,7 +44,11 @@ resource "azurerm_virtual_machine" "linux" {
   }
 
   storage_image_reference {
-    id = data.azurerm_image.search[count.index].id
+    id = var.general.use_prebuilt_images_with_packer == "1" ? data.azurerm_image.search[count.index].id : null
+    publisher = var.general.use_prebuilt_images_with_packer == "0" ? "Canonical" : null 
+    offer     = var.general.use_prebuilt_images_with_packer == "0" ? "UbuntuServer" : null
+    sku       = var.general.use_prebuilt_images_with_packer == "0" ? "18.04-LTS" : null
+    version   = var.general.use_prebuilt_images_with_packer == "0" ? "latest" : null
   }
 
   os_profile {
@@ -70,6 +74,11 @@ resource "azurerm_virtual_machine" "linux" {
       host        = azurerm_public_ip.linux-publicip[count.index].ip_address
       private_key = file(var.azure.private_key_path)
     }
+  }
+
+  provisioner "local-exec" {
+    working_dir = "../../packer/ansible"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.azure.private_key_path} -i '${azurerm_public_ip.linux-publicip[count.index].ip_address},' linux_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
   }
 
   provisioner "local-exec" {

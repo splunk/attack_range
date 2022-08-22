@@ -1,7 +1,7 @@
 
 
-data "aws_ami" "nginx_server" {
-  count = var.nginx_server.nginx_server == "1" ? 1 : 0
+data "aws_ami" "nginx_server_packer" {
+  count = (var.nginx_server.nginx_server == "1") && (var.general.use_prebuilt_images_with_packer == "1") ? 1 : 0
   most_recent = true
   owners      = ["self"] 
 
@@ -11,9 +11,25 @@ data "aws_ami" "nginx_server" {
   }
 }
 
+data "aws_ami" "nginx_server" {
+  count = (var.nginx_server.nginx_server == "1") && (var.general.use_prebuilt_images_with_packer == "0") ? 1 : 0
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
 resource "aws_instance" "nginx_server" {
   count                  = var.nginx_server.nginx_server == "1" ? 1 : 0
-  ami                    = data.aws_ami.nginx_server[count.index].id
+  ami                    = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.nginx_server_packer[0].id : data.aws_ami.nginx_server[0].id
   instance_type          = "t3.small"
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
@@ -39,6 +55,11 @@ resource "aws_instance" "nginx_server" {
       host        = self.public_ip
       private_key = file(var.aws.private_key_path)
     }
+  }
+
+  provisioner "local-exec" {
+    working_dir = "../../packer/ansible"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.aws.private_key_path} -i '${self.public_ip},' nginx_web_proxy.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.nginx_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
   }
 
   provisioner "local-exec" {

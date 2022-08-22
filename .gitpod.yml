@@ -2,29 +2,14 @@
 # Please adjust to your needs (see https://www.gitpod.io/docs/config-gitpod-file)
 # and commit this file to your remote git repository to share the goodness with others.
 
+
+image:
+  file: .gitpod.Dockerfile
+
 tasks:
-  - init: |
-      sudo apt-get install -y unzip curl
-      curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+  - command: |
       export PATH=$PATH:$HOME/.poetry/bin
-      mkdir tmp
-      cd tmp
-      curl -s https://releases.hashicorp.com/terraform/1.1.8/terraform_1.1.8_linux_amd64.zip -o terraform.zip
-      unzip terraform.zip 
-      sudo mv terraform /usr/local/bin/
-      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-      unzip awscliv2.zip
-      sudo ./aws/install
-      curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-      sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-      sudo apt-get update && sudo apt-get install packer
-      cd ..
-      cd terraform/aws
-      terraform init
-      cd ../..
-      rm -rf tmp
       poetry install
-    command: |
       poetry shell
 
 

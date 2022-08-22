@@ -4,6 +4,9 @@
   vars:  
     hostname: splunk-server
   roles:
-    - linux_common
-    - splunk_server
-    - guacamole
+    - role: linux_common
+      when: use_prebuilt_images_with_packer == "0"
+    - role: splunk_server
+      when: use_prebuilt_images_with_packer == "0"
+    - role: guacamole
+      when: use_prebuilt_images_with_packer == "0"

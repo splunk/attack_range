@@ -1,6 +1,6 @@
 
-data "aws_ami" "latest-centos" {
-  count       = var.phantom_server.phantom_server == "1" ? 1 : 0
+data "aws_ami" "latest-centos-packer" {
+  count       = (var.phantom_server.phantom_server == "1") && (var.general.use_prebuilt_images_with_packer == "1") ? 1 : 0
   most_recent = true
   owners      = ["self"] 
 
@@ -10,10 +10,26 @@ data "aws_ami" "latest-centos" {
   }
 }
 
+data "aws_ami" "latest-centos" {
+  count       = (var.phantom_server.phantom_server == "1") && (var.general.use_prebuilt_images_with_packer == "0") ? 1 : 0
+  most_recent = true
+  owners      = ["679593333241"] # owned by AWS Marketplace
+
+  filter {
+    name   = "name"
+    values = ["CentOS-7-2111-20220330_2.x86_64*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
 # install Phantom on a bare CentOS 7 instance
 resource "aws_instance" "phantom-server" {
   count                  = var.phantom_server.phantom_server == "1" ? 1 : 0
-  ami                    = data.aws_ami.latest-centos[count.index].id
+  ami                    = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.latest-centos-packer[0].id : data.aws_ami.latest-centos[0].id
   instance_type          = "t3.xlarge"
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
@@ -37,6 +53,11 @@ resource "aws_instance" "phantom-server" {
       host        = aws_instance.phantom-server[0].public_ip
       private_key = file(var.aws.private_key_path)
     }
+  }
+
+  provisioner "local-exec" {
+    working_dir = "../../packer/ansible"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.aws.private_key_path} -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
   }
 
   provisioner "local-exec" {

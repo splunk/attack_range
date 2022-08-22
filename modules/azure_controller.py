@@ -28,30 +28,59 @@ class AzureController(AttackRangeController):
         os.environ["AZURE_SUBSCRIPTION_ID"] = self.config["azure"]["subscription_id"]
         self.terraform = Terraform(working_dir=working_dir,variables=config, parallelism=15, state= self.config['general']["statepath"])
 
+        if self.config['general']['use_prebuilt_images_with_packer'] == "0":
+            for i in range(len(self.config['windows_servers'])):
+                image_name = self.config['windows_servers'][i]['windows_image']
+                if image_name.startswith("windows-2016"):
+                    self.config['windows_servers'][i]['azure_publisher'] = "MicrosoftWindowsServer"
+                    self.config['windows_servers'][i]['azure_offer'] = "WindowsServer"
+                    self.config['windows_servers'][i]['azure_sku'] = "2016-Datacenter"
+
+                elif image_name.startswith("windows-2019"):
+                    self.config['windows_servers'][i]['azure_publisher'] = "MicrosoftWindowsServer"
+                    self.config['windows_servers'][i]['azure_offer'] = "WindowsServer"
+                    self.config['windows_servers'][i]['azure_sku'] = "2019-Datacenter"
+
+                elif image_name.startswith("windows-10"):
+                    self.config['windows_servers'][i]['azure_publisher'] = "microsoftwindowsdesktop"
+                    self.config['windows_servers'][i]['azure_offer'] = "windows-10"
+                    self.config['windows_servers'][i]['azure_sku'] = "win10-21h2-pro"
+
+                elif image_name.startswith("windows-11"):
+                    self.config['windows_servers'][i]['azure_publisher'] = "microsoftwindowsdesktop"
+                    self.config['windows_servers'][i]['azure_offer'] = "windows-11"
+                    self.config['windows_servers'][i]['azure_sku'] = "win11-21h2-pro"
+
+                else:
+                    self.logger.error("Image " + image_name + " not supported.")
+                    sys.exit(1)    
+
+
     def build(self) -> None:
         self.logger.info("[action] > build\n")
 
-        images = []
-        if self.config['splunk_server']['byo_splunk'] == "0":
-            images.append(self.config['splunk_server']['splunk_image'])
-        for windows_server in self.config['windows_servers']:
-            images.append(windows_server['windows_image'])
-        for linux_server in self.config['linux_servers']:
-            images.append(linux_server['linux_image'])      
-        if self.config["phantom_server"]["phantom_server"] == "1":
-            images.append(self.config["phantom_server"]["phantom_image"])   
+        if self.config['general']['use_prebuilt_images_with_packer'] == "1":
+            images = []
+            if self.config['splunk_server']['byo_splunk'] == "0":
+                images.append(self.config['splunk_server']['splunk_image'])
+            for windows_server in self.config['windows_servers']:
+                images.append(windows_server['windows_image'])
+            for linux_server in self.config['linux_servers']:
+                images.append(linux_server['linux_image'])      
+            if self.config["phantom_server"]["phantom_server"] == "1":
+                images.append(self.config["phantom_server"]["phantom_image"])   
 
-        for ar_image in images:
-            self.logger.info("Check if image " + ar_image + " is available in region " + self.config['azure']['location'])
-            if not azure_service.check_image_available(ar_image, self.config['azure']['location']):
-                self.logger.info("Image " + ar_image + " is not available in region " + self.config['azure']['location'] + ". Create a golden image with packer.")
-                self.packer(ar_image)
-            else:
-                self.logger.info("Image " + ar_image + " is available in region " + self.config['azure']['location'])
+            for ar_image in images:
+                self.logger.info("Check if image " + ar_image + " is available in region " + self.config['azure']['location'])
+                if not azure_service.check_image_available(ar_image, self.config['azure']['location']):
+                    self.logger.info("Image " + ar_image + " is not available in region " + self.config['azure']['location'] + ". Create a golden image with packer.")
+                    self.packer(ar_image)
+                else:
+                    self.logger.info("Image " + ar_image + " is available in region " + self.config['azure']['location'])
 
-        cwd = os.getcwd()
-        os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform/azure') + '&& terraform init ')
-        os.system('cd ' + cwd)
+            cwd = os.getcwd()
+            os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform/azure') + '&& terraform init ')
+            os.system('cd ' + cwd)
 
         return_code, stdout, stderr = self.terraform.apply(
             capture_output='yes', 
@@ -86,6 +115,8 @@ class AzureController(AttackRangeController):
         only_cmd_arg = ""
         path_packer_file = ""
         
+        self.config['general']['use_prebuilt_images_with_packer'] = "0"
+
         if image_name.startswith("splunk"):
             only_cmd_arg = "azure-arm.splunk-ubuntu-18-04"
             path_packer_file = "packer/splunk_server/splunk_azure.pkr.hcl"
