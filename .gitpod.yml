@@ -8,15 +8,14 @@ image:
 
 tasks:
   - command: |
-      export PATH=$PATH:$HOME/.poetry/bin
-      poetry install
-      poetry shell
       cd terraform/azure 
       terraform init 
       cd ../..
       cd terraform/aws 
       terraform init
       cd ../..
-
+      export PATH=$PATH:$HOME/.poetry/bin
+      poetry install
+      poetry shell
 
 
