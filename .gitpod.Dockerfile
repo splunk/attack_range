@@ -1,7 +1,7 @@
 FROM gitpod/workspace-full:2022-05-08-14-31-53
 
-RUN apt-get update && \
-        apt-get install -y python3.8 git unzip python3-pip awscli curl vim lsb-release software-properties-common
+RUN sudo apt-get update && \
+        sudo apt-get install -y python3.8 git unzip python3-pip awscli curl vim lsb-release software-properties-common
 
 RUN sudo curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
