@@ -636,7 +636,10 @@ class TerraformController(IEnvironmentController):
         ansible_vars['out'] = attack_data['file_name']
         ansible_vars['sourcetype'] = attack_data['sourcetype']
         ansible_vars['source'] = attack_data['source']
-        ansible_vars['index'] = attack_data.get('custom_index', 'test')
+        if 'index' in attack_data:
+            ansible_vars['index'] = attack_data['index']
+        else:
+            ansible_vars['index'] = attack_data.get('custom_index', 'test')
         ansible_vars['update_timestamp'] = attack_data['update_timestamp']
 
         if 'data' in attack_data:
