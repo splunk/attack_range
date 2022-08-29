@@ -385,21 +385,21 @@ class TerraformController(IEnvironmentController):
                                 extravars={'ansible_port': ansible_port, 'var_str': var_str, 'run_simulation_playbook': run_simulation_playbook, 'simulation_playbook': simulation_playbook, 'techniques': simulation_techniques, 'ansible_user': ansible_user, 'ansible_password': self.config['attack_range_password']},
                                 verbosity=0)
 
-            if runner.status == "successful":
-                output = []
-                if 'output_purplesharp' in runner.get_fact_cache(target_public_ip):
-                    stdout_lines = runner.get_fact_cache(target_public_ip)['output_purplesharp']['stdout_lines']
-                    print('PurpleSharp Simulation Results:\n')
-                    output.append('PurpleSharp Simulation Results:')
-                    for line in stdout_lines:
-                        output.append(line)
-                        print(line)
-                    return output
+            output = []
+            if 'output_purplesharp' in runner.get_fact_cache(target_public_ip):
+                stdout_lines = runner.get_fact_cache(target_public_ip)['output_purplesharp']['stdout_lines']
+                print('PurpleSharp Simulation Results:\n')
+                output.append('PurpleSharp Simulation Results:')
+                for line in stdout_lines:
+                    output.append(line)
+                    print(line)
+                return output
 
-            else:
+            if runner.status != "successful":
                 self.log.error("failed to execute PurpleSharp simulation against target: {0}".format(
                     target))
                 sys.exit(1)
+
 
     def getPreludeToken(self, TOKEN_PATH):
         TOKEN = ''
