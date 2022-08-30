@@ -16,3 +16,14 @@
     dest: /opt/splunk/etc/apps/Splunk_TA_aws/local/inputs.conf
     owner: splunk
     group: splunk
+
+- name: copy local.meta 
+  copy:
+    src: local.meta
+    dest: /opt/splunk/etc/apps/vmware_app_for_splunk/metadata/local.meta
+    owner: splunk
+    group: splunk
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes

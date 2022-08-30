@@ -1,5 +1,5 @@
 [aws_sqs_based_s3://cloudtrail]
-aws_account = splunk_role_{{ key_name }}
+aws_account = splunk_role_{{ attack_range_name }}_{{ key_name }}
 index = aws
 interval = 60
 s3_file_decoder = CloudTrail
