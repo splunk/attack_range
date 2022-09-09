@@ -41,13 +41,13 @@ resource "azurerm_virtual_machine" "kali" {
 
   plan {
     publisher = "kali-linux"
-    product   = "kali-linux"
+    product   = "kali"
     name      = "kali"
   }
 
   storage_image_reference {
     publisher = "kali-linux"
-    offer     = "kali-linux"
+    offer     = "kali"
     sku       = "kali"
     version   = "latest"
   }
