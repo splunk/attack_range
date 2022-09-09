@@ -1,12 +1,11 @@
 
 data "aws_ami" "latest-kali-linux" {
   count       = var.config.kali_machine == "1" ? 1 : 0
-  most_recent = true
   owners      = ["679593333241"] # owned by AWS marketplace
 
   filter {
       name   = "name"
-      values = ["kali-linux-2022*"]
+      values = ["kali-linux-2022.1*"]
   }
 
   filter {
