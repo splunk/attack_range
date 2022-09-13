@@ -14,6 +14,7 @@
     - "splunk-add-on-for-microsoft-windows_840.tgz"
     - "splunk-timeline-custom-visualization_161.tgz"
     - "status-indicator-custom-visualization_150.tgz"
+    - "splunk-sankey-diagram-custom-visualization_160.tgz"
     - "punchcard-custom-visualization_150.tgz"
     - "splunk_attack_range_reporting-1.0.7.tar.gz"
     - "splunk-common-information-model-cim_500.tgz"
