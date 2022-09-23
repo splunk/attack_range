@@ -58,7 +58,7 @@ pluggy==1.0.0
 portalocker==2.4.0
 pre-commit==2.18.1
 prompt-toolkit==3.0.29
-protobuf==3.20.0
+protobuf==3.20.2
 psutil==5.9.0
 ptyprocess==0.7.0
 py==1.11.0
