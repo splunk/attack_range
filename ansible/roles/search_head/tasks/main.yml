@@ -39,6 +39,7 @@
     - "{{ splunk_linux_ta }}"
     - "{{ ta_for_zeek }}"
     - "{{ splunk_nginx_ta }}"
+    - "{{ splunk_aurora_ta }}"
 - include: install_app_from_s3.yml
   with_items:
     - "{{ splunk_python_app }}"

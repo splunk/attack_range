@@ -158,6 +158,8 @@ splunk_linux_ta = splunk-add-on-for-unix-and-linux_840.tgz
 
 splunk_nginx_ta = splunk-add-on-for-nginx_310.tgz
 
+splunk_aurora_ta = TA-aurora-0.2.0.tar.gz
+
 punchard_custom_visualization = punchcard-custom-visualization_150.tgz
 
 status_indicator_custom_visualization = status-indicator-custom-visualization_150.tgz
@@ -497,7 +499,7 @@ nginx_web_proxy_port = 8080
 # what port to proxy web traffic to, defaults to 8080
 
 [aurora_agent]
-install_aurora_agent = 0
+install_aurora_agent = 1
 # specify whether enable installing the Nextron Aurora EDR Agent on Windows Hosts
 
 aurora_agent_url = https://update1.nextron-systems.com/getupdate.php?product=aurora-agent-lite-win
