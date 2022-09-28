@@ -5,9 +5,10 @@ data "aws_ami" "latest-centos" {
   most_recent = true
   owners      = ["679593333241"] # owned by AWS Marketplace
 
+  # As per https://wiki.centos.org/Cloud/AWS#Official_and_current_CentOS_Public_Images
   filter {
-    name   = "name"
-    values = ["CentOS Linux 7 x86_64 HVM EBS ENA 1901_01-b7ee8a69-ee97-4a49-9e68-afaee216db2e-ami-05713873c6794f575.4"]
+    name   = "product-code"
+    values = ["cvugziknvmxgqna9noibqnnsy"]
   }
 
   filter {
