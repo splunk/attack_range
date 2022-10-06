@@ -214,6 +214,12 @@ starting configuration for AT-ST mech walker
             'name': 'attack_range_password',
             'default': get_random_password(),
         },
+        {   # use packer
+            'type': 'confirm',
+            'message': 'do you want to use packer for prebuilt images?',
+            'name': 'use_packer',
+            'default': False,
+        },
     ]
 
     answers = questionary.prompt(questions)
@@ -234,6 +240,12 @@ starting configuration for AT-ST mech walker
     
     if 'azure_subscription_id' in answers:
         configuration['azure']['subscription_id'] = answers['azure_subscription_id']
+
+    if 'use_packer' in answers:
+        if answers['use_packer']:
+            configuration['general']['use_prebuilt_images_with_packer'] = '1'
+        else:
+            configuration['general']['use_prebuilt_images_with_packer'] = '0'
 
     print("> configuring attack_range settings")
 
@@ -399,7 +411,7 @@ starting configuration for AT-ST mech walker
             'type': 'select',
             'message': 'which version should it be',
             'name': 'windows_server_one_version',
-            'choices': ['2016', '2019', '2022'],
+            'choices': ['2016', '2019'],
             'when': lambda answers: answers['windows_server_one'],
         },
         {
