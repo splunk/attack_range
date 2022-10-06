@@ -8,7 +8,6 @@
 - include: configure_web_conf.yml
 - include: configure_server_conf.yml
 - include: create_serverclass.yml
-- include: install_botsv3_dataset.yml
 - include: install_app_from_s3.yml
   with_items:
     - "splunk-add-on-for-microsoft-windows_840.tgz"
@@ -32,15 +31,13 @@
     - "splunk-add-on-for-nginx_310.tgz"
     - "phantom-app-for-splunk_4035.tgz"
     - "TA-osquery.tar.gz"
-    - "splunk-app-for-data-science-and-deep-learning_390.tgz"
     - "splunk-add-on-for-microsoft-cloud-services_433.tgz"
     - "splunk-add-on-for-crowdstrike-fdr_120.tgz"
     - "vmware-carbon-black-cloud_115.tgz"
     - "splunk-add-on-for-carbon-black_210.tgz"
+    - "TA-aurora-0.2.0.tar.gz"
 - include: configure_attack_range_dashboard.yml
 - include: configure_escu.yml
 - include: configure_props.yml
 - include: configure_cim.yml
 - include: configure_phantom.yml
-- include: configure_dltk.yml
-#- include: install_stream_app.yml

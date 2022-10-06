@@ -1,15 +1,9 @@
 ---
 
-- name: Check if {{ item }} exists
-  stat:
-    path: /opt/splunk/etc/apps/{{ item }}
-  register: app_exists
-
 - name: download {{ item }} from S3 bucket
   get_url:
     url: '{{ s3_bucket_url }}/{{ item }}'
-    dest: /tmp/{{ item }}.tgz
-  when: app_exists.stat.exists == False
+    dest: /tmp/{{ item }}
 
 - name: Install {{ item }} via REST
   uri:
@@ -18,10 +12,9 @@
     user: "admin"
     password: "Pl3ase-k1Ll-me:p"
     validate_certs: false
-    body: "name=/tmp/{{ item }}.tgz&update=true&filename=true"
+    body: "name=/tmp/{{ item }}&update=true&filename=true"
     headers:
       Content-Type: "application/x-www-form-urlencoded"
     status_code: [ 200, 201 ]
     timeout: 300
-  when: app_exists.stat.exists == False
   notify: restart splunk

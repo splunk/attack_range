@@ -46,6 +46,8 @@ splunk_server:
   splunk_uf_win_url: "https://download.splunk.com/products/universalforwarder/releases/8.2.5/windows/splunkforwarder-8.2.5-77015bc7a462-x64-release.msi"
   byo_splunk: "0"
   byo_splunk_ip: ""
+  ingest_bots3_data: "0"
+  install_dltk: "0"
 phantom_server:
   phantom_server: "0"
   phantom_image: "phantom-v3-0-0"
