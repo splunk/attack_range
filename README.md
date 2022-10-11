@@ -35,7 +35,8 @@ Attack Range in AWS:
 1. `cd docker & docker build -t splunk/attack_range .`
 2. `docker run -it splunk/attack_range`
 3. `aws configure`  
-4. `python attack_range.py configure` 
+4. `poetry shell`
+5. `python attack_range.py configure` 
 
 To install directly on Ubuntu, MacOS follow [these](https://github.com/splunk/attack_range/wiki/Installing-on-Ubuntu-or-MacOS) instructions.
 
