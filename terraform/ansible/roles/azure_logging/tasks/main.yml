@@ -1,0 +1,4 @@
+---
+
+- include: azure_logging.yml
+  when: (azure_logging == "1") and (cloud_provider == "azure")

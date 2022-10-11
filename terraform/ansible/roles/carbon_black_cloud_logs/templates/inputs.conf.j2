@@ -1,0 +1,14 @@
+[aws_s3://cb_events]
+aws_account = splunk_role_{{ attack_range_name }}_{{ key_name }}
+bucket_name = {{ carbon_black_cloud_s3_bucket }}
+character_set = auto
+ct_blacklist = ^$
+host_name = s3.us-east-1.amazonaws.com
+index = carbon_black_cloud
+initial_scan_datetime = 2022-07-18T15:49:22Z
+max_items = 100000
+max_retries = 3
+polling_interval = 60
+private_endpoint_enabled = 0
+recursion_depth = -1
+sourcetype = vmware:cbc:events

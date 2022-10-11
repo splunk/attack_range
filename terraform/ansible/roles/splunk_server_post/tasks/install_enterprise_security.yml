@@ -1,0 +1,61 @@
+
+- name: Uninstall ML Toolkit
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local/Splunk_ML_Toolkit"
+    method: DELETE
+    user: "admin"
+    password: "{{ attack_range_password }}"
+    validate_certs: false
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+
+- name: Uninstall Python Scientific Computing
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local/Splunk_SA_Scientific_Python_linux_x86_64"
+    method: DELETE
+    user: "admin"
+    password: "{{ attack_range_password }}"
+    validate_certs: false
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 300
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes
+
+- name: Copy enterprise security to server
+  copy:
+    src: "../../apps/{{ splunk_es_app }}"
+    dest: /tmp/es_app.tgz
+
+- name: Install es app via REST
+  uri:
+    url: "https://127.0.0.1:8089/services/apps/local"
+    method: POST
+    user: "admin"
+    password: "{{ attack_range_password }}"
+    validate_certs: false
+    body: "name=/tmp/es_app.tgz&update=true&filename=true"
+    headers:
+      Content-Type: "application/x-www-form-urlencoded"
+    status_code: [ 200, 201 ]
+    timeout: 30
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes
+
+- name: Run es post-install setup
+  command: "/opt/splunk/bin/splunk search '| essinstall --ssl_enablement auto' -auth admin:{{ attack_range_password }}"
+  become: yes
+  become_user: splunk
+  async: 600
+  poll: 60
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes

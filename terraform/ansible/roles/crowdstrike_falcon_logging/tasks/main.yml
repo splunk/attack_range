@@ -1,0 +1,4 @@
+---
+
+- include: config.yml
+  when: crowdstrike_falcon == "1"

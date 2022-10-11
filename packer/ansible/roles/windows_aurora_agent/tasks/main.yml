@@ -1,0 +1,4 @@
+---
+
+- include: install_aurora_agent.yml
+

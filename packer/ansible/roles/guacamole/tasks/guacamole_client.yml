@@ -1,0 +1,20 @@
+---
+
+- name: Make Guacamole directory
+  become: true
+  file:
+    path: /etc/guacamole
+    state: directory
+
+- name: Download Guacamole Client
+  get_url:
+    url: https://downloads.apache.org/guacamole/1.4.0/binary/guacamole-1.4.0.war
+    dest: /tmp/guacamole-1.4.0.war
+
+- name: Move .war
+  copy: remote_src=True src=/tmp/guacamole-1.4.0.war dest=/etc/guacamole/guacamole.war
+
+- name: link guacamole.war
+  shell:
+    cmd: |
+      sudo ln -s /etc/guacamole/guacamole.war /opt/tomcat/tomcatapp/webapps

@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "attack-range-platform"
+version = "0.1.0"
+description = ""
+authors = ["P4T12ICK <pbareiss@splunk.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+ansible = "^5.6.0"
+pywinrm = "^0.4.2"
+PyYAML = "^6.0"
+colorama = "^0.4.4"
+python-terraform = "^0.10.1"
+tabulate = "^0.8.9"
+boto3 = "^1.22.6"
+atomic-operator = "^0.8.5"
+ansible-runner = "^2.2.0"
+azure-mgmt-resource = "^21.1.0"
+azure-mgmt-network = "^19.3.0"
+azure-mgmt-compute = "^26.1.0"
+azure-identity = "^1.10.0"
+splunk-sdk = "^1.6.19"
+urllib3 = "^1.26.9"
+pycryptodome = "^3.14.1"
+questionary = "^1.10.0"
+Jinja2 = "^3.1.2"
+python-vagrant = "^1.0.0"
+Sphinx = "^5.0.2"
+myst-parser = "^0.18.0"
+furo = "^2022.6.21"
+sphinx-rtd-theme = "^1.0.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,55 @@
+---
+# This playbook install the apps required in a server
+
+- name: add splunk group
+  group: name=splunk state=present
+
+- name: add splunk user
+  user: name=splunk comment="Splunk service user" shell=/usr/sbin/nologin groups=splunk createhome=yes
+
+- name: make /opt writetable by splunk
+  file: path=/opt mode=777
+
+- name: checking if splunk is install
+  stat: path=/opt/splunk
+  register: splunk_path
+
+- name: is splunk installed?
+  debug: msg='splunk is already installed under /opt/splunk'
+  when: splunk_path.stat.exists
+
+- name: download splunk
+  get_url:
+    url: '{{ splunk_url }}'
+    dest: /opt/splunk.tgz
+  when: splunk_path.stat.exists == false
+
+- name: install splunk binary
+  unarchive: remote_src=yes src=/opt/splunk.tgz dest=/opt/ owner=splunk group=splunk creates=yes
+  become: yes
+  become_user: splunk
+  when: splunk_path.stat.exists == false
+
+- name: migrate to WiredTiger
+  blockinfile:
+    path: /opt/splunk/etc/system/local/server.conf
+    insertafter: EOF
+    create: yes
+    block: |
+      [kvstore]
+      storageEngine=wiredTiger
+
+- name: accept license and start splunk
+  shell: /opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd Pl3ase-k1Ll-me:p
+  become: yes
+  become_user: splunk
+  when: splunk_path.stat.exists == false
+
+- name: enable boot-start
+  shell: /opt/splunk/bin/splunk enable boot-start -user splunk
+  when: splunk_path.stat.exists == false
+
+- name: restart splunk
+  service:
+    name: splunkd
+    state: restarted

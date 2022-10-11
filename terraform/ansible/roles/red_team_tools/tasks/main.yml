@@ -1,0 +1,87 @@
+---
+- name: Git clone SharpHound
+  win_shell: git clone https://github.com/BloodHoundAD/SharpHound3.git C:\tools\SharpHound3
+  when: install_red_team_tools == "1"
+
+- name: Git clone MailSniper
+  win_shell: git clone https://github.com/dafthack/MailSniper.git C:\tools\MailSniper
+  when: install_red_team_tools == "1"
+
+- name: Git clone juicy-potato
+  win_shell: git clone https://github.com/decoder-it/juicy-potato.git C:\tools\juicy-potato
+  when: install_red_team_tools == "1"
+
+- name: Git clone SharpChrome
+  win_shell: git clone https://github.com/djhohnstein/SharpChrome.git C:\tools\SharpChrome
+  when: install_red_team_tools == "1"
+
+- name: Git clone Egress-Assess
+  win_shell: git clone https://github.com/FortyNorthSecurity/Egress-Assess.git C:\tools\Egress-Assess
+  when: install_red_team_tools == "1"
+
+- name: Git clone SharpGPOAbuse
+  win_shell: git clone https://github.com/FSecureLABS/SharpGPOAbuse.git C:\tools\SharpGPOAbuse
+  when: install_red_team_tools == "1"
+
+- name: Git clone SharpGPOAbuse
+  win_shell: git clone https://github.com/gentilkiwi/mimikatz.git C:\tools\mimikatz
+  when: install_red_team_tools == "1"
+
+- name: Git clone Seatbelt
+  win_shell: git clone https://github.com/GhostPack/Seatbelt.git C:\tools\Seatbelt
+  when: install_red_team_tools == "1"
+
+- name: Git clone DAMP
+  win_shell: git clone https://github.com/HarmJ0y/DAMP.git C:\tools\DAMP
+  when: install_red_team_tools == "1"
+
+- name: Git clone UACME
+  win_shell: git clone https://github.com/hfiref0x/UACME.git C:\tools\UACME
+  when: install_red_team_tools == "1"
+
+- name: Git clone SpoolSample
+  win_shell: git clone https://github.com/leechristensen/SpoolSample.git C:\tools\SpoolSample
+  when: install_red_team_tools == "1"
+
+- name: Git clone PowerUpSQL
+  win_shell: git clone https://github.com/NetSPI/PowerUpSQL.git C:\tools\PowerUpSQL
+  when: install_red_team_tools == "1"
+
+- name: Git clone PowerShdll
+  win_shell: git clone https://github.com/p3nt4/PowerShdll.git C:\tools\PowerShdll
+  when: install_red_team_tools == "1"
+
+- name: Git clone PowerSploit
+  win_shell: git clone https://github.com/PowerShellMafia/PowerSploit.git C:\tools\PowerSploit
+  when: install_red_team_tools == "1"
+
+- name: Git clone MiscTools
+  win_shell: git clone https://github.com/rasta-mouse/MiscTools.git C:\tools\MiscTools
+  when: install_red_team_tools == "1"
+
+- name: Git clone Sherlock
+  win_shell: git clone https://github.com/rasta-mouse/Sherlock.git C:\tools\Sherlock
+  when: install_red_team_tools == "1"
+
+- name: Git clone Watson
+  win_shell: git clone https://github.com/rasta-mouse/Watson.git C:\tools\Watson
+  when: install_red_team_tools == "1"
+
+- name: Git clone SharpView
+  win_shell: git clone https://github.com/tevora-threat/SharpView.git C:\tools\SharpView
+  when: install_red_team_tools == "1"
+
+- name: Git clone donut
+  win_shell: git clone https://github.com/TheWover/donut.git C:\tools\donut
+  when: install_red_team_tools == "1" 
+
+- name: Git clone PurpleSharp
+  win_shell: git clone https://github.com/mvelazc0/PurpleSharp.git c:\tools\PurpleSharp
+  when: install_red_team_tools == "1"
+
+- name: install sysinternals
+  win_shell: C:\\ProgramData\\chocolatey\\bin\\choco.exe install sysinternals --fail-on-unfound --yes --no-progress --limit-output --timeout 2700 --ignore-checksums
+  when: install_red_team_tools == "1"
+
+
+  

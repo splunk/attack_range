@@ -1,0 +1,18 @@
+- hosts: all
+  gather_facts: True
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+  roles:
+    - set_hostname_win
+    - windows_splunk_post
+    - create_domain_controller
+    - update_sysmon_config
+    - red_team_tools
+    - join_domain
+    - windows_agent_prelude
+    - crowdstrike_falcon_agent
+    - carbon_black_cloud_agent
+    - bad_blood
+    - splunk_byo_windows

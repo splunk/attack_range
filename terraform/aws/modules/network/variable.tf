@@ -1,2 +1,3 @@
 
-variable "config" { }
+variable "general" { }
+variable "aws" { }

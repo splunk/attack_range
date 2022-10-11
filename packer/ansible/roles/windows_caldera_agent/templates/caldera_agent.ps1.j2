@@ -1,0 +1,8 @@
+
+$url="http://{{ splunk_indexer_ip }}:8888/file/download"
+$wc=New-Object System.Net.WebClient
+$wc.Headers.add("platform","windows")
+$wc.Headers.add("file","sandcat.go")
+$output="C:\Users\Public\sandcat.exe"
+$wc.DownloadFile($url,$output)
+C:\Users\Public\sandcat.exe -server http://{{ splunk_indexer_ip }}:8888 -group my_group -v

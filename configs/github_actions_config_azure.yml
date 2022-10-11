@@ -1,0 +1,14 @@
+
+general:
+  attack_range_password: "Pl3ase-k1Ll-me:p23"
+  cloud_provider: "azure"
+  key_name: "ar-github-actions"
+azure:
+  private_key_path: "~/.ssh/ar-github-actions"
+  public_key_path: "~/.ssh/ar-github-actions.pub"
+  subscription_id: "xxx"
+windows_servers: 
+  - hostname: ar-win
+    windows_image: windows-2016-v3-0-0
+linux_servers: 
+  - hostname: ar-linux

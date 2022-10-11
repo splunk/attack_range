@@ -1,0 +1,4 @@
+---
+
+- include: windows-sysmon.yml
+  when: win_sysmon_config != "SwiftOnSecurity.xml"

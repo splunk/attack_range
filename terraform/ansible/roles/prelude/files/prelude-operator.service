@@ -1,0 +1,19 @@
+# Expects Headless Operator binary under headless under: /opt/prelude
+# Safe this file to /etc/systemd/system/prelude-operator.service, then run: systemctl daemon-reload
+# You can configure specific account by writing ACCOUNT_EMAIL var under /opt/prelude/env
+# example: 
+# ACCOUNT_EMAIL=a8b6a79c-c98b-11ec-ba35-3f30ad1005c5@desktop.prelude.org
+# Writes logs to syslog 
+
+[Unit]
+Description=Prelude Operator
+
+[Service]
+EnvironmentFile=/opt/prelude/env
+ExecStart=/opt/prelude/headless --accountEmail=${ACCOUNT_EMAIL} --sessionToken=${SESSION_TOKEN}
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=prelude-operator
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+---
+
+- name: Copy Sysmon template
+  win_copy:
+    src: '../../configs/{{ win_sysmon_config }}'
+    dest: 'C:\Program Files\ansible\{{ win_sysmon_config }}'
+
+- name: install sysmon with defined config
+  win_command: '"C:\Program Files\ansible\sysmon\sysmon64.exe" -c "C:\Program Files\ansible\{{ win_sysmon_config }}"'
+
+- name: 'Reboot server'
+  win_reboot:

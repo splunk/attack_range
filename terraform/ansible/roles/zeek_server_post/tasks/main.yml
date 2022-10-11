@@ -1,0 +1,9 @@
+---
+
+- name: Run Zeek deploy
+  shell: '/opt/zeek/bin/zeekctl {{ item }}'
+  become: true
+  with_items:
+    - 'install'
+    - 'deploy'
+    - 'status'

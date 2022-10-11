@@ -1,0 +1,29 @@
+---
+
+- name: Create folder directory for AWS TA
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/Splunk_TA_aws/local/
+
+- name: Copy new inputs.conf configuration
+  template:
+    src: inputs.conf.j2
+    dest: /opt/splunk/etc/apps/Splunk_TA_aws/local/inputs.conf
+    owner: splunk
+    group: splunk
+
+- name: copy local.meta 
+  copy:
+    src: local.meta
+    dest: /opt/splunk/etc/apps/vmware_app_for_splunk/metadata/local.meta
+    owner: splunk
+    group: splunk
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes

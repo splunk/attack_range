@@ -1,0 +1,5 @@
+---
+
+- name: install {{ item }}
+  win_chocolatey:
+    name: "{{ item }}"

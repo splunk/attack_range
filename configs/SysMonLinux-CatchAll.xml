@@ -1,0 +1,32 @@
+<Sysmon schemaversion="4.70">
+  <EventFiltering>
+    <!-- Event ID 1 == ProcessCreate. Log all newly created processes -->
+    <RuleGroup name="" groupRelation="or">
+      <ProcessCreate onmatch="exclude"/>
+    </RuleGroup>
+    <!-- Event ID 3 == NetworkConnect Detected. Log all network connections -->
+    <RuleGroup name="" groupRelation="or">
+      <NetworkConnect onmatch="exclude"/>
+    </RuleGroup>
+    <!-- Event ID 5 == ProcessTerminate. Log all processes terminated -->
+    <RuleGroup name="" groupRelation="or">
+      <ProcessTerminate onmatch="exclude"/>
+    </RuleGroup>
+    <!-- Event ID 9 == RawAccessRead. Log all raw access read -->
+    <RuleGroup name="" groupRelation="or">
+      <RawAccessRead onmatch="exclude"/>
+    </RuleGroup>
+    <!-- Event ID 10 == ProcessAccess. Log all open process operations -->
+    <RuleGroup name="" groupRelation="or">
+      <ProcessAccess onmatch="exclude"/>
+    </RuleGroup>
+    <!-- Event ID 11 == FileCreate. Log every file creation -->
+    <RuleGroup name="" groupRelation="or">
+      <FileCreate onmatch="exclude"/>
+    </RuleGroup>
+    <!--Event ID 23 == FileDelete. Log all files being deleted -->
+    <RuleGroup name="" groupRelation="or">
+      <FileDelete onmatch="exclude"/>
+    </RuleGroup>
+  </EventFiltering>
+</Sysmon>

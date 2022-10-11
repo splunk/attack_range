@@ -1,0 +1,51 @@
+config.vm.define "ar-splunk-{{config.general.key_name}}-{{config.general.attack_range_name}}" do |config|
+    VM_NAME= "ar-splunk"
+    config.vm.box = "generic/ubuntu2004"
+    config.vm.hostname = "#{VM_NAME}"
+    config.vm.boot_timeout = 600
+    config.vm.network "forwarded_port", guest: 8000, host: 8000, protocol: "tcp"
+    config.vm.network "forwarded_port", guest: 8089, host: 8089, protocol: "tcp"
+    config.vm.network :private_network, ip: "10.0.1.12"
+  
+    config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "../packer/ansible/splunk_server.yml"
+        ansible.compatibility_mode = "2.0"
+        ansible.extra_vars = {
+          ansible_python_interpreter: "/usr/bin/python3",
+          splunk_admin_password: 'Pl3ase-k1Ll-me:p',
+          s3_bucket_url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com',
+          splunk_url: 'https://download.splunk.com/products/splunk/releases/8.2.5/linux/splunk-8.2.5-77015bc7a462-Linux-x86_64.tgz',
+{% for key, value in config.general.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
+        }
+    end
+
+    config.vm.provision "ansible" do |ansible|
+        ansible.playbook = "../terraform/ansible/splunk_server_post.yml"
+        ansible.compatibility_mode = "2.0"
+        ansible.extra_vars = {
+          ansible_python_interpreter: "/usr/bin/python3",  
+{% for key, value in config.general.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
+{% for key, value in config.splunk_server.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
+{% for key, value in config.phantom_server.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
+{% for key, value in config.simulation.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
+        }
+    end
+  
+    config.vm.provider "virtualbox" do |vb, override|
+      vb.gui = true
+      vb.name = "#{VM_NAME}"
+      vb.customize ["modifyvm", :id, "--memory", "6144"]
+      vb.customize ["modifyvm", :id, "--cpus", "4"]
+    end
+  end
+  

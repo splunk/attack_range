@@ -1,0 +1,48 @@
+---
+# Configure phantom with credentials, apps, assets, and so on...
+
+- name: change phantom admin password
+  uri:
+    url: https://127.0.0.1/rest/user_settings
+    method: POST
+    user: admin
+    password: password
+    body: {"old_password":"password","password":"{{attack_range_password}}"}
+    body_format: json
+    force_basic_auth: yes
+    validate_certs: no
+
+- name: fetch phantom api token
+  uri:
+    url: https://127.0.0.1/rest/ph_user/2/token
+    method: GET
+    user: admin
+    password: "{{attack_range_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+  register: api_token
+
+- name: display phantom api token
+  debug:
+    msg: "phantom api token is {{api_token.json.key}}"
+
+- name: open up api allowed ip list
+  uri:
+    url: https://127.0.0.1/rest/ph_user/2
+    method: POST
+    body: '{"allowed_ips":["any"]}'
+    user: admin
+    password: "{{attack_range_password}}"
+    force_basic_auth: yes
+    validate_certs: no
+
+- name: test api token
+  uri:
+    url: https://127.0.0.1/rest/container
+    method: GET
+    return_content: yes
+    headers:
+      ph-auth-token: "{{api_token.json.key}}"
+    validate_certs: no
+
+

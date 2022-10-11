@@ -1,0 +1,11 @@
+---
+
+- name: copy sysmon config template
+  become: true
+  copy:
+    src: "../../configs/{{ sysmon_config }}"
+    dest: "/tmp/{{ sysmon_config }}"
+
+- name: update sysmon config
+  become: true
+  ansible.builtin.shell: sysmon -c /tmp/{{ sysmon_config }}

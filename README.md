@@ -1,3 +1,7 @@
+<a href="https://gitpod.io/#https://github.com/splunk/attack_range/tree/attack_range_3">
+<img align="right"src="https://gitpod.io/button/open-in-gitpod.svg" />
+</a>
+
 <p align="center">
     <a href="https://github.com/splunk/attack_range/releases">
         <img src="https://img.shields.io/github/v/release/splunk/attack_range" /></a>
@@ -11,29 +15,61 @@
 
 # Splunk Attack Range ⚔️
 ![Attack Range Log](docs/attack_range.png)
+The Splunk Attack Range is an open-source project maintained by the Splunk Threat Research Team. It builds instrumented cloud and local environments, simulates attacks, and forwards the data into a Splunk instance. This environment can then be used to develop and test the effectiveness of detections.
 
 ## Purpose 🛡
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering:
 * The user is able to quickly build a small lab infrastructure as close as possible to a production environment.
-* The Attack Range performs attack simulation using different engines such as Atomic Red Team, PurpleSharp or Prelude Operator in order to generate real attack data. 
+* The Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. 
 * It integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
 
-
-## Demo 📺
-[A demo (~12 min)](https://youtu.be/gSEUnFJuw-s) which shows the basic functions of the attack range. It builds a testing environment using terraform, walks through the data collected by Splunk. Then attacks it using [Atomic Red Team]() with MITRE ATT&CK Technique [T1003.002](https://attack.mitre.org/techniques/T1003/002), and Threat Actor simulation playbook using [PurpleSharp](https://github.com/mvelazc0/PurpleSharp). Finally showcases how [Splunk Security Content](https://github.com/splunk/security-content) searches are used to detect the attack.
-
-![Attack Range Demo](docs/demo.gif)
+## Docs
+The Attack Range Documentaion can be found [here](https://attack-range.readthedocs.io/en/latest/).
 
 ## Installation 🏗
 
 ### [Using Docker](https://github.com/splunk/attack_range/wiki/Using-Docker)
 
-1. `docker pull splunk/attack_range`
+Attack Range in AWS:
+
+1. `cd docker & docker build -t splunk/attack_range .`
 2. `docker run -it splunk/attack_range`
 3. `aws configure`  
-4. `python attack_range.py configure` 
+4. `poetry shell`
+5. `python attack_range.py configure` 
 
 To install directly on Ubuntu, MacOS follow [these](https://github.com/splunk/attack_range/wiki/Installing-on-Ubuntu-or-MacOS) instructions.
+
+### MacOS
+Install and configure terraform
+```
+brew install terraform
+cd terraform/aws && terraform init && cd ../..
+```
+
+Install packer
+````console
+brew tap hashicorp/tap
+brew install hashicorp/tap/packer
+````
+
+Install awscli
+```
+brew install awscli
+aws configure
+```
+
+Install and run poetry
+```
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+poetry shell
+poetry install
+```
+
+Configure Attack Range
+```
+python attack_range.py configure
+```
 
 
 ## Architecture 🏯
@@ -48,26 +84,22 @@ The deployment of Attack Range consists of:
 - Splunk Server
 - Splunk SOAR Server
 - Nginx Server
-- Linux + Sysmon
-- Zeek Sensor
+- Linux Server
+- Zeek Server
 
-Which can be added/removed/configured using [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template). 
-
-An approximate **cost estimate** for running attack_range on AWS can be found [here](https://github.com/splunk/attack_range/wiki/Cost-Estimates).
+Which can be added/removed/configured using [attack_range.yml](https://github.com/splunk/attack_range/blob/develop/attack_range.yml). 
 
 ## Logging
 The following log sources are collected from the machines:
 
-- Windows Event (```index = win```)
-- Windows Powershell (```index = win```)
-- Sysmon for Windows EDR (```index = win```)
-- Aurora for Windows EDR (```index = win```)
-- Sysmon for Linux EDR (```index = unix```)
-- OSquery for Linux EDR (```index = osquery```)
-- Nginx Proxy (```index = proxy```)
-- Splunk Streams Network (```index = main```)
-- Zeek Network (```index = main```)
-- Attack Simulations from Atomic Red Team (```index = attack```)
+- Windows Event Logs (```index = win```)
+- Sysmon Logs (```index = win```)
+- Powershell Logs (```index = win```)
+- Aurora EDR (```index = win```)
+- Sysmon for Linux Logs (```index = unix```)
+- Nginx logs (```index = proxy```)
+- Network Logs with Splunk Stream (```index = main```)
+- Attack Simulation Logs from Atomic Red Team and Caldera (```index = attack```)
 
 ## Running 🏃‍♀️
 Attack Range supports different actions:
@@ -82,6 +114,11 @@ python attack_range.py configure
 python attack_range.py build
 ```
 
+### Packer Attack Range
+```
+python attack_range.py packer --image_name windows-2016
+```
+
 ### Show Attack Range Infrastructure
 ```
 python attack_range.py show
@@ -89,16 +126,9 @@ python attack_range.py show
 
 ### Perform Attack Simulations with Atomic Red Team or PurpleSharp
 ```
-python attack_range.py simulate -e ART -st T1003.001 -t ar-win-dc-default-username-33048
+python attack_range.py simulate -e ART -st T1003.001 -t ar-win-ar-ar-0
 
-python attack_range.py simulate -e PurpleSharp -st T1003.001 -t ar-win-dc-default-username-33048
-
-python attack_range.py simulate -e PurpleSharp -sp AD_Discovery.json -t ar-win-dc-default-username-33048
-```
-
-### Test with Attack Range
-```
-python attack_range.py test -tf tests/T1003_001.yml, tests/T1003_002.yml
+python attack_range.py simulate -e PurpleSharp -st T1003.001 -t ar-win-ar-ar-0
 ```
 
 ### Destroy Attack Range
@@ -118,15 +148,12 @@ python attack_range.py resume
 
 ### Dump Log Data from Attack Range
 ```
-python attack_range.py dump -dn data_dump 
+python attack_range.py dump --file_name attack_data/dump.log --search 'index=win' --earliest 2h
 ```
-
 
 ### Replay Dumps into Attack Range Splunk Server
-- Replay previously saved dumps from Attack Range
-
 ```
-python attack_range.py replay -dn data_dump -fn FILE_NAME --source SOURCE --sourcetype SOURCETYPE --index INDEX
+python attack_range.py replay --file_name attack_data/dump.log --source test --sourcetype test
 ```
 
 ## Features 💍
@@ -141,16 +168,16 @@ python attack_range.py replay -dn data_dump -fn FILE_NAME --source SOURCE --sour
 
 - [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/)
   * [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) is a premium security solution requiring a paid license.
-  * Enable or disable [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) in [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
+  * Enable or disable [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) in [attack_range.yml](https://github.com/splunk/attack_range/blob/develop/attack_range.yml)
   * Purchase a license, download it and store it in the apps folder to use it.
 
 - [Splunk SOAR](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html)
   * [Splunk SOAR](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) is a Security Orchestration and Automation platform
   * For a free development license (100 actions per day) register [here](https://my.phantom.us/login/?next=/)
-  * Enable or disable [Splunk SOAR](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
+  * Enable or disable [Splunk SOAR](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [attack_range.yml](https://github.com/splunk/attack_range/blob/develop/attack_range.yml)
 
 - [Windows Domain Controller & Window Server & Windows 10 Client](https://github.com/splunk/attack_range/wiki/Windows-Infrastructure)
-  * Can be enabled, disabled and configured over [attack_range.conf](https://github.com/splunk/attack_range/blob/develop/attack_range.conf.template)
+  * Can be enabled, disabled and configured over [attack_range.yml](https://github.com/splunk/attack_range/blob/develop/attack_range.yml)
   * Collecting of Microsoft Event Logs, PowerShell Logs, Sysmon Logs, DNS Logs, ...
   * Sysmon log collection with customizable Sysmon configuration
   * RDP connection over port 3389 with user Administrator
@@ -164,11 +191,6 @@ python attack_range.py replay -dn data_dump -fn FILE_NAME --source SOURCE --sour
   * Native adversary simulation support with [PurpleSharp](https://github.com/mvelazc0/PurpleSharp)
   * Will be automatically downloaded on target during first execution of simulate
   * Supports two parameters **-st** for comma separated ATT&CK techniques and **-sp** for a simulation playbook
-
-- [Prelude Operator](https://www.prelude.org/operator)
-  * Adversary Emulation with [Prelude Operator](https://www.prelude.org/operator)
-  * Headless v1.6 Installed on the Splunk Server, see [guide](https://github.com/splunk/attack_range/wiki/Prelude-Operator) for more details.
-  * Preinstalled Prelude Operator [Pneuma agent](https://github.com/preludeorg/pneuma) across Windows and Linux machines 
 
 - [Kali Linux](https://www.kali.org/)
   * Preconfigured Kali Linux machine for penetration testing
@@ -207,7 +229,7 @@ We welcome feedback and contributions from the community! Please see our [contri
 * [Mauricio Velazco](https://twitter.com/mvelazco)
 * [Teoderick Contreras](https://twitter.com/tccontre18)
 * [Lou Stella](https://twitter.com/ljstella)
-* [Christian Cloutier](https://github.com/ccl0utier)
-* Eric McGinnis 
-* [Michael Haag](https://twitter.com/M_haggis)
-* [Gowthamaraj Rajendran](https://github.com/gowthamarajr)
+* [Christian Cloutier](https://github.com/ccloutier-splunk)
+* Eric McGinnis
+* [Micheal Haag](https://twitter.com/M_haggis)
+* Gowthamaraj Rajendran

@@ -1,7 +1,8 @@
-# ignore attack_range.conf that might include local custom changes
-attack_range.conf
+# ignore attack_range.yml that might include local custom changes
+attack_range.yml
+
+#keys
 *.key
-*.pub
 
 # ignore appbinaries directory we don't want this uploaded
 ansible/roles/*/files/splunk*.tgz
@@ -27,19 +28,16 @@ artifacts
 ## Terraform ignores
 # Local .terraform directories
 terraform/aws/.terraform/
-terraform/aws/local/.terraform/
-terraform/aws/remote/.terraform/
-terraform/azure/local/.terraform/
-terraform/azure/remote/.terraform/
-terraform/aws/local/state/
-terraform/aws/remote/resources.tf
-terraform/azure/local/state/
-terraform/azure/remote/resources.tf
+terraform/azure/.terraform/
+terraform/aws/state/
+terraform/azure/state/
+terraform/aws/versions.tf
 
 # .tfstate files
 *.tfstate
 *.tfstate.*
 *.terraform*
+*state*
 
 # Crash log files
 crash.log
@@ -73,6 +71,7 @@ override.tf.json
 acceptance_config.yml
 boxes/*
 .vagrant
+vagrant/Vagrantfile
 /website/.vagrant
 /website/build
 /vagrant-spec.config.rb

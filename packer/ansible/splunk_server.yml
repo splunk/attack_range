@@ -1,0 +1,12 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  vars:  
+    hostname: splunk-server
+  roles:
+    - role: linux_common
+      when: use_prebuilt_images_with_packer == "0"
+    - role: splunk_server
+      when: use_prebuilt_images_with_packer == "0"
+    - role: guacamole
+      when: use_prebuilt_images_with_packer == "0"

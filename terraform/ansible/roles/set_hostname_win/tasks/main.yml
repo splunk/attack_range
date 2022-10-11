@@ -1,0 +1,8 @@
+---
+
+- name: Change the hostname
+  win_hostname:
+    name: "{{ hostname }}"
+
+- name: reboot | Rebooting Server
+  win_reboot:

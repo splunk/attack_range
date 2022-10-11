@@ -1,0 +1,14 @@
+- hosts: all
+  gather_facts: True
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+  roles:
+    - role: windows_common
+      when: use_prebuilt_images_with_packer == "0"
+    - role: windows_universal_forwarder
+      when: use_prebuilt_images_with_packer == "0"
+    - role: windows_aurora_agent
+      when: use_prebuilt_images_with_packer == "0"
+    - role: sysmon
+      when: use_prebuilt_images_with_packer == "0"

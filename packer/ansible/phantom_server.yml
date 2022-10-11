@@ -1,0 +1,6 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  roles:
+    - role: phantom
+      when: use_prebuilt_images_with_packer == "0"

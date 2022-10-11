@@ -1,0 +1,3 @@
+
+- include: windows-create-domain.yml
+  when: create_domain == "1"

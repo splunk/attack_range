@@ -1,0 +1,33 @@
+---
+
+- name: Configure Guacamole Server
+  shell:
+    cmd: |
+      echo "GUACAMOLE_HOME=/etc/guacamole" | sudo tee -a /etc/default/tomcat
+      echo "export GUACAMOLE_HOME=/etc/guacamole" | sudo tee -a /etc/profile
+
+- name: Copy guacamole.properties file
+  become: true
+  copy:
+    src: guacamole.properties
+    dest: /etc/guacamole/guacamole.properties
+
+- name: link guacamole
+  shell:
+    cmd: |
+      sudo ln -s /etc/guacamole /opt/tomcat/tomcatapp/.guacamole
+
+- name: Give permission
+  shell:
+    cmd: |
+      sudo chown -R tomcat: /opt/tomcat
+
+- name: Copy user-mapping.xml
+  template:
+    src: user-mapping.xml
+    dest: /etc/guacamole/user-mapping.xml
+
+- name: Restart guacd and tomcat
+  shell:
+    cmd: |
+      sudo systemctl restart tomcat guacd

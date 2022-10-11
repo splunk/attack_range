@@ -1,0 +1,7 @@
+---
+
+- include_tasks: "install_badblood.yml"
+  when: bad_blood == "1"
+
+- include_tasks: "run_badblood.yml"
+  when: bad_blood == "1"

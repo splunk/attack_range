@@ -1,5 +1,11 @@
 
-variable "config" { }
 variable "rg_name" { }
 variable "subnet_id" { }
-variable "phantom_server_instance" { }
+variable "azure" { }
+variable "splunk_server" { }
+variable "phantom_server" { }
+variable "general" { }
+variable "simulation" { }
+variable "windows_servers" { }
+variable "linux_servers" { }
+variable "zeek_server" { }

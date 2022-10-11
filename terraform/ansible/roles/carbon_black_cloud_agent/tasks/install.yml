@@ -1,0 +1,9 @@
+---
+
+- name: Copy carbon black cloud agent 
+  win_copy:
+    src: "../../apps/{{ carbon_black_cloud_agent_name }}"
+    dest: C:\Temp\WindowsSensor.msi
+
+- name: install carbon black cloud agent
+  win_command: 'msiexec /q /i C:\Temp\WindowsSensor.msi /L* log.txt COMPANY_CODE={{ carbon_black_cloud_company_code }}'

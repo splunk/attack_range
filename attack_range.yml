@@ -1,0 +1,8 @@
+# all available parameters can be seen in configs/attack_range_default.yml
+general:
+  attack_range_password: "ChangeMe123!"
+  cloud_provider: "aws"
+  key_name: "ar"
+windows_servers:
+  - hostname: ar-win 
+    image: windows-2016-v3-0-0

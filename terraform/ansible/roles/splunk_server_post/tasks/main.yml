@@ -1,0 +1,15 @@
+---
+
+- include: change_splunk_password.yml
+
+- include: phantom_server_configure.yml
+  when: phantom_server == "1"
+
+- include: install_enterprise_security.yml
+  when: install_es == "1"
+
+- include: install_botsv3_dataset.yml
+  when: ingest_bots3_data == "1"
+
+- include: install_dltk.yml
+  when: install_dltk == "1"

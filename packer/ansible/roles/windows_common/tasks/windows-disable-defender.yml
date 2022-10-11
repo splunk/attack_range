@@ -1,0 +1,21 @@
+---
+
+- debug:
+    var: ansible_distribution
+
+- name: Disable Real-Time Protection of Windows Defender for Windows 10
+  ignore_errors: yes
+  win_regedit:
+    path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection"
+    name: DisableRealtimeMonitoring
+    type: dword
+    data: 1
+  when: ansible_distribution | regex_search("Microsoft Windows 10") or
+        ansible_distribution | regex_search("Microsoft Windows 11")
+
+
+- name: Disable Windows Defender in Windows Server windows_domain_controller
+  win_shell: 'Uninstall-WindowsFeature -Name Windows-Defender'
+  when: not (ansible_distribution | regex_search("Microsoft Windows 10") or
+        ansible_distribution | regex_search("Microsoft Windows 11"))
+

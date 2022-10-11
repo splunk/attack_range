@@ -1,0 +1,27 @@
+---
+
+- name: Change dns server to domain controller
+  win_dns_client:
+    adapter_names: "{{ ansible_interfaces.0.connection_name }}"
+    ipv4_addresses: "10.0.1.14"
+
+- name: reboot | Rebooting Server
+  win_reboot:
+
+- name: Copy join domain script to host
+  win_copy:
+    src: "join_domain.ps1"
+    dest: 'C:\join_domain.ps1'
+
+- name: Run join domain
+  win_shell: "C:\\join_domain.ps1 attackrange.local {{ ansible_user }}@attackrange.local {{ attack_range_password }}"
+  register: win_shell_output
+  retries: 20
+  delay: 60
+  until: win_shell_output.stderr == ""
+
+- debug:
+    var: win_shell_output
+
+- name: reboot | Rebooting Server
+  win_reboot:

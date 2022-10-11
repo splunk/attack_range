@@ -1,5 +1,0 @@
----
-
-- name: Change the hostname
-  win_hostname:
-    name: "{{ hostname }}-{{ key_name }}-{{ 999 | random }}"

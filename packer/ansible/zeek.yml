@@ -1,0 +1,8 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  roles:
+    - role: linux_universal_forwarder
+      when: use_prebuilt_images_with_packer == "0"
+    - role: zeek_sensor
+      when: use_prebuilt_images_with_packer == "0"

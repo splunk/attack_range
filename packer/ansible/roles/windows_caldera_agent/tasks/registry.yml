@@ -1,0 +1,8 @@
+---
+
+- name: WDigest caching must be enabled for mimikatz to detect plaintext credentials.
+  win_regedit:
+    key: HKLM:\System\CurrentControlSet\Control\SecurityProviders\WDigest
+    value: UseLogonCredential
+    data: 1
+    datatype: dword

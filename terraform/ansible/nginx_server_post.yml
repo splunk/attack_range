@@ -1,0 +1,8 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  roles:
+    - set_hostname_linux
+    - linux_server_post
+    - nginx_server_post
+    - splunk_byo_linux

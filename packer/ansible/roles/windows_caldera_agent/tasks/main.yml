@@ -1,0 +1,44 @@
+---
+
+
+- name: Copy caldera agent script
+  win_template:
+    src: caldera_agent.ps1.j2
+    dest: C:\caldera_agent.ps1
+
+- name: Create scheduled task for PS script
+  win_scheduled_task:
+    name: CalderaAgent
+    description: Run a PowerShell script
+    actions:
+    - path: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+      arguments: -ExecutionPolicy Unrestricted -NonInteractive -File C:\caldera_agent.ps1
+    triggers:
+    - type: boot
+    username: SYSTEM
+    run_level: highest
+    state: present
+
+- name: Run caldera agent
+  win_shell: 'Start-ScheduledTask -TaskName "CalderaAgent"'
+
+- name: Copy caldera manx agent script
+  win_template:
+    src: caldera_manx_agent.ps1.j2
+    dest: C:\caldera_manx_agent.ps1
+
+- name: Create scheduled task for PS script
+  win_scheduled_task:
+    name: CalderaAgentManX
+    description: Run a PowerShell script
+    actions:
+    - path: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+      arguments: -ExecutionPolicy Unrestricted -NonInteractive -File C:\caldera_manx_agent.ps1
+    triggers:
+    - type: boot
+    username: SYSTEM
+    run_level: highest
+    state: present
+
+- name: Run caldera manx agent
+  win_shell: 'Start-ScheduledTask -TaskName "CalderaAgentManX"'

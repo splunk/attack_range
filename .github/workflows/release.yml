@@ -1,3 +1,4 @@
+
 name: release
 on:
   push:
@@ -90,4 +91,3 @@ jobs:
           push: true 
           context: docker/ #do the build in the docker directory, not current working directory
           tags: ${{ env.IMAGE_NAME }}:latest
-          

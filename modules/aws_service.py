@@ -1,47 +1,18 @@
-import sys
-import re
+
 import boto3
-from botocore.exceptions import ClientError
-import uuid
-import time
-import yaml
+import sys
 import os
-
-def get_instance_by_name(ec2_name, config):
-    """
-    get_instance_by_name function gets the running instance by ec2 name.
-
-    :param ec2_name: ec2 name
-    :param config: python dictionary having the configuration    
-    :return: returns the running instance by name
-    """
-    instances = get_all_instances(config)
-    for instance in instances:
-        str = instance['Tags'][0]['Value']
-        if str == ec2_name:
-            return instance
-
-def get_single_instance_public_ip(ec2_name, config):
-    """
-    get_single_instance_public_ip function gets the IP address of the running instance by ec2 name.
-
-    :param ec2_name: ec2 name
-    :param config: python dictionary having the configuration    
-    :return: returns the IP address
-    """
-    instance = get_instance_by_name(ec2_name, config)
-    return instance['NetworkInterfaces'][0]['Association']['PublicIp']
+import json
+import time
 
 
-def get_all_instances(config):
-    """
-    get_all_instances function gets all the non-terminated AWS instances using boto3.
+def check_region(config_region):
+    session = boto3.session.Session()
+    aws_cli_region = session.region_name
+    return (aws_cli_region == config_region)
 
-    :param config: python dictionary having the configuration
-    :return: running instances
-    """
-    key_name = config['key_name']
-    region = config['region']
+
+def get_all_instances(key_name, ar_name, region):
     client = boto3.client('ec2', region_name=region)
     response = client.describe_instances(
         Filters=[
@@ -56,57 +27,28 @@ def get_all_instances(config):
         for instance in reservation['Instances']:
             if instance['State']['Name']!='terminated':
                 if len(instance['Tags']) > 0:
-                    str = instance['Tags'][0]['Value']
-                    if (config['range_name'] in str) and (config['key_name'] in str):
-                        instances.append(instance)
+                    tag_value = instance['Tags'][0]['Value']
+                    if tag_value.startswith('ar-'):
+                        if (key_name in tag_value) and (ar_name in tag_value):
+                            instances.append(instance)
 
     return instances
 
 
-def get_splunk_instance_ip(config):
-    """
-    get_splunk_instance_ip function gets the IP address of the running splunk instance.
-
-    :param config: python dictionary having the configuration.    
-    :return: returns the IP address of the splunk instance.
-    """
-    all_instances = get_all_instances(config)
-    for instance in all_instances:
-        instance_tag = 'ar-splunk-' + config['range_name'] + '-' + config['key_name']
-        if instance['Tags'][0]['Value'] == instance_tag:
-            return instance['NetworkInterfaces'][0]['PrivateIpAddresses'][0]['Association']['PublicIp']
+def get_instance_by_name(ec2_name, key_name, ar_name, region):
+    instances = get_all_instances(key_name, ar_name, region)
+    for instance in instances:
+        str = instance['Tags'][0]['Value']
+        if str == ec2_name:
+            return instance
 
 
-def check_ec2_instance_state(ec2_name, state, log, config):
-    """
-    check_ec2_instance_state function checks whether the ec2 instance is having the particular state.
-
-    :param ec2_name: ec2 name
-    :param state: state to check the ec2 instance against
-    :param log: logger object for logging
-    :param config: python dictionary having the configuration 
-    :return: returns boolean stating whether the state is same as required state      
-    """
-    instance = get_instance_by_name(ec2_name, config)
-
-    if not instance:
-        log.error(ec2_name + ' not found as AWS EC2 instance.')
-        sys.exit(1)
-
-    return (instance['State']['Name'] == state)
+def get_single_instance_public_ip(ec2_name, key_name, ar_name, region):
+    instance = get_instance_by_name(ec2_name, key_name, ar_name, region)
+    return instance['NetworkInterfaces'][0]['Association']['PublicIp']
 
 
-def change_ec2_state(instances, new_state, log, config):
-    """
-    change_ec2_state functions change the state of the instances on AWS.
-
-    :param instances: list of instances
-    :param new_state: The new state for the instances
-    :param log: logger object for logging
-    :param config: python dictionary having the configuration 
-    :return: No return value
-    """
-    region = config['region']
+def change_ec2_state(instances, new_state, log, region):
     client = boto3.client('ec2', region_name=region)
 
     if len(instances) == 0:
@@ -131,42 +73,251 @@ def change_ec2_state(instances, new_state, log, config):
                 log.info('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
 
 
-# def upload_file_s3_bucket(file_name, results, test_file, isArchive):
-#     region = config['region']
-#     s3_client = boto3.client('s3', region_name=region)
-#     if isArchive:
-#         response = s3_client.upload_file(file_name, 'attack-range-attack-data', str(test_file['simulation_technique'] + '/attack_data.tar.gz'))
-#     else:
-#         response = s3_client.upload_file(file_name, 'attack-range-attack-data', str(test_file['simulation_technique'] + '/attack_data.json'))
-#
-#     with open('tmp/test_results.yml', 'w') as f:
-#         yaml.dump(results, f)
-#     response2 = s3_client.upload_file('tmp/test_results.yml', 'attack-range-automated-testing', str(test_file['simulation_technique'] + '/test_results.yml'))
-#     os.remove('tmp/test_results.yml')
+def ami_available(ami_name, region):
+    client = boto3.client('ec2', region_name=region)
+    try:
+        images = client.describe_images(Owners=['self'])
+    except:
+        return False
 
-def upload_file_s3_bucket(s3_bucket, file_path, S3_file_path, config):
-    """
-    upload_file_s3_bucket function upload file to s3 bucket.
-    :param s3_bucket: s3 bucket to upload the file
-    :param file_path: file path of the file
-    :param S3_file_path: S3_file_path
-    :param config: python dictionary having the configuration 
-    :return: No return value
-    """
-    region = config['region']
-    s3_client = boto3.client('s3', region_name=region)
-    response = s3_client.upload_file(file_path, s3_bucket, S3_file_path)
+    for image in images["Images"]:
+        if 'Name' in image:
+            if ami_name == image["Name"]:
+                if image["State"] == "available":
+                    return True
+
+    return False
 
 
-def upload_test_results_s3_bucket(s3_bucket, test_file, test_result_file_path, config):
-    """
-    upload_file_s3_bucket function upload file to s3 bucket.
-    :param s3_bucket: s3 bucket to upload the file
-    :param file_path: file path of the file
-    :param test_result_file_path: test_result_file_path
-    :param config: python dictionary having the configuration 
-    :return: No return value
-    """
-    region = config['region']
-    s3_client = boto3.client('s3', region_name=region)
-    response = s3_client.upload_file(test_result_file_path, s3_bucket, str(test_file['simulation_technique'] + '/test_results.yml'))
+def ami_available_other_region(ami_name):
+    regions = [
+        "us-east-1", 
+        "us-east-2", 
+        "us-west-1", 
+        "us-west-2", 
+        "ca-central-1", 
+        "eu-west-1", 
+        "eu-west-2", 
+        "eu-central-1", 
+        "ap-southeast-1", 
+        "ap-southeast-2", 
+        "ap-south-1", 
+        "ap-northeast-1", 
+        "ap-northeast-2", 
+        "sa-east-1", 
+        "cn-north-1"
+    ]
+
+    for region in regions:
+        if ami_available(ami_name, region):
+            return {"region": region, "image_id": get_image_id(ami_name, region)}
+
+    return {}
+
+
+
+def get_image_id(ami_name, region):
+    client = boto3.client('ec2', region_name=region)
+    images = client.describe_images(Owners=['self'])
+
+    for ami in images["Images"]:
+        if ami_name == ami["Name"]:
+            return ami["ImageId"]
+
+
+def copy_image(ami_name, ami_image_id, source_region, dest_region):
+    session = boto3.client('ec2',region_name=dest_region)
+
+    response = session.copy_image(
+        Name=ami_name,
+        Description='Copied this AMI from region ' + source_region,
+        SourceImageId=ami_image_id,
+        SourceRegion=source_region
+    )
+
+    for x in range(0, 10):
+        if ami_available(ami_name, dest_region):
+            break
+        print("Image not yet available. " + str(10-x) + " tries left.")
+        time.sleep(60)
+
+    if not ami_available(ami_name, dest_region):
+        print("Error: Copying of AMI took longer as expected.")
+        sys.exit(1)
+
+
+def check_s3_bucket(bucket_name):
+    client = boto3.client('s3')
+    some_binary_data = b'Here we have some data'
+
+    try:
+        client.put_object(Body=some_binary_data, Bucket=bucket_name, Key='test.txt')
+        client.delete_object(Bucket=bucket_name, Key='test.txt')
+    except Exception as e:
+        return False
+
+    return True
+
+
+def create_s3_bucket(bucket_name, region, logger):
+    client = boto3.client("s3", region_name=region)
+    location = {'LocationConstraint': region}
+    
+    try:
+        response = client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration=location)
+    except Exception as e:
+        logger.error("Couldn't create S3 bucket with name " + bucket_name)
+        logger.error(e)
+        sys.exit(1)
+
+    logger.info("Created S3 bucket with name " + bucket_name)
+
+
+def create_dynamoo_db(name, region, logger):
+    client = boto3.client('dynamodb', region_name=region)
+    try:
+        response = client.create_table(
+            TableName=name,
+            KeySchema=[
+                {
+                    'AttributeName': 'LockID',
+                    'KeyType': 'HASH'  # Partition key
+                }
+            ],
+            AttributeDefinitions=[
+                {
+                    'AttributeName': 'LockID',
+                    'AttributeType': 'S'
+                }
+            ],
+            ProvisionedThroughput={
+                'ReadCapacityUnits': 10,
+                'WriteCapacityUnits': 10
+            }
+        )
+    except client.exceptions.ResourceInUseException:
+        logger.info("DynamoDB table already exists with name " + name)
+        return
+    except Exception as e:
+        logger.error("Couldn't create DynamoDB table with name " + name)
+        logger.error(e)
+        sys.exit(1)
+
+    logger.info("Created DynamoDB table with name " + name)
+
+
+def delete_s3_bucket(bucket_name, region, logger):
+    s3 = boto3.resource('s3', region_name=region)
+    try:
+        bucket = s3.Bucket(bucket_name)
+        bucket.objects.all().delete()
+        bucket.delete()
+    except Exception as e:
+        logger.error("Couldn't delete S3 bucket with name " + bucket_name)
+        logger.error(e)
+        return
+    logger.info("Deleted S3 bucket with name " + bucket_name)
+
+
+def delete_dynamo_db(name, region, logger):
+    dynamodb = boto3.resource('dynamodb', region_name=region)
+    try:
+        table = dynamodb.Table(name)
+        table.delete()
+    except Exception as e:
+        logger.error("Couldn't delete DynamoDB table with name " + name)
+        logger.error(e)
+        return
+    logger.info("Deleted DynamoDB table with name " + name)
+
+
+def check_secret_exists(name):
+    client = boto3.client('secretsmanager')
+    response = client.list_secrets()
+    for secret in response['SecretList']:
+        if secret['Name'] == str(name + '-key'):
+            return True
+
+    return False
+
+
+def create_secret(name, value, config, logger):
+    client = boto3.client('secretsmanager')
+    key_name = name + '-key'
+    config_name = name + '-config'
+    try:
+        response = client.create_secret(
+            Name=key_name,
+            SecretString=value
+        )
+        response = client.create_secret(
+            Name=config_name,
+            SecretString=json.dumps(config)
+        )
+    except Exception as e:
+        logger.error("Couldn't create secret with name " + name)
+        logger.error(e)
+        sys.exit(1)
+
+    logger.info("Created secret with name " + name)
+
+
+def get_secret_key(name, logger):
+    client = boto3.client('secretsmanager')
+
+    response = client.get_secret_value(
+        SecretId=name + '-key'
+    )
+    ssh_key_name = name + ".key"
+    with open(ssh_key_name, "w") as ssh_key:
+        ssh_key.write(response['SecretString'])
+    os.chmod(ssh_key_name, 0o600)
+
+
+def get_secret_config(name, logger):
+    client = boto3.client('secretsmanager')
+    
+    response = client.get_secret_value(
+        SecretId=name + '-config'
+    )
+
+    return json.loads(response['SecretString'])
+
+
+def delete_secret(name, logger):
+    client = boto3.client('secretsmanager')
+
+    try:
+        response = client.delete_secret(
+            SecretId=name + '-key',
+            ForceDeleteWithoutRecovery=True
+        )
+        response = client.delete_secret(
+            SecretId=name + '-config',
+            ForceDeleteWithoutRecovery=True
+        )
+    except Exception as e:
+        logger.error("Couldn't delete secret with name " + name)
+        return
+
+    logger.info("Deleted secret with name " + name)
+
+
+def create_key_pair(name, region, logger):
+    aws_session = boto3.Session()
+    client = aws_session.client('ec2', region_name=region)
+
+    response = client.create_key_pair(KeyName=name)
+    ssh_key_name = name + ".key"
+    with open(ssh_key_name, "w") as ssh_key:
+        ssh_key.write(response['KeyMaterial'])
+    os.chmod(ssh_key_name, 0o600)
+    
+    logger.info("Created key pair with name " + name)
+
+    return response['KeyMaterial']
+
+
+def delete_key_pair(name, region, logger):
+    ec2 = boto3.client('ec2', region_name=region)
+    response = ec2.delete_key_pair(KeyName=name)

@@ -1,9 +1,0 @@
-- hosts: all
-  gather_facts: False
-  become: true
-  vars:
-    hostname: sysmonlinux
-  roles:
-    - linux_common
-    - sysmon_linux
-    - linux_prelude_agent

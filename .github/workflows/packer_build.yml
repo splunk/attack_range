@@ -1,0 +1,55 @@
+name: packer build images
+on:
+  push:
+    branches:
+    - develop
+
+jobs:
+  packer:
+    runs-on: ubuntu-latest
+    name: packer build images
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9' 
+          architecture: 'x64' 
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install ansible requests pywinrm
+
+      - name: Install Packer
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install packer
+
+      - name: Build Packer Image Splunk
+        run: |
+          packer build -only=amazon-ebs.splunk-ubuntu-18-04 packer/splunk_server/splunk-ubuntu.pkr.hcl
+
+      - name: Build Packer Image Windows 2016
+        run: |
+          packer build -only=amazon-ebs.windows packer/windows_server/windows_2016.pkr.hcl
+
+      - name: Build Packer Image Windows 2019
+        run: |
+          packer build -only=amazon-ebs.windows packer/windows_server/windows_2019.pkr.hcl
+
+      - name: Build Packer Image Linux Server
+        run: |
+          packer build -only=amazon-ebs.ubuntu-18-04 packer/linux_server/linux-ubuntu-18-04.pkr.hcl
+
+      - name: Build Packer Image Nginx
+        run: |
+          packer build packer/nginx_server/nginx_web_proxy.pkr.hcl
