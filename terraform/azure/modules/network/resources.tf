@@ -182,6 +182,7 @@ resource "azurerm_network_security_group" "attackrange-nsg" {
     source_address_prefixes    = [var.general.ip_whitelist]
     destination_address_prefix = "*"
   }
+
 }
 
 resource "azurerm_subnet_network_security_group_association" "attackrange-nsga" {

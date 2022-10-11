@@ -1,0 +1,9 @@
+- include_tasks: "install_badblood.yml"
+  when: windows_domain_controller_run_badblood == "1"
+  tags: 
+   - badblood
+- include_tasks: "run_badblood.yml"
+  when: windows_domain_controller_run_badblood == "1"
+  tags: 
+   - badblood
+

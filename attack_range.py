@@ -105,6 +105,12 @@ def init_remote_backend(args):
     controller.init_remote_backend(args.backend_name)
 
 def main(args):
+    """
+    main function parses the arguments passed to the script and calls the respctive method.
+
+    :param args: Arguments passed by the user on command line while calling the script.
+    :return: returns the output of the function called.     
+    """
     # grab arguments
     parser = argparse.ArgumentParser(
         description="Use `attack_range.py action -h` to get help with any Attack Range action")

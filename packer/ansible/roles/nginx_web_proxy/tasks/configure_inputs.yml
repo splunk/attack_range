@@ -1,19 +1,7 @@
----
-
-- name: Create folder directory for inputs configuration
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: splunk
-    group: splunk
-    recurse: yes
-  with_items:
-    - /opt/splunkforwarder/etc/apps/nginx_app/local/
-
-- name: copy inputs.conf to capture nginx
+- name: copy inputs.conf to capture nginx plus logs
   copy:
     src: inputs.conf
-    dest: /opt/splunkforwarder/etc/apps/nginx_app/local/inputs.conf
+    dest: /opt/splunkforwarder/etc/system/local/inputs.conf
     owner: splunk
     group: splunk
     force: yes

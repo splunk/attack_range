@@ -1,0 +1,6 @@
+---
+
+- include: install.yml
+  when: prelude == "1"
+  tags:
+    - prelude

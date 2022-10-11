@@ -23,10 +23,6 @@ The Attack Range is a detection development platform, which solves three main ch
 * The Attack Range performs attack simulation using different engines such as Atomic Red Team or Caldera in order to generate real attack data. 
 * It integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
 
-
-## Demo 📺
-New demo need to be recorded
-
 ## Docs
 The Attack Range Documentaion can be found [here](https://attack-range.readthedocs.io/en/latest/).
 

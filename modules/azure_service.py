@@ -35,6 +35,12 @@ def get_instance(instance_name, key_name, ar_name):
 
 
 def get_public_ip(vm_obj):
+    """
+    get_public_ip function returns the public ip of the vm.
+
+    :param vm_obj: vm to find the public IP for
+    :return: public IP
+    """
     credential = AzureCliCredential()
     subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]
     network_client = NetworkManagementClient(credential ,subscription_id)

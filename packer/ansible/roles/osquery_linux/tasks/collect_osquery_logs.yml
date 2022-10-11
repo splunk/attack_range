@@ -1,0 +1,11 @@
+- name: make /var/log/osquery dir accessible to everyone (rwx)
+  become: true
+  command: chmod a+rwx /var/log/osquery -R
+
+- name: copy osquery_deb_inputs.conf as inputs.conf to capture osquery logs
+  copy:
+    src: deb_template_inputs.conf
+    dest: /opt/splunkforwarder/etc/system/local/inputs.conf
+    owner: splunk
+    group: splunk
+    force: yes

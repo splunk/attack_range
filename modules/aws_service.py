@@ -52,7 +52,7 @@ def change_ec2_state(instances, new_state, log, region):
     client = boto3.client('ec2', region_name=region)
 
     if len(instances) == 0:
-        log.error(ec2_name + ' not found as AWS EC2 instance.')
+        log.error('No instance passed.')
         sys.exit(1)
 
     if new_state == 'stopped':

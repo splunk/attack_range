@@ -9,6 +9,7 @@ ansible/roles/*/files/splunk*.tgz
 ansible/roles/*/files/splunk*.msi
 ansible/vars/vars.yml
 *.idea
+*.hcl
 
 # apps folder
 apps/*

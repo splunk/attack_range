@@ -1,4 +1,3 @@
-
 variable "general" {
     type = map(string)
 

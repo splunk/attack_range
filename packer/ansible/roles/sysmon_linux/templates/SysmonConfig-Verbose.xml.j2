@@ -1,0 +1,127 @@
+{{ ansible_managed | comment('xml') }}
+<!--
+    - Original location of theft: https://gist.github.com/Cyb3rWard0g/136481552d8845e52962534d1a4b8664
+-->
+
+<Sysmon schemaversion="4.1">
+   <!-- Capture all hashes -->
+   <HashAlgorithms>*</HashAlgorithms>
+   <EventFiltering>
+      <!-- Event ID 1 == Process Creation. Log all newly created processes except -->
+      <ProcessCreate onmatch="exclude">
+	      <Image condition="contains">splunk</Image>
+	      <Image condition="contains">btool.exe</Image>
+	      <Image condition="contains">SnareCore</Image>
+	      <Image condition="contains">nxlog</Image>
+	      <Image condition="contains">winlogbeat</Image>
+	      <Image condition="contains">Microsoft Monitoring Agent\Agent\MonitoringHost.exe</Image>
+	      <Image condition="begin with">C:\Program Files\NVIDIA Corporation\Display\</Image>
+	      <Image condition="is">C:\Program Files\Dell\SupportAssist\pcdrcui.exe</Image>
+	      <Image condition="is">C:\Program Files\Dell\SupportAssist\koala.exe</Image>
+	      <Image condition="begin with">C:\Program Files\Windows Defender</Image>
+	      <Image condition="is">C:\Windows\System32\audiodg.exe</Image>
+	      <Image condition="is">C:\Windows\SysWOW64\Macromed\Flash\FlashPlayerUpdateService.exe</Image>
+	      <Image condition="is">C:\Program Files (x86)\Google\Update\GoogleUpdate.exe</Image>
+	      <Image condition="end with">\Sysmon.exe</Image>
+	      <CommandLine condition="begin with">C:\WIndows\System32\poqexec.exe /noreboot /transaction</CommandLine>
+      </ProcessCreate>
+      <!-- Event ID 2 == File Creation Time. Do not log file modified creation time -->
+      <FileCreateTime onmatch="include"/>
+      <!-- Event ID 3 == Network Connection. Log all initiated network connection except -->
+      <NetworkConnect onmatch="exclude">
+	      <Image condition="is">C:\Program Files\Microsoft Office\Office15\ONENOTE.EXE</Image>
+	      <Image condition="end with">Spotify.exe</Image>
+              <Image condition="end with">OneDrive.exe</Image>
+	      <Image condition="end with">AppData\Roaming\Dashlane\Dashlane.exe</Image>
+	      <Image condition="end with">AppData\Roaming\Dashlane\DashlanePlugin.exe</Image>
+	      <Image condition="end with">winlogbeat.exe</Image>
+	      <Image condition="is">C:\Windows\System32\spoolsv.exe</Image>
+	      <Image condition="is">C:\Program Files\Common Files\microsoft shared\ClickToRun\OfficeClickToRun.exe</Image>
+	      <Image condition="is">C:\Program Files (x86)\Common Files\Acronis\SyncAgent\syncagentsrv.exe</Image>
+	      <Image condition="is">C:\Windows\SystemApps\Microsoft.Windows.Cortana_cw5n1h2txyewy\SearchUI.exe</Image>
+	      <Image condition="is">C:\Windows\System32\CompatTelRunner.exe</Image>
+	      <Image condition="is">C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\LMS\LMS.exe</Image>
+	      <Image condition="is">C:\Program Files (x86)\Google\Chrome\Application\chrome.exe</Image>
+	      <Image condition="is">C:\Windows\System32\mmc.exe</Image>
+	      <Image condition="is">C:\Program Files\Microsoft VS Code\Code.exe</Image>
+      </NetworkConnect>
+      <!-- Event ID 5 == Process Terminated. Do not log processes terminated -->
+      <ProcessTerminate onmatch="include"/>
+      <!-- Event ID 6 == Driver Loaded. Log all drivers except those with the following signatures -->
+      <DriverLoad onmatch="exclude">
+	      <Signature condition="contains">microsoft</Signature>
+	      <Signature condition="contains">windows</Signature>
+	      <Signature condition="is">VMware</Signature>
+	      <Signature condition="begin with">Intel </Signature>
+      </DriverLoad>
+      <!-- Event ID 7 == Image Loaded. Log everything except -->
+      <ImageLoad onmatch="exclude">
+	      <Image condition="image">chrome.exe</Image>
+	      <Image condition="image">vmtoolsd.exe</Image>
+	      <Image condition="image">Sysmon.exe</Image>
+	      <Image condition="image">mmc.exe</Image>
+	      <Image condition="is">C:\Program Files (x86)\Google\Update\GoogleUpdate.exe</Image>
+	      <Image condition="is">C:\Windows\System32\taskeng.exe</Image>
+	      <Image condition="is">C:\Program Files\VMware\VMware Tools\TPAutoConnect.exe</Image>
+	      <Image condition="is">C:\Program Files\Windows Defender\NisSrv.exe</Image>
+	      <Image condition="is">C:\Program Files\Windows Defender\MsMpEng.exe</Image>
+      </ImageLoad>   
+      <!-- Event ID 8 == CreateRemoteThread. Log everything -->
+      <CreateRemoteThread onmatch="exclude" />
+      <!-- Event ID 9 == RawAccessRead. Log everything -->
+      <RawAccessRead onmatch="exclude">
+	      <Image condition="is">C:\Program Files\VMware\VMware Tools\vmtoolsd.exe</Image>
+	      <Image condition="is">C:\Program Files (x86)\Google\Update\GoogleUpdate.exe</Image>
+	      <Image condition="end with">\Sysmon.exe</Image>
+      </RawAccessRead>
+      <!-- Event ID 10 == ProcessAccess. Log everything except -->
+      <ProcessAccess onmatch="exclude">
+	      <SourceImage condition="is">C:\Program Files\VMware\VMware Tools\vmtoolsd.exe</SourceImage>
+	      <SourceImage condition="is">C:\Windows\system32\taskeng.exe</SourceImage>
+	      <SourceImage condition="is">C:\Windows\system32\lsass.exe</SourceImage>
+	      <SourceImage condition="image">Sysmon.exe</SourceImage>
+	      <SourceImage condition="image">GoogleUpdate.exe</SourceImage>
+	      <SourceImage condition="is">C:\Program Files (x86)\Google\Chrome\Application\chrome.exe</SourceImage>
+	      <SourceImage condition="is">C:\Program Files\Windows Defender\MsMpEng.exe</SourceImage>
+	      <SourceImage condition="is">C:\Program Files\Microsoft VS Code\Code.exe</SourceImage>
+	      <TargetImage condition="is">C:\Program Files\VMware\VMware Tools\TPAutoConnSvc.exe</TargetImage>
+	      <TargetImage condition="is">C:\Program Files\VMware\VMware Tools\TPAutoConnect.exe</TargetImage>
+	      <TargetImage condition="is">C:\Windows\system32\mmc.exe</TargetImage>
+	      <TargetImage condition="is">C:\Program Files\Microsoft VS Code\Code.exe</TargetImage>
+	      <TargetImage condition="is">C:\Windows\system32\sihost.exe</TargetImage>
+	      <TargetImage condition="is">C:\Program Files\Windows Defender\MsMpEng.exe</TargetImage>
+	      <TargetImage condition="is">c:\Program Files\Microsoft VS Code\resources\app\out\vs\workbench\services\files\node\watcher\win32\CodeHelper.exe</TargetImage>
+	      <TargetImage condition="is">C:\Windows\system32\ApplicationFrameHost.exe</TargetImage>
+	      <TargetImage condition="is">C:\Windows\System32\taskhostw.exe</TargetImage>
+	      <TargetImage condition="is">C:\Windows\System32\RuntimeBroker.exe</TargetImage>
+      </ProcessAccess>
+      <!-- Event ID 11 == FileCreate. Log everything except -->
+      <FileCreate onmatch="exclude">
+	      <Image condition="image">SearchIndexer.exe</Image>
+	      <Image condition="image">winlogbeat.exe</Image>
+	      <Image condition="is">C:\Windows\system32\mmc.exe</Image>
+	      <Image condition="is">C:\Program Files (x86)\Google\Chrome\Application\chrome.exe</Image>
+	      <Image condition="is">C:\Program Files\Microsoft VS Code\Code.exe</Image>  
+      </FileCreate>
+      <!-- Event ID 12,13,14 == RegObject added/deleted, RegValue Set, RegObject Renamed. Log everything except -->
+      <RegistryEvent onmatch="exclude">
+	      <Image condition="is">C:\Program Files\VMware\VMware Tools\vmtoolsd.exe</Image>
+	      <Image condition="is">C:\Windows\system32\mmc.exe</Image>
+	      <Image condition="is">C:\Windows\system32\taskeng.exe</Image>
+	      <Image condition="is">C:\Windows\System32\svchost.exe</Image>
+	      <Image condition="is">C:\Windows\system32\lsass.exe</Image>
+	      <Image condition="is">C:\Windows\Sysmon.exe</Image>
+	      <Image condition="image">GoogleUpdate.exe</Image>
+	      <Image condition="is">C:\Program Files\VMware\VMware Tools\TPAutoConnect.exe</Image>
+	      <Image condition="is">C:\Program Files\Windows Defender\NisSrv.exe</Image>
+	      <TargetObject condition="is">\REGISTRY\MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Printers\Microsoft Print to PDF\PrinterDriverData</TargetObject>
+	      <TargetObject condition="end with">LanguageList</TargetObject>
+      </RegistryEvent>
+      <!-- Event ID 15 == FileStream Created. Do not log when a file stream is created neither the hash of the contents of the stream -->
+      <FileCreateStreamHash onmatch="include" />
+      <!-- Event ID 17,18 == PipeEvent. Log Named pipe created & Named pipe connected -->
+      <PipeEvent onmatch="exclude" />
+      <!-- Event ID 19,20,21, == WmiEvent. Log all WmiEventFilter, WmiEventConsumer, WmiEventConsumerToFilter activity-->
+      <WmiEvent onmatch="exclude" />
+  </EventFiltering>
+</Sysmon>

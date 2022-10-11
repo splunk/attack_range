@@ -1,8 +1,14 @@
 ---
-
+- include: install_deb_uf.yml
+- include: configure_outputs_conf.yml
 - include: nginx_web_proxy.yml
+- include: create_deploymentclient.yml
 - include: configure_inputs.yml
 
 - name: restart splunk
   become: true
   command: "/opt/splunkforwarder/bin/splunk restart"
+
+- name: restart nginx again
+  become: true
+  command: "nginx -s reload"

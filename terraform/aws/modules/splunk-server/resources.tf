@@ -98,7 +98,7 @@ resource "aws_instance" "splunk-server" {
 
   root_block_device {
     volume_type = "gp2"
-    volume_size = "60"
+    volume_size = "120"
     delete_on_termination = "true"
   }
 
