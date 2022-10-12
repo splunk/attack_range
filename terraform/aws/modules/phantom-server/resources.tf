@@ -17,7 +17,7 @@ data "aws_ami" "latest-centos" {
 
   filter {
     name   = "name"
-    values = ["CentOS-7-2111-20220330_2.x86_64*"]
+    values = ["CentOS Linux 7*"]
   }
 
   filter {
