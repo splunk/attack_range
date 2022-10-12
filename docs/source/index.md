@@ -1,8 +1,5 @@
 # Attack Range Docs
 
-```{warning}
-The documentation is under development.
-```
 The Splunk Attack Range is an open-source project maintained by the Splunk Threat Research Team. It builds instrumented cloud and local environments, simulates attacks, and forwards the data into a Splunk instance. This environment can then be used to develop and test the effectiveness of detections.
 
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering:
