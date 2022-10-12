@@ -12,7 +12,7 @@ RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
 RUN apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 RUN apt update && apt install packer
 
-RUN git clone -b attack_range_3 https://github.com/splunk/attack_range.git
+RUN git clone https://github.com/splunk/attack_range.git
 RUN echo 'alias python=python3' >> ~/.bashrc
 
 WORKDIR /attack_range
