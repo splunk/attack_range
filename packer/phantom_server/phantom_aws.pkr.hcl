@@ -42,7 +42,7 @@ variable "splunk_server" {
 
 data "amazon-ami" "centos-ami" {
   filters = {
-    name                = "CentOS-7-2111-20220330_2.x86_64*"
+    name                = "CentOS Linux 7*"
     root-device-type    = "ebs"
     virtualization-type = "hvm"
   }

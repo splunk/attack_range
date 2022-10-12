@@ -1,6 +1,4 @@
 ---
 # This playbook contains common tasks in this role
 
-#- include: install_phantom.yml
 - include: configure_phantom.yml
-- include: configure_phantom_apps.yml
