@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "attack-range-platform"
-version = "0.1.0"
+name = "attack-range"
+version = "3.0.0"
 description = ""
 authors = ["P4T12ICK <pbareiss@splunk.com>"]
 
@@ -25,10 +25,6 @@ pycryptodome = "^3.14.1"
 questionary = "^1.10.0"
 Jinja2 = "^3.1.2"
 python-vagrant = "^1.0.0"
-Sphinx = "^5.0.2"
-myst-parser = "^0.18.0"
-furo = "^2022.6.21"
-sphinx-rtd-theme = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 
