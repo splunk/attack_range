@@ -22,7 +22,7 @@ copyright = '2022, Splunk Threat Research Team'
 author = 'Splunk Threat Research Team'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '3.0.0'
 
 
 # -- General configuration ---------------------------------------------------
