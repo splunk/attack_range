@@ -1,7 +1,7 @@
 name: build-attack-destroy-aws
 on:
   schedule:
-    - cron: '15 13 * * *'
+    - cron: '30 8 * * *'
 
 jobs:
   build-attack-destroy-aws:
