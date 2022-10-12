@@ -218,7 +218,7 @@ starting configuration for AT-ST mech walker
             'type': 'confirm',
             'message': 'do you want to use packer for prebuilt images?',
             'name': 'use_packer',
-            'default': False,
+            'when': lambda answers: answers['provider'] != 'local',
         },
     ]
 
