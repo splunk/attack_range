@@ -69,6 +69,6 @@ resource "aws_instance" "linux_server" {
 }
 
 resource "aws_eip" "linux_server_ip" {
-  count = length(var.linux_servers)
+  count = (var.aws.use_elastic_ips == "1") ? length(var.linux_servers) : 0
   instance = aws_instance.linux_server[count.index].id
 }

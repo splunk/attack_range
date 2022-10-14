@@ -87,6 +87,6 @@ EOF
 }
 
 resource "aws_eip" "windows_ip" {
-  count = length(var.windows_servers)
+  count = (var.aws.use_elastic_ips == "1") ? length(var.windows_servers) : 0
   instance = aws_instance.windows_server[count.index].id
 }

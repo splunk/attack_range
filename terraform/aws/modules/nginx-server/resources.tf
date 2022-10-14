@@ -70,6 +70,6 @@ resource "aws_instance" "nginx_server" {
 }
 
 resource "aws_eip" "nginx_server_ip" {
-  count = var.nginx_server.nginx_server == "1" ? 1 : 0
+  count = (var.nginx_server.nginx_server == "1") && (var.aws.use_elastic_ips == "1") ? 1 : 0
   instance = aws_instance.nginx_server[count.index].id
 }
