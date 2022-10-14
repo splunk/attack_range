@@ -23,6 +23,7 @@ aws:
   private_key_path: "~/.ssh/id_rsa"
   cloudtrail: "0"
   cloudtrail_sqs_queue: "https://sqs.us-west-2.amazonaws.com/111111111111/cloudtrail-cloud-attack-range"
+  use_elastic_ips: "1"
 azure:
   location: "West Europe"
   subscription_id: "xxx"

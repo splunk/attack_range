@@ -67,6 +67,6 @@ resource "aws_instance" "phantom-server" {
 }
 
 resource "aws_eip" "phantom_ip" {
-  count    = var.phantom_server.phantom_server == "1" ? 1 : 0
+  count    = (var.phantom_server.phantom_server == "1") && (var.aws.use_elastic_ips == "1") ? 1 : 0
   instance = aws_instance.phantom-server[0].id
 }

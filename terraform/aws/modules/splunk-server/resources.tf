@@ -130,6 +130,6 @@ resource "aws_instance" "splunk-server" {
 }
 
 resource "aws_eip" "splunk_ip" {
-  count = var.splunk_server.byo_splunk == "0" ? 1 : 0
+  count = (var.splunk_server.byo_splunk == "0") && (var.aws.use_elastic_ips == "1") ? 1 : 0
   instance = aws_instance.splunk-server[0].id
 }

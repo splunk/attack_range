@@ -41,6 +41,6 @@ resource "aws_instance" "kali_machine" {
 }
 
 resource "aws_eip" "kali_ip" {
-  count    = var.kali_server.kali_server == "1" ? 1 : 0
+  count    = (var.kali_server.kali_server == "1") && (var.aws.use_elastic_ips == "1") ? 1 : 0
   instance = aws_instance.kali_machine[0].id
 }
