@@ -210,7 +210,7 @@ If you have questions or need support, you can:
 We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved.
 
 ## Author
-* [Jose Hernandez](https://twitter.com/d1vious)
+* [Jose Hernandez](https://twitter.com/_josehelps)
 * [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 
 ## Contributors
