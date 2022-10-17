@@ -32,45 +32,14 @@ The Attack Range Documentaion can be found [here](https://attack-range.readthedo
 
 Attack Range in AWS:
 
-1. `cd docker & docker build -t splunk/attack_range .`
-2. `docker run -it splunk/attack_range`
-3. `aws configure`  
-4. `poetry shell`
-5. `python attack_range.py configure` 
-
-To install directly on Ubuntu, MacOS follow [these](https://github.com/splunk/attack_range/wiki/Installing-on-Ubuntu-or-MacOS) instructions.
-
-### MacOS
-Install and configure terraform
 ```
-brew install terraform
-cd terraform/aws && terraform init && cd ../..
-```
-
-Install packer
-````console
-brew tap hashicorp/tap
-brew install hashicorp/tap/packer
-````
-
-Install awscli
-```
-brew install awscli
+docker pull splunk/attack_range
+docker run -it splunk/attack_range
 aws configure
-```
-
-Install and run poetry
-```
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-poetry shell
-poetry install
-```
-
-Configure Attack Range
-```
 python attack_range.py configure
 ```
 
+To install directly on Linux, or MacOS follow [these](https://attack-range.readthedocs.io/en/latest/Attack_Range_AWS.html#) instructions.
 
 ## Architecture 🏯
 ![Logical Diagram](docs/attack_range_architecture.png)
