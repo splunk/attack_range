@@ -36,6 +36,7 @@ Attack Range in AWS:
 docker pull splunk/attack_range
 docker run -it splunk/attack_range
 aws configure
+poetry shell
 python attack_range.py configure
 ```
 
