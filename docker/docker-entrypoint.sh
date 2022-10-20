@@ -1,0 +1,3 @@
+#!/bin/bash
+
+poetry shell
