@@ -21,7 +21,7 @@ RUN cd terraform/aws && terraform init
 RUN cd terraform/azure && terraform init
 RUN pip3 install poetry
 RUN poetry install 
-RUN pip3 install --upgrade awscli
+RUN pip3 install --upgrade awscli requests
 RUN pip3 install azure-cli
 
 COPY docker-entrypoint.sh ./
