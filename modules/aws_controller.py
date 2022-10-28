@@ -204,8 +204,12 @@ class AwsController(AttackRangeController):
             self.logger.error("Image not supported.")
             sys.exit(1)
 
+        # disable packer color clears up output 
+        envvars = dict(os.environ)
+        envvars["PACKER_NO_COLOR"] = "1"
+
         try:
-            process = subprocess.Popen(command ,shell=False, stdout=subprocess.PIPE)
+            process = subprocess.Popen(command, env=envvars, shell=False, universal_newlines=True, stdout=subprocess.PIPE)
         except KeyboardInterrupt:
             process.send_signal(signal.SIGINT)
         while True:

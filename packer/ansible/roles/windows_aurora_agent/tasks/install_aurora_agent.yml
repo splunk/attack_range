@@ -16,6 +16,6 @@
     dest: C:\aurora-agent-lite-win-pack\aurora-license.lic
 
 - name: install aurora-agent as a service with standard config
-  win_shell: .\aurora-agent.exe --install -c agent-config-standard.yml --json --logfile aurora_alerts.json.log
+  win_shell: .\aurora-agent.exe --install --dashboard -c agent-config-standard.yml --json --logfile aurora_alerts.json.log
   args:
     chdir: C:\aurora-agent-lite-win-pack
