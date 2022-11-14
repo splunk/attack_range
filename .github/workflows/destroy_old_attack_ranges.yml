@@ -36,4 +36,4 @@ jobs:
         run: |
           poetry run python scripts/attack_range_destroyer.py
         env:
-          slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
