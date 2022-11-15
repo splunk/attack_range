@@ -35,3 +35,5 @@ jobs:
       - name: Destroy and stop old attack ranges
         run: |
           poetry run python scripts/attack_range_destroyer.py
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
