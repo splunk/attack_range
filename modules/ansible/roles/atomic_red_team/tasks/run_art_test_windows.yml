@@ -4,6 +4,21 @@
 - debug:
     var: technique
 
+- name: List available Atomic Red Team Techniques
+  ansible.windows.win_find:
+    paths: C:\AtomicRedTeam\atomics
+    file_type: directory
+    patterns: T*
+  register: available_techniques
+
+- set_fact:
+    available_techniques: "{{ available_techniques | json_query('files[].filename') }}"
+
+- name: Check requested Technique is valid
+  fail:
+    msg: "The selected technique {{ technique }} has no atomic tests. Please ensure it it correct and that tests exist for it. See https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/Indexes/Indexes-CSV/windows-index.csv."
+  when: "technique not in available_techniques"
+  
 - name: Get requirements for Atomic Red Team Technique
   win_shell: |
     Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
