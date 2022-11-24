@@ -11,6 +11,7 @@ config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_r
         ansible.extra_vars = {
           ansible_python_interpreter: "/usr/bin/python3",
           splunk_admin_password: 'Pl3ase-k1Ll-me:p',
+          use_prebuilt_images_with_packer: '0',
           splunk_uf_url: 'https://download.splunk.com/products/universalforwarder/releases/8.2.5/linux/splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb'
         }
     end
