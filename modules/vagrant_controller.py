@@ -17,7 +17,6 @@ class VagrantController(AttackRangeController):
 
     def __init__(self, config: dict):
         super().__init__(config)
-        self.config['general']['use_prebuilt_images_with_packer'] = "0"
 
     def build(self) -> None:
         self.logger.info("[action] > build\n")
