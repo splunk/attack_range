@@ -95,9 +95,9 @@ python attack_range.py show
 
 ### Perform Attack Simulations with Atomic Red Team or PurpleSharp
 ```
-python attack_range.py simulate -e ART -st T1003.001 -t ar-win-ar-ar-0
+python attack_range.py simulate -e ART -te T1003.001 -t ar-win-ar-ar-0
 
-python attack_range.py simulate -e PurpleSharp -st T1003.001 -t ar-win-ar-ar-0
+python attack_range.py simulate -e PurpleSharp -te T1003.001 -t ar-win-ar-ar-0
 ```
 
 ### Destroy Attack Range

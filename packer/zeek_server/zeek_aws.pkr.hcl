@@ -31,7 +31,7 @@ variable "splunk_server" {
 
 data "amazon-ami" "ubuntu-ami" {
   filters = {
-    name                = "*ubuntu-bionic-18.04-amd64-server-*"
+    name                = "*ubuntu-focal-20.04-amd64-server-*"
     root-device-type    = "ebs"
     virtualization-type = "hvm"
   }
@@ -39,7 +39,7 @@ data "amazon-ami" "ubuntu-ami" {
   owners      = ["099720109477"]
 }
 
-source "amazon-ebs" "ubuntu-18-04" {
+source "amazon-ebs" "ubuntu-20-04" {
   ami_name              = "zeek-v${replace(var.general.version, ".", "-")}"
   region = var.aws.region
   instance_type         = "t3.xlarge"
