@@ -5,7 +5,6 @@ import argparse
 from modules.config_handler import ConfigHandler
 from modules.aws_controller import AwsController
 from modules.azure_controller import AzureController
-from modules.vagrant_controller import VagrantController
 from modules import configuration
 
 # need to set this ENV var due to a OSX High Sierra forking bug
@@ -60,10 +59,11 @@ By: Splunk Threat Research Team [STRT] - research@splunk.com
         config.pop('local')
         controller = AzureController(config)
     elif config['general']['cloud_provider'] == 'local':
+        from modules.vagrant_controller import VagrantController
         config.pop('azure')
         config.pop('aws')
         controller = VagrantController(config)
-   
+    
     return controller
 
 
