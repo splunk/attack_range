@@ -1,5 +1,6 @@
 ---
 
 - name: install notepadplusplus
+  ignore_errors: True
   win_chocolatey:
     name: notepadplusplus

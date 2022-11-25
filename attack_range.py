@@ -5,7 +5,6 @@ import argparse
 from modules.config_handler import ConfigHandler
 from modules.aws_controller import AwsController
 from modules.azure_controller import AzureController
-from modules.vagrant_controller import VagrantController
 from modules import configuration
 
 # need to set this ENV var due to a OSX High Sierra forking bug
@@ -15,22 +14,36 @@ os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
 
 def init(args):
     config_path = args.config
-    print("""
-starting program loaded for B1 battle droid 
-          ||/__'`.
-          |//()'-.:
-          |-.||
-          |o(o)
-          |||\\\  .==._
-          |||(o)==::'
-           `|T  ""
-            ()
-            |\\
-            ||\\
-            ()()
-            ||//
-            |//
-           .'=`=.
+    print("""                   
+                              __
+                            .d$$b
+                          .' TO$;\\
+                         /  : TP._;
+                        / _.;  :Tb|
+                       /   /   ;j$j
+                   _.-"       d$$$$
+                 .' ..       d$$$$;
+                /  /P'      d$$$$P. |\\
+               /   "      .d$$$P' |\^"l
+             .'           `T$P^\"\"\"\"\"  :
+         ._.'      _.'                ;
+      `-.-".-'-' ._.       _.-"    .-"
+    `.-" _____  ._              .-"
+   -(.g$$$$$$$b.              .'
+     ""^^T$$$P^)            .(:
+       _/  -"  /.'         /:/;
+    ._.'-'`-'  ")/         /;/;
+ `-.-"..--""   " /         /  ;
+.-" ..--""        -'          :
+..--""--.-"         (\      .-(\\
+  ..--""              `-\(\/;`
+    _.                      :
+                            ;`-
+                           :\\
+                           ;  bug
+
+By: Splunk Threat Research Team [STRT] - research@splunk.com
+
     """)
 
     # parse config
@@ -46,10 +59,11 @@ starting program loaded for B1 battle droid
         config.pop('local')
         controller = AzureController(config)
     elif config['general']['cloud_provider'] == 'local':
+        from modules.vagrant_controller import VagrantController
         config.pop('azure')
         config.pop('aws')
         controller = VagrantController(config)
-   
+    
     return controller
 
 

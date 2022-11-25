@@ -13,11 +13,11 @@ data "aws_ami" "latest-centos-packer" {
 data "aws_ami" "latest-centos" {
   count       = (var.phantom_server.phantom_server == "1") && (var.general.use_prebuilt_images_with_packer == "0") ? 1 : 0
   most_recent = true
-  owners      = ["679593333241"] # owned by AWS Marketplace
+  owners      = ["125523088429"] 
 
   filter {
     name   = "name"
-    values = ["CentOS Linux 7*"]
+    values = ["CentOS Linux 7 x86_64*"]
   }
 
   filter {

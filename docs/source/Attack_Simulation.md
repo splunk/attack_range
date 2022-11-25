@@ -17,7 +17,7 @@ python attack_range.py simulate -e PurpleSharp -te T1003.001 -t ar-win-ar-ar-0
 ```
 or you can execute a given playbook:
 ```
-python attack_range.py simulate -e PurpleSharp -t ar-win-ar-ar-0 -p configs/purplesharp_playbook_T1003
+python attack_range.py simulate -e PurpleSharp -t ar-win-ar-ar-0 -p configs/purplesharp_playbook_T1003.pb
 ```
 
 ## Prelude
