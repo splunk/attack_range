@@ -30,6 +30,9 @@ config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_r
 {% for key, value in config.simulation.items() %}
           {{ key }}: "{{ value }}",
 {% endfor %}
+{% for key, value in config.splunk_server.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
         }
     end
   
