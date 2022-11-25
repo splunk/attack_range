@@ -39,7 +39,8 @@ general:
   crowdstrike_logs_access_key_id: ""
   crowdstrike_logs_secret_access_key: ""
   crowdstrike_logs_sqs_url: ""
-# All these fields all needed to automatically deploy a Crowdstrike Agent and ingest Crowdstrike Falcon logs into the Splunk Server. See the chapter Crowdstrike Falcon in the docs page Attack Range Features.
+# All these fields all needed to automatically deploy a Crowdstrike Agent and ingest Crowdstrike Falcon logs into the Splunk Server. 
+# See the chapter Crowdstrike Falcon in the docs page Attack Range Features.
 
   carbon_black_cloud: "0"
 # Enable/Disable VMWare Carbon Black Cloud by setting it to 1 or 0
@@ -47,23 +48,27 @@ general:
   carbon_black_cloud_agent_name: "installer_vista_win7_win8-64-3.8.0.627.msi"
   carbon_black_cloud_company_code: ""
   carbon_black_cloud_s3_bucket: ""
-# All these fields all needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server. See the chapter Carbon Black in the docs page Attack Range Features.
+# All these fields all needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server. 
+# See the chapter Carbon Black in the docs page Attack Range Features.
 
 aws:
-  region: "eu-central-1"
+  region: "us-west-2"
 # region used in AWS. This should be the same as the region configured in AWS cli.
 
   private_key_path: "~/.ssh/id_rsa"
 # path to your private key. This need to match the public key uplaoded to AWS.  
 
   cloudtrail: "0"
-# Enable/Disable Cloudtrail with 1/0
+# Enable/Disable collection of Cloudtrail logs with 1/0
 
   cloudtrail_sqs_queue: "https://sqs.us-west-2.amazonaws.com/111111111111/cloudtrail-cloud-attack-range"
 # Cloudtrail SQS queue. See the chapter AWS Cloudtrail in the docs page Attack Range Cloud.
 
+  use_elastic_ips: "1"
+# Enable/disable usage of Elastic IPs
+
 azure:
-  region: "West Europe"
+  location: "West Europe"
 # region used in Azure. 
 
   subscription_id: "xxx"
@@ -78,7 +83,7 @@ azure:
   azure_logging: "0"
 # Enable/Disable Azure logs and onboard them into the Splunk Server with 1/0.
 
-  app_id: "xxx"
+  client_id: "xxx"
   client_secret: "xxx"
   tenant_id: "xxx"
   event_hub_name: "xxx"
@@ -99,10 +104,36 @@ splunk_server:
   splunk_es_app: "splunk-enterprise-security_701.spl"
 # File name of the Enterprise Security spl file. Need to be located in the apps folder.
 
+  s3_bucket_url: "https://attack-range-appbinaries.s3-us-west-2.amazonaws.com"
+# S3 bucket containing the Splunk Apps which will be installed in Attack Range
+
+  splunk_url: "https://download.splunk.com/products/splunk/releases/9.0.2/linux/splunk-9.0.2-17e00c557dc1-Linux-x86_64.tgz"
+# Url to download Splunk Enterprise
+
+  splunk_uf_url: "https://download.splunk.com/products/universalforwarder/releases/9.0.2/linux/splunkforwarder-9.0.2-17e00c557dc1-linux-2.6-amd64.deb"
+# Url to download Splunk Universal Forwarder Linux
+
+  splunk_uf_win_url: "https://download.splunk.com/products/universalforwarder/releases/9.0.2/windows/splunkforwarder-9.0.2-17e00c557dc1-x64-release.msi"
+# Url to download Splunk Universal Forwarder Windows
+  
+  byo_splunk: "0"
+# Enable/Disable Bring your own Splunk
+
+  byo_splunk_ip: ""
+# Specify Splunk IP address when you enabled byo splunk
+
+  ingest_bots3_data: "0"
+# Ingest BOTS data to Attack Range
+
+  install_dltk: "0"
+# Install Deep Learning Tookit
 
 phantom_server:
   phantom_server: "0"
 # Enable/Disable Phantom Server
+
+  phantom_image: "phantom-v3-0-0"
+# name of the image of the Phantom Server. Packer is used to build this images.
 
   phantom_community_username: user
 # Specify the username needed to login to my.phantom.us to download Phantom
@@ -119,6 +150,15 @@ phantom_server:
 
   phantom_version: "5.2.1.78411-1"
 # Fields the Phantom Version
+
+  phantom_byo: "0"
+# Enable/Disable Bring your own Phantom
+
+  phantom_byo_ip: ""
+# Specify Phantom IP address when you enabled byo phantom
+
+  phantom_byo_api_token: ""
+# Phantom Api Token
 
 windows_servers_default:
   hostname: ar-win 
@@ -150,7 +190,7 @@ linux_servers_default:
 # name of the image of the Linux Server. Packer is used to build this images.
 
   sysmon_config: "SysMonLinux-CatchAll.xml"
-# Specify a sysmon config located under configs/ .
+# Specify a sysmon config located under configs/
 
 kali_server:
   kali_server: "0"
@@ -160,8 +200,11 @@ nginx_server:
   nginx_server: "0"
 # Enable Nginx Server
 
-  image: nginx-web-proxy-v3-0-0
+  hostname: "nginx"
 # Specify the image used for Nginx Server
+
+  nginx_image: nginx-web-proxy-v3-0-0
+# name of the image of the Web proxy. Packer is used to build this images.
 
   proxy_server_ip: "10.0.1.12"
 # Specify what ip to proxy
@@ -173,12 +216,12 @@ zeek_server:
   zeek_server: "0"
 # Enable Zeek Server
 
-  image: "zeek-v3-0-0"
+  zeek_image: "zeek-v3-0-0"
 # Specify the image used for Zeek Server
 
 simulation:
   atomic_red_team_repo: redcanaryco
-# Specify the repostory owner for Atomic Red Team
+# Specify the repository owner for Atomic Red Team
 
   atomic_red_team_branch: master
 # Specify the branch for Atomic Red Team
@@ -192,6 +235,5 @@ simulation:
   prelude_account_email: "test@test.com"
 # Email account login into a Prelude Operator UI
 # required for connecting to redirector, can be found on the GUI under connect>deploy manual redirector> accountEmail.
-
 ````
 
