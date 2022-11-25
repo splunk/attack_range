@@ -421,27 +421,37 @@ starting configuration for AT-ST mech walker
             'default': False,
             'when': lambda answers: answers['windows_server_one'],
         },
+        {
+            'type': 'confirm',
+            'message': 'should we install red team tools on the windows server',
+            'name': 'windows_server_one_red_team_tools',
+            'default': False,
+            'when': lambda answers: answers['windows_server_one'],
+        },
+        {
+            'type': 'confirm',
+            'message': 'should we install badblood on the windows server, which will populate the domain with objects',
+            'name': 'windows_server_one_bad_blood',
+            'default': False,
+            'when': lambda answers: answers['windows_server_one'] and answers['windows_server_one_dc'],
+        },
     ]
 
     answers = questionary.prompt(questions)
 
     if answers['windows_server_one']:
         configuration['windows_servers'] = list()
+        configuration['windows_servers'].append({
+            'hostname': 'ar-win-1',
+            'windows_image': 'windows-' + answers['windows_server_one_version'] + '-v' + VERSION.replace(".","-"),
+        })
         if answers['windows_server_one_dc']:
-            configuration['windows_servers'].append(
-                {
-                    'hostname': 'ar-win-dc',
-                    'windows_image': 'windows-' + answers['windows_server_one_version'] + '-v' + VERSION.replace(".","-"),
-                    'create_domain': '1'
-                }
-            )
-        else:
-            configuration['windows_servers'].append(
-                {
-                    'hostname': 'ar-win',
-                    'windows_image': 'windows-' + answers['windows_server_one_version'] + '-v' + VERSION.replace(".","-")
-                }
-            )       
+            configuration['windows_servers'][0]['create_domain'] = '1'
+            configuration['windows_servers'][0]['hostname'] = 'ar-win-dc'
+        if answers['windows_server_one_red_team_tools']:
+            configuration['windows_servers'][0]['install_red_team_tools'] = '1'
+        if answers['windows_server_one_bad_blood']:
+            configuration['windows_servers'][0]['bad_blood'] = '1'        
 
         questions = [
             {
@@ -464,26 +474,26 @@ starting configuration for AT-ST mech walker
                 'default': False,
                 'when': lambda answers: answers['windows_server_two'] and configuration['windows_servers'][0]['create_domain'],
             },
+            {
+                'type': 'confirm',
+                'message': 'should we install red team tools on the windows server',
+                'name': 'windows_server_two_red_team_tools',
+                'default': False,
+                'when': lambda answers: answers['windows_server_two'],
+            },
         ]
 
         answers = questionary.prompt(questions)
 
         if answers['windows_server_two']:
+            configuration['windows_servers'].append({
+                'hostname': 'ar-win-2',
+                'windows_image': 'windows-' + answers['windows_server_two_version'] + '-v' + VERSION.replace(".","-"),
+            })    
             if answers['windows_server_two_join_dc']:
-                configuration['windows_servers'].append(
-                    {
-                        'hostname': 'ar-win-2',
-                        'windows_image': 'windows-' + answers['windows_server_two_version'] + '-v' + VERSION.replace(".","-"),
-                        'join_domain': '1'
-                    }
-                )
-            else:
-                configuration['windows_servers'].append(
-                    {
-                        'hostname': 'ar-win-2',
-                        'windows_image': 'windows-' + answers['windows_server_two_version'] + '-v' + VERSION.replace(".","-")
-                    }
-                )
+                configuration['windows_servers'][1]['join_domain'] = '1'              
+            if answers['windows_server_two_red_team_tools']:
+                configuration['windows_servers'][1]['install_red_team_tools'] = '1'  
 
 
     questions = [

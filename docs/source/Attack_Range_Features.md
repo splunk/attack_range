@@ -66,3 +66,7 @@ windows_servers:
     create_domain: "1"
     bad_blood: "1"
 ````
+
+
+## Guacamole
+Apache Guacamole is a clientless remote desktop application which is installed on the Splunk Server. It supports standard protocols such as SSH and RDP. During the Attack Range build, Apache Guacamole is installed and completely configured. You can access Apache Guacamole on port 8080 and use the Attack Range password to log in. Subsequently, you can access the windows server over RDP or the other servers with SSH using the browser.
