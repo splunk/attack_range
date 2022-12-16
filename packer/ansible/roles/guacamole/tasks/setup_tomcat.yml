@@ -6,15 +6,16 @@
 
 - name: Download Apache Tomcat
   get_url:
-    url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.69/bin/apache-tomcat-9.0.69.tar.gz
+    url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.70/bin/apache-tomcat-9.0.70.tar.gz
     dest: /tmp/apache-tomcat.tar.gz
+
 
 - name: Extract the tar file to the /opt/tomcat directory
   shell:
     cmd: |
       sudo mkdir /opt/tomcat
       sudo tar -xzf /tmp/apache-tomcat.tar.gz -C /opt/tomcat/
-      sudo mv /opt/tomcat/apache-tomcat-9.0.69 /opt/tomcat/tomcatapp
+      sudo mv /opt/tomcat/apache-tomcat-9.0.70 /opt/tomcat/tomcatapp
 
 - name: Give neccessary permissions
   shell:

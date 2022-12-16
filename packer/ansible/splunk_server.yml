@@ -9,4 +9,5 @@
     - role: splunk_server
       when: use_prebuilt_images_with_packer == "0"
     - role: guacamole
+      ignore_errors: yes
       when: use_prebuilt_images_with_packer == "0"
