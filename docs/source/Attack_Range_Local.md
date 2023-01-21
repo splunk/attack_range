@@ -10,7 +10,7 @@ brew install --cask vagrant
 
 Install and run poetry
 ````console
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+curl -sSL https://install.python-poetry.org/ | python -
 poetry shell
 poetry install
 ````
@@ -31,7 +31,7 @@ apt install ./vagrant_2.2.19_x86_64.deb
 
 Install and run poetry
 ````console
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+curl -sSL https://install.python-poetry.org/ | python -
 poetry shell
 poetry install
 ````
