@@ -9,6 +9,7 @@
     url: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.71/bin/apache-tomcat-9.0.71.tar.gz
     dest: /tmp/apache-tomcat.tar.gz
 
+
 - name: Extract the tar file to the /opt/tomcat directory
   shell:
     cmd: |
