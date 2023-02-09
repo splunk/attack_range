@@ -20,7 +20,7 @@
     - "DA-ESS-ContentUpdate-latest.tar.gz"
     - "python-for-scientific-computing-for-linux-64-bit_302.tgz"
     - "splunk-machine-learning-toolkit_531.tgz"
-    - "splunk-security-essentials_350.tgz"
+    - "splunk-security-essentials_370.spl"
     - "splunk-add-on-for-sysmon_200.tgz"
     - "add-on-for-linux-sysmon_104.tgz"
     - "splunk-add-on-for-amazon-web-services-aws_520.tgz"
