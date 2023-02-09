@@ -8,10 +8,10 @@
     kali_server: "0"
   roles:
     - set_hostname_linux
+    - prelude
     - splunk_server_post
     - phantom_byo_splunk
     - cloudtrail_logs
-    - prelude
     - azure_logging
     - carbon_black_cloud_logs
     - crowdstrike_falcon_logging

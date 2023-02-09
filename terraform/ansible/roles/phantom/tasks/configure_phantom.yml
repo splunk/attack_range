@@ -3,7 +3,7 @@
 
 - name: change phantom admin password
   uri:
-    url: https://127.0.0.1/rest/user_settings
+    url: https://127.0.0.1:8443/rest/user_settings
     method: POST
     user: admin
     password: password
@@ -14,7 +14,7 @@
 
 - name: fetch phantom api token
   uri:
-    url: https://127.0.0.1/rest/ph_user/2/token
+    url: https://127.0.0.1:8443/rest/ph_user/2/token
     method: GET
     user: admin
     password: "{{attack_range_password}}"
@@ -28,7 +28,7 @@
 
 - name: open up api allowed ip list
   uri:
-    url: https://127.0.0.1/rest/ph_user/2
+    url: https://127.0.0.1:8443/rest/ph_user/2
     method: POST
     body: '{"allowed_ips":["any"]}'
     user: admin
@@ -38,7 +38,7 @@
 
 - name: test api token
   uri:
-    url: https://127.0.0.1/rest/container
+    url: https://127.0.0.1:8443/rest/container
     method: GET
     return_content: yes
     headers:
