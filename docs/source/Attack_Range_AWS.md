@@ -10,6 +10,12 @@ python attack_range.py configure
 ````
 
 ## MacOS
+Clone attack_range git repo to local machine
+````console
+git clone https://github.com/splunk/attack_range.git
+cd attack_range
+````
+
 Install and configure terraform
 ````console
 brew update
@@ -46,6 +52,11 @@ Install some packages
 ````console
 apt-get update
 apt-get install -y python3.8 git unzip python3-pip curl
+````
+Clone attack_range git repo to local machine
+````console
+git clone https://github.com/splunk/attack_range.git
+cd attack_range
 ````
 
 Install and configure terraform
