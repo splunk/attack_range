@@ -450,8 +450,9 @@ starting configuration for AT-ST mech walker
             configuration['windows_servers'][0]['hostname'] = 'ar-win-dc'
         if answers['windows_server_one_red_team_tools']:
             configuration['windows_servers'][0]['install_red_team_tools'] = '1'
-        if answers['windows_server_one_bad_blood']:
-            configuration['windows_servers'][0]['bad_blood'] = '1'        
+        if 'windows_server_one_bad_blood' in answers:
+            if answers['windows_server_one_bad_blood']:
+                configuration['windows_servers'][0]['bad_blood'] = '1'        
 
         questions = [
             {
@@ -472,7 +473,7 @@ starting configuration for AT-ST mech walker
                 'message': 'should the windows server join the domain',
                 'name': 'windows_server_two_join_dc',
                 'default': False,
-                'when': lambda answers: answers['windows_server_two'] and configuration['windows_servers'][0]['create_domain'],
+                'when': lambda answers: answers['windows_server_two'] and 'create_domain' in configuration['windows_servers'][0],
             },
             {
                 'type': 'confirm',
@@ -489,9 +490,10 @@ starting configuration for AT-ST mech walker
             configuration['windows_servers'].append({
                 'hostname': 'ar-win-2',
                 'windows_image': 'windows-' + answers['windows_server_two_version'] + '-v' + VERSION.replace(".","-"),
-            })    
-            if answers['windows_server_two_join_dc']:
-                configuration['windows_servers'][1]['join_domain'] = '1'              
+            })
+            if 'windows_server_two_join_dc' in answers:    
+                if answers['windows_server_two_join_dc']:
+                    configuration['windows_servers'][1]['join_domain'] = '1'              
             if answers['windows_server_two_red_team_tools']:
                 configuration['windows_servers'][1]['install_red_team_tools'] = '1'  
 
@@ -525,16 +527,10 @@ starting configuration for AT-ST mech walker
         },
         {
             'type': 'text',
-            'message': 'please provide your Splunk SOAR community username (my.phantom.us)',
-            'name': 'phantom_username',
+            'message': 'Download the Splunk SOAR unpriv installer and save it in the apps folder. What is the name of the file?',
+            'name': 'phantom_installer',
             'when': lambda answers: answers['phantom'],
-        },
-        {
-            'type': 'text',
-            'message': 'please provide your Splunk SOAR community password (my.phantom.us)',
-            'name': 'phantom_password',
-            'when': lambda answers: answers['phantom'],
-        },
+        }
     ]
 
     answers = questionary.prompt(questions)
@@ -560,11 +556,9 @@ starting configuration for AT-ST mech walker
         configuration['phantom_server'] = dict()
         configuration['phantom_server']['phantom_server'] = '1'
 
-    if 'phantom_username' in answers:
-        configuration['phantom_server']['phantom_community_username'] = answers['phantom_username']
+    if 'phantom_installer' in answers:
+        configuration['phantom_server']['phantom_app'] = answers['phantom_installer']
 
-    if 'phantom_password' in answers:
-        configuration['phantom_server']['phantom_community_password'] = answers['phantom_password']
 
     # write config file
     with open(attack_range_config, 'w') as outfile:
