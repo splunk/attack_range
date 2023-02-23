@@ -358,7 +358,7 @@ starting configuration for AT-ST mech walker
                 # get range name
                 'type': 'text',
                 'message': 'enter attack_range name, multiple can be build under different names in the same region',
-                'name': 'range_name',
+                'name': 'attack_range_name',
                 'default': "ar",
             },
 
@@ -396,7 +396,7 @@ starting configuration for AT-ST mech walker
         
         # rest of configs
         configuration['general']['ip_whitelist'] = answers['ip_whitelist']
-        configuration['general']['range_name'] = answers['range_name']
+        configuration['general']['attack_range_name'] = answers['attack_range_name']
 
     print("> configuring attack_range environment")
 

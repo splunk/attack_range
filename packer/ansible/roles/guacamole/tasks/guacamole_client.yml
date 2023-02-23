@@ -8,7 +8,7 @@
 
 - name: Download Guacamole Client
   get_url:
-    url: https://downloads.apache.org/guacamole/1.4.0/binary/guacamole-1.4.0.war
+    url: https://archive.apache.org/dist/guacamole/1.4.0/source/guacamole-client-1.4.0.tar.gz
     dest: /tmp/guacamole-1.4.0.war
 
 - name: Move .war
