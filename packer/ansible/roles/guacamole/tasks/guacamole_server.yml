@@ -29,7 +29,7 @@
   systemd:
     name: guacd
     enabled: yes
-
+ 
 - name: Restart guacd
   become: true
   systemd:
