@@ -1,6 +1,12 @@
 # Attack Range Local
 
 ## MacOS
+Clone attack_range git repo to local machine
+````console
+git clone https://github.com/splunk/attack_range.git
+cd attack_range
+````
+
 Install vagrant and virtualbox
 ````console
 brew update
@@ -21,6 +27,12 @@ python attack_range.py configure
 ````
 
 ## Linux
+Clone attack_range git repo to local machine
+````console
+git clone https://github.com/splunk/attack_range.git
+cd attack_range
+````
+
 Install vagrant and virtualbox
 ````console
 apt-get update

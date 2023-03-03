@@ -13,11 +13,12 @@
 
 - set_fact:
     available_techniques: "{{ available_techniques | json_query('files[].filename') }}"
+    main_technique:            "{{ technique | regex_replace('(-.)','') }}"
 
 - name: Check requested Technique is valid
   fail:
-    msg: "The selected technique {{ technique }} has no atomic tests. Please ensure it it correct and that tests exist for it. See https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/Indexes/Indexes-CSV/windows-index.csv."
-  when: "technique not in available_techniques"
+    msg: "The {{ main_technique }} selected technique has no atomic tests. Please ensure it it correct and that tests exist for it. See https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/Indexes/Indexes-CSV/windows-index.csv. {{ available_techniques }} "
+  when: "main_technique not in available_techniques"
   
 - name: Get requirements for Atomic Red Team Technique
   win_shell: |
@@ -29,7 +30,7 @@
 # - debug:
 #     var: requirements
 
-- name: Run specified Atomic Red Team Technique
+- name:  Run specified Atomic Red Team Technique
   win_shell: |
     Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
     Invoke-AtomicTest "{{ technique }}" -Confirm:$false -TimeoutSeconds 300 -ExecutionLogPath C:\AtomicRedTeam\atc_execution.csv

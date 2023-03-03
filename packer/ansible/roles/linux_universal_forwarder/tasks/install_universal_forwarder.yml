@@ -38,6 +38,14 @@
   become: true
   command:  "/opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd Pl3ase-k1Ll-me:p"
 
+- name: Stop splunk uf
+  become: true
+  command: "/opt/splunkforwarder/bin/splunk stop"
+
 - name: setup to start at boot
   become: true
-  command: "/opt/splunkforwarder/bin/splunk enable boot-start"
+  command: "/opt/splunkforwarder/bin/splunk enable boot-start -user splunk"
+
+- name: Start splunk uf
+  become: true
+  command: "/opt/splunkforwarder/bin/splunk start"
