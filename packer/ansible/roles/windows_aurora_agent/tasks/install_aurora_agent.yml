@@ -10,9 +10,9 @@
     src: '%TEMP%\aurora-agent.zip'
     dest: C:\aurora-agent-lite-win-pack
 
-- name: download the aurora-agent license file
-  win_get_url:
-    url: https://portal.nextron-systems.com/api/lite/license/2022-2/6beda56036fbe184dd0950fd24acfd59_a1f1081c9d6f0dc29aa0e5609fadf855.lic
+- name: copy aurora-agent license file
+  win_copy:
+    src: aurora-trial_365_p_bareiss.lic
     dest: C:\aurora-agent-lite-win-pack\aurora-license.lic
 
 - name: install aurora-agent as a service with standard config
