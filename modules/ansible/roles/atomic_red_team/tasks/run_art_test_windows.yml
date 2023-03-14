@@ -4,21 +4,21 @@
 - debug:
     var: technique
 
-- name: List available Atomic Red Team Techniques
-  ansible.windows.win_find:
-    paths: C:\AtomicRedTeam\atomics
-    file_type: directory
-    patterns: T*
-  register: available_techniques
+# - name: List available Atomic Red Team Techniques
+#   ansible.windows.win_find:
+#     paths: C:\AtomicRedTeam\atomics
+#     file_type: directory
+#     patterns: T*
+#   register: available_techniques
 
-- set_fact:
-    available_techniques: "{{ available_techniques | json_query('files[].filename') }}"
-    main_technique:            "{{ technique | regex_replace('(-.)','') }}"
+# - set_fact:
+#     available_techniques: "{{ available_techniques | json_query('files[].filename') }}"
+#     main_technique:            "{{ technique | regex_replace('(-.)','') }}"
 
-- name: Check requested Technique is valid
-  fail:
-    msg: "The {{ main_technique }} selected technique has no atomic tests. Please ensure it it correct and that tests exist for it. See https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/Indexes/Indexes-CSV/windows-index.csv. {{ available_techniques }} "
-  when: "main_technique not in available_techniques"
+# - name: Check requested Technique is valid
+#   fail:
+#     msg: "The {{ main_technique }} selected technique has no atomic tests. Please ensure it it correct and that tests exist for it. See https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/Indexes/Indexes-CSV/windows-index.csv. {{ available_techniques }} "
+#   when: "main_technique not in available_techniques"
   
 - name: Get requirements for Atomic Red Team Technique
   win_shell: |
