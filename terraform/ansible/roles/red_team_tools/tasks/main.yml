@@ -82,6 +82,7 @@
 - name: install sysinternals
   win_shell: C:\\ProgramData\\chocolatey\\bin\\choco.exe install sysinternals --fail-on-unfound --yes --no-progress --limit-output --timeout 2700 --ignore-checksums
   when: install_red_team_tools == "1"
+  ignore_errors: yes
 
 
   
