@@ -31,16 +31,16 @@ class AwsController(AttackRangeController):
         working_dir = os.path.join(os.path.dirname(__file__), '../terraform/aws')
         self.terraform = Terraform(working_dir=working_dir,variables=config, parallelism=15, state= self.config['general']["statepath"])
 
-        if self.config['general']['use_prebuilt_images_with_packer'] == "0":
-            for i in range(len(self.config['windows_servers'])):
-                image_name = self.config['windows_servers'][i]['windows_image']
-                if image_name.startswith("windows-2016"):
-                    self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2016-English-Full-Base-*"
-                elif image_name.startswith("windows-2019"):
-                    self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2019-English-Full-Base-*"
-                else:
-                    self.logger.error("Image " + image_name + " not supported.")
-                    sys.exit(1)    
+        #if self.config['general']['use_prebuilt_images_with_packer'] == "0":
+        for i in range(len(self.config['windows_servers'])):
+            image_name = self.config['windows_servers'][i]['windows_image']
+            if image_name.startswith("windows-2016"):
+                self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2016-English-Full-Base-*"
+            elif image_name.startswith("windows-2019"):
+                self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2019-English-Full-Base-*"
+            else:
+                self.logger.error("Image " + image_name + " not supported.")
+                sys.exit(1)    
     
 
     def build(self) -> None:
