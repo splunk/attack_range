@@ -37,7 +37,7 @@ class AwsController(AttackRangeController):
                 if image_name.startswith("windows-2016"):
                     self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2016-English-Full-Base-*"
                 elif image_name.startswith("windows-2019"):
-                    self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2016-English-Full-Base-*"
+                    self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2019-English-Full-Base-*"
                 else:
                     self.logger.error("Image " + image_name + " not supported.")
                     sys.exit(1)    
