@@ -9,7 +9,7 @@ RUN curl -s https://releases.hashicorp.com/terraform/1.1.8/terraform_1.1.8_linux
          mv terraform /usr/local/bin/
 
 RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-RUN apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+RUN apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 RUN apt update && apt install packer
 
 RUN git clone https://github.com/splunk/attack_range.git
