@@ -4,6 +4,20 @@
   uri:
     url: https://10.0.1.13:8443/rest/ph_user/2/token
     method: GET
+    user: soar_local_admin
+    password: "{{ attack_range_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+  register: api_token
+  until: api_token.status == 200
+  retries: 25
+  delay: 60
+  when: phantom_app | regex_search("splunk_soar-unpriv-6")
+
+- name: fetch phantom api token
+  uri:
+    url: https://10.0.1.13:8443/rest/ph_user/2/token
+    method: GET
     user: admin
     password: "{{ attack_range_password }}"
     force_basic_auth: yes
@@ -12,6 +26,7 @@
   until: api_token.status == 200
   retries: 25
   delay: 60
+  when: phantom_app | regex_search("splunk_soar-unpriv-5")
 
 - name: Connect Splunk Phantom App with Phantom
   shell: curl -k -u "admin:{{ attack_range_password }}" --data '{"verify_certs":"false","enable_logging":"false","config":[{"ph-auth-token":"{{ api_token.json.key | replace("=","%3D") | replace("+","%2B") }}","server":"https://10.0.1.13:8443","custom_name":"phantom","default":false,"user":"","ph_auth_config_id":"193b2ffc-48fb-4087-bc75-c44184e7fa07","proxy":"","validate":true}],"accepted":"true","save":true}' https://localhost:8089/services/update_phantom_config?output_mode=json

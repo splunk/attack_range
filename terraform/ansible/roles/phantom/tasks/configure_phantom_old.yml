@@ -5,7 +5,7 @@
   uri:
     url: https://127.0.0.1:8443/rest/user_settings
     method: POST
-    user: soar_local_admin
+    user: admin
     password: password
     body: {"old_password":"password","password":"{{attack_range_password}}"}
     body_format: json
@@ -16,7 +16,7 @@
   uri:
     url: https://127.0.0.1:8443/rest/ph_user/2/token
     method: GET
-    user: soar_local_admin
+    user: admin
     password: "{{attack_range_password}}"
     force_basic_auth: yes
     validate_certs: no
@@ -31,7 +31,7 @@
     url: https://127.0.0.1:8443/rest/ph_user/2
     method: POST
     body: '{"allowed_ips":["any"]}'
-    user: soar_local_admin
+    user: admin
     password: "{{attack_range_password}}"
     force_basic_auth: yes
     validate_certs: no
