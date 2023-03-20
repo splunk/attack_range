@@ -2,3 +2,7 @@
 # This playbook contains common tasks in this role
 
 - include: configure_phantom.yml
+  when: phantom_app | regex_search("splunk_soar-unpriv-6")
+
+- include: configure_phantom_old.yml
+  when: phantom_app | regex_search("splunk_soar-unpriv-5")

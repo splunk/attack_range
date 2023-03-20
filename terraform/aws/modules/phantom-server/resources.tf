@@ -17,12 +17,17 @@ data "aws_ami" "latest-centos" {
 
   filter {
     name   = "name"
-    values = ["CentOS Linux 7 x86_64*"]
+    values = ["CentOS Linux 7*"]
   }
 
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
   }
 }
 
