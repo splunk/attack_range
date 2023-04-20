@@ -64,14 +64,14 @@ Here's an overview of how you can make a pull request against this project:
 
 1. Fill out the [Splunk Contribution Agreement](https://www.splunk.com/goto/contributions).
 2. Fork the [analytic\_story\_execution GitHub repository](https://github.com/splunk/attack_range/issues)
-3. Clone your fork using git and create a branch off of master
+3. Clone your fork using git and create a branch off of develop
 
     ```
     $ git clone git@github.com:YOUR_GITHUB_USERNAME/attack_range.git
     $ cd attack_range
 
-    # This project uses 'master' for all development activity, so create your branch off that
-    $ git checkout -b your-bugfix-branch-name master
+    # This project uses 'develop' for all development activity, so create your branch off that
+    $ git checkout -b your-bugfix-branch-name develop
     ```
     
 4. Make your changes, commit, and push (once your tests have passed)
