@@ -95,7 +95,7 @@ resource "aws_instance" "splunk-server" {
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip             = "10.0.1.12"
   iam_instance_profile   = aws_iam_instance_profile.splunk_profile[0].name
-  associate_public_ip_address = "true"
+  associate_public_ip_address = true
 
   root_block_device {
     volume_type = "gp2"
