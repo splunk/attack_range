@@ -34,6 +34,7 @@ resource "aws_instance" "windows_server" {
   subnet_id = var.ec2_subnet_id
   private_ip = "10.0.1.${14 + count.index}"
   vpc_security_group_ids = [var.vpc_security_group_ids]
+  associate_public_ip_address = true
   tags = {
     Name = "ar-win-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
   }
