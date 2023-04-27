@@ -6,7 +6,7 @@ data "aws_ami" "latest-kali-linux" {
 
   filter {
       name   = "name"
-      values = ["kali-last-snapshot-amd64-2022*"]
+      values = ["kali-last-snapshot-amd64-2023*"]
   }
 
   filter {
