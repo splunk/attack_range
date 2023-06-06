@@ -2,7 +2,7 @@
 
 - name: Download Guacamole
   get_url: 
-    url: https://downloads.apache.org/guacamole/1.5.0/source/guacamole-server-1.5.0.tar.gz
+    url: https://archive.apache.org/dist/guacamole/1.5.0/source/guacamole-server-1.5.0.tar.gz
     dest: /tmp/guacamole-server-1.5.0.tar.gz
 
 - name: Extract the source tarball after download
