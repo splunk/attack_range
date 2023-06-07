@@ -33,6 +33,7 @@ terraform/azure/.terraform/
 terraform/aws/state/
 terraform/azure/state/
 terraform/aws/versions.tf
+terraform/aws/backend.tf
 
 # .tfstate files
 *.tfstate

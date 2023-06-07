@@ -28,6 +28,22 @@ class AwsController(AttackRangeController):
             self.logger.error("AWS cli region and region in config file are not the same.")
             sys.exit(1)
 
+        backend_path_tmp = os.path.join(os.path.dirname(__file__), '../terraform/aws/backend.tf.tmp')
+        backend_path = os.path.join(os.path.dirname(__file__), '../terraform/aws/backend.tf')
+
+        if self.config["aws"]["use_remote_state"] == "1":
+            with open(backend_path_tmp, 'r') as file :
+                filedata = file.read()
+            filedata = filedata.replace('[region]', self.config['aws']['region'])
+            filedata = filedata.replace('[bucket]', self.config['aws']['tf_remote_state_s3_bucket'])
+            filedata = filedata.replace('[dynamodb_table]', self.config['aws']['tf_remote_state_dynamo_db_table'])
+            with open(backend_path, 'w+') as file:
+                file.write(filedata)
+
+        else:
+            if os.path.isfile(backend_path):
+                os.remove(backend_path)
+
         working_dir = os.path.join(os.path.dirname(__file__), '../terraform/aws')
         self.terraform = Terraform(working_dir=working_dir,variables=config, parallelism=15, state= self.config['general']["statepath"])
 
@@ -84,7 +100,7 @@ class AwsController(AttackRangeController):
      
 
         cwd = os.getcwd()
-        os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform/aws') + '&& terraform init ')
+        os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform/aws') + '&& terraform init -migrate-state')
         os.system('cd ' + cwd)
 
         return_code, stdout, stderr = self.terraform.apply(
