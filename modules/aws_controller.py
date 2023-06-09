@@ -36,6 +36,7 @@ class AwsController(AttackRangeController):
                 filedata = file.read()
             filedata = filedata.replace('[region]', self.config['aws']['region'])
             filedata = filedata.replace('[bucket]', self.config['aws']['tf_remote_state_s3_bucket'])
+            filedata = filedata.replace('[name]', self.config['general']['attack_range_name'])
             filedata = filedata.replace('[dynamodb_table]', self.config['aws']['tf_remote_state_dynamo_db_table'])
             with open(backend_path, 'w+') as file:
                 file.write(filedata)
