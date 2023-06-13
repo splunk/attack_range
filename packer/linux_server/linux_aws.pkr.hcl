@@ -31,7 +31,7 @@ variable "splunk_server" {
 
 data "amazon-ami" "ubuntu-ami" {
   filters = {
-    name                = "*ubuntu-focal-20.04-amd64-server-*"
+    name                = "*ubuntu-jammy-22.04-amd64-server-*"
     root-device-type    = "ebs"
     virtualization-type = "hvm"
   }

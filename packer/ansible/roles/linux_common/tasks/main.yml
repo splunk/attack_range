@@ -3,3 +3,4 @@
 - include: update_packages.yml
 - include: disable-dnssec.yml
 - include: disable-autoupgrade.yml
+- include: update_sshd_config.yml

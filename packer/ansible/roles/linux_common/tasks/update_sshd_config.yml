@@ -1,0 +1,15 @@
+---
+
+- name: Configure sshd
+  lineinfile:
+    path: "/etc/ssh/sshd_config"
+    line: "{{item.key}} {{item.value}}"
+  loop:
+    - { key: "HostKeyAlgorithms", value: "+ssh-rsa" }
+    - { key: "PubkeyAcceptedKeyTypes", value: "+ssh-rsa" }
+
+- name: Restart SSHd
+  become: true
+  service:
+    name: sshd
+    state: restarted

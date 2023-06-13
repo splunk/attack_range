@@ -32,7 +32,7 @@ variable "splunk_server" {
 
 data "amazon-ami" "nginx-ami" {
   filters = {
-    name                = "*ubuntu-bionic-18.04-amd64-server-*"
+    name                = "*ubuntu-jammy-22.04-amd64-server-*"
     root-device-type    = "ebs"
     virtualization-type = "hvm"
   }
