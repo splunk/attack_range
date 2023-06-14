@@ -141,7 +141,7 @@ class AwsController(AttackRangeController):
         self.config['general']['use_prebuilt_images_with_packer'] = "0"
         
         if image_name.startswith("splunk"):
-            only_cmd_arg = "amazon-ebs.splunk-ubuntu-18-04"
+            only_cmd_arg = "amazon-ebs.splunk-ubuntu"
             path_packer_file = "packer/splunk_server/splunk_aws.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
@@ -181,7 +181,7 @@ class AwsController(AttackRangeController):
                 "-only=" + only_cmd_arg, path_packer_file]
 
         elif image_name.startswith("linux"):
-            only_cmd_arg = "amazon-ebs.ubuntu-18-04"
+            only_cmd_arg = "amazon-ebs.ubuntu"
             path_packer_file = "packer/linux_server/linux_aws.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
@@ -200,7 +200,7 @@ class AwsController(AttackRangeController):
                 "-only=" + only_cmd_arg, path_packer_file]
 
         elif image_name.startswith("zeek"):
-            only_cmd_arg = "amazon-ebs.ubuntu-18-04"
+            only_cmd_arg = "amazon-ebs.ubuntu"
             path_packer_file = "packer/zeek_server/zeek_aws.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 

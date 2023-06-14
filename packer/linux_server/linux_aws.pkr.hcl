@@ -39,7 +39,7 @@ data "amazon-ami" "ubuntu-ami" {
   owners      = ["099720109477"]
 }
 
-source "amazon-ebs" "ubuntu-18-04" {
+source "amazon-ebs" "ubuntu" {
   ami_name              = "linux-v${replace(var.general.version, ".", "-")}"
   region                = var.aws.region
   instance_type         = "t3.xlarge"
@@ -56,13 +56,14 @@ source "amazon-ebs" "ubuntu-18-04" {
 build {
 
   sources = [
-    "source.amazon-ebs.ubuntu-18-04"
+    "source.amazon-ebs.ubuntu"
   ]
 
   provisioner "ansible" {
-    extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}"]
+    extra_arguments = ["--scp-extra-args", "'-O'", "--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}"]
     playbook_file   = "packer/ansible/linux_server.yml"
     user            = "ubuntu"
+    ansible_ssh_extra_args = ["-oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedKeyTypes=+ssh-rsa"]
   }
 
 }
