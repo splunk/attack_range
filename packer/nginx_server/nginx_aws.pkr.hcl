@@ -32,7 +32,7 @@ variable "splunk_server" {
 
 data "amazon-ami" "nginx-ami" {
   filters = {
-    name                = "*ubuntu-bionic-18.04-amd64-server-*"
+    name                = "*ubuntu-jammy-22.04-amd64-server-*"
     root-device-type    = "ebs"
     virtualization-type = "hvm"
   }
@@ -61,9 +61,10 @@ build {
   ]
 
   provisioner "ansible" {
-    extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}"]
+    extra_arguments = ["--scp-extra-args", "'-O'", "--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}"]
     playbook_file   = "packer/ansible/nginx_web_proxy.yml"
     user            = "ubuntu"
+    ansible_ssh_extra_args = ["-oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedKeyTypes=+ssh-rsa"]
   }
 
 }

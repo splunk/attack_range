@@ -32,7 +32,7 @@ variable "splunk_server" {
 
 data "amazon-ami" "ubuntu-ami" {
   filters = {
-    name                = "*ubuntu-focal-20.04-amd64-server-*"
+    name                = "*ubuntu-jammy-22.04-amd64-server-*"
     root-device-type    = "ebs"
     virtualization-type = "hvm"
   }
@@ -40,7 +40,7 @@ data "amazon-ami" "ubuntu-ami" {
   owners      = ["099720109477"]
 }
 
-source "amazon-ebs" "splunk-ubuntu-18-04" {
+source "amazon-ebs" "splunk-ubuntu" {
   ami_name              = "splunk-v${replace(var.general.version, ".", "-")}"
   region = var.aws.region
   instance_type         = "t3.2xlarge"
@@ -58,13 +58,14 @@ source "amazon-ebs" "splunk-ubuntu-18-04" {
 build {
 
   sources = [
-    "source.amazon-ebs.splunk-ubuntu-18-04"
+    "source.amazon-ebs.splunk-ubuntu"
   ]
 
   provisioner "ansible" {
-    extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}"]
+    extra_arguments = ["--scp-extra-args", "'-O'", "--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}"]
     playbook_file   = "packer/ansible/splunk_server.yml"
     user            = "ubuntu"
+    ansible_ssh_extra_args = ["-oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedKeyTypes=+ssh-rsa"]
   }
 
 }
