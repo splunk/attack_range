@@ -387,7 +387,7 @@ starting configuration for AT-ST mech walker
             if configuration['general']['cloud_provider'] == "aws":
                 configuration['aws']['region'] = answers['region']
             else:
-                configuration['azure']['region'] = answers['region']
+                configuration['azure']['location'] = answers['region']
         else:
             if configuration['general']['cloud_provider'] == "aws":
                 configuration['aws']['region'] = 'eu-central-1'
