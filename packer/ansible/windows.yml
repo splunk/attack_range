@@ -12,3 +12,5 @@
       when: use_prebuilt_images_with_packer == "0"
     - role: sysmon
       when: use_prebuilt_images_with_packer == "0"
+    - role: windows_install_attack_simulation
+      when: use_prebuilt_images_with_packer == "0"      
