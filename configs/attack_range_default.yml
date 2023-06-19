@@ -171,6 +171,9 @@ windows_servers_default:
   bad_blood: "0"
 # Install Bad Blood. More inforamtion in chapter Bad Blood under Attack Range Features.
 
+  aurora_agent: "0"
+# Install Aurora Agent  
+
 linux_servers_default:
   hostname: ar-linux
 # Define the hostname for the Linux Server

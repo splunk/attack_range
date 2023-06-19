@@ -1,4 +1,7 @@
 
+data "aws_availability_zones" "available" {}
+
+
 data "aws_ami" "windows_ami_packer" {
   count = (var.general.use_prebuilt_images_with_packer == "1") ? length(var.windows_servers) : 0
   most_recent = true
@@ -25,6 +28,7 @@ data "aws_ami" "windows_ami" {
     values = ["hvm"]
   }
 }
+
 
 resource "aws_instance" "windows_server" {
   count = length(var.windows_servers)
@@ -77,7 +81,7 @@ EOF
 
   provisioner "local-exec" {
     working_dir = "../../packer/ansible"
-    command = "ansible-playbook -i '${self.public_ip},' windows.yml --extra-vars 'ansible_user=Administrator ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 ansible_port=5985 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])}'"
+    command = "ansible-playbook -i '${self.public_ip},' windows.yml --extra-vars 'ansible_user=Administrator ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 ansible_port=5985 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.windows_servers[count.index] : "${key}=\"${value}\""])}'"
   }
 
   provisioner "local-exec" {
