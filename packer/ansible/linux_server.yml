@@ -10,3 +10,5 @@
       when: use_prebuilt_images_with_packer == "0"
     - role: linux_sysmon
       when: use_prebuilt_images_with_packer == "0"
+    - role: linux_install_art
+      when: use_prebuilt_images_with_packer == "0"

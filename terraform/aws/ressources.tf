@@ -39,6 +39,7 @@ module "windows-server" {
   simulation = var.simulation
   zeek_server = var.zeek_server
   splunk_server = var.splunk_server
+  
 }
 
 module "linux-server" {

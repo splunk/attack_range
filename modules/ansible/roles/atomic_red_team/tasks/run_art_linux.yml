@@ -6,10 +6,7 @@
 - name: Run Atomic Red Team
   become: true
   shell: |
-    pwsh -Command 'IEX (IWR https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicsfolder.ps1 -UseBasicParsing); 
-    Install-AtomicsFolder -Force; 
-    IEX (IWR https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1); 
-    Install-AtomicRedTeam -Force; Invoke-AtomicTest "{{ technique }}" -GetPrereqs; 
+    pwsh -Command 'Invoke-AtomicTest "{{ technique }}" -GetPrereqs; 
     Invoke-AtomicTest "{{ technique }}";
     Invoke-AtomicTest "{{ technique }}" -Cleanup'
   register: output_art
