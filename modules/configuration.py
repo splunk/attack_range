@@ -53,7 +53,7 @@ def create_key_pair_aws(region):
     epoch_time = str(int(time.time()))
     ssh_key_name = getpass.getuser() + "-" + epoch_time[-5:] + ".key"
     # create ssh keys
-    response = client.create_key_pair(KeyName=str(ssh_key_name)[:-4])
+    response = client.create_key_pair(KeyType='ed25519', KeyName=str(ssh_key_name)[:-4])
     with open(ssh_key_name, "w") as ssh_key:
         ssh_key.write(response['KeyMaterial'])
     os.chmod(ssh_key_name, 0o600)
