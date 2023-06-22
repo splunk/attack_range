@@ -101,7 +101,7 @@ resource "azurerm_virtual_machine" "windows" {
 
   provisioner "local-exec" {
     working_dir = "../../packer/ansible"
-    command = "ansible-playbook -i '${azurerm_public_ip.windows-publicip[count.index].ip_address},' windows.yml --extra-vars 'ansible_port=5985 ansible_user=AzureAdmin ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    command = "ansible-playbook -i '${azurerm_public_ip.windows-publicip[count.index].ip_address},' windows.yml --extra-vars 'ansible_port=5985 ansible_user=AzureAdmin ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.windows_servers[count.index] : "${key}=\"${value}\""])}'"
   }
 
   provisioner "local-exec" {

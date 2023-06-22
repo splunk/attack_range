@@ -2,13 +2,13 @@
 
 - name: Download Guacamole
   get_url: 
-    url: https://archive.apache.org/dist/guacamole/1.5.0/source/guacamole-server-1.5.0.tar.gz
-    dest: /tmp/guacamole-server-1.5.0.tar.gz
+    url: https://archive.apache.org/dist/guacamole/1.5.2/source/guacamole-server-1.5.2.tar.gz
+    dest: /tmp/guacamole-server-1.5.2.tar.gz
 
 - name: Extract the source tarball after download
   shell:
     cmd: |
-      tar -xzf /tmp/guacamole-server-1.5.0.tar.gz -C /tmp/
+      tar -xzf /tmp/guacamole-server-1.5.2.tar.gz -C /tmp/
 
 - name: Configure and install Guacamole
   shell:
@@ -17,7 +17,7 @@
       make
       sudo make install
       sudo ldconfig
-    chdir: /tmp/guacamole-server-1.5.0
+    chdir: /tmp/guacamole-server-1.5.2
 
 - name: System daemon reload
   become: true

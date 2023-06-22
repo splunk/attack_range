@@ -109,13 +109,13 @@ splunk_server:
   s3_bucket_url: "https://attack-range-appbinaries.s3-us-west-2.amazonaws.com"
 # S3 bucket containing the Splunk Apps which will be installed in Attack Range
 
-  splunk_url: "https://download.splunk.com/products/splunk/releases/9.0.2/linux/splunk-9.0.2-17e00c557dc1-Linux-x86_64.tgz"
+  splunk_url: "https://download.splunk.com/products/splunk/releases/9.0.5/linux/splunk-9.0.5-e9494146ae5c-Linux-x86_64.tgz"
 # Url to download Splunk Enterprise
 
-  splunk_uf_url: "https://download.splunk.com/products/universalforwarder/releases/9.0.2/linux/splunkforwarder-9.0.2-17e00c557dc1-linux-2.6-amd64.deb"
+  splunk_uf_url: "https://download.splunk.com/products/universalforwarder/releases/9.0.5/linux/splunkforwarder-9.0.5-e9494146ae5c-linux-2.6-amd64.deb"
 # Url to download Splunk Universal Forwarder Linux
 
-  splunk_uf_win_url: "https://download.splunk.com/products/universalforwarder/releases/9.0.2/windows/splunkforwarder-9.0.2-17e00c557dc1-x64-release.msi"
+  splunk_uf_win_url: "https://download.splunk.com/products/universalforwarder/releases/9.0.5/windows/splunkforwarder-9.0.5-e9494146ae5c-x64-release.msi"
 # Url to download Splunk Universal Forwarder Windows
   
   byo_splunk: "0"
@@ -173,6 +173,9 @@ windows_servers_default:
 
   bad_blood: "0"
 # Install Bad Blood. More inforamtion in chapter Bad Blood under Attack Range Features.
+
+  aurora_agent: "0"
+# Install Aurora Agent  
 
 linux_servers_default:
   hostname: ar-linux
