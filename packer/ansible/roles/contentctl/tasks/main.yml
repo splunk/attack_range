@@ -1,0 +1,20 @@
+---
+
+- name: Install required system packages
+  apt:
+    pkg:
+      - python3.9
+      - software-properties-common
+      - python3-pip
+    state: latest
+    update_cache: true
+
+- name: Set Python 3.9 as deafult
+  become: true
+  shell: update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
+
+- name: Install contentctl
+  shell: python -m pip install contentctl
+
+- name: Add contentctl to Path variable
+  shell: echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc

@@ -130,6 +130,9 @@ splunk_server:
   install_dltk: "0"
 # Install Deep Learning Tookit
 
+  install_contentctl: "0"
+# Install ContentCtl
+
 phantom_server:
   phantom_server: "0"
 # Enable/Disable Phantom Server
