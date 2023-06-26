@@ -8,9 +8,5 @@
       when: use_prebuilt_images_with_packer == "0"
     - role: windows_universal_forwarder
       when: use_prebuilt_images_with_packer == "0"
-    - role: windows_aurora_agent
-      when: (use_prebuilt_images_with_packer == "0") and (aurora_agent == "1")
     - role: sysmon
-      when: use_prebuilt_images_with_packer == "0"
-    - role: windows_install_attack_simulation
-      when: use_prebuilt_images_with_packer == "0"      
+      when: use_prebuilt_images_with_packer == "0" 

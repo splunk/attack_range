@@ -22,6 +22,9 @@ config.vm.define "ar-win-{{config.general.key_name}}-{{config.general.attack_ran
           splunk_uf_win_url: 'https://download.splunk.com/products/universalforwarder/releases/8.2.5/windows/splunkforwarder-8.2.5-77015bc7a462-x64-release.msi',
           win_password: 'Pl3ase-k1Ll-me:p',
           use_prebuilt_images_with_packer: '0',
+{% for key, value in server.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
         }
         ansible.playbook = "../packer/ansible/windows.yml"
         ansible.compatibility_mode = "2.0"
