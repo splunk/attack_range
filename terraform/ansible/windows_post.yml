@@ -16,3 +16,5 @@
     - carbon_black_cloud_agent
     - bad_blood
     - splunk_byo_windows
+    - windows_aurora_agent
+    - windows_install_attack_simulation

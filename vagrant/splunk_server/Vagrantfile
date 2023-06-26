@@ -18,6 +18,9 @@ config.vm.define "ar-splunk-{{config.general.key_name}}-{{config.general.attack_
 {% for key, value in config.general.items() %}
           {{ key }}: "{{ value }}",
 {% endfor %}
+{% for key, value in config.splunk_server.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
         }
     end
 
