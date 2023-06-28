@@ -28,8 +28,10 @@
     Install-AtomicsFolder -Force -RepoOwner "{{ atomic_red_team_repo }}" -Branch "{{ atomic_red_team_branch }}"
   register: install_art
 
-- debug:
-    var: install_art
+- name: copy default powershell profile
+  win_copy:
+    src: profile.ps1
+    dest: C:\Windows\System32\WindowsPowerShell\v1.0\profile.ps1
 
 - name: Download Latest PurpleSharp Binary
   win_shell: |
@@ -39,4 +41,4 @@
     $tag = (Invoke-WebRequest 'https://api.github.com/repos/mvelazc0/PurpleSharp/releases' -UseBasicParsing | ConvertFrom-Json)[0].tag_name
     $purplesharpDownloadUrl = 'https://github.com/mvelazc0/PurpleSharp/releases/download/' + $tag + '/PurpleSharp_x64.exe'
     If (-not (Test-Path c:\Tools\PurpleSharp\PurpleSharp.exe)) { Invoke-WebRequest -Uri $purplesharpDownloadUrl -OutFile c:\Tools\PurpleSharp\PurpleSharp.exe }
-  
+
