@@ -55,3 +55,22 @@
     safe_mode_password: "{{ attack_range_password }}"
     state: "domain_controller"
   register: _windows_domain_controller
+
+# - name: Enable Windows Security Logging "Account Logon"
+#   win_audit_policy_system:
+#     subcategory: Kerberos Authentication Service
+#     audit_type: success, failure
+ 
+# - name: Enable Windows Security Logging "Account Logon"
+#   win_audit_policy_system:
+#     subcategory: Kerberos Service Ticket Operations
+#     audit_type: success, failure
+
+- name: Enable Kerberos LogLevel
+  win_shell: reg add HKLM\SYSTEM\CurrentControlSet\Control\Lsa\Kerberos\Parameters /v “LogLevel” /t REG_DWORD /d 1
+
+- name: Enable Kerberos Authentication Service Logging
+  win_shell: auditpol /set /category:"Account Logon" /subcategory:"Kerberos Authentication Service" /success:enable /failure:enable
+
+- name: Enable Kerberos Service Ticket Operations Logging
+  win_shell: auditpol /set /category:"Account Logon" /subcategory:"Kerberos Service Ticket Operations" /success:enable /failure:enable
