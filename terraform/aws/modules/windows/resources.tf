@@ -58,8 +58,18 @@ sc.exe config winrm start=auto
 net start winrm
 Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
 Enable-PSRemoting -SkipNetworkProfileCheck -Force
+# Variable specifying the drive you want to extend
+$drive_letter = "C"
+# Script to get the partition sizes and then resize the volume
+$size = (Get-PartitionSupportedSize -DriveLetter $drive_letter)
+Resize-Partition -DriveLetter $drive_letter -Size $size.SizeMax
 </powershell>
 EOF
+
+  root_block_device {
+    delete_on_termination = true
+    volume_size           = 50
+  }
 
   provisioner "remote-exec" {
     inline = [
