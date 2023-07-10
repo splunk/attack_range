@@ -2,9 +2,14 @@
   gather_facts: False
   become: true
   roles:
-    - set_hostname_linux
-    - linux_server_post
-    - update_sysmon_config_linux
-    - linux_agent_prelude
-    - splunk_byo_linux
-    - contentctl
+    - role: set_hostname_linux
+    - role: linux_server_post
+      when: install_contentctl == "0"
+    - role: update_sysmon_config_linux
+      when: install_contentctl == "0"
+    - role: linux_agent_prelude
+      when: install_contentctl == "0"
+    - role: splunk_byo_linux
+      when: install_contentctl == "0"
+    - role: contentctl
+      when: install_contentctl == "1"
