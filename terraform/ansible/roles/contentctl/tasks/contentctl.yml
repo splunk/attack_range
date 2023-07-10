@@ -1,20 +1,25 @@
 ---
 
+- name: Add apt repository
+  become: true
+  shell: add-apt-repository ppa:deadsnakes/ppa -y
+
 - name: Install required system packages
   apt:
     pkg:
       - python3.9
       - software-properties-common
       - python3-pip
+      - python3.9-distutils
     state: latest
     update_cache: true
 
-- name: Set Python 3.9 as deafult
+- name: Set Python 3.9 as default
   become: true
   shell: update-alternatives --install /usr/bin/python python /usr/bin/python3.9 1
 
 - name: Install contentctl
-  shell: python -m pip install contentctl
+  shell: pip install contentctl
 
 - name: Add contentctl to Path variable
   shell: echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc

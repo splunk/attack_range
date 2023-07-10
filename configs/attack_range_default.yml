@@ -130,9 +130,6 @@ splunk_server:
   install_dltk: "0"
 # Install Deep Learning Tookit
 
-  install_contentctl: "0"
-# Install ContentCtl
-
 phantom_server:
   phantom_server: "0"
 # Enable/Disable Phantom Server
@@ -186,6 +183,9 @@ linux_servers_default:
 
   sysmon_config: "SysMonLinux-CatchAll.xml"
 # Specify a sysmon config located under configs/
+
+  install_contentctl: "0"
+# Install ContentCtl
 
 kali_server:
   kali_server: "0"

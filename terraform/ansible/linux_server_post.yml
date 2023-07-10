@@ -7,3 +7,4 @@
     - update_sysmon_config_linux
     - linux_agent_prelude
     - splunk_byo_linux
+    - contentctl
