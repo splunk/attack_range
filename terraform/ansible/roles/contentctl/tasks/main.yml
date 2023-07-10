@@ -1,0 +1,7 @@
+---
+
+- include: docker.yml
+  when: install_contentctl == "1"
+
+- include: contentctl.yml
+  when: install_contentctl == "1"
