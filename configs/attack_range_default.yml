@@ -44,6 +44,9 @@ general:
 # All these fields all needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server. 
 # See the chapter Carbon Black in the docs page Attack Range Features.
 
+  install_contentctl: "0"
+# Install contentctl on linux servers
+
 aws:
   region: "us-west-2"
 # region used in AWS. This should be the same as the region configured in AWS cli.
@@ -183,9 +186,6 @@ linux_servers_default:
 
   sysmon_config: "SysMonLinux-CatchAll.xml"
 # Specify a sysmon config located under configs/
-
-  install_contentctl: "0"
-# Install ContentCtl
 
 kali_server:
   kali_server: "0"
