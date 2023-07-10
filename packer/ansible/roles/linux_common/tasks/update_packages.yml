@@ -8,6 +8,10 @@
     name: acl
     state: present
 
+- name: Install Acl Retry
+  apt:
+    name: acl
+    state: present
 
 - name: Check if a reboot is needed for Debian and Ubuntu boxes
   register: reboot_required_file

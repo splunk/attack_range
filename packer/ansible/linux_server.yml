@@ -5,10 +5,10 @@
     - role: linux_common
       when: use_prebuilt_images_with_packer == "0"
     - role: linux_universal_forwarder
-      when: use_prebuilt_images_with_packer == "0"
+      when: (use_prebuilt_images_with_packer == "0") and (install_contentctl == "0")
     - role: linux_osquery
-      when: use_prebuilt_images_with_packer == "0"
+      when: (use_prebuilt_images_with_packer == "0") and (install_contentctl == "0")
     - role: linux_sysmon
-      when: use_prebuilt_images_with_packer == "0"
+      when: (use_prebuilt_images_with_packer == "0") and (install_contentctl == "0")
     - role: linux_install_art
-      when: use_prebuilt_images_with_packer == "0"
+      when: (use_prebuilt_images_with_packer == "0") and (install_contentctl == "0")
