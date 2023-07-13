@@ -25,9 +25,7 @@ class PurplesharpSimulationController(SimulationController):
             ansible_user = 'Administrator'
             ansible_port = 5985 + int(target[-1])
 
-        techniques = list()
-        if technique:
-            techniques = technique.split(',')
+        technique = technique.replace(" ","")
 
         run_simulation_playbook = False
         simulation_playbook = ''
@@ -49,7 +47,7 @@ class PurplesharpSimulationController(SimulationController):
                     'ansible_password': self.config['general']['attack_range_password'],
                     'run_simulation_playbook': run_simulation_playbook,
                     'simulation_playbook': simulation_playbook,
-                    'techniques': techniques,
+                    'techniques': technique,
                 },
                 verbosity=0
             )
