@@ -7,7 +7,7 @@ server {
     location / {
     #    root   /usr/share/nginx/html;
     #    index  index.html index.htm;
-         proxy_pass   http://{{nginx_web_proxy_host}}:{{nginx_web_proxy_port}};
+         proxy_pass   http://{{proxy_server_ip}}:{{proxy_server_port}};
     }
 
     #error_page  404              /404.html;
