@@ -44,7 +44,7 @@
 
 - name: setup to start at boot
   become: true
-  command: "/opt/splunkforwarder/bin/splunk enable boot-start -user splunk"
+  command: "/opt/splunkforwarder/bin/splunk enable boot-start -systemd-managed 1 -user splunk"
 
 - name: Start splunk uf
   become: true
