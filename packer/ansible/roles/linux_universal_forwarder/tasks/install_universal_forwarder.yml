@@ -45,6 +45,12 @@
 - name: setup to start at boot
   become: true
   command: "/opt/splunkforwarder/bin/splunk enable boot-start -user splunk"
+  
+- name: Add splunk user to systemd-journal group
+  user:
+    name: splunk
+    groups: systemd-journal
+    append: yes
 
 - name: Start splunk uf
   become: true
