@@ -1,8 +1,5 @@
 ---
 
-- name: Upgrade all apt packages
-  apt: upgrade=dist force_apt_get=yes
-
 - name: Install Acl
   apt:
     name: acl
