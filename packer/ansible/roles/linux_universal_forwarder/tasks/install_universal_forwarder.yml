@@ -27,8 +27,8 @@
   when: splunk_path.stat.exists == false
 
 - name: copy outputs.conf to forward data to splunk server
-  copy:
-    src: outputs.conf
+  template:
+    src: outputs.conf.j2
     dest: /opt/splunkforwarder/etc/system/local/outputs.conf
     owner: splunk
     group: splunk
@@ -44,7 +44,13 @@
 
 - name: setup to start at boot
   become: true
-  command: "/opt/splunkforwarder/bin/splunk enable boot-start -user splunk"
+  command: "/opt/splunkforwarder/bin/splunk enable boot-start"
+  when: cloud_provider != "local"
+
+- name: setup to start at boot
+  become: true
+  command: "/opt/splunkforwarder/bin/splunk enable boot-start"
+  when: cloud_provider == "local"
 
 - name: Start splunk uf
   become: true

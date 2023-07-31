@@ -9,7 +9,7 @@ config.vm.define "ar-win-{{config.general.key_name}}-{{config.general.attack_ran
     config.winrm.retry_limit = 20
     config.vm.network "forwarded_port", guest: 5985, host: {{ 5985 + count }}
     config.vm.network "forwarded_port", guest: 3389, host: {{ 5389 + count }}
-    config.vm.network :private_network, ip: "10.0.1.{{ 14 + count }}"
+    config.vm.network :private_network, ip: "192.168.56.{{ 14 + count }}"
     config.vm.synced_folder '.', '/vagrant', disabled: true
   
     config.vm.provision "shell", inline: "net user Administrator {{ config.general.attack_range_password }}"
@@ -22,6 +22,9 @@ config.vm.define "ar-win-{{config.general.key_name}}-{{config.general.attack_ran
           splunk_uf_win_url: 'https://download.splunk.com/products/universalforwarder/releases/8.2.5/windows/splunkforwarder-8.2.5-77015bc7a462-x64-release.msi',
           win_password: 'Pl3ase-k1Ll-me:p',
           use_prebuilt_images_with_packer: '0',
+{% for key, value in config.general.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
 {% for key, value in server.items() %}
           {{ key }}: "{{ value }}",
 {% endfor %}

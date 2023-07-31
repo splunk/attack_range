@@ -26,6 +26,13 @@
   template:
     src: user-mapping.xml
     dest: /etc/guacamole/user-mapping.xml
+  when: cloud_provider != "local"
+
+- name: Copy user-mapping-local.xml
+  template:
+    src: user-mapping-local.xml
+    dest: /etc/guacamole/user-mapping.xml
+  when: cloud_provider == "local"
 
 - name: Restart guacd and tomcat
   shell:

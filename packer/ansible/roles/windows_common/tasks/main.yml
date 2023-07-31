@@ -3,6 +3,8 @@
 - include: windows-disable-defender.yml
 - include: windows-enable-ps-logging.yml
 - include: windows-enable-4688-cmd-line-audit.yml
+- include: install_choco.yml
+  when: cloud_provider == "local"
 - include: install_app_chocolatey.yml
   with_items:
     - "firefox"

@@ -1,0 +1,9 @@
+[tcpout]
+defaultGroup=my_indexers
+
+[tcpout:my_indexers]
+{% if cloud_provider == 'local' %}
+server=192.168.56.12:9997
+{%- else -%}
+server=10.0.1.12:9997
+{%- endif %}

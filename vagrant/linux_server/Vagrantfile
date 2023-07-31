@@ -1,9 +1,10 @@
 config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_range_name}}-{{count}}" do |config|
-    config.vm.box = "generic/ubuntu2004"
+    config.vm.box = "bento/ubuntu-22.04"
     config.vm.hostname = "{{ server.hostname }}"
     config.vm.boot_timeout = 600
-    config.vm.network :private_network, ip: "10.0.1.{{21 + count}}"
+    config.vm.network :private_network, ip: "192.168.56.{{21 + count}}"
     config.vm.network "forwarded_port", guest: 22, host: {{ 2022 + count }}
+    config.vm.synced_folder '.', '/vagrant', disabled: true
   
     config.vm.provision "ansible" do |ansible|
         ansible.playbook = "../packer/ansible/linux_server.yml"
@@ -12,7 +13,10 @@ config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_r
           ansible_python_interpreter: "/usr/bin/python3",
           splunk_admin_password: 'Pl3ase-k1Ll-me:p',
           use_prebuilt_images_with_packer: '0',
-          splunk_uf_url: 'https://download.splunk.com/products/universalforwarder/releases/8.2.5/linux/splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb'
+          splunk_uf_url: 'https://download.splunk.com/products/universalforwarder/releases/8.2.5/linux/splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb',
+{% for key, value in config.general.items() %}
+          {{ key }}: "{{ value }}",
+{% endfor %}
         }
     end
 
