@@ -8,7 +8,7 @@ python attack_range.py build
 ```
 
 ## Destroy
-Destroys an Attack Range and deletes/deprovision all used ressources
+Destroys an Attack Range and deletes/deprovision all used resources
 ```
 python attack_range.py destroy
 ```
@@ -26,7 +26,7 @@ python attack_range.py resume
 ```
 
 ## Show
-Shows the ressources of an Attack Range
+Shows the resources of an Attack Range
 ```
 python attack_range.py show
 ```

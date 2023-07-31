@@ -34,6 +34,8 @@
             {% endif %}
             <param name="password">{{attack_range_password}}</param>
             <param name="ignore-cert">true</param>
+            <param name="enable-drive">true</param>
+            <param name="drive-path">/home/ubuntu/shared-folder</param>
         </connection>
         {% endfor %}
 
