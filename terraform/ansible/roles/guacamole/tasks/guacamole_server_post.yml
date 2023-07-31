@@ -28,6 +28,11 @@
     dest: /etc/guacamole/user-mapping.xml
   when: cloud_provider != "local"
 
+- name: Create a new folder
+  file:
+    path: /home/ubuntu/shared-folder
+    state: directory
+
 - name: Copy user-mapping-local.xml
   template:
     src: user-mapping-local.xml
