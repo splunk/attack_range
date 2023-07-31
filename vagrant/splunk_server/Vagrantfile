@@ -5,7 +5,8 @@ config.vm.define "ar-splunk-{{config.general.key_name}}-{{config.general.attack_
     config.vm.boot_timeout = 600
     config.vm.network "forwarded_port", guest: 8000, host: 8000, protocol: "tcp"
     config.vm.network "forwarded_port", guest: 8089, host: 8089, protocol: "tcp"
-    config.vm.network :private_network, ip: "10.0.1.12"
+    config.vm.network "forwarded_port", guest: 8080, host: 8080, protocol: "tcp"
+    config.vm.network :private_network, ip: "192.168.56.12"
   
     config.vm.provision "ansible" do |ansible|
         ansible.playbook = "../packer/ansible/splunk_server.yml"
@@ -29,6 +30,8 @@ config.vm.define "ar-splunk-{{config.general.key_name}}-{{config.general.attack_
         ansible.compatibility_mode = "2.0"
         ansible.extra_vars = {
           ansible_python_interpreter: "/usr/bin/python3",  
+          windows_servers_count: {{ config.windows_servers|length }},
+          linux_servers_count: {{ config.linux_servers|length }},
 {% for key, value in config.general.items() %}
           {{ key }}: "{{ value }}",
 {% endfor %}

@@ -10,4 +10,4 @@
 
 - name: restart splunkuf
   become: true
-  command: "/opt/splunkforwarder/bin/splunk restart"
+  command: "systemctl restart SplunkForwarder"

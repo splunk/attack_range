@@ -6,6 +6,12 @@
 - include: collect_osquery_logs.yml
 
 
-- name: restart splunk
+- name: Restart splunk uf
+  become: true
+  command: "systemctl restart SplunkForwarder"
+  when: cloud_provider != "local"
+
+- name: Restart splunk uf
   become: true
   command: "/opt/splunkforwarder/bin/splunk restart"
+  when: cloud_provider == "local"
