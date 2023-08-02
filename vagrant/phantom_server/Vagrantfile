@@ -4,8 +4,24 @@ config.vm.define "ar-phantom-{{config.general.key_name}}-{{config.general.attack
     config.vm.hostname = "#{VM_NAME_P}"
     config.vm.boot_timeout = 600
     config.vm.network "forwarded_port", guest: 443, host: 8443, protocol: "tcp"
-    config.vm.network :private_network, ip: "10.0.1.13"
+    config.vm.network :private_network, ip: "192.168.56.13"
   
+    config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "../packer/ansible/phantom_server.yml"
+      ansible.compatibility_mode = "2.0"
+      ansible.extra_vars = {
+{% for key, value in config.general.items() %}
+        {{ key }}: "{{ value }}",
+{% endfor %}
+{% for key, value in config.splunk_server.items() %}
+        {{ key }}: "{{ value }}",
+{% endfor %}
+{% for key, value in config.phantom_server.items() %}
+            {{ key }}: "{{ value }}",
+{% endfor %}
+      }
+    end
+
     config.vm.provision "ansible" do |ansible|
         ansible.playbook = "../terraform/ansible/phantom_server.yml"
         ansible.compatibility_mode = "2.0"
