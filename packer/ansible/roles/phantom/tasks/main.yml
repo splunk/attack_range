@@ -2,3 +2,7 @@
 # This playbook contains common tasks in this role
 
 - include: install_phantom.yml
+  when: cloud_provider != "local"
+
+- include: install_phantom_local.yml
+  when: cloud_provider == "local"

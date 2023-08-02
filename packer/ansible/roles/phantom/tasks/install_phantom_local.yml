@@ -1,24 +1,21 @@
 ---
 # Install Phantom from RPM on a fresh CentOS 7 instance
 
-- name: Copy Splunk SOAR to server
-  become: true
-  become_user: centos
-  unarchive:
-    src: "../../apps/{{ phantom_app }}"
-    dest: /home/centos
-
 - name: Creates directory
   file:
     path: /opt/soar
     state: directory
 
+- name: Copy Splunk SOAR to server
+  unarchive:
+    src: "../../apps/{{ phantom_app }}"
+    dest: /home/vagrant
+
 - name: prepare phantom install script without apps
-  become_user: centos
-  shell: sudo /home/centos/splunk-soar/soar-prepare-system --splunk-soar-home /opt/soar --no-prompt 
+  shell: sudo /home/vagrant/splunk-soar/soar-prepare-system --splunk-soar-home /opt/soar --no-prompt 
 
 - name: copy splunk soar folder
-  shell: cp -r /home/centos/splunk-soar /home/phantom/splunk-soar
+  shell: cp -r /home/vagrant/splunk-soar /home/phantom/splunk-soar
 
 - name: chown splunk soar folder
   shell: chown -R phantom. /home/phantom/splunk-soar

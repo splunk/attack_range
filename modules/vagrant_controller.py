@@ -113,12 +113,12 @@ class VagrantController(AttackRangeController):
             instances.append([status.name, status.state])
             if status.name.startswith("ar-splunk"):
                 if self.config["splunk_server"]["install_es"] == "1":
-                    messages.append("\nAccess Splunk via:\n\tWeb > https://localhost:8000\n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                    messages.append("\nAccess Splunk via:\n\tWeb > https://192.168.56.12:8000\n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                 else:
-                    messages.append("\nAccess Splunk via:\n\tWeb > http://localhost:8000\n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
-                messages.append("\nAccess Guacamole via:\n\tWeb > http://localhost:8080/guacamole" + "\n\tusername: Admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                    messages.append("\nAccess Splunk via:\n\tWeb > http://192.168.56.12:8000\n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                messages.append("\nAccess Guacamole via:\n\tWeb > http://192.168.56.12:8080/guacamole" + "\n\tusername: Admin \n\tpassword: " + self.config['general']['attack_range_password'])
             elif status.name.startswith("ar-phantom"):
-                messages.append("\nAccess Phantom via:\n\tWeb > https://localhost:443 \n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                messages.append("\nAccess Phantom via:\n\tWeb > https://192.168.56.13:8443 \n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
             elif status.name.startswith("ar-win"):
                 messages.append("\nAccess Windows via:\n\tRDP > rdp://localhost:" + str(5389 + int(status.name[-1])) + " \n\tusername: Administrator \n\tpassword: " + self.config['general']['attack_range_password'])
             elif status.name.startswith("ar-linux"):
