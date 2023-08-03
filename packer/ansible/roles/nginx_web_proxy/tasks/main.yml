@@ -7,7 +7,9 @@
 
 - name: restart splunk
   become: true
-  command: "systemctl restart SplunkForwarder"
+  service:
+    name: SplunkForwarder
+    state: restarted
 
 - name: restart nginx again
   become: true
