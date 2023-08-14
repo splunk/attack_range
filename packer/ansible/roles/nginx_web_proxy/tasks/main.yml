@@ -1,15 +1,13 @@
 ---
-- include: install_deb_uf.yml
-- include: configure_outputs_conf.yml
+#- include: install_deb_uf.yml
+#- include: configure_outputs_conf.yml
 - include: nginx_web_proxy.yml
-- include: create_deploymentclient.yml
+#- include: create_deploymentclient.yml
 - include: configure_inputs.yml
 
-- name: restart splunk
+- name: Restart splunk uf
   become: true
-  service:
-    name: SplunkForwarder
-    state: restarted
+  command: "systemctl restart SplunkForwarder"
 
 - name: restart nginx again
   become: true
