@@ -1,0 +1,8 @@
+---
+# Add vault mirrors to centos due to EOL
+
+- name: comment out old mirrors
+  shell: sudo sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-*
+
+- name: add vault mirrors
+  shell: sudo sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*

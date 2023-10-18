@@ -14,8 +14,8 @@
 - name: prepare phantom install script without apps
   shell: sudo /home/vagrant/splunk-soar/soar-prepare-system --splunk-soar-home /opt/soar --no-prompt 
 
-- name: copy splunk soar folder
-  shell: cp -r /home/vagrant/splunk-soar /home/phantom/splunk-soar
+- name: move splunk soar folder
+  shell: mv /home/vagrant/splunk-soar /home/phantom/splunk-soar
 
 - name: chown splunk soar folder
   shell: chown -R phantom. /home/phantom/splunk-soar

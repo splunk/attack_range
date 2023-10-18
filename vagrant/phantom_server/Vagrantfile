@@ -1,6 +1,7 @@
 config.vm.define "ar-phantom-{{config.general.key_name}}-{{config.general.attack_range_name}}" do |config|
     VM_NAME_P= "ar-phantom"
-    config.vm.box = "centos/7"
+    config.vm.box = "centos/8"
+    config.vm.disk :disk, size: "50GB", primary: true
     config.vm.hostname = "#{VM_NAME_P}"
     config.vm.boot_timeout = 600
     config.vm.network "forwarded_port", guest: 443, host: 8443, protocol: "tcp"
