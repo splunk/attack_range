@@ -1,0 +1,17 @@
+---
+# Resize the disk to use all available space
+- name: Install the EPEL repository
+  yum:
+    name: epel-release
+    state: present
+
+- name: Install cloud-utils-growpart
+  yum:
+    name: cloud-utils-growpart
+    state: present
+
+- name: Use growpart to resize partition 1
+  shell: sudo growpart /dev/sda 1
+
+- name: Use xfs_growfs to resize the filesystem
+  shell: sudo xfs_growfs /dev/sda1
