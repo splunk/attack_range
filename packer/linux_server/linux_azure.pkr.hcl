@@ -29,13 +29,13 @@ variable "splunk_server" {
     }
 }
 
-source "azure-arm" "ubuntu-18-04" {
+source "azure-arm" "ubuntu-20-04" {
   managed_image_resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
   managed_image_name = "linux-v${replace(var.general.version, ".", "-")}"
   os_type = "Linux"
-  image_publisher = "Canonical"
-  image_offer = "UbuntuServer"
-  image_sku = "18.04-LTS"
+  image_publisher = "canonical"
+  image_offer = "0001-com-ubuntu-server-focal"
+  image_sku = "20_04-lts"
   location = var.azure.location
   vm_size = "Standard_A4_v2"
   use_azure_cli_auth = true
@@ -44,7 +44,7 @@ source "azure-arm" "ubuntu-18-04" {
 build {
 
   sources = [
-    "source.azure-arm.ubuntu-18-04"
+    "source.azure-arm.ubuntu-20-04"
   ]
 
   provisioner "ansible" {
