@@ -23,7 +23,7 @@ general:
 # Enable/Disable usage of packer to create pre-built images by setting this to 1 or 0.
 
   crowdstrike_falcon: "0"
-# Enable/Disable Crowdstrike Falcon by setting this to 1 or 0.
+# Enable/Disable CrowdStrike Falcon by setting this to 1 or 0.
 
   crowdstrike_agent_name: "WindowsSensor.exe"
   crowdstrike_customer_ID: ""
@@ -31,8 +31,8 @@ general:
   crowdstrike_logs_access_key_id: ""
   crowdstrike_logs_secret_access_key: ""
   crowdstrike_logs_sqs_url: ""
-# All these fields are needed to automatically deploy a Crowdstrike Agent and ingest Crowdstrike Falcon logs into the Splunk Server.
-# See the chapter Crowdstrike Falcon in the docs page Attack Range Features.
+# All these fields are needed to automatically deploy a CrowdStrike Agent and ingest CrowdStrike Falcon logs into the Splunk Server.
+# See the chapter CrowdStrike Falcon in the docs page Attack Range Features.
 
   carbon_black_cloud: "0"
 # Enable/Disable VMWare Carbon Black Cloud by setting this to 1 or 0.
@@ -51,10 +51,10 @@ aws:
 # Path to your private key. This needs to match the public key uploaded to AWS.
 
   cloudtrail: "0"
-# Enable/Disable collection of Cloudtrail logs by setting this to 1 or 0.
+# Enable/Disable collection of CloudTrail logs by setting this to 1 or 0.
 
   cloudtrail_sqs_queue: "https://sqs.us-west-2.amazonaws.com/111111111111/cloudtrail-cloud-attack-range"
-# Cloudtrail SQS queue. See the chapter AWS Cloudtrail in the docs page Attack Range Cloud.
+# Cloudtrail SQS queue. See the chapter AWS CloudTrail in the docs page Attack Range Cloud.
 
   use_elastic_ips: "1"
 # Enable/disable usage of Elastic IPs by setting this to 1 or 0.
@@ -125,7 +125,7 @@ phantom_server:
 # Enable/Disable Phantom Server by setting this to 1 or 0.
 
   phantom_image: "phantom-v3-0-0"
-# name of the image of the Phantom Server. Packer is used to build this images.
+# Name of the image of the Phantom Server. Packer is used to build this images.
 
   phantom_community_username: user
 # Specify the username needed to login to my.phantom.us to download Phantom.
@@ -157,7 +157,7 @@ windows_servers_default:
 # Define the hostname for the Windows Server.
 
   windows_image: windows-2016-v3-0-0
-# name of the image of the Windows Server. Packer is used to build this images.
+# Name of the image of the Windows Server. Packer is used to build this images.
 
   create_domain: "0"
 # Create Domain will turn this Windows Server into a Domain Controller. Enable by setting this to 1.
@@ -197,7 +197,7 @@ nginx_server:
 # Specify the image used for Nginx Server.
 
   nginx_image: nginx-web-proxy-v3-0-0
-# name of the image of the Web proxy. Packer is used to build this images.
+# Name of the image of the Web proxy. Packer is used to build this images.
 
   proxy_server_ip: "10.0.1.12"
 # Specify what ip to proxy.
