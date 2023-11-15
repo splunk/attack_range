@@ -46,7 +46,7 @@ source "azure-arm" "phantom" {
   os_type = "Linux"
   image_publisher = "openlogic"
   image_offer = "centos"
-  image_sku = "7_9"
+  image_sku = "8_5"
   location = var.azure.location
   vm_size = "Standard_A8_v2"
   use_azure_cli_auth = true
