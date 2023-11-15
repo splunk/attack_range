@@ -1,10 +1,10 @@
 # Attack Range Config
 
 ## attack_range.yml
-attack_range.yml is the configuration file for Attack Range. Attack Range reads first the default configuration file located in configs/attack_range_default.yml and then the attack_range.yml (or the config which you specify with the -c parameter). The parameters in attack_range.yml override the parameters in configs/attack_range_default.yml. 
+`attack_range.yml` is the configuration file for Attack Range. Attack Range reads first the default configuration file located in `configs/attack_range_default.yml` and then the attack_range.yml (or the config which you specify with the -c parameter). The parameters in `attack_range.yml` override the parameters in `configs/attack_range_default.yml`.
 
 ## attack_range_default.yml
-The attack_range_default.yml defines all default values for the Attack Range. The following file contains some comments to describe the different parameters:
+The `attack_range_default.yml` defines all default values for the Attack Range. The following file contains some comments to describe the different parameters:
 ````
 general:
   attack_range_password: "Pl3ase-k1Ll-me:p"
@@ -39,7 +39,7 @@ general:
   crowdstrike_logs_access_key_id: ""
   crowdstrike_logs_secret_access_key: ""
   crowdstrike_logs_sqs_url: ""
-# All these fields all needed to automatically deploy a Crowdstrike Agent and ingest Crowdstrike Falcon logs into the Splunk Server. 
+# All these fields all needed to automatically deploy a Crowdstrike Agent and ingest Crowdstrike Falcon logs into the Splunk Server.
 # See the chapter Crowdstrike Falcon in the docs page Attack Range Features.
 
   carbon_black_cloud: "0"
@@ -48,7 +48,7 @@ general:
   carbon_black_cloud_agent_name: "installer_vista_win7_win8-64-3.8.0.627.msi"
   carbon_black_cloud_company_code: ""
   carbon_black_cloud_s3_bucket: ""
-# All these fields all needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server. 
+# All these fields all needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server.
 # See the chapter Carbon Black in the docs page Attack Range Features.
 
 aws:
@@ -56,7 +56,7 @@ aws:
 # region used in AWS. This should be the same as the region configured in AWS cli.
 
   private_key_path: "~/.ssh/id_rsa"
-# path to your private key. This need to match the public key uplaoded to AWS.  
+# path to your private key. This need to match the public key uplaoded to AWS.
 
   cloudtrail: "0"
 # Enable/Disable collection of Cloudtrail logs with 1/0
@@ -69,7 +69,7 @@ aws:
 
 azure:
   location: "West Europe"
-# region used in Azure. 
+# region used in Azure.
 
   subscription_id: "xxx"
 # Azure subscription id
@@ -115,7 +115,7 @@ splunk_server:
 
   splunk_uf_win_url: "https://download.splunk.com/products/universalforwarder/releases/9.0.2/windows/splunkforwarder-9.0.2-17e00c557dc1-x64-release.msi"
 # Url to download Splunk Universal Forwarder Windows
-  
+
   byo_splunk: "0"
 # Enable/Disable Bring your own Splunk
 
@@ -161,7 +161,7 @@ phantom_server:
 # Phantom Api Token
 
 windows_servers_default:
-  hostname: ar-win 
+  hostname: ar-win
 # Define the hostname for the Windows Server
 
   windows_image: windows-2016-v3-0-0
@@ -236,4 +236,3 @@ simulation:
 # Email account login into a Prelude Operator UI
 # required for connecting to redirector, can be found on the GUI under connect>deploy manual redirector> accountEmail.
 ````
-
