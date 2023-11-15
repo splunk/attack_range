@@ -118,7 +118,7 @@ class AzureController(AttackRangeController):
         self.config['general']['use_prebuilt_images_with_packer'] = "0"
 
         if image_name.startswith("splunk"):
-            only_cmd_arg = "azure-arm.splunk-ubuntu-18-04"
+            only_cmd_arg = "azure-arm.splunk-ubuntu-20-04"
             path_packer_file = "packer/splunk_server/splunk_azure.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
@@ -182,7 +182,7 @@ class AzureController(AttackRangeController):
                 "-only=" + only_cmd_arg, path_packer_file]
 
         elif image_name.startswith("linux"):
-            only_cmd_arg = "azure-arm.ubuntu-18-04"
+            only_cmd_arg = "azure-arm.ubuntu-20-04"
             path_packer_file = "packer/linux_server/linux_azure.pkr.hcl"
             command = ["packer", "build", "-force", 
                 "-var", "general=" + json.dumps(self.config["general"]), 
