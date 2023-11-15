@@ -253,7 +253,7 @@ class AzureController(AttackRangeController):
                     else:
                         messages.append("\n\nAccess Splunk via:\n\tWeb > http://" + instance['public_ip'] + ":8000\n\tSSH > ssh -i" + self.config['azure']['private_key_path'] + " ubuntu@" + instance['public_ip'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                 elif instance_name.startswith("ar-phantom"):
-                    messages.append("\nAccess Phantom via:\n\tWeb > https://" + instance['public_ip'] + ":8443" + "\n\tSSH > ssh -i" + self.config['azure']['private_key_path'] + " centos@" + instance['public_ip'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                    messages.append("\nAccess Phantom via:\n\tWeb > https://" + instance['public_ip'] + ":8443" + "\n\tSSH > ssh -i" + self.config['azure']['private_key_path'] + " almalinux@" + instance['public_ip'] + "\n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                 elif instance_name.startswith("ar-win"):
                     messages.append("\nAccess Windows via:\n\tRDP > rdp://" + instance['public_ip'] + ":3389\n\tusername: AzureAdmin \n\tpassword: " + self.config['general']['attack_range_password'])
                 elif instance_name.startswith("ar-linux"):

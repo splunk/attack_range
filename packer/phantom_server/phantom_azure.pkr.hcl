@@ -44,11 +44,11 @@ source "azure-arm" "phantom" {
   managed_image_resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
   managed_image_name = "phantom-v${replace(var.general.version, ".", "-")}"
   os_type = "Linux"
-  image_publisher = "openlogic"
-  image_offer = "centos"
-  image_sku = "8_5"
+  image_publisher = "almalinux"
+  image_offer = "almalinux-x86_64"
+  image_sku = "8-gen1"
   location = var.azure.location
-  vm_size = "Standard_A8_v2"
+  vm_size = "Standard_B8als_v2"
   use_azure_cli_auth = true
 }
 
@@ -61,7 +61,7 @@ build {
   provisioner "ansible" {
     extra_arguments = ["--extra-vars", "${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}"]
     playbook_file   = "packer/ansible/phantom_server.yml"
-    user            = "centos"
+    user            = "almalinux"
   }
 
 }
