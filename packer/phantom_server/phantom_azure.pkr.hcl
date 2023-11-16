@@ -49,6 +49,7 @@ source "azure-arm" "phantom" {
   image_sku = "8-gen1"
   location = var.azure.location
   vm_size = "Standard_B8als_v2"
+  os_disk_size_gb = "530"
   use_azure_cli_auth = true
 }
 

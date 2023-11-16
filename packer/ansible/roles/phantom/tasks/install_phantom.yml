@@ -1,12 +1,29 @@
 ---
-# Install Phantom from RPM on a fresh CentOS 7 instance
+# Install Phantom from RPM on a fresh AlmaLinux 8 instance
+
+- name: Install decompressing tools for archive extraction
+  yum:
+    name: tar,gzip
+    state: present
+
+
 
 - name: Copy Splunk SOAR to server
   become: true
-  become_user: almalinux
-  unarchive:
+  copy:
     src: "../../apps/{{ phantom_app }}"
-    dest: /home/almalinux
+    dest: /tmp
+
+- name: Create archive folders
+  file:
+    path: /tmp/extracted
+    state: directory
+
+- name: Exctract SOAR Archive
+  unarchive:
+    src: "/tmp/{{ phantom_app }}"
+    dest: /tmp/extracted
+    remote_src: yes
 
 - name: Creates directory
   file:
@@ -15,10 +32,10 @@
 
 - name: prepare phantom install script without apps
   become_user: almalinux
-  shell: sudo /home/almalinux/splunk-soar/soar-prepare-system --splunk-soar-home /opt/soar --no-prompt 
+  shell: sudo /tmp/extracted/splunk-soar/soar-prepare-system --splunk-soar-home /opt/soar --no-prompt
 
 - name: copy splunk soar folder
-  shell: cp -r /home/almalinux/splunk-soar /home/phantom/splunk-soar
+  shell: cp -r /tmp/extracted/splunk-soar /home/phantom/splunk-soar
 
 - name: chown splunk soar folder
   shell: chown -R phantom. /home/phantom/splunk-soar
@@ -29,7 +46,22 @@
 #     src: "../../apps/{{ phantom_app }}"
 #     dest: /home/phantom
 
-- name: run the phantom install script 
+- name: Patch OS-Checks of phantom \#1
+  copy:
+    src: ../../apps/os_check.py
+    dest: /home/phantom/splunk-soar/install/operations/checks/os_check.py
+
+- name: Patch OS-Checks of phantom \#2
+  copy:
+    src: ../../apps/install_common.py
+    dest: /home/phantom/splunk-soar/install/install_common.py
+
+- name: Patch OS-Checks of phantom \#3
+  copy:
+    src: ../../apps/correct_installer.py
+    dest: /home/phantom/splunk-soar/install/operations/checks/correct_installer.py
+
+- name: run the phantom install script
   become_user: phantom
   shell: ./soar-install --splunk-soar-home /opt/soar --no-prompt --ignore-warnings
   args:
