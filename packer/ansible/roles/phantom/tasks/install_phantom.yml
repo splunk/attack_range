@@ -12,6 +12,12 @@
     src: "../../apps/{{ phantom_app }}"
     dest: /tmp
 
+- name: Copy SOAR patches to server
+  become: true
+  copy:
+    src: "../../apps/*.patch"
+    dest: /tmp
+
 - name: Create archive folders
   file:
     path: /tmp/extracted
@@ -29,13 +35,13 @@
     state: directory
 
 - name: Patch OS-Checks of phantom \#1
-  shell: patch /tmp/extracted/splunk-soar/install/operations/checks/os_check.py < ../../apps/os_check.patch
+  shell: patch /tmp/extracted/splunk-soar/install/operations/checks/os_check.py < /tmp/os_check.patch
 
 - name: Patch OS-Checks of phantom \#2
-  shell: patch /tmp/extracted/splunk-soar/install/install_common.py < ../../apps/install_common.patch
+  shell: patch /tmp/extracted/splunk-soar/install/install_common.py < /tmp/install_common.patch
 
 - name: Patch OS-Checks of phantom \#3
-  shell: patch /tmp/extracted/splunk-soar/install/operations/checks/correct_installer.py < ../../apps/correct_installer.patch
+  shell: patch /tmp/extracted/splunk-soar/install/operations/checks/correct_installer.py < /tmp/correct_installer.patch
 
 - name: prepare phantom install script without apps
   become_user: almalinux
