@@ -15,6 +15,9 @@ ansible/vars/vars.yml
 # apps folder
 apps/*
 !apps/.gitkeep
+!apps/correct_installer.patch
+!apps/install_common.patch
+!apps/os_check.patch
 
 # attack data folder
 attack_data/*

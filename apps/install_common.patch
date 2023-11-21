@@ -1,0 +1,427 @@
+--- install_common.py.orig	2023-11-21 12:18:08.546752814 +0000
++++ install_common.py	2023-11-16 17:21:49.670094906 +0000
+@@ -1,129 +1,308 @@
+-import json
+ import logging
+-import shutil
++import re
+ 
++from argparse import ArgumentTypeError as ArgTypeError
++from distutils.version import LooseVersion
+ from pathlib import Path
++from typing import NamedTuple
++from collections.abc import Iterable
+ 
+-from install.enums import LogFormat
+-from install.cluster import ExpectedClusterPhase, ClusterPhase
+-from install.install_log import log_context
+-from install.operations.deployment_task import DeploymentTask
++PRODUCT_NAME = "Splunk SOAR"  # noqa: PH110
++
++# Remove this eventually. Duplicates the path module but want to avoid a circular import.
++__DIR__ = Path(__file__).resolve().parent
++__ROOT__ = __DIR__.parent
+ 
+ logger = logging.getLogger(__name__)
+ 
+ 
+-class InstallApps(DeploymentTask):
+-    """
+-    Potentially install apps
++class NoTracebackException(Exception):
++    """Only print the error message for these exception types, not the full traceback."""
++
++
++class ArgumentTypeError(NoTracebackException, ArgTypeError):
++    """Raised by argument type validation functions."""
++
++
++class DeploymentChecksFailed(NoTracebackException, Exception):
++    """Used to denote that the pre-deployment stage failed."""
++
++
++class DeploymentAborted(NoTracebackException, Exception):
++    """User canceled the deployment by answering negatively to a prompt."""
++
++
++class InstallError(Exception):
++    """For generic errors during installation"""
++
++
++class InstallWarning(Warning):
++    """For errors that should not cause a failing exit code"""
++
++
++class VersionAlreadyInstalledWarning(Warning):
++    """The version the user is trying to install is already installed.
++
++    This error should not cause a failing exit code
+     """
+ 
+-    @property
+-    def app_tgz_dir(self) -> Path:
+-        return Path(self.options.phantom_home) / "dependencies/apps/"
+-
+-    @property
+-    def install_data_dir(self) -> Path:
+-        return Path(self.options.phantom_home) / "installData/"
+-
+-    @property
+-    def apps_dir_glob(self) -> Path:
+-        return Path(self.options.phantom_home) / "dependencies/apps/*.tgz"
+-
+-    @property
+-    def insert_into_db_path(self) -> Path:
+-        return Path(self.options.phantom_home) / "www/insert_to_db.py"
+-
+-    def install(self) -> None:
+-        if self.options.with_apps:
+-            self._install_apps()
+-            self._install_assets()
+-
+-        # Remove app tgzs
+-        if self.app_tgz_dir.exists():
+-            shutil.rmtree(self.app_tgz_dir)
+-
+-        # TODO: fix the root cause - here for now to circumvent 'apps not loaded' error
+-        self.shell.phsvc("restart", "uwsgi", error_msg="Failed to restart uwsgi")
+-
+-    # Decorators on overloaded methods cause a bug with mypy when checking for Liskov Substitution Principle:
+-    # https://github.com/python/mypy/issues/8393
+-    @ExpectedClusterPhase(phases={ClusterPhase.INFLECTION_POINT})
+-    def upgrade(self) -> None:  # type: ignore
+-        self.install()
+-
+-    def remove(self) -> None:
+-        pass
+-
+-    def _install_apps(self) -> None:
+-        """
+-        Installs apps that are in dependencies/apps/ as tgzs
+-        Will log a warning if that directory does not exist or there are no tgz apps in it
+-        Installation is permissive around py2 apps, only raising a warning
+-        """
+-        logger.info("Installing default apps...")
+-
+-        if not self.app_tgz_dir.exists():
+-            logger.warning(
+-                f"Apps dir ({self.app_tgz_dir}) does not exist. Apps will not be installed."
+-            )
+-            return
+-
+-        cmd = f"install_apps {self.apps_dir_glob} --no-color --stage"
+-
+-        log_json = False
+-        if LogFormat(self.options.log_format) in [LogFormat.JSON, LogFormat.PRETTY_JSON]:
+-            log_json = True
+-            cmd += " --log-json"
+-
+-        # Use shell=True here to get glob expansion behavior
+-        proc = self.shell.phenv(
+-            cmd,
+-            shell=True,
+-            error_msg="Failed to install one or more apps. See debug log for more details",
+-            quiet=log_json,  # Handle logging ourselves if json logging is enabled.
+-        )
+ 
+-        if log_json:
+-            # The proc stdout with --log-json option is a string containing lines of json.
+-            # Since app_install.log doesn't get sent to skynet, we want to parse the individual
+-            # log jsons from the string and then log them separately
+-            with log_context.temporary():
+-                log_lines = []
+-                if proc.stdout:
+-                    log_lines.extend(proc.stdout.split("\n"))
+-
+-                if proc.stderr:
+-                    log_lines.extend(proc.stderr.split("\n"))
+-
+-                for log_line in log_lines:
+-                    if not log_line:
+-                        continue
+-
+-                    try:
+-                        app_install_log_context = json.loads(log_line)
+-                    except json.JSONDecodeError:
+-                        logger.debug(log_line)
+-                        continue
+-
+-                    if not isinstance(app_install_log_context, dict):
+-                        logger.debug(app_install_log_context)
+-                        continue
+-
+-                    message = app_install_log_context.pop("message")
+-                    # Supplying the app install context via extra kwarg will ensure
+-                    # that we'll be logging the original message's timestamp, file/line info etc.
+-                    logger.debug(message, extra={"log-data": app_install_log_context})
+-
+-    def _install_assets(self) -> None:
+-        """
+-        Installs initiate assets from installData.
+-        Unlike everything else in installData, we need to defer installing assets,
+-        because they rely on foreign keys to apps
+-        """
+-        logger.info("Installing default assets...")
+-        self.shell.phenv(
+-            f"python {self.insert_into_db_path} --assets --data {self.install_data_dir}",
+-            shell=True,
+-            error_msg="Failed to install initial assets",
++def scrub(secrets: list[str], s: str, replace_char: str = "*") -> str:
++    # Replace secrets with a str of arbitrary length so we don't leak secret length
++    replacement = replace_char * 5
++    for secret in set(secrets):
++        s = s.replace(secret, replacement)
++    return s
++
++
++def scrub_env(
++    secret_keys: Iterable[str], env: dict[str, str], replace_char: str = "*"
++) -> dict[str, str]:
++    replacement = replace_char * 5
++    for key in secret_keys:
++        if key in env:
++            env[key] = replacement
++
++    return env
++
++
++def header(msg: str) -> str:
++    header = "=" * 80
++    return f"\n\n{header}\n{msg}\n"
++
++
++class PostInstallMessage(NamedTuple):
++    message: str
++    install: bool
++    upgrade: bool
++
++
++class PostInstallMessages:
++    """Namespace for post deployment messages"""
++
++    IBACKUP_RESET = PostInstallMessage(
++        message=f"If you are using the backup and restore functionality, "
++        f"you must run 'phenv ibackup --setup' after "
++        f"upgrading {PRODUCT_NAME} to continue using it. "
++        "Your current backups will be archived in the ${PHANTOM_HOME}/data directory.",
++        install=False,
++        upgrade=True,
++    )
++
++
++class InstallConstants:
++
++    CONTINUATION_FILE_PATH = __ROOT__ / ".soar-continue"
++    STATE_FILE_PATH = Path("/tmp/textcollector/install_state.prom")
++    INSTALL_CONF_PATH = Path("etc/phantom_install.conf")
++    COMPONENT_MANIFEST_MEMBER = "./manifest.csv"
++
++    INSECURE_DEFAULT_PASSWORD = "password"
++    PHANTOM_ADMIN_EMAIL_DEFAULT = "noreply@splunk.com"
++
++    OLDEST_SUPPORTED_VERSION = LooseVersion("4.10.7")
++
++    MIN_POSTGRES_VERSION = LooseVersion("11")
++    MIN_REDHAT_VERSION = "7.6"
++    MIN_CENTOS_VERSION = "7.6"
++    MIN_UBUNTU_VERSION = "16.0"
++    MIN_AMAZON_LINUX_VERSION = "2"
++    MIN_ORACLE_LINUX_VERSION = "7.6"
++    MIN_ALMA_LINUX_VERSION = "8"
++
++    ULIMIT_MIN = 64000
++
++    MIN_PORT = 1024
++    MAX_PORT = 65535
++
++    RESERVED_PORTS = {
++        2049: "GlusterFS and NFS for NFS exports. Used by the nfsd process.",
++        4369: "RabbitMQ port mapper. All cluster nodes must be able to communicate with each other on this port.",
++        5432: "PostgreSQL service. This port is also used by warm standby configurations for PostgreSQL streaming replication.",
++        5671: "RabbitMQ service. All cluster nodes must be able to communicate with each other on this port.",
++        6432: "Used by PgBouncer to interact with the PostgreSQL database.",
++        5121: "Splunk Enterprise server HTTP Event Collector (HEC) service. Can be blocked on the Shared Services server if using an alternate Splunk Enterprise server.",
++        5122: "Splunk Enterprise server REST port. Can be blocked on the Shared Services server if using an alternate Splunk Enterprise server.",
++        9997: "Splunk Enterprise receiver port. Can be blocked on the Shared Services server if using an alternate Splunk Enterprise server.",
++        8300: "Consul RPC services. All cluster nodes must be able to communicate with each other on this port.",
++        8301: "Consul internode communication. All cluster nodes must be able to communicate with each other on this port.",
++        8302: "Consul internode communication. All cluster nodes must be able to communicate with each other on this port.",
++        8888: "WebSocket server.",
++        8889: "Automation Broker websocket proxy server",
++        15672: "RabbitMQ admin UI and HTTP API service. The RabbitMQ admin UI is disabled by default. Unless you want to use the admin UI, you can block this port. If you choose to activate the RabbitMQ HTTP API and web UI, all cluster nodes must be able to communicate with each other on this port.",
++        24007: "glusterd management port.",
++        25672: "RabbitMQ internode communications. All cluster nodes must be able to communicate with each other on this port.",
++        38465: "NFS mount protocol.",
++        38468: "NFS Lock Manager, NLM.",
++        38469: "NFS ACL support.",
++    }
++
++    RESERVED_PORT_RANGES = {
++        (5100, 5120): "Daemon inter-process communication ports.",
++        (38465, 38466): "NFS mount protocol.",
++        (
++            49152,
++            49162,
++        ): "For GlusterFS brick mounts. The total number of ports required to be open depends on the total number of bricks exported on the server. In most cases, 10 bricks is sufficient. You might need to open additional ports later if you add additional bricks.",
++    }
++
++    MANIFEST_FIELD_NAMES = [
++        "file_path",
++        "user",
++        "group",
++        "permissions",
++        "file_hash",
++        "mod_time",
++        "explicit_entry",
++    ]
++
++    REQUIRED_RPMS_COMMON = [
++        "bind-utils",
++        "c-ares",
++        "chrony",
++        "fontconfig",
++        "gnutls",
++        "libcurl",
++        "libevent",
++        "libicu",
++        "libxml2",
++        "libxslt",
++        "mailcap",
++        "net-tools",
++        "perl-libs",
++        "rsync",
++        "xmlsec1",
++        "xmlsec1-openssl",
++        "zip",
++    ]
++
++    REQUIRED_RPMS_PLATFORM_SPECIFIC = {
++        "rhel-8": ["policycoreutils-python-utils", "jq", "libzstd", "openssl"],
++        "ol-8": ["policycoreutils-python-utils", "jq", "libzstd", "openssl"],
++        "rhel-7": ["policycoreutils-python"],
++        "amzn-2": ["policycoreutils-python", "openssl11", "python3"],
++    }
++
++    # Repository URL for additional packages and package file names.
++    # Version number format: major.minor
++    GLUSTER_RPM_SOURCE_BASE_URL_EL7 = (
++        "http://mirror.centos.org/centos/7/storage/x86_64/gluster-7/Packages/"
++    )
++    GLUSTER_RPM_SOURCE_BASE_URL_EL8 = (
++        "http://mirror.centos.org/centos/8-stream/storage/x86_64/gluster-9/Packages/"
++    )
++    GLUSTERFS_RPMS_EL7 = [
++        ("g", "glusterfs-7.5-1.el7.x86_64.rpm"),
++        ("g", "glusterfs-api-7.5-1.el7.x86_64.rpm"),
++        ("g", "glusterfs-cli-7.5-1.el7.x86_64.rpm"),
++        ("g", "glusterfs-client-xlators-7.5-1.el7.x86_64.rpm"),
++        ("g", "glusterfs-extra-xlators-7.5-1.el7.x86_64.rpm"),
++        ("g", "glusterfs-coreutils-0.2.0-1.el7.x86_64.rpm"),
++        ("g", "glusterfs-devel-7.5-1.el7.x86_64.rpm"),
++        ("g", "glusterfs-events-7.5-1.el7.x86_64.rpm"),
++        ("g", "glusterfs-fuse-7.5-1.el7.x86_64.rpm"),
++        ("g", "glusterfs-libs-7.5-1.el7.x86_64.rpm"),
++        ("g", "glusterfs-server-7.5-1.el7.x86_64.rpm"),
++        ("p", "python2-gluster-7.5-1.el7.x86_64.rpm"),
++        ("u", "userspace-rcu-0.10.0-3.el7.x86_64.rpm"),
++    ]
++    GLUSTERFS_RPMS_EL8 = [
++        ("g", "glusterfs-9.6-1.el8s.x86_64.rpm"),
++        ("g", "glusterfs-fuse-9.6-1.el8s.x86_64.rpm"),
++        ("g", "glusterfs-cli-9.6-1.el8s.x86_64.rpm"),
++        ("g", "glusterfs-client-xlators-9.6-1.el8s.x86_64.rpm"),
++        ("g", "glusterfs-server-9.6-1.el8s.x86_64.rpm"),
++        ("g", "glusterfs-events-9.6-1.el8s.x86_64.rpm"),
++        ("g", "glusterfs-selinux-2.0.1-1.el8s.noarch.rpm"),
++        ("l", "libgfrpc0-9.6-1.el8s.x86_64.rpm"),
++        ("l", "libgfxdr0-9.6-1.el8s.x86_64.rpm"),
++        ("l", "libgfapi0-9.6-1.el8s.x86_64.rpm"),
++        ("l", "libglusterd0-9.6-1.el8s.x86_64.rpm"),
++        ("l", "libglusterfs0-9.6-1.el8s.x86_64.rpm"),
++        ("l", "libgfchangelog0-9.6-1.el8s.x86_64.rpm"),
++        ("p", "python3-gluster-9.6-1.el8s.x86_64.rpm"),
++    ]
++    # Firewall documentation URL. Version number format: major.minor.patch
++    FIREWALL_DOCS_URL_TEMPLATE = (
++        "https://docs.splunk.com/Documentation/SOARonprem/{version}/Install/Ports"
++    )
++    # Ports that are required to be open in basic setup.
++    FIREWALL_REQUIRED_PORTS = [
++        22,
++        80,
++        443,
++        8300,
++        8301,
++        8302,
++        4369,
++        5671,
++        25672,
++        15672,
++        5121,
++    ]
++
++    SCRIPT_NAME_PRE_INSTALL = "soar-prepare-system"
++
++    ENV_SECRETS = {
++        "PHANTOM_ADMIN_PASSWORD",
++        "PHANTOM_SPLUNK_SEARCH_PASSWORD",
++        "PHANTOM_SPLUNK_DELETE_PASSWORD",
++        "PHANTOM_SPLUNK_UI_PASSWORD",
++    }
++
++    ENV_PRESERVED_VARIABLES = {
++        "PATH",
++        "HOME",
++        "http_proxy",
++        "HTTP_PROXY",
++        "https_proxy",
++        "HTTPS_PROXY",
++        "no_proxy",
++        "NO_PROXY",
++        "PHANTOM_FRONTEND",
++        "WSS_LISTEN_ALL",
++        "NGINX_EXTERNAL_PORT",
++    }
++
++
++def _get_os_release_var(name: str) -> str:
++    """
++    Dig a variable value from /etc/os-release and trim quotes away.
++    """
++    with open("/etc/os-release") as os_release:
++        line = next(
++            filter(lambda line: re.match(rf"\s*{name}\s*=", line), os_release.read().split("\n"))
+         )
++        value = line.split("=")[1].strip()
++        if re.match(r'^".*"$', value):
++            return value[1:-1]
++        return value
++
++
++def _get_centos_and_rhel_version() -> str:
++    """Read CentOS/RHEL major.minor version from /etc/redhat-release"""
++    release_text = Path("/etc/redhat-release").read_text()
++    version_full = re.search(r"\d+(?:\.\d+)+", release_text)
++    if not version_full:
++        raise InstallError("Unable to read CentOS/RHEL version from /etc/redhat-release.")
++    return ".".join(version_full.group(0).split(".")[:2])
++
++
++def get_os_version() -> str:
++    """
++    Get the operating system version (major.minor).
++
++    CentOS only reports the major version in /etc/os-release, so it is handled separately.
++    """
++    if Path("/etc/redhat-release").exists():
++        return _get_centos_and_rhel_version()
++    else:
++        return _get_os_release_var("VERSION_ID")
++
++
++def get_os_type() -> str:
++    """
++    Get the operating system variant like 'ubuntu', 'centos' or 'rhel'.
++    """
++    return _get_os_release_var("ID")
+ 

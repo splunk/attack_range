@@ -47,19 +47,13 @@
 #     dest: /home/phantom
 
 - name: Patch OS-Checks of phantom \#1
-  copy:
-    src: ../../apps/os_check.py
-    dest: /home/phantom/splunk-soar/install/operations/checks/os_check.py
+  shell: patch /home/phantom/splunk-soar/install/operations/checks/os_check.py < ../../apps/os_check.patch
 
 - name: Patch OS-Checks of phantom \#2
-  copy:
-    src: ../../apps/install_common.py
-    dest: /home/phantom/splunk-soar/install/install_common.py
+  shell: patch /home/phantom/splunk-soar/install/install_common.py < ../../apps/install_common.patch
 
 - name: Patch OS-Checks of phantom \#3
-  copy:
-    src: ../../apps/correct_installer.py
-    dest: /home/phantom/splunk-soar/install/operations/checks/correct_installer.py
+  shell: patch /home/phantom/splunk-soar/install/operations/checks/correct_installer.py < ../../apps/correct_installer.patch
 
 - name: run the phantom install script
   become_user: phantom

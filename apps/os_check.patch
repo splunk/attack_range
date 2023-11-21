@@ -1,0 +1,24 @@
+--- os_check.py.orig	2023-11-21 12:19:28.166943616 +0000
++++ os_check.py	2023-11-16 17:22:07.190135490 +0000
+@@ -48,6 +48,7 @@
+                 "rhel": RedHatVersionCheck,
+                 "amzn": AmazonLinuxVersionCheck,
+                 "ol": OracleLinuxVersionCheck,
++                "almalinux": AlmaLinuxVersionCheck,
+             }
+         )
+         checker.check_version()
+@@ -94,6 +95,13 @@
+     def check_version(self) -> None:
+         self._check_minimum_version(InstallConstants.MIN_AMAZON_LINUX_VERSION)
+ 
++class AlmaLinuxVersionCheck(OSCheck):
++    """
++    Version checker for Alma Linux.
++    """
++
++    def check_version(self) -> None:
++        self._check_minimum_version(InstallConstants.MIN_ALMA_LINUX_VERSION)
+ 
+ class OracleLinuxVersionCheck(OSCheck):
+     """
