@@ -6,8 +6,6 @@
     name: tar,gzip
     state: present
 
-
-
 - name: Copy Splunk SOAR to server
   become: true
   copy:
@@ -30,6 +28,15 @@
     path: /opt/soar
     state: directory
 
+- name: Patch OS-Checks of phantom \#1
+  shell: patch /tmp/extracted/splunk-soar/install/operations/checks/os_check.py < ../../apps/os_check.patch
+
+- name: Patch OS-Checks of phantom \#2
+  shell: patch /tmp/extracted/splunk-soar/install/install_common.py < ../../apps/install_common.patch
+
+- name: Patch OS-Checks of phantom \#3
+  shell: patch /tmp/extracted/splunk-soar/install/operations/checks/correct_installer.py < ../../apps/correct_installer.patch
+
 - name: prepare phantom install script without apps
   become_user: almalinux
   shell: sudo /tmp/extracted/splunk-soar/soar-prepare-system --splunk-soar-home /opt/soar --no-prompt
@@ -39,21 +46,6 @@
 
 - name: chown splunk soar folder
   shell: chown -R phantom. /home/phantom/splunk-soar
-
-# - name: Copy Splunk SOAR to server
-#   become_user: phantom
-#   unarchive:
-#     src: "../../apps/{{ phantom_app }}"
-#     dest: /home/phantom
-
-- name: Patch OS-Checks of phantom \#1
-  shell: patch /home/phantom/splunk-soar/install/operations/checks/os_check.py < ../../apps/os_check.patch
-
-- name: Patch OS-Checks of phantom \#2
-  shell: patch /home/phantom/splunk-soar/install/install_common.py < ../../apps/install_common.patch
-
-- name: Patch OS-Checks of phantom \#3
-  shell: patch /home/phantom/splunk-soar/install/operations/checks/correct_installer.py < ../../apps/correct_installer.patch
 
 - name: run the phantom install script
   become_user: phantom
