@@ -6,6 +6,11 @@
     name: tar,gzip
     state: present
 
+- name: Install patch commandlet 
+  yum:
+    name: patch
+    state: present 
+
 - name: Copy Splunk SOAR to server
   become: true
   copy:
@@ -15,8 +20,9 @@
 - name: Copy SOAR patches to server
   become: true
   copy:
-    src: "../../apps/*.patch"
+    src: "{{ item }}"
     dest: /tmp
+  with_fileglob: "../../apps/*.patch"
 
 - name: Create archive folders
   file:
