@@ -1,6 +1,10 @@
 ---
 # Configure phantom with credentials, apps, assets, and so on...
 
+- name: ensure phantom is started
+  shell: /opt/soar/bin/start_phantom.sh
+  become_user: phantom
+
 - name: change phantom admin password
   uri:
     url: https://127.0.0.1:8443/rest/user_settings
@@ -11,6 +15,8 @@
     body_format: json
     force_basic_auth: yes
     validate_certs: no
+  retries: 10
+  delay: 30
 
 - name: fetch phantom api token
   uri:

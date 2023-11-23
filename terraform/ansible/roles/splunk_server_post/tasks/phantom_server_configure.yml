@@ -10,7 +10,7 @@
     validate_certs: no
   register: api_token_5
   until: api_token_5.status == 200
-  retries: 25
+  retries: 50
   delay: 60
   when: phantom_app | regex_search("splunk_soar-unpriv-5")
 
@@ -29,7 +29,7 @@
     validate_certs: no
   register: api_token_6
   until: api_token_6.status == 200
-  retries: 25
+  retries: 50
   delay: 60
   when: phantom_app | regex_search("splunk_soar-unpriv-6")
 
