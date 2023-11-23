@@ -1,8 +1,5 @@
 ---
 # This playbook contains common tasks in this role
-<<<<<<< HEAD
-=======
->>>>>>> e078a8b (changes for getting phantom running on Alma Linux)
 
 - include: install_phantom.yml
   when: cloud_provider != "local"
