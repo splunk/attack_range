@@ -41,6 +41,14 @@ def get_instance_by_name(ec2_name, key_name, ar_name, region):
         str = instance['Tags'][0]['Value']
         if str == ec2_name:
             return instance
+        
+def get_instances_by_ids(instance_ids, ec2_name, key_name, ar_name, region):
+    instances = get_all_instances(key_name, ar_name, region)
+    result = []
+    for instance in instances:
+        if instance['InstanceId'] in instance_ids:
+            result.append(instance)
+    return result
 
 
 def get_single_instance_public_ip(ec2_name, key_name, ar_name, region):

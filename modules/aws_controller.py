@@ -237,12 +237,20 @@ class AwsController(AttackRangeController):
                 print(output.strip())
         rc = process.poll()
 
-    def stop(self) -> None:
-        instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
+    def stop(self, instances_ids=None) -> None:
+        instances = []
+        if instances_ids is None:
+            instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
+        else:
+            instances = aws_service.get_instances_by_ids(instances_ids, self.config['general']['key_name'], self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
         aws_service.change_ec2_state(instances, 'stopped', self.logger, self.config['aws']['region'])
 
-    def resume(self) -> None:
-        instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
+    def resume(self, instances_ids=None) -> None:
+        instances = []
+        if instances_ids is None:
+            instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
+        else:
+            instances = aws_service.get_instances_by_ids(instances_ids, self.config['general']['key_name'], self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
         aws_service.change_ec2_state(instances, 'running', self.logger, self.config['aws']['region'])
 
     def simulate(self, engine, target, technique, playbook) -> None:
@@ -266,7 +274,7 @@ class AwsController(AttackRangeController):
             if instance['State']['Name'] == 'running':
                 instances_running = True
                 response.append([instance['Tags'][0]['Value'], instance['State']['Name'],
-                                    instance['NetworkInterfaces'][0]['Association']['PublicIp']])
+                                    instance['NetworkInterfaces'][0]['Association']['PublicIp'], instance['InstanceId']])
                 instance_name = instance['Tags'][0]['Value']
                 if instance_name.startswith("ar-splunk"):
                     splunk_ip = instance['NetworkInterfaces'][0]['Association']['PublicIp']
@@ -304,11 +312,11 @@ class AwsController(AttackRangeController):
 
             if instances_running:
                 print(tabulate(response, headers=[
-                      'Name', 'Status', 'IP Address']))
+                      'Name', 'Status', 'IP Address', 'Instance ID']))
                 for msg in messages:
                     print(msg)
             else:
-                print(tabulate(response, headers=['Name', 'Status']))
+                print(tabulate(response, headers=['Name', 'Status', 'Instance ID']))
 
             print()
         else:
