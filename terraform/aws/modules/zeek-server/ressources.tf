@@ -63,8 +63,8 @@ resource "aws_instance" "zeek_sensor" {
 }
 
 resource "aws_eip" "zeek_ip" {
-  count       = var.zeek_server.zeek_server == "1" ? 1 : 0
-  instance      = aws_instance.zeek_sensor[0].id
+  count       = (var.zeek_server.zeek_server == "1") && (var.aws.use_elastic_ips == "1") ? 1 : 0
+  instance    = aws_instance.zeek_sensor[0].id
 }
 
 resource "aws_ec2_traffic_mirror_target" "zeek_target" {
