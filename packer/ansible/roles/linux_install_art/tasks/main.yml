@@ -1,6 +1,6 @@
 ---
 
-- name: Run Atomic Red Team
+- name: Install Atomic Red Team
   become: true
   shell: |
     pwsh -Command 'IEX (IWR https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicsfolder.ps1 -UseBasicParsing); 
