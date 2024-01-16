@@ -89,11 +89,13 @@ def destroy(args):
 
 def stop(args):
     controller = init(args)
-    controller.stop()
+    instance_ids = [id.strip() for id in args.instance_ids.split(',')] if args.instance_ids else None
+    controller.stop(instance_ids)
     
 def resume(args):
     controller = init(args)
-    controller.resume()
+    instance_ids = [id.strip() for id in args.instance_ids.split(',')] if args.instance_ids else None
+    controller.resume(instance_ids)
 
 def packer(args):
     controller = init(args)
@@ -155,9 +157,11 @@ def main(args):
 
     # Stop arguments
     stop_parser.set_defaults(func=stop)
+    stop_parser.add_argument("--instance_ids", required=False, type=str, help="comma-separated list of instance IDs to stop")
 
     # Resume arguments
     resume_parser.set_defaults(func=resume)
+    resume_parser.add_argument("--instance_ids", required=False, type=str, help="comma-separated list of instance IDs to resume")
 
     # Packer agruments
     packer_parser.add_argument("-in", "--image_name", required=True, type=str,
