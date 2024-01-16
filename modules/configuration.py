@@ -210,7 +210,7 @@ starting configuration for AT-ST mech walker
         {
             # get range password
             'type': 'input',
-            'message': 'enter a master password for your attack_range',
+            'message': 'enter a master password for your attack_range (minimum 8 characters: one UPPERCASE, one lowercase, one numeric, and one non-alphanumeric)',
             'name': 'attack_range_password',
             'default': get_random_password(),
         },
