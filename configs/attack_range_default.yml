@@ -59,6 +59,15 @@ aws:
   use_elastic_ips: "1"
 # Enable/disable usage of Elastic IPs by setting this to 1 or 0.
 
+  use_remote_state: "0"
+# Store the state file in s3 and dynamoDB instead of local
+
+  tf_remote_state_s3_bucket: "test"
+# Specify the already created S3 bucket in the same region
+
+  tf_remote_state_dynamo_db_table: "test"
+# Specify the already created DynamoDB table in the same region
+
 azure:
   location: "West Europe"
 # Region used in Azure.
@@ -174,6 +183,9 @@ windows_servers_default:
   bad_blood: "0"
 # Install Bad Blood by setting this to 1 or 0.
 # More information in chapter Bad Blood under Attack Range Features.
+
+  aurora_agent: "0"
+# Install Aurora Agent 
 
 linux_servers_default:
   hostname: ar-linux
