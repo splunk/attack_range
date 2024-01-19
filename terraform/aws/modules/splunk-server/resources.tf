@@ -28,7 +28,7 @@ data "aws_ami" "splunk_server" {
 }
 
 resource "aws_iam_role" "splunk_role" {
-  count       = var.splunk_server.byo_splunk == "0" ? 1 : 0
+  count = ((var.aws.cloudtrail == "1") || (var.general.carbon_black_cloud == "1")) && (var.splunk_server.byo_splunk == "0") ? 1 : 0
   name = "splunk_role_${var.general.key_name}_${var.general.attack_range_name}"
 
   assume_role_policy = <<EOF
@@ -50,14 +50,14 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "splunk_profile" {
-  count = var.splunk_server.byo_splunk == "0" ? 1 : 0
+  count = ((var.aws.cloudtrail == "1") || (var.general.carbon_black_cloud == "1")) && (var.splunk_server.byo_splunk == "0") ? 1 : 0
   name = "splunk_profile_${var.general.key_name}_${var.general.attack_range_name}"
   role = aws_iam_role.splunk_role[0].name
 }
 
 
 data "aws_iam_policy_document" "splunk_logging" {
-  count       = var.splunk_server.byo_splunk == "0" ? 1 : 0
+  count = ((var.aws.cloudtrail == "1") || (var.general.carbon_black_cloud == "1")) && (var.splunk_server.byo_splunk == "0") ? 1 : 0
 
   statement {
     actions = [
@@ -94,7 +94,7 @@ resource "aws_instance" "splunk-server" {
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
   private_ip             = "10.0.1.12"
-  iam_instance_profile   = aws_iam_instance_profile.splunk_profile[0].name
+  iam_instance_profile   = ((var.aws.cloudtrail == "1") || (var.general.carbon_black_cloud == "1")) && (var.splunk_server.byo_splunk == "0") ? aws_iam_instance_profile.splunk_profile[0].name : null
   associate_public_ip_address = true
 
   root_block_device {
