@@ -4,24 +4,25 @@ The Attack Range supports multiple attack simulation engines.
 ## Atomic Red Team
 Atomic Red Team is a library of tests mapped to the Mitre ATT&CK framework.  
 It can be executed with the following command:
-```
+```bash
 python attack_range.py simulate -e ART -te T1003.001 -t ar-win-ar-ar-0
 ```
 This will execute all atomics for a given ATT&CK technique on the given target. The target need to match the name given from the `python attack_range.py show` command.
 
 ## Purple Sharp
-PurpleSharp is an open source adversary simulation tool written in C# that executes adversary techniques within Windows Active Directory environments.  
+[PurpleSharp](https://github.com/mvelazc0/PurpleSharp) is an open source adversary simulation tool written in C# that executes adversary techniques within Windows Active Directory environments. 
+
 It can be executed with the following command to specify a technique:
-```
+```bash
 python attack_range.py simulate -e PurpleSharp -te T1003.001 -t ar-win-ar-ar-0
 ```
 or you can execute a given playbook:
-```
+```bash
 python attack_range.py simulate -e PurpleSharp -t ar-win-ar-ar-0 -p configs/purplesharp_playbook_T1003.pb
 ```
 
 ## Prelude
-Prelude Operator can be automatically configured and deployed with a Splunk Attack Range allowing a user to easily launch attacks via Operator on a running range using the pre-installed Penuma agents. To get started with Prelude follow these simple steps:
+[Prelude Operator](https://www.preludesecurity.com/products/operator) can be automatically configured and deployed with a Splunk Attack Range allowing a user to easily launch attacks via Operator on a running range using the pre-installed Penuma agents. To get started with Prelude follow these simple steps:
 
 1. Install [Prelude Operator](https://www.prelude.org/download) on your local machine
 2. Configure an attack range with Prelude (configure the [accountEmail](#Prelude-accountEmail) setting)
@@ -35,8 +36,8 @@ For an overview on how Prelude works inside the attack range see the general arc
 ### A few things to note from this architecture:
 
 * A Headless Operator/Redirector is installed on the Splunk server, this means a user **needs**:
-1. Operator installed in their local machine (can be downloaded [here](https://www.prelude.org/download)) to connect and manage it, see screenshot below.
-2. Or talk through it via the API on TCP port 
+  1. Operator installed in their local machine (can be downloaded [here](https://www.prelude.org/download)) to connect and manage it, see screenshot below.
+  2. Or talk through it via the API on TCP port 
 * Pneuma is installed and supported on the Windows (server and domain controller) and Linux machines ONLY today
 * Pneuma connects back to the Headless Operator/Redirector via TCP port 2323
 
@@ -61,4 +62,4 @@ This should then be inserted in the **Deploy Manual Redirectors** form on the lo
 <img width="1440" alt="image" src="https://user-images.githubusercontent.com/1476868/174928203-d51fb6d5-7637-479e-b3bb-b4c5cba11767.png">
 
 ## Kali Linux
-Kali Linux is an open-source Debian-based Linux distribution geared towards various information security tasks such as Penetration Testing, Security Research, Computer Forensics, and Reverse Engineering. Attack Range AWS and local is able to build a Kali Linux instance. 
+[Kali Linux](https://www.kali.org/) is an open-source Debian-based Linux distribution geared towards various information security tasks such as Penetration Testing, Security Research, Computer Forensics, and Reverse Engineering. Attack Range AWS and local is able to build a Kali Linux instance. 

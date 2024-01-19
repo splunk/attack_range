@@ -1,8 +1,8 @@
 # Attack Range Cloud
 
-## AWS Cloudtrail
-The Attack Range is able to automatically ingest Cloudtrail logs into the Splunk Server of the Attack Range. In order to do that, you need to configure a Cloudtrail. It is describe [here](https://docs.splunk.com/Documentation/AddOns/released/AWS/CloudTrail) in the chapter **Configure AWS services for the CloudTrail input**. You can use the following attack_range.yml configuration to ingest AWS cloudtrail logs:
-````
+## AWS CloudTrail
+The Attack Range is able to automatically ingest CloudTrail logs into the Splunk Server of the Attack Range. In order to do that, you need to configure a CloudTrail. It is describe [here](https://docs.splunk.com/Documentation/AddOns/released/AWS/CloudTrail) in the chapter **Configure AWS services for the CloudTrail input**. You can use the following `attack_range.yml` configuration to ingest AWS CloudTrail logs:
+````yml
 general:
   attack_range_password: "ChangeMe123!"
   cloud_provider: "aws"
@@ -17,11 +17,11 @@ You need to update the fields attack_range_password, key_name, region, private_k
 
 
 ## Azure Logs
-The Attack Range is able to automatically ingest Azure logs into the Splunk Server of the Attack Range. Currently Attack Range supports ingesting Azure Activity logs and Eventhub logs. You need to create a service principal with the roles Contributor and Azure Event Hub Receiver. Creating a service principal is described [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal). You can use the following attack_range.yml configuration to ingest Azure logs:
-````
+The Attack Range is able to automatically ingest Azure logs into the Splunk Server of the Attack Range. Currently Attack Range supports ingesting Azure Activity logs and Event Hubs logs. You need to create a service principal with the roles Contributor and Azure Event Hubs Receiver. Creating a service principal is described [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal). You can use the following `attack_range.yml` configuration to ingest Azure logs:
+````yml
 general:
   attack_range_password: "ChangeMe123!"
-  cloud_provider: "aws"
+  cloud_provider: "azure"
   key_name: "ar"
 azure:
   region: "West Europe"
