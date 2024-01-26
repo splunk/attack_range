@@ -43,7 +43,7 @@ general:
 # All these fields are needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server.
 # See the chapter Carbon Black in the docs page Attack Range Features.
 
-install_contentctl: "0"
+  install_contentctl: "0"
 # Install splunk/contentctl on linux servers
 
 aws:
