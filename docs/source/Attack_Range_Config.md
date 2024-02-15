@@ -50,6 +50,11 @@ general:
   carbon_black_cloud_s3_bucket: ""
 # All these fields are needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server.
 # See the chapter Carbon Black in the docs page Attack Range Features.
+  
+  install_contentctl: "0"
+# Install splunk/contentctl on linux servers
+# https://github.com/splunk/contentctl is a powerful tool for creating, validating, testing, and building 
+# Splunk Apps containing custom or modified content.
 
 aws:
   region: "us-west-2"
