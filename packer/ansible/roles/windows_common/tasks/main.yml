@@ -13,5 +13,5 @@
     - "7zip"
     - "adobereader"
     - "python"
-
+- include: advanced_logging.yml
 
