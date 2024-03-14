@@ -63,12 +63,12 @@ resource "aws_instance" "phantom-server" {
 
   provisioner "local-exec" {
     working_dir = "../../packer/ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.aws.private_key_path} -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key '${var.aws.private_key_path}' -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
   }
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.aws.private_key_path} -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.aws : "${key}=\"${value}\""])}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key '${var.aws.private_key_path}' -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.aws : "${key}=\"${value}\""])}'"
   }
 }
 
