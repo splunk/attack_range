@@ -12,7 +12,7 @@
 
 - name: copy aurora-agent license file
   win_copy:
-    src: aurora-trial_365_p_bareiss.lic
+    src: aurora-lite.lic
     dest: C:\aurora-agent-lite-win-pack\aurora-license.lic
 
 - name: install aurora-agent as a service with standard config
