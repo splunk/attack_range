@@ -51,6 +51,9 @@ general:
 # All these fields are needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server.
 # See the chapter Carbon Black in the docs page Attack Range Features.
 
+  install_contentctl: "0"
+# Install contentctl packages on linux hosts
+
 aws:
   region: "us-west-2"
 # Region used in AWS. This should be the same as the region configured in AWS CLI.
