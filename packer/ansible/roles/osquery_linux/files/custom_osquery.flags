@@ -7,3 +7,5 @@
 --events_max=500000
 --logger_min_status=1
 --logger_plugin=filesystem
+--config_plugin=filesystem
+--database_path='/var/osquery/osquery.db'
