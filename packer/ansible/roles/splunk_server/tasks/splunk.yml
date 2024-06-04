@@ -20,7 +20,7 @@
 
 - name: download splunk
   get_url:
-    url: '{{ splunk_url }}'
+    url: "{{ splunk_url }}"
     dest: /opt/splunk.tgz
   when: splunk_path.stat.exists == false
 

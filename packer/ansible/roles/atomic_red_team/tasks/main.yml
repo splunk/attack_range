@@ -1,5 +1,4 @@
 ---
-
 # - name: Check we have installed Atomic Red Team
 #   win_stat:
 #     path: 'C:\AtomicRedTeam'
@@ -42,3 +41,8 @@
 
 - include_tasks: "run_specific_atomics.yml"
   when: run_specific_atomic_tests == "True"
+
+- name: Copy atomic red team description
+  win_copy:
+    src: atomic_red_team.txt
+    dest: C:\Users\Administrator\Desktop\Atomic_Red_Team.txt
