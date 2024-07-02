@@ -22,7 +22,7 @@
     - "splunk-machine-learning-toolkit_541.tgz"
     - "splunk-security-essentials_380.tgz"
     - "splunk-add-on-for-sysmon_400.tgz "
-    - "add-on-for-linux-sysmon_104.tgz"
+    - "splunk-add-on-for-sysmon-for-linux_100.tgz"
     - "splunk-add-on-for-amazon-web-services-aws_760.tgz"
     - "splunk-add-on-for-microsoft-office-365_451.tgz"
     - "splunk-add-on-for-amazon-kinesis-firehose_131r7d1d093.tgz"
