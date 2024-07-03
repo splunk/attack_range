@@ -43,7 +43,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
         - name: Checkout repo
-          uses: actions/checkout@v2
+          uses: actions/checkout@v4
           with:
             ref: 'develop'
 
@@ -60,7 +60,7 @@ jobs:
         #Upload all of the release artifacts that we have created using the third party
         #action recommended bu Github
         - name: Upload Release Artifacts
-          uses: softprops/action-gh-release@v1
+          uses: softprops/action-gh-release@v2
           with:
             files: |
               ../attack-range-${{ steps.vars.outputs.tag }}.tar.gz
@@ -75,18 +75,18 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: 'develop'
 
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Setup Docker Build and Push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           push: true 
           context: docker/ #do the build in the docker directory, not current working directory
