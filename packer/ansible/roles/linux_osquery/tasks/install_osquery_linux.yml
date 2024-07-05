@@ -51,19 +51,20 @@
     src: custom_osquery.flags
     dest: /etc/osquery/osquery.flags
 
-- name: activate osqueryd service
+- name: Ensure osqueryd service is enabled
   become: true
-  service:
+  systemd:
+    name: osqueryd
+    enabled: yes
+
+- name: Ensure osqueryd service is started
+  become: true
+  systemd:
     name: osqueryd
     state: started
 
-- name: osqueryd service status check
-  become: true
-  command: systemctl status osqueryd
-  register: osq_service_status
 
-- name: osquery service status stdout
-  debug: msg="{{ osq_service_status.stdout }}"
+
 
 
 
