@@ -55,7 +55,7 @@ general:
 # Install contentctl packages on linux hosts
 
 aws:
-  region: "us-west-2"
+  region: "us-east-1"
 # Region used in AWS. This should be the same as the region configured in AWS CLI.
 
   private_key_path: "~/.ssh/id_rsa"
