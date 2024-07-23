@@ -64,6 +64,9 @@ source "amazon-ebs" "windows" {
   winrm_username        = "Administrator"
   winrm_insecure        = true
   winrm_use_ssl         = true
+  subnet_id = var.ec2_subnet_id
+  vpc_id = var.vpc_id
+  tags = var.tags
 }
 
 

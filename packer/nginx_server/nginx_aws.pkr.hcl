@@ -52,6 +52,9 @@ source "amazon-ebs" "nginx-web-proxy" {
   ssh_username = "ubuntu"
   force_deregister = true
   force_delete_snapshot = true
+  subnet_id = var.ec2_subnet_id
+  vpc_id = var.vpc_id
+  tags = var.tags
 }
 
 build {

@@ -88,3 +88,13 @@ variable "nginx_server" {
 }
 
 variable "zeek_server" { }
+
+variable "tags" {
+  type = list
+
+  default = [
+    {
+        attack_range = "v3.0.0"
+    }
+  ]
+}
