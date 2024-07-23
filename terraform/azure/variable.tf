@@ -47,7 +47,7 @@ variable "windows_servers" {
   default = [
     {
         hostname = "ar-win-dc"
-        image = "windows-2016"
+        image = "windows-2019"
         win_sysmon_config = "SwiftOnSecurity.xml"
         create_domain = "0"
         join_domain = "0"

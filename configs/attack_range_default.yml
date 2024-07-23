@@ -155,7 +155,7 @@ windows_servers_default:
   hostname: ar-win
   # Define the hostname for the Windows Server.
 
-  windows_image: windows-2016-v3-0-0
+  windows_image: windows-2019-v3-0-0
   # Name of the image of the Windows Server. Packer is used to build this images.
 
   create_domain: "0"
