@@ -33,7 +33,7 @@ resource "aws_instance" "linux_server" {
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip             = "10.0.1.${21 + count.index}"
+  private_ip             = "10.211.12.${168 + count.index}"
   associate_public_ip_address = true
 
   root_block_device {

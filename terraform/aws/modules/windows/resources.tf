@@ -36,7 +36,7 @@ resource "aws_instance" "windows_server" {
   instance_type = var.zeek_server.zeek_server == "1" ? "m5.2xlarge" : "t3.xlarge"
   key_name = var.general.key_name
   subnet_id = var.ec2_subnet_id
-  private_ip = "10.0.1.${14 + count.index}"
+  private_ip = "10.211.12.${164 + count.index}"
   vpc_security_group_ids = [var.vpc_security_group_ids]
   associate_public_ip_address = true
   tags = {

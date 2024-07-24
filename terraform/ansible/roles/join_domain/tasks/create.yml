@@ -3,7 +3,7 @@
 - name: Change dns server to domain controller
   win_dns_client:
     adapter_names: "{{ ansible_interfaces.0.connection_name }}"
-    ipv4_addresses: "10.0.1.14"
+    ipv4_addresses: "10.211.12.164"
 
 - name: reboot | Rebooting Server
   win_reboot:

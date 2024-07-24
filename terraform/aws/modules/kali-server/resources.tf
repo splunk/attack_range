@@ -22,7 +22,7 @@ resource "aws_instance" "kali_machine" {
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip             = "10.0.1.30"
+  private_ip             = "10.211.12.170"
   associate_public_ip_address = true
   
   tags = {

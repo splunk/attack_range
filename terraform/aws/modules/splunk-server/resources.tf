@@ -93,7 +93,7 @@ resource "aws_instance" "splunk-server" {
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip             = "10.0.1.12"
+  private_ip             = "10.211.12.172"
   iam_instance_profile   = ((var.aws.cloudtrail == "1") || (var.general.carbon_black_cloud == "1")) && (var.splunk_server.byo_splunk == "0") ? aws_iam_instance_profile.splunk_profile[0].name : null
   associate_public_ip_address = true
 

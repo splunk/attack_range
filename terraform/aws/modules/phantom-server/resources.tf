@@ -39,7 +39,7 @@ resource "aws_instance" "phantom-server" {
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip             = "10.0.1.13"
+  private_ip             = "10.211.12.163"
   associate_public_ip_address = true
   root_block_device {
     volume_type           = "gp2"
