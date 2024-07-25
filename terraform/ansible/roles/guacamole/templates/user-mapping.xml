@@ -49,6 +49,16 @@
         </connection>
         {% endfor %}
 
+        {% if nginx_server == '1' %}
+        <connection name="ar-nginx-{{ key_name }}-{{ attack_range_name }}">
+            <protocol>ssh</protocol>
+            <param name="hostname">10.211.12.173</param>
+            <param name="port">22</param>
+            <param name="username">ubuntu</param>
+            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
+        </connection>    
+        {% endif %}
+
         {% if kali_server == '1' %}
         <connection name="ar-kali-{{ key_name }}-{{ attack_range_name }}">
             <protocol>ssh</protocol>

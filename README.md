@@ -85,7 +85,7 @@ python attack_range.py build
 
 ### Packer Attack Range
 ```
-python attack_range.py packer --image_name windows-2016
+python attack_range.py packer --image_name windows-2019
 ```
 
 ### Show Attack Range Infrastructure

@@ -165,7 +165,7 @@ def main(args):
 
     # Packer agruments
     packer_parser.add_argument("-in", "--image_name", required=True, type=str,
-                                    help="provide image name such as splunk, linux, windows-2016, windows-2019, nginx, windows-10, windows-11")
+                                    help="provide image name such as splunk, linux, windows-2019, windows-2022, nginx, windows-10, windows-11")
     packer_parser.set_defaults(func=packer)
 
     # Configure arguments

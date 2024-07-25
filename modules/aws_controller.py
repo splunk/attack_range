@@ -51,10 +51,10 @@ class AwsController(AttackRangeController):
         #if self.config['general']['use_prebuilt_images_with_packer'] == "0":
         for i in range(len(self.config['windows_servers'])):
             image_name = self.config['windows_servers'][i]['windows_image']
-            if image_name.startswith("windows-2016"):
-                self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2016-English-Full-Base-*"
-            elif image_name.startswith("windows-2019"):
+            if image_name.startswith("windows-2019"):
                 self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2019-English-Full-Base-*"
+            elif image_name.startswith("windows-2022"):
+                self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2022-English-Full-Base-*"
             else:
                 self.logger.error("Image " + image_name + " not supported.")
                 sys.exit(1)    
@@ -153,21 +153,21 @@ class AwsController(AttackRangeController):
             only_cmd_arg = "amazon-ebs.windows"
             path_packer_file = "packer/windows_server/windows_aws.pkr.hcl"  
             
-            if image_name.startswith("windows-2016"):
-                images = {
-                    "aws_image": "Windows_Server-2016-English-Full-Base-*",
-                    "azure_publisher": "MicrosoftWindowsServer",
-                    "azure_offer": "WindowsServer",
-                    "azure_sku": "2016-Datacenter",
-                    "name": "windows-2016"
-                }            
-            elif image_name.startswith("windows-2019"):
+           if image_name.startswith("windows-2019"):
                 images = {
                     "aws_image": "Windows_Server-2019-English-Full-Base-*",
                     "azure_publisher": "MicrosoftWindowsServer",
                     "azure_offer": "WindowsServer",
                     "azure_sku": "2019-Datacenter",
                     "name": "windows-2019"
+                }
+            elif image_name.startswith("windows-2022"):
+                images = {
+                    "aws_image": "Windows_Server-2022-English-Full-Base-*",
+                    "azure_publisher": "MicrosoftWindowsServer",
+                    "azure_offer": "WindowsServer",
+                    "azure_sku": "2022-Datacenter",
+                    "name": "windows-2022"
                 }
             else:
                 self.logger.error("Image not supported.")
