@@ -7,7 +7,7 @@ module "networkModule" {
 
 module "splunk-server" {
   source = "./modules/splunk-server"
-    vpc_security_group_ids = module.networkModule.sg_vpc_id
+  vpc_security_group_ids = module.networkModule.sg_vpc_id
   ec2_subnet_id = var.ec2_subnet_id
   aws = var.aws
   splunk_server = var.splunk_server
@@ -22,7 +22,7 @@ module "splunk-server" {
 
 module "phantom-server" {
   source = "./modules/phantom-server"
-    vpc_security_group_ids = module.networkModule.sg_vpc_id
+  vpc_security_group_ids = module.networkModule.sg_vpc_id
   ec2_subnet_id = var.ec2_subnet_id
   phantom_server = var.phantom_server
   general = var.general
@@ -32,7 +32,7 @@ module "phantom-server" {
 
 module "windows-server" {
   source = "./modules/windows"
-    vpc_security_group_ids = module.networkModule.sg_vpc_id
+  vpc_security_group_ids = module.networkModule.sg_vpc_id
   ec2_subnet_id = var.ec2_subnet_id
   general = var.general
   aws = var.aws
@@ -45,8 +45,8 @@ module "windows-server" {
 
 module "linux-server" {
   source = "./modules/linux-server"
-    vpc_security_group_ids = module.networkModule.sg_vpc_id
-    ec2_subnet_id = var.ec2_subnet_id
+  vpc_security_group_ids = module.networkModule.sg_vpc_id
+  ec2_subnet_id = var.ec2_subnet_id
   general = var.general
   aws = var.aws
   linux_servers = var.linux_servers
@@ -57,7 +57,7 @@ module "linux-server" {
 
 module "kali-server" {
   source = "./modules/kali-server"
-    vpc_security_group_ids = module.networkModule.sg_vpc_id
+  vpc_security_group_ids = module.networkModule.sg_vpc_id
   ec2_subnet_id = var.ec2_subnet_id
   general = var.general
   kali_server = var.kali_server
@@ -66,7 +66,7 @@ module "kali-server" {
 
 module "nginx-server" {
   source = "./modules/nginx-server"
-    vpc_security_group_ids = module.networkModule.sg_vpc_id
+  vpc_security_group_ids = module.networkModule.sg_vpc_id
   ec2_subnet_id = var.ec2_subnet_id
   general = var.general
   nginx_server = var.nginx_server
@@ -76,7 +76,7 @@ module "nginx-server" {
 
 module "zeek-server" {
   source = "./modules/zeek-server"
-    vpc_security_group_ids = module.networkModule.sg_vpc_id
+  vpc_security_group_ids = module.networkModule.sg_vpc_id
   ec2_subnet_id = var.ec2_subnet_id
   general = var.general
   aws = var.aws

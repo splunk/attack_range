@@ -3,14 +3,14 @@
 - name: Wait for redirector to be ready
   win_wait_for:
     port: 2323
-    host: "10.211.12.172"
+    host: "10.211.12.173"
     connect_timeout: 30
     delay: 60
     timeout: 900
 
 - name: Download Prelude Pneuma from headless Operator
   win_get_url:
-    url: "http://10.211.12.172:3391/payloads/pneuma/v1.6/pneuma-windows.exe"
+    url: "http://10.211.12.173:3391/payloads/pneuma/v1.6/pneuma-windows.exe"
     dest: c:\pneuma-windows.exe
 
 - name: Create a task to Start Prelude Pneuma on boot
@@ -19,7 +19,7 @@
     description: Start Pneuma on boot
     actions:
     - path: C:\pneuma-windows.exe
-      arguments: "-name {{ ansible_hostname }} -address 10.211.12.172:2323"
+      arguments: "-name {{ ansible_hostname }} -address 10.211.12.173:2323"
     triggers:
     - type: boot
     username: SYSTEM
@@ -27,5 +27,5 @@
     state: present
 
 - name: Start Prelude Pneuma and Connect to headless Operator
-  win_shell: Start-Process -FilePath c:\pneuma-windows.exe -ArgumentList "-name $env:COMPUTERNAME -address 10.211.12.172:2323"
+  win_shell: Start-Process -FilePath c:\pneuma-windows.exe -ArgumentList "-name $env:COMPUTERNAME -address 10.211.12.173:2323"
  

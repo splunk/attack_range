@@ -82,7 +82,7 @@ variable "nginx_server" {
     default = {
         nginx_server = "0"
         image = "nginx-web-proxy-v2-0-0"
-        proxy_server_ip = "10.211.12.172"
+        proxy_server_ip = "10.211.12.173"
         proxy_server_port = "8000"
     }
 }
