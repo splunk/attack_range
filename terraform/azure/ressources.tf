@@ -8,7 +8,7 @@ module "networkModule" {
 module "splunk-server" {
   source = "./modules/splunk-server"
   rg_name = module.networkModule.rg_name
-  subnet_id = varsubnet_id
+  subnet_id = module.networkModule.subnet_id
   azure = var.azure
   splunk_server = var.splunk_server
   phantom_server = var.phantom_server
@@ -22,7 +22,7 @@ module "splunk-server" {
 module "phantom-server" {
   source = "./modules/phantom-server"
   rg_name = module.networkModule.rg_name
-  subnet_id = varsubnet_id
+  subnet_id = module.networkModule.subnet_id
   azure = var.azure
   phantom_server = var.phantom_server
   general = var.general
@@ -32,7 +32,7 @@ module "phantom-server" {
 module "windows-server" {
   source = "./modules/windows"
   rg_name = module.networkModule.rg_name
-	subnet_id = varsubnet_id
+	subnet_id = module.networkModule.subnet_id
   general = var.general
   azure = var.azure
   windows_servers = var.windows_servers
@@ -43,7 +43,7 @@ module "windows-server" {
 module "linux-server" {
   source = "./modules/linux-server"
   rg_name = module.networkModule.rg_name
-  subnet_id = varsubnet_id
+  subnet_id = module.networkModule.subnet_id
   azure = var.azure
   general = var.general
   linux_servers = var.linux_servers
