@@ -6,7 +6,7 @@
 - name: Run Atomic Red Team
   become: true
   shell: |
-    pwsh -Command 'Invoke-AtomicTest "{{ technique }}" -GetPrereqs; 
+    pwsh -Command 'Import-Module "/root/AtomicRedTeam/invoke-atomicredteam/Invoke-AtomicRedTeam.psd1" -Force ;Invoke-AtomicTest "{{ technique }}" -GetPrereqs;
     Invoke-AtomicTest "{{ technique }}";
     Invoke-AtomicTest "{{ technique }}" -Cleanup'
   register: output_art

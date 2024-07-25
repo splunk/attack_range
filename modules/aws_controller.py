@@ -32,7 +32,7 @@ class AwsController(AttackRangeController):
         backend_path = os.path.join(os.path.dirname(__file__), '../terraform/aws/backend.tf')
 
         if self.config["aws"]["use_remote_state"] == "1":
-            with open(backend_path_tmp, 'r') as file :
+            with open(backend_path_tmp, 'r') as file:
                 filedata = file.read()
             filedata = filedata.replace('[region]', self.config['aws']['region'])
             filedata = filedata.replace('[bucket]', self.config['aws']['tf_remote_state_s3_bucket'])
@@ -46,9 +46,9 @@ class AwsController(AttackRangeController):
                 os.remove(backend_path)
 
         working_dir = os.path.join(os.path.dirname(__file__), '../terraform/aws')
-        self.terraform = Terraform(working_dir=working_dir,variables=config, parallelism=15, state= self.config['general']["statepath"])
+        self.terraform = Terraform(working_dir=working_dir, variables=config, parallelism=15, state=self.config['general']["statepath"])
 
-        #if self.config['general']['use_prebuilt_images_with_packer'] == "0":
+#       if self.config['general']['use_prebuilt_images_with_packer'] == "0":
         for i in range(len(self.config['windows_servers'])):
             image_name = self.config['windows_servers'][i]['windows_image']
             if image_name.startswith("windows-2016"):
@@ -99,7 +99,6 @@ class AwsController(AttackRangeController):
                 else:
                     self.logger.info("Image " + image + " is available in region " + self.config['aws']['region'])                 
      
-
         cwd = os.getcwd()
         os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform/aws') + '&& terraform init -migrate-state')
         os.system('cd ' + cwd)
@@ -114,7 +113,6 @@ class AwsController(AttackRangeController):
             self.logger.info("attack_range has been built using terraform successfully")
 
         self.show()
-
 
     def destroy(self) -> None:
         self.logger.info("[action] > destroy\n")
@@ -131,7 +129,6 @@ class AwsController(AttackRangeController):
         )
             
         self.logger.info("attack_range has been destroy using terraform successfully")
-
 
     def packer(self, image_name) -> None:
         self.logger.info("Create golden image for " + image_name + ". This can take up to 30 minutes.\n")
@@ -262,7 +259,6 @@ class AwsController(AttackRangeController):
             simulation_controller = PurplesharpSimulationController(self.config)
             simulation_controller.simulate(target, technique, playbook)
         
-
     def show(self) -> None:
         self.logger.info("[action] > show\n")
         instances = aws_service.get_all_instances(self.config['general']['key_name'], self.config['general']['attack_range_name'], self.config['aws']['region'])
@@ -356,16 +352,14 @@ class AwsController(AttackRangeController):
                                     playbook=os.path.join(os.path.dirname(__file__), 'ansible/data_replay.yml'),
                                     extravars=ansible_vars)
 
-
     def get_prelude_token(self, token_path):
         token = ''
         try:
-            prelude_token_file = open(token_path,'r')
+            prelude_token_file = open(token_path, 'r')
             token = prelude_token_file.read()
         except Exception as e:
             self.logger.error("was not able to read prelude token from {}".format(token_path))
         return token
-
 
     def create_remote_backend(self, backend_name) -> None:
         if not aws_service.check_s3_bucket(backend_name):
@@ -397,7 +391,6 @@ class AwsController(AttackRangeController):
             output = output.encode('ascii', 'ignore').decode('ascii')
             f.write(output)
 
-
     def delete_remote_backend(self, backend_name) -> None:
         aws_service.delete_s3_bucket(backend_name, self.config['aws']['region'], self.logger)
         aws_service.delete_dynamo_db(backend_name, self.config['aws']['region'], self.logger)
@@ -411,7 +404,6 @@ class AwsController(AttackRangeController):
             os.remove(os.path.join(os.path.dirname(__file__), '../', backend_name + '.key'))
         except Exception as e:
             self.logger.error(e)
-
 
     def init_remote_backend(self, backend_name) -> None:
         if not aws_service.check_s3_bucket(backend_name):
