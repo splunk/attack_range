@@ -10,7 +10,7 @@ class AttackRangeController(abc.ABC):
     def __init__(self, config: dict):
         self.config = config
         self.logger = logger.setup_logging(
-            os.path.join(os.path.dirname(__file__), '../attack_range.log'), 
+            os.path.join(os.path.dirname(__file__), '../attack_range.log'),
             'INFO'
         )
 
