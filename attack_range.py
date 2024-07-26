@@ -15,16 +15,19 @@ os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
 def init(args):
     config_path = args.config
     print("""
-     .-'~"-.
-    / `-    \\
-   />  `.  -.|
-  /_     '-.__)
-   |-  _.' \\ |
-   `~~;     \\\\
-      /      \\\\)
-jgs  '.___.-'`"
+GEORGE WASHINGTON UNIVERSITY
 
-By: Splunk Threat Research Team [STRT] - research@splunk.com
+       .-'~"-.
+      / `-    \\
+     />  `.  -.|
+    /_     '-.__)
+     |-  _.' \\ |
+     `~~;     \\\\
+        /      \\\\)
+  jgs  '.___.-'`"
+
+CYBER THREAT INTELLIGENCE
+  DETECTION ENGINEERING
 
     """)
 
