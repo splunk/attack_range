@@ -14,33 +14,15 @@ os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
 
 def init(args):
     config_path = args.config
-    print("""                   
-                              __
-                            .d$$b
-                          .' TO$;\\
-                         /  : TP._;
-                        / _.;  :Tb|
-                       /   /   ;j$j
-                   _.-"       d$$$$
-                 .' ..       d$$$$;
-                /  /P'      d$$$$P. |\\
-               /   "      .d$$$P' |\^"l
-             .'           `T$P^\"\"\"\"\"  :
-         ._.'      _.'                ;
-      `-.-".-'-' ._.       _.-"    .-"
-    `.-" _____  ._              .-"
-   -(.g$$$$$$$b.              .'
-     ""^^T$$$P^)            .(:
-       _/  -"  /.'         /:/;
-    ._.'-'`-'  ")/         /;/;
- `-.-"..--""   " /         /  ;
-.-" ..--""        -'          :
-..--""--.-"         (\      .-(\\
-  ..--""              `-\(\/;`
-    _.                      :
-                            ;`-
-                           :\\
-                           ;  bug
+    print("""
+     .-'~"-.
+    / `-    \\
+   />  `.  -.|
+  /_     '-.__)
+   |-  _.' \\ |
+   `~~;     \\\\
+      /      \\\\)
+jgs  '.___.-'`"
 
 By: Splunk Threat Research Team [STRT] - research@splunk.com
 
@@ -63,7 +45,7 @@ By: Splunk Threat Research Team [STRT] - research@splunk.com
         config.pop('azure')
         config.pop('aws')
         controller = VagrantController(config)
-    
+
     return controller
 
 
@@ -91,7 +73,7 @@ def stop(args):
     controller = init(args)
     instance_ids = [id.strip() for id in args.instance_ids.split(',')] if args.instance_ids else None
     controller.stop(instance_ids)
-    
+
 def resume(args):
     controller = init(args)
     instance_ids = [id.strip() for id in args.instance_ids.split(',')] if args.instance_ids else None
@@ -125,7 +107,7 @@ def main(args):
     main function parses the arguments passed to the script and calls the respctive method.
 
     :param args: Arguments passed by the user on command line while calling the script.
-    :return: returns the output of the function called.     
+    :return: returns the output of the function called.
     """
     # grab arguments
     parser = argparse.ArgumentParser(
@@ -220,7 +202,7 @@ def main(args):
     delete_remote_backend_parser.add_argument("-bn", "--backend_name", required=True,
                                help="name of the remote backend")
     delete_remote_backend_parser.set_defaults(func=delete_remote_backend)
-    
+
     # Init Remote Backend
     init_remote_backend_parser.add_argument("-bn", "--backend_name", required=True,
                                help="name of the remote backend")
