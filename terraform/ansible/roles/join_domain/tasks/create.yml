@@ -3,7 +3,7 @@
 - name: Change dns server to domain controller
   win_dns_client:
     adapter_names: "{{ ansible_interfaces.0.connection_name }}"
-    ipv4_addresses: "10.211.12.164"
+    ipv4_addresses: "10.211.12.105"
 
 - name: reboot | Rebooting Server
   win_reboot:
@@ -16,7 +16,7 @@
 - name: Run join domain
   win_shell: "C:\\join_domain.ps1 attackrange.local {{ ansible_user }}@attackrange.local {{ attack_range_password }}"
   register: win_shell_output
-  retries: 20
+  retries: 40
   delay: 60
   until: win_shell_output.stderr == ""
 

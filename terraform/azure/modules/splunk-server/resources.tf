@@ -17,7 +17,7 @@ resource "azurerm_network_interface" "splunk-nic" {
     name                          = "ar-splunk-nic-conf-${var.general.key_name}-${var.general.attack_range_name}"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
-    private_ip_address            = "10.0.1.12"
+    private_ip_address            = "10.211.16.68"
     public_ip_address_id          = azurerm_public_ip.splunk-publicip[0].id
   }
 }
@@ -47,7 +47,7 @@ resource "azurerm_virtual_machine" "splunk" {
 
   storage_image_reference {
     id = var.general.use_prebuilt_images_with_packer == "1" ? data.azurerm_image.search[0].id : null
-    publisher = var.general.use_prebuilt_images_with_packer == "0" ? "Canonical" : null 
+    publisher = var.general.use_prebuilt_images_with_packer == "0" ? "Canonical" : null
     offer     = var.general.use_prebuilt_images_with_packer == "0" ? "UbuntuServer" : null
     sku       = var.general.use_prebuilt_images_with_packer == "0" ? "18.04-LTS" : null
     version   = var.general.use_prebuilt_images_with_packer == "0" ? "latest" : null

@@ -1,0 +1,31 @@
+---
+
+- name: Download Splunk Edge installation package
+  get_url:
+    url: "https://beam.scs.splunk.com/splunk-edge/v0.0.198-689fac1f-20221119t005809/linux/splunk-edge.tar.gz"
+    dest: "/tmp/splunk-edge.tar.gz"
+    mode: 0644
+
+- name: Extract installation package
+  shell:
+    cmd: |
+      sudo mkdir /opt/splunk-edge
+      sudo tar -xzf /tmp/splunk-edge.tar.gz -C /opt/splunk-edge/
+
+- name: Copy config.yaml file
+  become: true
+  copy:
+    src: config.yaml
+    dest: /opt/splunk-edge/etc/config.yaml
+
+- name: Copy token file
+  become: true
+  copy:
+    src: token
+    dest: /opt/splunk-edge/var/token
+
+- name: Install the Edge Proccessor
+  shell:
+    cmd: |
+      sudo mkdir /opt/splunk-edge/var/log
+      nohup ./splunk-edge/bin/splunk-edge run >> ./splunk-edge/var/log/install-splunk-edge.out 2>&1 </dev/null &

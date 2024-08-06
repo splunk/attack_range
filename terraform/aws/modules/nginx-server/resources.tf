@@ -3,7 +3,7 @@
 data "aws_ami" "nginx_server_packer" {
   count = (var.nginx_server.nginx_server == "1") && (var.general.use_prebuilt_images_with_packer == "1") ? 1 : 0
   most_recent = true
-  owners      = ["self"] 
+  owners      = ["self"]
 
   filter {
     name   = "name"
@@ -34,9 +34,9 @@ resource "aws_instance" "nginx_server" {
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip             = "10.211.12.173"
+  private_ip             = var.nginx_server.nginx_server_ip
   associate_public_ip_address = true
-  
+
   root_block_device {
     volume_type = "gp2"
     volume_size = "20"

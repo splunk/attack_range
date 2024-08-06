@@ -2,7 +2,7 @@
 data "aws_ami" "linux_server_packer" {
   count = (var.general.use_prebuilt_images_with_packer == "1") ? length(var.linux_servers) : 0
   most_recent = true
-  owners      = ["self"] 
+  owners      = ["self"]
 
   filter {
     name   = "name"
@@ -33,7 +33,7 @@ resource "aws_instance" "linux_server" {
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip             = "10.211.12.${168 + count.index}"
+  private_ip             = "${var.general.network_prefix}.${var.general.first_ip + 7 + count.index}"
   associate_public_ip_address = true
 
   root_block_device {

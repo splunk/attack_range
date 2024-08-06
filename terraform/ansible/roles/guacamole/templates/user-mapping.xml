@@ -1,5 +1,5 @@
 <user-mapping>
-    <authorize 
+    <authorize
             username="Admin"
             password="{{attack_range_password|hash('md5')}}"
             encoding="md5">
@@ -10,22 +10,22 @@
             <param name="port">22</param>
             <param name="username">ubuntu</param>
             <param name="private-key">{{ lookup('file', private_key_path) }}</param>
-        </connection>        
+        </connection>
 
         {% if phantom_server == '1' %}
         <connection name="ar-phantom-{{ key_name }}-{{ attack_range_name }}">
             <protocol>ssh</protocol>
-            <param name="hostname">10.211.12.163</param>
+            <param name="hostname">10.211.12.101</param>
             <param name="port">22</param>
             <param name="username">centos</param>
             <param name="private-key">{{ lookup('file', private_key_path) }}</param>
-        </connection>    
+        </connection>
         {% endif %}
 
         {% for server in windows|from_json|map('string')|list %}
         <connection name="ar-win-{{ key_name }}-{{ attack_range_name }}-{{ loop.index-1 }}">
             <protocol>rdp</protocol>
-            <param name="hostname">10.211.12.{{loop.index-164+167}}</param>
+            <param name="hostname">10.211.12.10{{loop.index-1+5}}</param>
             <param name="port">3389</param>
              {% if cloud_provider == 'azure' %}
             <param name="username">AzureAdmin</param>
@@ -42,41 +42,31 @@
         {% for server in linux|from_json|map('string')|list %}
         <connection name="ar-linux-{{ key_name }}-{{ attack_range_name }}-{{ loop.index-1 }}">
             <protocol>ssh</protocol>
-            <param name="hostname">10.211.12.{{loop.index-168+169}}</param>
+            <param name="hostname">10.211.12.10{{loop.index-1+7}}</param>
             <param name="port">22</param>
             <param name="username">ubuntu</param>
             <param name="private-key">{{ lookup('file', private_key_path) }}</param>
         </connection>
         {% endfor %}
 
-        {% if nginx_server == '1' %}
-        <connection name="ar-nginx-{{ key_name }}-{{ attack_range_name }}">
-            <protocol>ssh</protocol>
-            <param name="hostname">10.211.12.173</param>
-            <param name="port">22</param>
-            <param name="username">ubuntu</param>
-            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
-        </connection>    
-        {% endif %}
-
         {% if kali_server == '1' %}
         <connection name="ar-kali-{{ key_name }}-{{ attack_range_name }}">
             <protocol>ssh</protocol>
-            <param name="hostname">10.211.12.170</param>
+            <param name="hostname">10.211.12.103</param>
             <param name="port">22</param>
             <param name="username">kali</param>
             <param name="private-key">{{ lookup('file', private_key_path) }}</param>
-        </connection>    
+        </connection>
         {% endif %}
 
         {% if zeek_server == '1' %}
         <connection name="ar-zeek-{{ key_name }}-{{ attack_range_name }}">
             <protocol>ssh</protocol>
-            <param name="hostname">10.211.12.171</param>
+            <param name="hostname">10.211.12.102</param>
             <param name="port">22</param>
             <param name="username">ubuntu</param>
             <param name="private-key">{{ lookup('file', private_key_path) }}</param>
-        </connection>    
+        </connection>
         {% endif %}
 
     </authorize>

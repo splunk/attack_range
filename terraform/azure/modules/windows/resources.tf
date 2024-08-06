@@ -13,7 +13,7 @@ resource "azurerm_network_interface" "windows-nic" {
     name                          = "ar-windows-nic-conf-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
-    private_ip_address            = "10.0.1.${14 + count.index}"
+    private_ip_address            = "10.211.16.${8 + count.index}"
     public_ip_address_id          = azurerm_public_ip.windows-publicip[count.index].id
   }
 }
@@ -44,7 +44,7 @@ resource "azurerm_virtual_machine" "windows" {
 
   storage_image_reference {
     id = var.general.use_prebuilt_images_with_packer == "1" ? data.azurerm_image.search[count.index].id : null
-    publisher = var.general.use_prebuilt_images_with_packer == "0" ? var.windows_servers[count.index].azure_publisher : null 
+    publisher = var.general.use_prebuilt_images_with_packer == "0" ? var.windows_servers[count.index].azure_publisher : null
     offer     = var.general.use_prebuilt_images_with_packer == "0" ? var.windows_servers[count.index].azure_offer : null
     sku       = var.general.use_prebuilt_images_with_packer == "0" ? var.windows_servers[count.index].azure_sku : null
     version   = var.general.use_prebuilt_images_with_packer == "0" ? "latest" : null

@@ -9,9 +9,9 @@ config.vm.define "ar-win-{{config.general.key_name}}-{{config.general.attack_ran
     config.winrm.retry_limit = 20
     config.vm.network "forwarded_port", guest: 5985, host: {{ 5985 + count }}
     config.vm.network "forwarded_port", guest: 3389, host: {{ 5389 + count }}
-    config.vm.network :private_network, ip: "192.168.56.{{ 14 + count }}"
+    config.vm.network :private_network, ip: "192.168.56.{{ 8 + count }}"
     config.vm.synced_folder '.', '/vagrant', disabled: true
-  
+
     config.vm.provision "shell", inline: "net user Administrator {{ config.general.attack_range_password }}"
 
     config.vm.provision "ansible" do |ansible|
@@ -57,7 +57,7 @@ config.vm.define "ar-win-{{config.general.key_name}}-{{config.general.attack_ran
         ansible.playbook = "../terraform/ansible/windows_post.yml"
         ansible.compatibility_mode = "2.0"
     end
-  
+
     config.vm.provider "virtualbox" do |vb, override|
       vb.gui = true
       vb.name = "{{ server.hostname }}"

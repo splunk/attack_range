@@ -1,0 +1,6 @@
+
+- include: install.yml
+  when: edge_processor == "1" and cloud_provider!='local'
+
+- include: install_local.yml
+  when: edge_processor == "1" and cloud_provider=='local'

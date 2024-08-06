@@ -16,7 +16,7 @@ resource "azurerm_network_interface" "kali-nic" {
     name                          = "ar-kali-nic-conf-${var.general.key_name}"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
-    private_ip_address            = "10.0.1.30"
+    private_ip_address            = "10.211.16.71"
     public_ip_address_id          = azurerm_public_ip.kali-publicip[count.index].id
   }
 }

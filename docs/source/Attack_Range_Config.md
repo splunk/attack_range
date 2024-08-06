@@ -55,7 +55,7 @@ general:
 # Install contentctl packages on linux hosts
 
 aws:
-  region: "us-east-1"
+  region: "us-west-2"
 # Region used in AWS. This should be the same as the region configured in AWS CLI.
 
   private_key_path: "~/.ssh/id_rsa"
@@ -210,7 +210,7 @@ nginx_server:
   nginx_image: nginx-web-proxy-v3-0-0
 # name of the image of the Web proxy. Packer is used to build this images.
 
-  proxy_server_ip: "10.211.12.172"
+  proxy_server_ip: "10.211.12.68"
 # Specify what ip to proxy.
 
   proxy_server_port: "8000"
@@ -231,7 +231,7 @@ simulation:
 # Specify the branch for Atomic Red Team.
 
   prelude: "0"
-# Install Prelude by setting this to 1. 
+# Install Prelude by setting this to 1.
 
   prelude_operator_url: "https://download.prelude.org/latest?arch=x64&platform=linux&variant=zip&edition=headless"
 # Specify where to download Prelude Operator from.

@@ -2,7 +2,7 @@
 data "aws_ami" "zeek_server_packer" {
   count       = (var.zeek_server.zeek_server == "1") && (var.general.use_prebuilt_images_with_packer == "1") ? 1 : 0
   most_recent = true
-  owners      = ["self"] 
+  owners      = ["self"]
 
   filter {
     name   = "name"
@@ -27,13 +27,13 @@ data "aws_ami" "zeek_server" {
 }
 
 resource "aws_instance" "zeek_sensor" {
-  count       = var.zeek_server.zeek_server == "1" ? 1 : 0
-  ami           = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.zeek_server_packer[0].id : data.aws_ami.zeek_server[0].id
-  instance_type = "m5.2xlarge"
-  key_name      = var.general.key_name
-  subnet_id = var.ec2_subnet_id
-  vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip = "10.211.12.171"
+  count                       = var.zeek_server.zeek_server == "1" ? 1 : 0
+  ami                         = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.zeek_server_packer[0].id : data.aws_ami.zeek_server[0].id
+  instance_type               = "m5.2xlarge"
+  key_name                    = var.general.key_name
+  subnet_id                   = var.ec2_subnet_id
+  vpc_security_group_ids      = [var.vpc_security_group_ids]
+  private_ip                  = var.zeek_server.zeek_server_ip
   associate_public_ip_address = true
 
   tags = {
