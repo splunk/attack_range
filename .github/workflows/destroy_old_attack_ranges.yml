@@ -10,18 +10,18 @@ jobs:
     steps:
 
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install System Packages
         run: |
           sudo apt update -qq
       
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.9' #Available versions here - https://github.com/actions/python-versions/releases  easy to change/make a matrix/use pypy
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
       
-      - uses: aws-actions/configure-aws-credentials@v1
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
