@@ -1,5 +1,11 @@
 ---
-# This playbook install the isquery in linux machine
+# This playbook installs osquery on a linux machine
+- name: Install required system packages
+  become: true
+  apt:
+    name: software-properties-common
+    state: present    
+    update_cache: true
 
 - name: drop the osquery_install.sh script /tmp
   become: true
