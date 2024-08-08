@@ -1,0 +1,4 @@
+---
+
+- include: cortex_install.yml
+  when: cortex_xdr == "1"

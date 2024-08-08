@@ -4,7 +4,7 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/sbin/ip link set ens5 promisc on
+ExecStart=/sbin/ip link set ens3 promisc on
 TimeoutStartSec=0
 RemainAfterExit=yes
 

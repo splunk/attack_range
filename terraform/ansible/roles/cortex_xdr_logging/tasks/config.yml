@@ -1,0 +1,25 @@
+---
+
+- name: Create folder directory for Crowdstrike FDR TA
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: splunk
+    group: splunk
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/Splunk_TA_CrowdStrike_FDR/local/
+
+- name: Copy account configuration
+  template:
+    src: splunk_ta_crowdstrike_fdr_aws_collections.conf.j2
+    dest: /opt/splunk/etc/apps/Splunk_TA_CrowdStrike_FDR/local/splunk_ta_crowdstrike_fdr_aws_collections.conf
+    owner: splunk
+    group: splunk
+
+- name: Copy new inputs.conf configuration
+  template:
+    src: inputs.conf.j2
+    dest: /opt/splunk/etc/apps/Splunk_TA_CrowdStrike_FDR/local/inputs.conf
+    owner: splunk
+    group: splunk

@@ -1,5 +1,5 @@
 ---
-- name: install /etc/systemd/system/capture-int.service to set ens5 settings at boot
+- name: install /etc/systemd/system/capture-int.service to set ens3 settings at boot
   become: true
   copy:
     src: capture-int.service
@@ -77,12 +77,12 @@
     path: '/opt/zeek/share/zeek/scripts'
     state: directory
 
-- name: Change Interface from eth0 to ens5
+- name: Change Interface from eth0 to ens3
   become: true
   replace:
     path: /opt/zeek/etc/node.cfg
     regexp: 'eth0'
-    replace: "ens5"
+    replace: "ens3"
 
 ####################################################################
 # Zeek deploy

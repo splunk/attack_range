@@ -1,0 +1,9 @@
+---
+
+- include: config.yml
+  when: crowdstrike_falcon == "1"
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes
+  when: crowdstrike_falcon == "1"

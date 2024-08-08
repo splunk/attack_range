@@ -1,0 +1,9 @@
+---
+
+- name: Copy cortex xdr agent
+  win_copy:
+    src: "../../apps/{{ cortex_agent_name }}"
+    dest: c:\temp\attack_range_x64.msi
+
+- name: install cortex xdr agent
+  win_command: 'msiexec /i c:\temp\attack_range_x64.msi /l*v C:\temp\cortexxdrinstall.log /qn CID={{ cortex_customer_ID }}'

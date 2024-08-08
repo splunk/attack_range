@@ -14,6 +14,7 @@
     - windows_agent_prelude
     - crowdstrike_falcon_agent
     - carbon_black_cloud_agent
+    - cortex_xdr
     - bad_blood
     - splunk_byo_windows
     - windows_aurora_agent

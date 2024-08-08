@@ -52,6 +52,9 @@ general:
 
   first_ip: "100"
 
+  cortex_xdr: "0"
+  # Install Cortex XDR agent
+
 aws:
   region: "us-west-2"
   # Region used in AWS. This should be the same as the region configured in AWS CLI.

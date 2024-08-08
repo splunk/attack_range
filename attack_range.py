@@ -16,18 +16,19 @@ def init(args):
     config_path = args.config
     print("""
 GEORGE WASHINGTON UNIVERSITY
+    INFORMATION SECURITY
 
-       .-'~"-.
-      / `-    \\
-     />  `.  -.|
-    /_     '-.__)
-     |-  _.' \\ |
-     `~~;     \\\\
-        /      \\\\)
-  jgs  '.___.-'`"
+          .-'~"-.
+         / `-    \\
+        />  `.  -.|
+       /_     '-.__)
+        |-  _.' \\ |
+        `~~;     \\\\
+           /      \\\\)
+          '.___.-'`"
 
-CYBER THREAT INTELLIGENCE
-  DETECTION ENGINEERING
+ CYBER THREAT INTELLIGENCE
+   DETECTION ENGINEERING
 
     """)
 
