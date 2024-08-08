@@ -13,23 +13,23 @@ data "aws_ami" "zeek_server_packer" {
 data "aws_ami" "zeek_server" {
   count       = (var.zeek_server.zeek_server == "1") && (var.general.use_prebuilt_images_with_packer == "0") ? 1 : 0
   most_recent = true
-  owners = ["099720109477"] # Canonical
+  owners      = ["099720109477"] # Canonical
 
   filter {
-      name   = "name"
-      values = ["*ubuntu-focal-20.04-amd64-server-*"]
+    name   = "name"
+    values = ["*ubuntu-focal-20.04-amd64-server-*"]
   }
 
   filter {
-      name   = "virtualization-type"
-      values = ["hvm"]
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }
 
 resource "aws_instance" "zeek_sensor" {
   count                       = var.zeek_server.zeek_server == "1" ? 1 : 0
   ami                         = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.zeek_server_packer[0].id : data.aws_ami.zeek_server[0].id
-  instance_type               = "m5.2xlarge"
+  instance_type               = "m4.2xlarge"
   key_name                    = var.general.key_name
   subnet_id                   = var.ec2_subnet_id
   vpc_security_group_ids      = [var.vpc_security_group_ids]
@@ -53,51 +53,51 @@ resource "aws_instance" "zeek_sensor" {
 
   provisioner "local-exec" {
     working_dir = "../../packer/ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.aws.private_key_path} -i '${self.public_ip},' zeek.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}'"
+    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.aws.private_key_path} -i '${self.public_ip},' zeek.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}'"
   }
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.aws.private_key_path} -i '${self.public_ip},' zeek_server_post.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.aws.private_key_path} -i '${self.public_ip},' zeek_server_post.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
   }
 }
 
 resource "aws_eip" "zeek_ip" {
-  count       = (var.zeek_server.zeek_server == "1") && (var.aws.use_elastic_ips == "1") ? 1 : 0
-  instance    = aws_instance.zeek_sensor[0].id
+  count    = (var.zeek_server.zeek_server == "1") && (var.aws.use_elastic_ips == "1") ? 1 : 0
+  instance = aws_instance.zeek_sensor[0].id
 }
 
 resource "aws_ec2_traffic_mirror_target" "zeek_target" {
-  count = var.zeek_server.zeek_server == "1" ? 1 : 0
+  count                = var.zeek_server.zeek_server == "1" ? 1 : 0
   description          = "VPC Tap for Zeek"
   network_interface_id = aws_instance.zeek_sensor[0].primary_network_interface_id
 }
 
 resource "aws_ec2_traffic_mirror_filter" "zeek_filter" {
-  count = var.zeek_server.zeek_server == "1" ? 1 : 0
+  count       = var.zeek_server.zeek_server == "1" ? 1 : 0
   description = "Zeek Mirror Filter - Allow All"
 }
 
 resource "aws_ec2_traffic_mirror_filter_rule" "zeek_outbound" {
-  count = var.zeek_server.zeek_server == "1" ? 1 : 0
-  description = "Zeek Outbound Rule"
+  count                    = var.zeek_server.zeek_server == "1" ? 1 : 0
+  description              = "Zeek Outbound Rule"
   traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter[0].id
-  destination_cidr_block = "0.0.0.0/0"
-  source_cidr_block = "0.0.0.0/0"
-  rule_number = 1
-  rule_action = "accept"
-  traffic_direction = "egress"
+  destination_cidr_block   = "0.0.0.0/0"
+  source_cidr_block        = "0.0.0.0/0"
+  rule_number              = 1
+  rule_action              = "accept"
+  traffic_direction        = "egress"
 }
 
 resource "aws_ec2_traffic_mirror_filter_rule" "zeek_inbound" {
-  count = var.zeek_server.zeek_server == "1" ? 1 : 0
-  description = "Zeek Inbound Rule"
+  count                    = var.zeek_server.zeek_server == "1" ? 1 : 0
+  description              = "Zeek Inbound Rule"
   traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter[0].id
-  destination_cidr_block = "0.0.0.0/0"
-  source_cidr_block = "0.0.0.0/0"
-  rule_number = 1
-  rule_action = "accept"
-  traffic_direction = "ingress"
+  destination_cidr_block   = "0.0.0.0/0"
+  source_cidr_block        = "0.0.0.0/0"
+  rule_number              = 1
+  rule_action              = "accept"
+  traffic_direction        = "ingress"
 }
 
 resource "aws_ec2_traffic_mirror_session" "zeek_windows_session" {

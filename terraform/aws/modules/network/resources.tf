@@ -9,9 +9,9 @@ locals {
 #   source  = "terraform-aws-modules/vpc/aws"
 
 #   name                 = "vpc_${var.general.key_name}_${var.general.attack_range_name}"
-#   cidr                 = "10.211.12.96/28"
+#   cidr                 = "10.211.16.96/28"
 #   azs                  = data.aws_availability_zones.available.names
-#   public_subnets       = ["10.211.12.0/24"]
+#   public_subnets       = ["10.211.16.0/24"]
 #   enable_dns_hostnames = true
 
 # }
@@ -25,7 +25,7 @@ resource "aws_security_group" "default" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["10.211.12.96/28"]
+    cidr_blocks = ["10.211.16.96/28"]
   }
 
   ingress {
@@ -39,7 +39,7 @@ resource "aws_security_group" "default" {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = ["10.211.12.96/28"]
+    cidr_blocks = ["10.211.16.96/28"]
   }
 
   ingress {

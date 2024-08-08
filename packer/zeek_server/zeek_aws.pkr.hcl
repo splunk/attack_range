@@ -42,7 +42,7 @@ data "amazon-ami" "ubuntu-ami" {
 source "amazon-ebs" "ubuntu" {
   ami_name              = "zeek-v${replace(var.general.version, ".", "-")}"
   region = var.aws.region
-  instance_type         = "t3.xlarge"
+  instance_type         = "t2.xlarge"
   launch_block_device_mappings {
     device_name = "/dev/sda1"
     volume_size = "30"

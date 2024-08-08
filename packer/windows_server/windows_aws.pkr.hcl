@@ -57,7 +57,7 @@ source "amazon-ebs" "windows" {
   region                = var.aws.region
   force_delete_snapshot = "true"
   force_deregister      = "true"
-  instance_type         = "t3.xlarge"
+  instance_type         = "t2.xlarge"
   source_ami            = "${data.amazon-ami.windows.id}"
   user_data_file        = "packer/windows_server/bootstrap_win_winrm_https.txt"
   communicator          = "winrm"

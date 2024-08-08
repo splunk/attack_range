@@ -3,7 +3,7 @@ data "aws_availability_zones" "available" {}
 
 
 data "aws_ami" "windows_ami_packer" {
-  count = (var.general.use_prebuilt_images_with_packer == "1") ? length(var.windows_servers) : 0
+  count       = (var.general.use_prebuilt_images_with_packer == "1") ? length(var.windows_servers) : 0
   most_recent = true
   owners      = ["self"]
 
@@ -14,7 +14,7 @@ data "aws_ami" "windows_ami_packer" {
 }
 
 data "aws_ami" "windows_ami" {
-  count = (var.general.use_prebuilt_images_with_packer == "0") ? length(var.windows_servers) : 0
+  count       = (var.general.use_prebuilt_images_with_packer == "0") ? length(var.windows_servers) : 0
   most_recent = true
   owners      = ["801119661308"] # Canonical
 
@@ -31,13 +31,13 @@ data "aws_ami" "windows_ami" {
 
 
 resource "aws_instance" "windows_server" {
-  count = length(var.windows_servers)
-  ami = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.windows_ami_packer[count.index].id : data.aws_ami.windows_ami[count.index].id
-  instance_type = var.zeek_server.zeek_server == "1" ? "m5.2xlarge" : "t3.xlarge"
-  key_name = var.general.key_name
-  subnet_id = var.ec2_subnet_id
-  private_ip = "${var.general.network_prefix}.${var.general.first_ip + 5 + count.index}"
-  vpc_security_group_ids = [var.vpc_security_group_ids]
+  count                       = length(var.windows_servers)
+  ami                         = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.windows_ami_packer[count.index].id : data.aws_ami.windows_ami[count.index].id
+  instance_type               = var.zeek_server.zeek_server == "1" ? "m4.2xlarge" : "t2.xlarge"
+  key_name                    = var.general.key_name
+  subnet_id                   = var.ec2_subnet_id
+  private_ip                  = "${var.general.network_prefix}.${var.general.first_ip + 5 + count.index}"
+  vpc_security_group_ids      = [var.vpc_security_group_ids]
   associate_public_ip_address = true
   tags = {
     Name = "ar-win-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
@@ -74,11 +74,11 @@ EOF
   provisioner "remote-exec" {
     inline = [
       "echo booted"
-      ]
+    ]
 
     connection {
-      type     = "winrm"
-      user     = "Administrator"
+      type = "winrm"
+      user = "Administrator"
       #password = "${rsadecrypt(aws_instance.windows_server[count.index].password_data, file(var.aws.private_key_path))}"
       password = var.general.attack_range_password
       host     = self.public_ip
@@ -91,17 +91,17 @@ EOF
 
   provisioner "local-exec" {
     working_dir = "../../packer/ansible"
-    command = "ansible-playbook -i '${self.public_ip},' windows.yml --extra-vars 'ansible_user=Administrator ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 ansible_port=5985 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.windows_servers[count.index] : "${key}=\"${value}\""])}'"
+    command     = "ansible-playbook -i '${self.public_ip},' windows.yml --extra-vars 'ansible_user=Administrator ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 ansible_port=5985 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.windows_servers[count.index] : "${key}=\"${value}\""])}'"
   }
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ansible-playbook -i '${self.public_ip},' windows_post.yml --extra-vars 'ansible_user=Administrator ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.windows_servers[count.index] : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    command     = "ansible-playbook -i '${self.public_ip},' windows_post.yml --extra-vars 'ansible_user=Administrator ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.windows_servers[count.index] : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
   }
 
 }
 
 resource "aws_eip" "windows_ip" {
-  count = (var.aws.use_elastic_ips == "1") ? length(var.windows_servers) : 0
+  count    = (var.aws.use_elastic_ips == "1") ? length(var.windows_servers) : 0
   instance = aws_instance.windows_server[count.index].id
 }

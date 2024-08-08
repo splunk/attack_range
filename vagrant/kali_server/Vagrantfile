@@ -4,7 +4,7 @@ config.vm.define "ar-kali-{{config.general.key_name}}-{{config.general.attack_ra
     config.vm.box = "kalilinux/rolling"
     config.vm.boot_timeout = 600
     config.vm.hostname = "kali"
-    config.vm.network :private_network, ip: "10.211.12.103"
+    config.vm.network :private_network, ip: "10.211.16.103"
     config.ssh.password = "vagrant"
 
     config.vm.provider "virtualbox" do |vb, override|

@@ -33,13 +33,13 @@ data "aws_ami" "latest-centos" {
 
 # install Phantom on a bare CentOS 7 instance
 resource "aws_instance" "phantom-server" {
-  count                  = var.phantom_server.phantom_server == "1" ? 1 : 0
-  ami                    = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.latest-centos-packer[0].id : data.aws_ami.latest-centos[0].id
-  instance_type          = "t3.xlarge"
-  key_name               = var.general.key_name
-  subnet_id              = var.ec2_subnet_id
-  vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip             = var.phantom_server.phantom_server_ip
+  count                       = var.phantom_server.phantom_server == "1" ? 1 : 0
+  ami                         = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.latest-centos-packer[0].id : data.aws_ami.latest-centos[0].id
+  instance_type               = "t2.xlarge"
+  key_name                    = var.general.key_name
+  subnet_id                   = var.ec2_subnet_id
+  vpc_security_group_ids      = [var.vpc_security_group_ids]
+  private_ip                  = var.phantom_server.phantom_server_ip
   associate_public_ip_address = true
   root_block_device {
     volume_type           = "gp2"
@@ -63,12 +63,12 @@ resource "aws_instance" "phantom-server" {
 
   provisioner "local-exec" {
     working_dir = "../../packer/ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.aws.private_key_path} -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.aws.private_key_path} -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
   }
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.aws.private_key_path} -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.aws : "${key}=\"${value}\""])}'"
+    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key ${var.aws.private_key_path} -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.aws : "${key}=\"${value}\""])}'"
   }
 }
 
