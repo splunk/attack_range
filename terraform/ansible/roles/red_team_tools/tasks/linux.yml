@@ -1,0 +1,89 @@
+---
+- name: Install required system packages
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - git
+    state: latest
+    update_cache: true
+
+- name: Git clone SharpHound
+  shell: git clone https://github.com/BloodHoundAD/SharpHound3.git C:\tools\SharpHound3
+  when: install_red_team_tools == "1"
+
+- name: Git clone MailSniper
+  shell: git clone https://github.com/dafthack/MailSniper.git C:\tools\MailSniper
+  when: install_red_team_tools == "1"
+
+- name: Git clone juicy-potato
+  shell: git clone https://github.com/decoder-it/juicy-potato.git C:\tools\juicy-potato
+  when: install_red_team_tools == "1"
+
+- name: Git clone SharpChrome
+  shell: git clone https://github.com/djhohnstein/SharpChrome.git C:\tools\SharpChrome
+  when: install_red_team_tools == "1"
+
+- name: Git clone Egress-Assess
+  shell: git clone https://github.com/FortyNorthSecurity/Egress-Assess.git C:\tools\Egress-Assess
+  when: install_red_team_tools == "1"
+
+- name: Git clone SharpGPOAbuse
+  shell: git clone https://github.com/FSecureLABS/SharpGPOAbuse.git C:\tools\SharpGPOAbuse
+  when: install_red_team_tools == "1"
+
+- name: Git clone SharpGPOAbuse
+  shell: git clone https://github.com/gentilkiwi/mimikatz.git C:\tools\mimikatz
+  when: install_red_team_tools == "1"
+
+- name: Git clone Seatbelt
+  shell: git clone https://github.com/GhostPack/Seatbelt.git C:\tools\Seatbelt
+  when: install_red_team_tools == "1"
+
+- name: Git clone DAMP
+  shell: git clone https://github.com/HarmJ0y/DAMP.git C:\tools\DAMP
+  when: install_red_team_tools == "1"
+
+- name: Git clone UACME
+  shell: git clone https://github.com/hfiref0x/UACME.git C:\tools\UACME
+  when: install_red_team_tools == "1"
+
+- name: Git clone SpoolSample
+  shell: git clone https://github.com/leechristensen/SpoolSample.git C:\tools\SpoolSample
+  when: install_red_team_tools == "1"
+
+- name: Git clone PowerUpSQL
+  shell: git clone https://github.com/NetSPI/PowerUpSQL.git C:\tools\PowerUpSQL
+  when: install_red_team_tools == "1"
+
+- name: Git clone PowerShdll
+  shell: git clone https://github.com/p3nt4/PowerShdll.git C:\tools\PowerShdll
+  when: install_red_team_tools == "1"
+
+- name: Git clone PowerSploit
+  shell: git clone https://github.com/PowerShellMafia/PowerSploit.git C:\tools\PowerSploit
+  when: install_red_team_tools == "1"
+
+- name: Git clone MiscTools
+  shell: git clone https://github.com/rasta-mouse/MiscTools.git C:\tools\MiscTools
+  when: install_red_team_tools == "1"
+
+- name: Git clone Sherlock
+  shell: git clone https://github.com/rasta-mouse/Sherlock.git C:\tools\Sherlock
+  when: install_red_team_tools == "1"
+
+- name: Git clone Watson
+  shell: git clone https://github.com/rasta-mouse/Watson.git C:\tools\Watson
+  when: install_red_team_tools == "1"
+
+- name: Git clone SharpView
+  shell: git clone https://github.com/tevora-threat/SharpView.git C:\tools\SharpView
+  when: install_red_team_tools == "1"
+
+- name: Git clone donut
+  shell: git clone https://github.com/TheWover/donut.git C:\tools\donut
+  when: install_red_team_tools == "1"
+
+
+

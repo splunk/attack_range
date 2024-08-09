@@ -44,7 +44,7 @@ general:
   # See the chapter Carbon Black in the docs page Attack Range Features.
 
   install_contentctl: "0"
-# Install splunk/contentctl on linux servers
+  # Install splunk/contentctl on linux servers
 
   network_prefix: "10.211.16"
 
@@ -53,7 +53,7 @@ general:
   first_ip: "100"
 
   cortex_xdr: "0"
-  # Install Cortex XDR agent
+  # Install Cortex XDR agents
 
 aws:
   region: "us-west-2"
@@ -78,7 +78,7 @@ aws:
   # Specify the already created S3 bucket in the same region
 
   tf_remote_state_dynamo_db_table: "test"
-# Specify the already created DynamoDB table in the same region
+  # Specify the already created DynamoDB table in the same region
 
 azure:
   location: "West Europe"
@@ -101,11 +101,11 @@ azure:
   tenant_id: "xxx"
   event_hub_name: "xxx"
   event_hub_host_name: "xxx"
-# All these fields are needed to configure the Azure logs. See the chapter Azure Logs in the docs page Attack Range Cloud.
+  # All these fields are needed to configure the Azure logs. See the chapter Azure Logs in the docs page Attack Range Cloud.
 
 local:
   provider: "Virtual Box"
-# Attack Range Local used Virtualbox and Vagrant to build the Attack Range.
+  # Attack Range Local used Virtualbox and Vagrant to build the Attack Range.
 
 splunk_server:
   splunk_image: "splunk-v3-0-0"
@@ -160,7 +160,7 @@ phantom_server:
   # Specify Phantom IP address when you enabled byo phantom
 
   phantom_byo_api_token: ""
-# Phantom Api Token
+  # Phantom Api Token
 
   phantom_server_ip: ""
 
@@ -188,9 +188,12 @@ windows_servers_default:
   # More information in chapter Bad Blood under Attack Range Features.
 
   aurora_agent: "0"
-# Install Aurora Agenta
+  # Install Aurora Agenta
 
   start_ip: "10.211.16.105"
+  # Specify the start IP for the Windows Servers.
+
+  install_dltk: "0"
 
 linux_servers_default:
   hostname: ar-linux
@@ -200,13 +203,27 @@ linux_servers_default:
   # Name of the image of the Linux Server. Packer is used to build this image.
 
   sysmon_config: "SysMonLinux-CatchAll.xml"
-# Specify a Sysmon config located under configs/ .
+  # Specify a Sysmon config located under configs/ .
+
+  install_apache_httpd: "0"
+  # Install Apache HTTPD by setting this to 1.
+
+  install_red_team_tools: "0"
+  # Install different read team tools by setting this to 1.
+
+  bad_blood: "0"
+  # Install Bad Blood by setting this to 1.
+
+  aurora_agent: "0"
 
   start_ip: "10.211.16.107"
+  # Specify the start IP for the Linux Servers.
+
+  install_dltk: "0"
 
 kali_server:
   kali_server: "0"
-# Enable Kali Server by setting this to 1.
+  # Enable Kali Server by setting this to 1.
 
   kali_server_ip: "10.211.16.103"
 
@@ -224,7 +241,7 @@ nginx_server:
   # Specify what ip to proxy.
 
   proxy_server_port: "8000"
-# Specify what port to proxy.
+  # Specify what port to proxy.
 
   nginx_server_ip: "10.211.16.104"
 
@@ -233,7 +250,7 @@ zeek_server:
   # Enable Zeek Server by setting this to 1.
 
   zeek_image: "zeek-v3-0-0"
-# Specify the image used for Zeek Server.
+  # Specify the image used for Zeek Server.
 
   zeek_server_ip: "10.211.16.102"
 
@@ -251,5 +268,5 @@ simulation:
   # Specify where to download Prelude Operator from.
 
   prelude_account_email: "test@test.com"
-# Email account login into a Prelude Operator UI.
-# Required for connecting to redirector, can be found on the GUI under connect -> deploy manual redirector -> accountEmail.
+  # Email account login into a Prelude Operator UI.
+  # Required for connecting to redirector, can be found on the GUI under connect -> deploy manual redirector -> accountEmail.

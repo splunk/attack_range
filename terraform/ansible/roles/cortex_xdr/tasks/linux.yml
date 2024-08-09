@@ -1,0 +1,27 @@
+---
+- name: Copy cortex xdr agent
+  copy:
+    src: "../../apps/{{ cortex_agent_name }}"
+    dest: c:\temp\attack_range_nix_sh.tar.gz
+
+- name: Extract installation package
+  shell:
+    cmd: |
+      sudo mkdir /etc/panw
+      tar -xzf /tmp/attack_range_nix_sh.tar.gz -C /tmp/cortex
+
+- name: Copy config.yaml file
+  become: true
+  copy:
+    src: /tmp/cortex/config.yaml
+    dest: /etc/panw/config.yaml
+
+- name: Copy token file
+  become: true
+  copy:
+    src: token
+    dest: /opt/splunk-edge/var/token
+
+- name: Install the Agent
+  shell:
+    cmd: sudo sh ./cortex-8.4.1.125963.sh 2>&1 </dev/null &

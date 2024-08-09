@@ -1,4 +1,6 @@
 ---
+- include: linux.yml
+  when: ansible_os_family == "Linux" && cortex_xdr
 
-- include: cortex_install.yml
-  when: cortex_xdr == "1"
+- include: windows.yml
+  when: ansible_os_family == "Windows" && cortex_xdr == "1"
