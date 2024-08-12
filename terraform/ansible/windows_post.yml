@@ -12,9 +12,9 @@
     - red_team_tools
     - join_domain
     - windows_agent_prelude
-    - crowdstrike_falcon_agent
-    - carbon_black_cloud_agent
     - bad_blood
     - splunk_byo_windows
     - windows_aurora_agent
     - windows_install_attack_simulation
+    - crowdstrike_falcon_agent
+    - carbon_black_cloud_agent
