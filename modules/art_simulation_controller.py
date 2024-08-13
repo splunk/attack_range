@@ -36,12 +36,13 @@ class ArtSimulationController(SimulationController):
 
         elif self.config['general']['cloud_provider'] == 'local':
             ansible_user = 'Administrator'
-            target_public_ip = '127.0.0.1'
+            target_public_ip = '192.168.56.' + str(14 + int(target[-1]))
             if "win" in target:
                 ansible_port = 5985 + int(target[-1])
+                cmd_line=str('-i ' + target_public_ip + ', ')
             else:
                 ansible_port = 2022 + int(target[-1])
-            cmd_line = '-u vagrant --private-key vagrant/.vagrant/machines/' + target + '/virtualbox/private_key -i ' + target_public_ip + ', '
+                cmd_line = '-u vagrant --private-key vagrant/.vagrant/machines/' + target + '/virtualbox/private_key -i ' + target_public_ip + ', '
 
         techniques = technique.split(',')
 
