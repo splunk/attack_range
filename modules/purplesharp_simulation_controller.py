@@ -21,7 +21,7 @@ class PurplesharpSimulationController(SimulationController):
             ansible_port = 5985
 
         elif self.config['general']['cloud_provider'] == 'local':
-            target_public_ip = 'localhost'
+            target_public_ip = '192.168.56.' + str(14 + int(target[-1]))
             ansible_user = 'Administrator'
             ansible_port = 5985 + int(target[-1])
 

@@ -1,11 +1,14 @@
 config.vm.define "ar-phantom-{{config.general.key_name}}-{{config.general.attack_range_name}}" do |config|
     VM_NAME_P= "ar-phantom"
-    config.vm.box = "centos/7"
+    config.vm.box = "bento/centos-7"
     config.vm.hostname = "#{VM_NAME_P}"
     config.vm.boot_timeout = 600
     config.vm.network "forwarded_port", guest: 443, host: 8443, protocol: "tcp"
     config.vm.network :private_network, ip: "192.168.56.13"
   
+    # Add this line near the top of the config block
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+
     config.vm.provision "ansible" do |ansible|
       ansible.playbook = "../packer/ansible/phantom_server.yml"
       ansible.compatibility_mode = "2.0"

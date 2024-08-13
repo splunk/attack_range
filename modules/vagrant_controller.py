@@ -81,12 +81,12 @@ class VagrantController(AttackRangeController):
         v1.destroy()
         self.logger.info("attack_range has been destroy using vagrant successfully")
 
-    def stop(self) -> None:
+    def stop(self, instance_ids) -> None:
         self.logger.info("[action] > stop\n")
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         v1.halt()
 
-    def resume(self) -> None:
+    def resume(self, instance_ids) -> None:
         self.logger.info("[action] > resume\n")
         v1 = vagrant.Vagrant('vagrant/', quiet_stdout=False)
         v1.up()
@@ -118,9 +118,9 @@ class VagrantController(AttackRangeController):
                     messages.append("\nAccess Splunk via:\n\tWeb > http://192.168.56.12:8000\n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
                 messages.append("\nAccess Guacamole via:\n\tWeb > http://192.168.56.12:8080/guacamole" + "\n\tusername: Admin \n\tpassword: " + self.config['general']['attack_range_password'])
             elif status.name.startswith("ar-phantom"):
-                messages.append("\nAccess Phantom via:\n\tWeb > https://192.168.56.13:8443 \n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: admin \n\tpassword: " + self.config['general']['attack_range_password'])
+                messages.append("\nAccess Phantom via:\n\tWeb > https://192.168.56.13:8443 \n\tSSH > cd vagrant & vagrant ssh " + status.name + " \n\tusername: soar_local_admin \n\tpassword: " + self.config['general']['attack_range_password'])
             elif status.name.startswith("ar-win"):
-                messages.append("\nAccess Windows via:\n\tRDP > rdp://localhost:" + str(5389 + int(status.name[-1])) + " \n\tusername: Administrator \n\tpassword: " + self.config['general']['attack_range_password'])
+                messages.append("\nAccess Windows via:\n\tRDP > rdp://192.168.56." + str(14 + int(status.name[-1])) + ":" + str(5389 + int(status.name[-1])) + " \n\tusername: Administrator \n\tpassword: " + self.config['general']['attack_range_password'])
             elif status.name.startswith("ar-linux"):
                 messages.append("\nAccess Linux via:\n\tSSH > cd vagrant & vagrant ssh " + status.name)
             elif status.name.startswith("ar-kali"):

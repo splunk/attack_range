@@ -1,5 +1,22 @@
 ---
-# Install Phantom from RPM on a fresh CentOS 7 instance
+- name: Change mirror to vault.centos.org
+  shell: sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
+  become: yes
+
+- name: Uncomment baseurl lines
+  shell: sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
+  become: yes
+
+- name: Comment out mirrorlist lines
+  shell: sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
+  become: yes
+
+- name: Update all packages
+  yum:
+    name: "*"
+    state: latest
+    update_cache: yes
+  become: yes
 
 - name: Creates directory
   file:
@@ -10,9 +27,15 @@
   unarchive:
     src: "../../apps/{{ phantom_app }}"
     dest: /home/vagrant
+  become: yes
+  become_user: vagrant
 
 - name: prepare phantom install script without apps
-  shell: sudo /home/vagrant/splunk-soar/soar-prepare-system --splunk-soar-home /opt/soar --no-prompt 
+  shell: /home/vagrant/splunk-soar/soar-prepare-system --splunk-soar-home /opt/soar --no-prompt
+  become: yes
+  environment:
+    http_proxy: ""
+    https_proxy: ""
 
 - name: copy splunk soar folder
   shell: cp -r /home/vagrant/splunk-soar /home/phantom/splunk-soar
@@ -20,69 +43,9 @@
 - name: chown splunk soar folder
   shell: chown -R phantom. /home/phantom/splunk-soar
 
-# - name: Copy Splunk SOAR to server
-#   become_user: phantom
-#   unarchive:
-#     src: "../../apps/{{ phantom_app }}"
-#     dest: /home/phantom
-
-- name: run the phantom install script 
+- name: run the phantom install script
+  become: yes
   become_user: phantom
   shell: ./soar-install --splunk-soar-home /opt/soar --no-prompt --ignore-warnings
   args:
     chdir: /home/phantom/splunk-soar
-
-# - name: upgrade all packages
-#   yum:
-#     name: '*'
-#     state: latest
-
-# - name: check if phantom is installed
-#   stat: path=/opt/phantom
-#   register: phantom_path
-
-# - name: debug print if phantom is installed
-#   debug: msg='phantom is already installed under /opt/phantom'
-#   when: phantom_path.stat.exists
-
-
-# - name: install the phantom setup rpm from the community repository
-#   yum:
-#     name: '{{ phantom_repo_url }}'
-#     state: present
-
-# # installing apps takes 15+ minutes longer, so later we will install just the apps we need
-# - name: run the phantom install script without apps
-#   shell: printf "{{phantom_community_username}}\n{{phantom_community_password}}\n" | /opt/phantom/bin/phantom_setup.sh install --no-prompt --without-apps --version={{phantom_version}}
-#   async: 1800
-#   poll: 60
-
-# - name: install whois app
-#   yum:
-#     name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_whois-2.1.0.x86_64.rpm
-#     state: present
-
-# - name: install maxmind app
-#   yum:
-#     name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_maxmind-2.0.23.x86_64.rpm
-#     state: present
-
-# - name: install dns app
-#   yum:
-#     name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_dns-2.0.22.x86_64.rpm
-#     state: present
-
-# - name: install phishtank app
-#   yum:
-#     name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_phishtank-2.0.1.x86_64.rpm
-#     state: present
-
-# - name: install splunk app
-#   yum:
-#     name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_splunk-2.2.3.x86_64.rpm
-#     state: present
-
-# - name: install winrm app
-#   yum:
-#     name: https://repo.phantom.us/phantom/4.10/apps/x86_64/phantom_winrm-2.0.1.x86_64.rpm
-#     state: present
