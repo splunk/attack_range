@@ -10,8 +10,6 @@
 </p>
 
 # Splunk Attack Range ⚔️
-> [!WARNING]
-> Packer was removed to simplify the deployment process.
 ![Attack Range Log](docs/attack_range.png)
 The Splunk Attack Range is an open-source project maintained by the Splunk Threat Research Team. It builds instrumented cloud (AWS, Azure) and local environments (Virtualbox), simulates attacks, and forwards the data into a Splunk instance. This environment can then be used to develop and test the effectiveness of detections.
 
