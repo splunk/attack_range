@@ -31,10 +31,6 @@ class AttackRangeController(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def packer(self, image_name) -> None:
-        pass
-
-    @abc.abstractmethod
     def simulate(self, engine, target, technique, playbook) -> None:
         pass
 

@@ -26,12 +26,6 @@ resource "azurerm_public_ip" "windows-publicip" {
   allocation_method   = "Static"
 }
 
-data "azurerm_image" "search" {
-  count = (var.general.use_prebuilt_images_with_packer == "1") ? length(var.windows_servers) : 0
-  name                = var.windows_servers[count.index].windows_image
-  resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
-}
-
 resource "azurerm_virtual_machine" "windows" {
   count = length(var.windows_servers)
   name = "ar-win-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
@@ -43,11 +37,10 @@ resource "azurerm_virtual_machine" "windows" {
   delete_os_disk_on_termination = true
 
   storage_image_reference {
-    id = var.general.use_prebuilt_images_with_packer == "1" ? data.azurerm_image.search[count.index].id : null
-    publisher = var.general.use_prebuilt_images_with_packer == "0" ? var.windows_servers[count.index].azure_publisher : null 
-    offer     = var.general.use_prebuilt_images_with_packer == "0" ? var.windows_servers[count.index].azure_offer : null
-    sku       = var.general.use_prebuilt_images_with_packer == "0" ? var.windows_servers[count.index].azure_sku : null
-    version   = var.general.use_prebuilt_images_with_packer == "0" ? "latest" : null
+    publisher = var.windows_servers[count.index].azure_publisher 
+    offer     = var.windows_servers[count.index].azure_offer
+    sku       = var.windows_servers[count.index].azure_sku
+    version   = "latest"
   }
 
   os_profile {
@@ -100,13 +93,26 @@ resource "azurerm_virtual_machine" "windows" {
   }
 
   provisioner "local-exec" {
-    working_dir = "../../packer/ansible"
-    command = "ansible-playbook -i '${azurerm_public_ip.windows-publicip[count.index].ip_address},' windows.yml --extra-vars 'ansible_port=5985 ansible_user=AzureAdmin ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.windows_servers[count.index] : "${key}=\"${value}\""])}'"
+    working_dir = "../ansible"
+    command = <<-EOT
+      cat <<EOF > vars/windows_vars.json
+      {
+        "ansible_user": "AzureAdmin",
+        "ansible_port": 5985,
+        "ansible_password": ${var.general.attack_range_password},
+        "attack_range_password": ${var.general.attack_range_password},
+        "general": ${jsonencode(var.general)},
+        "splunk_server": ${jsonencode(var.splunk_server)},
+        "simulation": ${jsonencode(var.simulation)},
+        "windows_servers": ${jsonencode(var.windows_servers[count.index])},
+      }
+      EOF
+    EOT
   }
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ansible-playbook -i '${azurerm_public_ip.windows-publicip[count.index].ip_address},' windows_post.yml --extra-vars 'ansible_port=5985 ansible_user=AzureAdmin ansible_password=${var.general.attack_range_password} ansible_winrm_operation_timeout_sec=120 ansible_winrm_read_timeout_sec=150 attack_range_password=${var.general.attack_range_password} ${join(" ", [for key, value in var.windows_servers[count.index] : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    command = "ansible-playbook -i '${azurerm_public_ip.windows-publicip[count.index].ip_address},' windows.yml -e @vars/windows_vars.json"
   }
 
 }

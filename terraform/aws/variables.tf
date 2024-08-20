@@ -88,3 +88,5 @@ variable "nginx_server" {
 }
 
 variable "zeek_server" { }
+
+variable "snort_server" { }

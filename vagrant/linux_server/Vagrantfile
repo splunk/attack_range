@@ -5,37 +5,23 @@ config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_r
     config.vm.network :private_network, ip: "192.168.56.{{21 + count}}"
     config.vm.network "forwarded_port", guest: 22, host: {{ 2022 + count }}
     config.vm.synced_folder '.', '/vagrant', disabled: true
-  
-    config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../packer/ansible/linux_server.yml"
-        ansible.compatibility_mode = "2.0"
-        ansible.extra_vars = {
-          ansible_python_interpreter: "/usr/bin/python3",
-          splunk_admin_password: 'Pl3ase-k1Ll-me:p',
-          use_prebuilt_images_with_packer: '0',
-          splunk_uf_url: 'https://download.splunk.com/products/universalforwarder/releases/8.2.5/linux/splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb',
-{% for key, value in config.general.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-        }
-    end
 
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../terraform/ansible/linux_server_post.yml"
+        ansible.playbook = "../terraform/ansible/linux_server.yml"
         ansible.compatibility_mode = "2.0"
         ansible.extra_vars = {
           ansible_python_interpreter: "/usr/bin/python3",  
 {% for key, value in config.general.items() %}
-          {{ key }}: "{{ value }}",
+          general.{{ key }}: "{{ value }}",
 {% endfor %}
 {% for key, value in server.items() %}
-          {{ key }}: "{{ value }}",
+          linux_servers.{{ key }}: "{{ value }}",
 {% endfor %}
 {% for key, value in config.simulation.items() %}
-          {{ key }}: "{{ value }}",
+          simulation.{{ key }}: "{{ value }}",
 {% endfor %}
 {% for key, value in config.splunk_server.items() %}
-          {{ key }}: "{{ value }}",
+          splunk_server.{{ key }}: "{{ value }}",
 {% endfor %}
         }
     end

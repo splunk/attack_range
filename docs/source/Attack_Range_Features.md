@@ -1,18 +1,5 @@
 # Attack Range Features
 
-## Fast build time with Packer
-Attack Range supports to prebuilt images and therefore improve the build time to 5 minutes. You can use the following `attack_range.yml` configuration as an example:
-````yml
-general:
-  attack_range_password: "ChangeMe123!"
-  cloud_provider: "aws"
-  key_name: "ar"
-  use_prebuilt_images_with_packer: "1"
-windows_servers:
-  - hostname: ar-win 
-    image: windows-2016-v3-0-0
-````
-
 ## CrowdStrike Falcon
 A CrowdStrike Falcon agent can be automatically installed on the Windows Servers in Attack Range. It is required that the agent is downloaded into the apps folder before running the build command. The logs can ingested automatically to the Splunk server when you have the CrowdStrike Falcon Data Replicator (FDR) entitlement. You can use the following `attack_range.yml` configuration:
 ````yml

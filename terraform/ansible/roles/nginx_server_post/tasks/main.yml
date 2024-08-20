@@ -4,11 +4,30 @@
   template:
     src: default.conf.j2
     dest: /etc/nginx/conf.d/default.conf
-  when: proxy_server_ip != "10.0.1.12" or proxy_server_port != "8000"
+  when: nginx_server.proxy_server_ip != "10.0.1.12" or nginx_server.proxy_server_port != "8000"
 
 - name: reload nginx
   systemd:
     state: restarted
     daemon_reload: yes
     name: nginx
-  when: proxy_server_ip != "10.0.1.12" or proxy_server_port != "8000"
+  when: nginx_server.proxy_server_ip != "10.0.1.12" or nginx_server.proxy_server_port != "8000"
+
+- name: change password splunk
+  shell: '/opt/splunkforwarder/bin/splunk edit user admin -password {{ general.attack_range_password }} -auth admin:Pl3ase-k1Ll-me:p'
+  become: yes
+  ignore_errors: yes
+
+- name: Change hostname
+  shell: '/opt/splunkforwarder/bin/splunk set default-hostname {{ nginx_server.hostname }} -auth admin:{{ general.attack_range_password }}'
+  become: yes
+
+- name: Change servername
+  shell: '/opt/splunkforwarder/bin/splunk set servername {{ nginx_server.hostname }} -auth admin:{{ general.attack_range_password }}'
+  become: yes
+
+- name: Restart splunk uf
+  become: true
+  systemd:
+    name: SplunkForwarder
+    state: restarted

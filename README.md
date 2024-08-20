@@ -1,7 +1,3 @@
-<a href="https://gitpod.io/#https://github.com/splunk/attack_range/tree/attack_range_3">
-<img align="right"src="https://gitpod.io/button/open-in-gitpod.svg" />
-</a>
-
 <p align="center">
     <a href="https://github.com/splunk/attack_range/releases">
         <img src="https://img.shields.io/github/v/release/splunk/attack_range" /></a>
@@ -14,8 +10,10 @@
 </p>
 
 # Splunk Attack Range ⚔️
+> [!WARNING]
+> Packer was removed to simplify the deployment process.
 ![Attack Range Log](docs/attack_range.png)
-The Splunk Attack Range is an open-source project maintained by the Splunk Threat Research Team. It builds instrumented cloud and local environments, simulates attacks, and forwards the data into a Splunk instance. This environment can then be used to develop and test the effectiveness of detections.
+The Splunk Attack Range is an open-source project maintained by the Splunk Threat Research Team. It builds instrumented cloud (AWS, Azure) and local environments (Virtualbox), simulates attacks, and forwards the data into a Splunk instance. This environment can then be used to develop and test the effectiveness of detections.
 
 ## Purpose 🛡
 The Attack Range is a detection development platform, which solves three main challenges in detection engineering:
@@ -55,6 +53,7 @@ The deployment of Attack Range consists of:
 - Nginx Server
 - Linux Server
 - Zeek Server
+- Snort Server
 
 Which can be added/removed/configured using [attack_range.yml](https://github.com/splunk/attack_range/blob/develop/attack_range.yml). 
 
@@ -69,6 +68,8 @@ The following log sources are collected from the machines:
 - Nginx logs (```index = proxy```)
 - Network Logs with Splunk Stream (```index = main```)
 - Attack Simulation Logs from Atomic Red Team and Caldera (```index = attack```)
+- Zeek Logs (```index = zeek```)
+- Snort Logs (```index = snort```)
 
 ## Running 🏃‍♀️
 Attack Range supports different actions:
@@ -81,11 +82,6 @@ python attack_range.py configure
 ### Build Attack Range
 ```
 python attack_range.py build
-```
-
-### Packer Attack Range
-```
-python attack_range.py packer --image_name windows-2016
 ```
 
 ### Show Attack Range Infrastructure

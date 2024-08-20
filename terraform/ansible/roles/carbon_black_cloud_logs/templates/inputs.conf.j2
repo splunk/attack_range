@@ -1,6 +1,6 @@
 [aws_s3://cb_events]
-aws_account = splunk_role_{{ attack_range_name }}_{{ key_name }}
-bucket_name = {{ carbon_black_cloud_s3_bucket }}
+aws_account = splunk_role_{{ general.attack_range_name }}_{{ general.key_name }}
+bucket_name = {{ general.carbon_black_cloud_s3_bucket }}
 character_set = auto
 ct_blacklist = ^$
 host_name = s3.us-east-1.amazonaws.com

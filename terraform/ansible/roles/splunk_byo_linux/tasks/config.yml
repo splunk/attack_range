@@ -4,8 +4,6 @@
   template:
     src: outputs.conf.j2
     dest: /opt/splunkforwarder/etc/system/local/outputs.conf
-    owner: splunk
-    group: splunk
     force: yes
 
 - name: restart splunk

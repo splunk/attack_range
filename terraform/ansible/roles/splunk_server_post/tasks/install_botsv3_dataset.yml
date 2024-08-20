@@ -8,7 +8,5 @@
   unarchive:
     src: 'https://botsdataset.s3.amazonaws.com/botsv3/botsv3_data_set.tgz'
     dest: /opt/splunk/etc/apps 
-    owner: splunk
-    group: splunk
     remote_src: yes
   when: botsv3_app.stat.exists == False

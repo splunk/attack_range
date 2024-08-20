@@ -1,18 +1,5 @@
-
-
-data "aws_ami" "splunk_server_packer" {
-  count       = (var.splunk_server.byo_splunk == "0") && (var.general.use_prebuilt_images_with_packer == "1") ? 1 : 0
-  most_recent = true
-  owners      = ["self"] 
-
-  filter {
-    name   = "name"
-    values = [var.splunk_server.splunk_image]
-  }
-}
-
 data "aws_ami" "splunk_server" {
-  count       = (var.splunk_server.byo_splunk == "0") && (var.general.use_prebuilt_images_with_packer == "0") ? 1 : 0
+  count       = (var.splunk_server.byo_splunk == "0") ? 1 : 0
   most_recent = true
   owners      = ["099720109477"] # Canonical
 
@@ -88,7 +75,7 @@ resource "aws_iam_role_policy" "splunk_logging_policy" {
 
 resource "aws_instance" "splunk-server" {
   count                  = var.splunk_server.byo_splunk == "0" ? 1 : 0
-  ami                    = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.splunk_server_packer[0].id : data.aws_ami.splunk_server[0].id
+  ami                    = data.aws_ami.splunk_server[0].id
   instance_type          = "t3.2xlarge"
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
@@ -119,13 +106,31 @@ resource "aws_instance" "splunk-server" {
   }
 
   provisioner "local-exec" {
-    working_dir = "../../packer/ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${aws_instance.splunk-server[0].public_ip},' splunk_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} '"
+    working_dir = "../ansible"
+    command = <<-EOT
+      cat <<EOF > vars/splunk_vars.json
+      {
+        "ansible_python_interpreter": "/usr/bin/python3",
+        "general": ${jsonencode(var.general)},
+        "aws": ${jsonencode(var.aws)},
+        "splunk_server": ${jsonencode(var.splunk_server)},
+        "phantom_server": ${jsonencode(var.phantom_server)},
+        "simulation": ${jsonencode(var.simulation)},
+        "kali_server": ${jsonencode(var.kali_server)},
+        "zeek_server": ${jsonencode(var.zeek_server)},
+        "windows_servers": ${jsonencode(var.windows_servers)},
+        "linux_servers": ${jsonencode(var.linux_servers)},
+        "snort_server": ${jsonencode(var.snort_server)}
+      }
+      EOF
+    EOT
   }
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${aws_instance.splunk-server[0].public_ip},' splunk_server_post.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.aws : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.kali_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.zeek_server : "${key}=\"${value}\""])} windows=${jsonencode(var.windows_servers)} linux=${jsonencode(var.linux_servers)}'"
+    command = <<-EOT
+      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${aws_instance.splunk-server[0].public_ip},' splunk_server.yml -e "@vars/splunk_vars.json"
+    EOT
   }
 
 }

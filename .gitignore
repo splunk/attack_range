@@ -1,6 +1,7 @@
 # ignore attack_range.yml that might include local custom changes
 attack_range.yml
 poetry.lock
+terraform/ansible/*vars.json
 
 #keys
 *.key

@@ -5,4 +5,3 @@ general:
   key_name: "ar"
 windows_servers:
   - hostname: ar-win 
-    image: windows-2016-v3-0-0

@@ -1,7 +1,7 @@
 <user-mapping>
     <authorize 
             username="Admin"
-            password="{{attack_range_password|hash('md5')}}"
+            password="{{general.attack_range_password|hash('md5')}}"
             encoding="md5">
 
         <connection name="ar-splunk">

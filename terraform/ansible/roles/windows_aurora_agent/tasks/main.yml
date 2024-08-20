@@ -1,5 +1,5 @@
 ---
 
 - include: install_aurora_agent.yml
-  when: aurora_agent == "1"
+  when: windows_servers.aurora_agent == "1"
 

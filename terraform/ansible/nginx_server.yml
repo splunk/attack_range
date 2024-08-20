@@ -1,0 +1,9 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  roles:
+    - set_hostname_nginx
+    - linux_universal_forwarder
+    - nginx_web_proxy
+    - nginx_server_post
+    - splunk_byo_linux

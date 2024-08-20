@@ -1,0 +1,14 @@
+
+- name: Create folder directory for indexes configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/limits_app/local/
+
+- name: copy limits.conf to splunk server
+  copy:
+    src: limits.conf
+    dest: /opt/splunk/etc/apps/limits_app/local/limits.conf
+  notify: restart splunk

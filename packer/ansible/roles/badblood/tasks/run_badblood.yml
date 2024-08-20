@@ -1,4 +1,0 @@
-- name: Run BadBlood
-  win_shell: C:\BadBlood\Invoke-BadBlood.ps1 -NonInteractive
-  tags:
-    - badblood

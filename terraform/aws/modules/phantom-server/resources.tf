@@ -1,17 +1,7 @@
 
-data "aws_ami" "latest-centos-packer" {
-  count       = (var.phantom_server.phantom_server == "1") && (var.general.use_prebuilt_images_with_packer == "1") ? 1 : 0
-  most_recent = true
-  owners      = ["self"] 
-
-  filter {
-    name   = "name"
-    values = [var.phantom_server.phantom_image]
-  }
-}
 
 data "aws_ami" "latest-centos" {
-  count       = (var.phantom_server.phantom_server == "1") && (var.general.use_prebuilt_images_with_packer == "0") ? 1 : 0
+  count       = (var.phantom_server.phantom_server == "1") ? 1 : 0
   most_recent = true
   owners      = ["125523088429"] 
 
@@ -34,7 +24,7 @@ data "aws_ami" "latest-centos" {
 # install Phantom on a bare CentOS 7 instance
 resource "aws_instance" "phantom-server" {
   count                  = var.phantom_server.phantom_server == "1" ? 1 : 0
-  ami                    = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.latest-centos-packer[0].id : data.aws_ami.latest-centos[0].id
+  ami                    = data.aws_ami.latest-centos[0].id
   instance_type          = "t3.xlarge"
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
@@ -62,13 +52,22 @@ resource "aws_instance" "phantom-server" {
   }
 
   provisioner "local-exec" {
-    working_dir = "../../packer/ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key '${var.aws.private_key_path}' -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    working_dir = "../ansible"
+    command = <<-EOT
+      cat <<EOF > vars/phantom_vars.json
+      {
+        "general": ${jsonencode(var.general)},
+        "aws": ${jsonencode(var.aws)},
+        "phantom_server": ${jsonencode(var.phantom_server)},
+      }
+      EOF
+    EOT
   }
+
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key '${var.aws.private_key_path}' -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e '${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.phantom_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.aws : "${key}=\"${value}\""])}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key '${var.aws.private_key_path}' -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e @vars/phantom_vars.json"
   }
 }
 

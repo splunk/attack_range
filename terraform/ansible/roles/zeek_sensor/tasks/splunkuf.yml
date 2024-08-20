@@ -1,0 +1,14 @@
+---
+
+- name: copy inputs.conf to capture zeek logs
+  copy:
+    src: inputs.conf
+    dest: /opt/splunkforwarder/etc/system/local/inputs.conf
+    force: yes
+
+- name: Restart splunk uf
+  become: true
+  systemd:
+    name: SplunkForwarder
+    state: restarted
+

@@ -14,7 +14,7 @@
     dest: 'C:\join_domain.ps1'
 
 - name: Run join domain
-  win_shell: "C:\\join_domain.ps1 attackrange.local {{ ansible_user }}@attackrange.local {{ attack_range_password }}"
+  win_shell: "C:\\join_domain.ps1 attackrange.local {{ ansible_user }}@attackrange.local {{ general.attack_range_password }}"
   register: win_shell_output
   retries: 20
   delay: 60

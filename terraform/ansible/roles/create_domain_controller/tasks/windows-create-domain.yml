@@ -18,7 +18,7 @@
 - name: set local admin password
   win_user:
     name: "{{ ansible_user }}"
-    password: "{{ attack_range_password }}"
+    password: "{{ general.attack_range_password }}"
     state: present
 
 - name: features | Installing RSAT AD Admin Center
@@ -36,7 +36,7 @@
 - name: Creating a windows domain
   win_domain:
     dns_domain_name: "attackrange.local"
-    safe_mode_password: "{{ attack_range_password }}"
+    safe_mode_password: "{{ general.attack_range_password }}"
 
 - name: Setting DNS Servers
   win_dns_client:
@@ -51,8 +51,8 @@
   win_domain_controller:
     dns_domain_name: "attackrange.local"
     domain_admin_user: "{{ ansible_user }}@attackrange.local"
-    domain_admin_password: "{{ attack_range_password }}"
-    safe_mode_password: "{{ attack_range_password }}"
+    domain_admin_password: "{{ general.attack_range_password }}"
+    safe_mode_password: "{{ general.attack_range_password }}"
     state: "domain_controller"
   register: _windows_domain_controller
 

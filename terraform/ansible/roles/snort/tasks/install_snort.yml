@@ -1,0 +1,152 @@
+---
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  become: yes
+  ignore_errors: yes
+
+- name: Update apt cache and upgrade all packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+    force_apt_get: yes
+  become: yes
+  ignore_errors: yes
+
+- name: Check if a reboot is needed
+  register: reboot_required_file
+  stat: 
+    path: /var/run/reboot-required
+    get_md5: no
+  ignore_errors: yes
+
+- name: Reboot the server if required
+  reboot:
+    msg: "Reboot initiated by Ansible due to package upgrades"
+    connect_timeout: 5
+    reboot_timeout: 300
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+    test_command: uptime
+  when: reboot_required_file.stat.exists
+  become: yes
+  ignore_errors: yes
+
+- name: Install Snort dependencies
+  apt:
+    name:
+      - build-essential
+      - libpcap-dev
+      - libpcre3-dev
+      - libnet1-dev
+      - zlib1g-dev
+      - luajit
+      - hwloc
+      - libdnet-dev
+      - libdumbnet-dev
+      - bison
+      - flex
+      - liblzma-dev
+      - openssl
+      - libssl-dev
+      - pkg-config
+      - libhwloc-dev
+      - cmake
+      - cpputest
+      - libsqlite3-dev
+      - uuid-dev
+      - libcmocka-dev
+      - libnetfilter-queue-dev
+      - libmnl-dev
+      - autotools-dev
+      - libluajit-5.1-dev
+      - libunwind-dev
+      - libfl-dev
+      - unzip
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Create Snort source directory
+  file:
+    path: "~/snort_src"
+    state: directory
+    mode: '0755'
+
+- name: Clone libdaq repository
+  git:
+    repo: 'https://github.com/snort3/libdaq.git'
+    dest: '~/snort_src/libdaq'
+    version: master
+
+- name: Build and install libdaq
+  become: yes
+  shell: |
+    ./bootstrap
+    ./configure
+    make
+    make install
+  args:
+    chdir: '~/snort_src/libdaq'
+    executable: /bin/bash
+
+- name: Download gperftools
+  get_url:
+    url: https://github.com/gperftools/gperftools/releases/download/gperftools-2.9.1/gperftools-2.9.1.tar.gz
+    dest: ~/snort_src/gperftools-2.9.1.tar.gz
+
+- name: Extract gperftools
+  unarchive:
+    src: ~/snort_src/gperftools-2.9.1.tar.gz
+    dest: ~/snort_src
+    remote_src: yes
+
+- name: Build and install gperftools
+  become: yes
+  shell: |
+    ./configure
+    make
+    make install
+  args:
+    chdir: ~/snort_src/gperftools-2.9.1
+    executable: /bin/bash
+
+- name: Download Snort3 source
+  get_url:
+    url: https://github.com/snort3/snort3/archive/refs/heads/master.zip
+    dest: ~/snort_src/snort3-master.zip
+
+- name: Extract Snort3 source
+  unarchive:
+    src: ~/snort_src/snort3-master.zip
+    dest: ~/snort_src
+    remote_src: yes
+
+- name: Configure and build Snort3
+  become: yes
+  shell: |
+    ./configure_cmake.sh --prefix=/usr/local --enable-tcmalloc
+  args:
+    chdir: ~/snort_src/snort3-master
+    executable: /bin/bash
+
+- name: Build and Install Snort3
+  become: yes
+  shell: |
+    make -j $(nproc) install
+  args:
+    chdir: ~/snort_src/snort3-master/build
+    executable: /bin/bash
+
+- name: Update shared library cache
+  become: yes
+  command: ldconfig
+
+- name: Get Snort version
+  command: snort -V
+  register: snort_version
+
+- name: Display Snort version
+  debug:
+    var: snort_version.stdout_lines

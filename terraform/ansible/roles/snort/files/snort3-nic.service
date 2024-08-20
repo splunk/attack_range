@@ -1,0 +1,11 @@
+[Unit]
+Description=Set Snort 3 NIC in promiscuous mode and Disable GRO, LRO on boot
+After=network.target
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/ip link set dev ens5 promisc on
+ExecStart=/usr/sbin/ethtool -K ens5 gro off lro off
+TimeoutStartSec=0
+RemainAfterExit=yes
+[Install]
+WantedBy=default.target

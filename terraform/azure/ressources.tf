@@ -17,6 +17,8 @@ module "splunk-server" {
   windows_servers = var.windows_servers
   linux_servers = var.linux_servers
   zeek_server = var.zeek_server
+  kali_server = var.kali_server
+  snort_server = var.snort_server
 }
 
 module "phantom-server" {

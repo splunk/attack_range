@@ -1,4 +1,4 @@
 ---
 
 - include: config.yml
-  when: byo_splunk == "1"
+  when: splunk_server.byo_splunk == "1"

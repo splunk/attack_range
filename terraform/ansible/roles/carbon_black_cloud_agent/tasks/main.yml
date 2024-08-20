@@ -1,4 +1,4 @@
 ---
 
 - include: install.yml
-  when: carbon_black_cloud == "1"
+  when: general.carbon_black_cloud == "1"

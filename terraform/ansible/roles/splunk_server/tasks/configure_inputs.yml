@@ -1,0 +1,14 @@
+
+- name: Create folder directory for inputs configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/inputs_app/local/
+
+- name: copy inputs.conf
+  copy:
+    src: inputs.conf
+    dest: /opt/splunk/etc/apps/inputs_app/local/inputs.conf
+  notify: restart splunk

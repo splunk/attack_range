@@ -1,0 +1,29 @@
+---
+
+- name: Install splunk uf
+  become: yes
+  apt: deb="{{ splunk_server.splunk_uf_url }}"
+
+- name: copy outputs.conf to forward data to splunk server
+  template:
+    src: outputs.conf.j2
+    dest: /opt/splunkforwarder/etc/system/local/outputs.conf
+    force: yes
+
+- name: splunk license acceptance
+  become: true
+  command: /opt/splunkforwarder/bin/splunk start --accept-license --answer-yes --no-prompt --seed-passwd Pl3ase-k1Ll-me:p
+
+- name: Stop splunk uf
+  become: true
+  command: "/opt/splunkforwarder/bin/splunk stop"
+
+- name: setup to start at boot
+  become: true
+  command: "/opt/splunkforwarder/bin/splunk enable boot-start"
+
+- name: Start splunk uf
+  become: true
+  systemd:
+    name: SplunkForwarder
+    state: started

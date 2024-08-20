@@ -1,0 +1,24 @@
+- hosts: all
+  gather_facts: True
+  vars:
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_port: 5985
+    ansible_winrm_operation_timeout_sec: 300
+    ansible_winrm_read_timeout_sec: 900
+  roles:
+    - windows_common
+    - windows_universal_forwarder
+    - sysmon
+    - set_hostname_win
+    - windows_splunk_post
+    - create_domain_controller
+    - update_sysmon_config
+    - red_team_tools
+    - join_domain
+    - bad_blood
+    - splunk_byo_windows
+    - windows_aurora_agent
+    - windows_install_attack_simulation
+    - crowdstrike_falcon_agent
+    - carbon_black_cloud_agent

@@ -1,7 +1,0 @@
----
-
-- include: install.yml
-  when: prelude == "1" and cloud_provider!='local'
-
-- include: install_local.yml
-  when: prelude == "1" and cloud_provider=='local'

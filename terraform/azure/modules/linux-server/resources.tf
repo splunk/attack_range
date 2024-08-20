@@ -21,12 +21,6 @@ resource "azurerm_network_interface" "linux-nic" {
   }
 }
 
-data "azurerm_image" "search" {
-  count = (var.general.use_prebuilt_images_with_packer == "1") ? length(var.linux_servers) : 0
-  name                = var.linux_servers[count.index].linux_image
-  resource_group_name = "packer_${replace(var.azure.location, " ", "_")}"
-}
-
 resource "azurerm_virtual_machine" "linux" {
   count = length(var.linux_servers)
   name = "ar-linux-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
@@ -44,11 +38,10 @@ resource "azurerm_virtual_machine" "linux" {
   }
 
   storage_image_reference {
-    id = var.general.use_prebuilt_images_with_packer == "1" ? data.azurerm_image.search[count.index].id : null
-    publisher = var.general.use_prebuilt_images_with_packer == "0" ? "Canonical" : null 
-    offer     = var.general.use_prebuilt_images_with_packer == "0" ? "UbuntuServer" : null
-    sku       = var.general.use_prebuilt_images_with_packer == "0" ? "18.04-LTS" : null
-    version   = var.general.use_prebuilt_images_with_packer == "0" ? "latest" : null
+    publisher = "canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
+    version   = "latest"
   }
 
   os_profile {
@@ -77,13 +70,23 @@ resource "azurerm_virtual_machine" "linux" {
   }
 
   provisioner "local-exec" {
-    working_dir = "../../packer/ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.azure.private_key_path} -i '${azurerm_public_ip.linux-publicip[count.index].ip_address},' linux_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    working_dir = "../ansible"
+    command = <<-EOT
+      cat <<EOF > vars/linux_vars.json
+      {
+        "ansible_python_interpreter": "/usr/bin/python3",
+        "general": ${jsonencode(var.general)},
+        "splunk_server": ${jsonencode(var.splunk_server)},
+        "linux_servers": ${jsonencode(var.linux_servers[count.index])},
+        "simulation": ${jsonencode(var.simulation)},
+      }
+      EOF
+    EOT
   }
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key ${var.azure.private_key_path} -i '${azurerm_public_ip.linux-publicip[count.index].ip_address},' linux_server_post.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.linux_servers[count.index] : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.azure.private_key_path}' -i '${azurerm_public_ip.linux-publicip[count.index].ip_address},' linux_server.yml -e @vars/linux_vars.json"
   }
 
 }

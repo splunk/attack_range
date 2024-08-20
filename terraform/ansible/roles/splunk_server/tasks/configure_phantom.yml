@@ -1,0 +1,11 @@
+---
+
+- name: create local folder for phantom app
+  file:
+    path: /opt/splunk/etc/apps/phantom/local
+    state: directory
+
+- name: copy phantom.conf to splunk server
+  copy:
+    src: phantom.conf
+    dest: /opt/splunk/etc/apps/phantom/local/phantom.conf
