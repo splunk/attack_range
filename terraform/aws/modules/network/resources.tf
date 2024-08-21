@@ -20,7 +20,8 @@ module "vpc" {
 # Use the public subnet from the created VPC or the existing public subnet
 locals {
   public_subnet = var.aws.create_vpc == "1" ? module.vpc[0].public_subnets : var.aws.network_cidr
-  vpc_id = var.aws.create_vpc == "v1" ? module.vpc[0].vpc_id : var.aws.vpc_ids
+  vpc_id        = var.aws.create_vpc == "v1" ? module.vpc[0].vpc_id : var.aws.vpc_ids
+}
 
 resource "aws_security_group" "default" {
   name   = "sg_public_subnets_${var.general.key_name}_${var.general.attack_range_name}"
