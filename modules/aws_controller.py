@@ -57,7 +57,7 @@ class AwsController(AttackRangeController):
                 self.config['windows_servers'][i]['windows_ami'] = "Windows_Server-2022-English-Full-Base-*"
             else:
                 self.logger.error("Image " + image_name + " not supported.")
-                sys.exit(1)    
+                sys.exit(1)
 
     def build(self) -> None:
         self.logger.info("[action] > build\n")
@@ -73,9 +73,9 @@ class AwsController(AttackRangeController):
             if self.config["nginx_server"]["nginx_server"] == "1":
                 images.append(self.config["nginx_server"]["nginx_image"])
             if self.config["zeek_server"]["zeek_server"] == "1":
-                images.append(self.config["zeek_server"]["zeek_image"])        
+                images.append(self.config["zeek_server"]["zeek_image"])
             if self.config["phantom_server"]["phantom_server"] == "1":
-                images.append(self.config["phantom_server"]["phantom_image"])    
+                images.append(self.config["phantom_server"]["phantom_image"])
 
             self.logger.info("Check if images are available in region " + self.config['aws']['region'])
 
@@ -87,24 +87,24 @@ class AwsController(AttackRangeController):
                     if result:
                         self.logger.info("Found image " + image + " in region " + result['region'] + ". Copy it to region " + self.config['aws']['region'])
                         aws_service.copy_image(
-                            image, 
-                            result['image_id'], 
+                            image,
+                            result['image_id'],
                             result['region'],
                             self.config['aws']['region']
                         )
                     else:
                         self.logger.info("Image " + image + " need to be built with packer.")
-                        self.packer(image)  
+                        self.packer(image)
                 else:
-                    self.logger.info("Image " + image + " is available in region " + self.config['aws']['region'])                 
-     
+                    self.logger.info("Image " + image + " is available in region " + self.config['aws']['region'])
+
         cwd = os.getcwd()
         os.system('cd ' + os.path.join(os.path.dirname(__file__), '../terraform/aws') + '&& terraform init -migrate-state')
         os.system('cd ' + cwd)
 
         return_code, stdout, stderr = self.terraform.apply(
-            capture_output='yes', 
-            skip_plan=True, 
+            capture_output='yes',
+            skip_plan=True,
             no_color=IsNotFlagged
         )
 
@@ -121,12 +121,12 @@ class AwsController(AttackRangeController):
         os.system('cd ' + cwd)
 
         return_code, stdout, stderr = self.terraform.destroy(
-            capture_output='yes', 
-            no_color=IsNotFlagged, 
-            force=IsNotFlagged, 
+            capture_output='yes',
+            no_color=IsNotFlagged,
+            force=IsNotFlagged,
             auto_approve=True
         )
-            
+
         self.logger.info("attack_range has been destroy using terraform successfully")
 
     def packer(self, image_name) -> None:
@@ -135,20 +135,20 @@ class AwsController(AttackRangeController):
         path_packer_file = ""
 
         self.config['general']['use_prebuilt_images_with_packer'] = "0"
-        
+
         if image_name.startswith("splunk"):
             only_cmd_arg = "amazon-ebs.splunk-ubuntu"
             path_packer_file = "packer/splunk_server/splunk_aws.pkr.hcl"
-            command = ["packer", "build", "-force", 
-                "-var", "general=" + json.dumps(self.config["general"]), 
-                "-var", "aws=" + json.dumps(self.config["aws"]), 
-                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+            command = ["packer", "build", "-force",
+                "-var", "general=" + json.dumps(self.config["general"]),
+                "-var", "aws=" + json.dumps(self.config["aws"]),
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]),
                 "-only=" + only_cmd_arg, path_packer_file]
-        
+
         elif image_name.startswith("windows"):
             only_cmd_arg = "amazon-ebs.windows"
-            path_packer_file = "packer/windows_server/windows_aws.pkr.hcl"  
-            
+            path_packer_file = "packer/windows_server/windows_aws.pkr.hcl"
+
             if image_name.startswith("windows-2019"):
                 images = {
                     "aws_image": "Windows_Server-2019-English-Full-Base-*",
@@ -169,55 +169,55 @@ class AwsController(AttackRangeController):
                 self.logger.error("Image not supported.")
                 sys.exit(1)
 
-            command = ["packer", "build", "-force", 
-                "-var", "general=" + json.dumps(self.config["general"]), 
-                "-var", "aws=" + json.dumps(self.config["aws"]), 
-                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]),  
-                "-var", "images=" + json.dumps(images),  
+            command = ["packer", "build", "-force",
+                "-var", "general=" + json.dumps(self.config["general"]),
+                "-var", "aws=" + json.dumps(self.config["aws"]),
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]),
+                "-var", "images=" + json.dumps(images),
                 "-only=" + only_cmd_arg, path_packer_file]
 
         elif image_name.startswith("linux"):
             only_cmd_arg = "amazon-ebs.ubuntu"
             path_packer_file = "packer/linux_server/linux_aws.pkr.hcl"
-            command = ["packer", "build", "-force", 
-                "-var", "general=" + json.dumps(self.config["general"]), 
-                "-var", "aws=" + json.dumps(self.config["aws"]), 
-                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+            command = ["packer", "build", "-force",
+                "-var", "general=" + json.dumps(self.config["general"]),
+                "-var", "aws=" + json.dumps(self.config["aws"]),
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]),
                 "-only=" + only_cmd_arg, path_packer_file]
-        
+
         elif image_name.startswith("phantom"):
             only_cmd_arg = "amazon-ebs.phantom"
             path_packer_file = "packer/phantom_server/phantom_aws.pkr.hcl"
-            command = ["packer", "build", "-force", 
-                "-var", "general=" + json.dumps(self.config["general"]), 
-                "-var", "aws=" + json.dumps(self.config["aws"]), 
-                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
-                "-var", "phantom_server=" + json.dumps(self.config["phantom_server"]), 
+            command = ["packer", "build", "-force",
+                "-var", "general=" + json.dumps(self.config["general"]),
+                "-var", "aws=" + json.dumps(self.config["aws"]),
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]),
+                "-var", "phantom_server=" + json.dumps(self.config["phantom_server"]),
                 "-only=" + only_cmd_arg, path_packer_file]
 
         elif image_name.startswith("zeek"):
             only_cmd_arg = "amazon-ebs.ubuntu"
             path_packer_file = "packer/zeek_server/zeek_aws.pkr.hcl"
-            command = ["packer", "build", "-force", 
-                "-var", "general=" + json.dumps(self.config["general"]), 
-                "-var", "aws=" + json.dumps(self.config["aws"]), 
-                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+            command = ["packer", "build", "-force",
+                "-var", "general=" + json.dumps(self.config["general"]),
+                "-var", "aws=" + json.dumps(self.config["aws"]),
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]),
                 "-only=" + only_cmd_arg, path_packer_file]
-                
+
         elif image_name.startswith("nginx"):
             only_cmd_arg = "amazon-ebs.nginx-web-proxy"
             path_packer_file = "packer/nginx_server/nginx_aws.pkr.hcl"
-            command = ["packer", "build", "-force", 
-                "-var", "general=" + json.dumps(self.config["general"]), 
-                "-var", "aws=" + json.dumps(self.config["aws"]), 
-                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]), 
+            command = ["packer", "build", "-force",
+                "-var", "general=" + json.dumps(self.config["general"]),
+                "-var", "aws=" + json.dumps(self.config["aws"]),
+                "-var", "splunk_server=" + json.dumps(self.config["splunk_server"]),
                 "-only=" + only_cmd_arg, path_packer_file]
 
         if only_cmd_arg == "":
             self.logger.error("Image not supported.")
             sys.exit(1)
 
-        # disable packer color clears up output 
+        # disable packer color clears up output
         envvars = dict(os.environ)
         envvars["PACKER_NO_COLOR"] = "1"
 
@@ -292,7 +292,7 @@ class AwsController(AttackRangeController):
                 elif instance_name.startswith("ar-nginx"):
                     messages.append("\nAccess Nginx Web Proxy via:\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: kali \n\tpassword: " + self.config['general']['attack_range_password'])
                 elif instance_name.startswith("ar-zeek"):
-                    messages.append("\nAccess Zeek via:\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: ubuntu \n\tpassword: " + self.config['general']['attack_range_password'])                
+                    messages.append("\nAccess Zeek via:\n\tSSH > ssh -i" + self.config['aws']['private_key_path'] + " ubuntu@" + instance['NetworkInterfaces'][0]['Association']['PublicIp'] + "\n\tusername: ubuntu \n\tpassword: " + self.config['general']['attack_range_password'])
             else:
                 response.append([instance['Tags'][0]['Value'],
                                     instance['State']['Name']])
@@ -382,7 +382,7 @@ class AwsController(AttackRangeController):
 
         # write versions.tf
         j2_env = Environment(
-            loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), '../terraform/aws')), 
+            loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), '../terraform/aws')),
             trim_blocks=True)
         template = j2_env.get_template('versions.tf.j2')
         output = template.render(backend_name=backend_name, region=self.config['aws']['region'])
@@ -420,7 +420,7 @@ class AwsController(AttackRangeController):
 
         # write versions.tf
         j2_env = Environment(
-            loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), '../terraform/aws')), 
+            loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), '../terraform/aws')),
             trim_blocks=True)
         template = j2_env.get_template('versions.tf.j2')
         output = template.render(backend_name=backend_name, region=self.config['aws']['region'])

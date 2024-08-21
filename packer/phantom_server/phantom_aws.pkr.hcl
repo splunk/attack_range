@@ -64,7 +64,7 @@ source "amazon-ebs" "phantom" {
   force_deregister = true
   force_delete_snapshot = true
   subnet_id = var.ec2_subnet_id
-  vpc_id = var.vpc_id
+  vpc_id = var.aws.vpc_id
   tags = var.tags
 }
 
