@@ -11,7 +11,7 @@ resource "aws_iam_role" "this" {
     "Action": "sts:AssumeRole",
     "Principal": {"Service": "ec2.amazonaws.com"},
     "Effect": "Allow",
-    "Sid": ""
+    "Sid": "*"
   }]
 }
 EOF

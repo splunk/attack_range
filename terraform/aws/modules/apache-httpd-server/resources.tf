@@ -43,9 +43,9 @@ resource "aws_instance" "apache-httpd_server" {
     delete_on_termination = "true"
   }
 
-  tags = merge(var.tags, {
+  tags = {
     Name = "ar-apache-httpd-${var.general.key_name}-${var.general.attack_range_name}"
-  })
+  }
 
   provisioner "remote-exec" {
     inline = ["echo booted"]

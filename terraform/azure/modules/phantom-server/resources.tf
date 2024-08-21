@@ -16,7 +16,7 @@ resource "azurerm_network_interface" "phantom-nic" {
     name                          = "ar-phantom-nic-conf-${var.general.key_name}-${var.general.attack_range_name}"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
-    private_ip_address            = "10.211.16.69"
+    private_ip_address            = "10.0.1.13"
     public_ip_address_id          = azurerm_public_ip.phantom-publicip[count.index].id
   }
 }
@@ -46,7 +46,7 @@ resource "azurerm_virtual_machine" "phantom" {
 
   storage_image_reference {
     id = var.general.use_prebuilt_images_with_packer == "1" ? data.azurerm_image.phantom[0].id : null
-    publisher = var.general.use_prebuilt_images_with_packer == "0" ? "openlogic" : null
+    publisher = var.general.use_prebuilt_images_with_packer == "0" ? "openlogic" : null 
     offer     = var.general.use_prebuilt_images_with_packer == "0" ? "centos" : null
     sku       = var.general.use_prebuilt_images_with_packer == "0" ? "7_9" : null
     version   = var.general.use_prebuilt_images_with_packer == "0" ? "latest" : null

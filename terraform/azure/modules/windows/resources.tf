@@ -13,7 +13,7 @@ resource "azurerm_network_interface" "windows-nic" {
     name                          = "ar-windows-nic-conf-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
-    private_ip_address            = "10.211.16.${8 + count.index}"
+    private_ip_address            = "10.0.1.${14 + count.index}"
     public_ip_address_id          = azurerm_public_ip.windows-publicip[count.index].id
   }
 }

@@ -16,7 +16,7 @@ resource "azurerm_network_interface" "linux-nic" {
     name                          = "ar-linux-nic-conf-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Static"
-    private_ip_address            = "10.211.16.${10 + count.index}"
+    private_ip_address            = "10.0.1.${21 + count.index}"
     public_ip_address_id          = azurerm_public_ip.linux-publicip[count.index].id
   }
 }
@@ -45,7 +45,7 @@ resource "azurerm_virtual_machine" "linux" {
 
   storage_image_reference {
     id = var.general.use_prebuilt_images_with_packer == "1" ? data.azurerm_image.search[count.index].id : null
-    publisher = var.general.use_prebuilt_images_with_packer == "0" ? "Canonical" : null
+    publisher = var.general.use_prebuilt_images_with_packer == "0" ? "Canonical" : null 
     offer     = var.general.use_prebuilt_images_with_packer == "0" ? "UbuntuServer" : null
     sku       = var.general.use_prebuilt_images_with_packer == "0" ? "18.04-LTS" : null
     version   = var.general.use_prebuilt_images_with_packer == "0" ? "latest" : null

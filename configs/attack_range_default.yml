@@ -149,6 +149,9 @@ splunk_server:
   install_dltk: "0"
 # Install Deep Learning Toolkit.
 
+  instance_profile_name: ""
+
+
 phantom_server:
   phantom_server: "0"
   # Enable/Disable Phantom Server

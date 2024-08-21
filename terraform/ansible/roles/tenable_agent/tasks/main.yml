@@ -1,6 +1,6 @@
 ---
-# - include: linux.yml
-#   when: ansible_os_family == "Linux"
+- import_tasks: ubuntu.yml
+  when: ansible_distribution == "Ubuntu"
 
-- include: windows.yml
+- import_tasks: windows.yml
   when: ansible_os_family == "Windows"
