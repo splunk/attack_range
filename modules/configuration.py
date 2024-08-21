@@ -534,6 +534,20 @@ starting configuration for AT-ST mech walker
         },
         {
             "type": "confirm",
+            "message": "shall we build zeek server",
+            "name": "zeek_server",
+            "default": False,
+            "when": lambda answers: configuration["general"]["cloud_provider"] == "aws",
+        },
+        {
+            "type": "confirm",
+            "message": "shall we build snort server",
+            "name": "snort_server",
+            "default": False,
+            "when": lambda answers: configuration["general"]["cloud_provider"] == "aws",
+        },
+        {
+            "type": "confirm",
             "message": "shall we include Splunk SOAR",
             "name": "phantom",
             "default": False,
@@ -564,6 +578,14 @@ starting configuration for AT-ST mech walker
         if answers["nginx_web_proxy"]:
             configuration["nginx_server"] = dict()
             configuration["nginx_server"]["nginx_server"] = "1"
+
+        if answers["zeek_server"]:
+            configuration["zeek_server"] = dict()
+            configuration["zeek_server"]["zeek_server"] = "1"
+
+        if answers["snort_server"]:
+            configuration["snort_server"] = dict()
+            configuration["snort_server"]["snort_server"] = "1"
 
     if answers["phantom"]:
         configuration["phantom_server"] = dict()
