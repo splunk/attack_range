@@ -1,0 +1,28 @@
+---
+- name: Download Tenable agent installer script
+  win_get_url:
+    url: "https://sensor.cloud.tenable.com/install/agent/installer/ms-install-script.ps1"
+    dest: "{{ ansible_env.TEMP }}\\ms-install-script.ps1"
+
+- name: Install Tenable agent
+  win_shell: |
+    $ErrorActionPreference = 'Stop'
+    & "{{ ansible_env.TEMP }}\\ms-install-script.ps1" `
+      -key "{{ tenable_key }}" `
+      -type "agent" `
+      -name "{{ ansible_hostname }}" `
+      -groups 'Windows'
+  register: install_result
+  failed_when: install_result.rc != 0 and install_result.rc != 3010
+  retries: 3
+  delay: 60
+  until: install_result.rc == 0 or install_result.rc == 3010
+
+- name: Remove Tenable agent installer script
+  win_file:
+    path: "{{ ansible_env.TEMP }}\\ms-install-script.ps1"
+    state: absent
+
+- name: Reboot if required
+  win_reboot:
+  when: install_result.rc == 3010

@@ -1,4 +1,4 @@
 
-variable "general" { }
-variable "aws" { }
-variable "vpc_id" {}
+variable "general" {}
+variable "aws" {}
+

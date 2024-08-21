@@ -33,11 +33,12 @@ data "aws_ami" "windows_ami" {
 resource "aws_instance" "windows_server" {
   count                       = length(var.windows_servers)
   ami                         = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.windows_ami_packer[count.index].id : data.aws_ami.windows_ami[count.index].id
-  instance_type               = var.zeek_server.zeek_server == "1" ? "m4.2xlarge" : "t2.xlarge"
+  instance_type               = var.windows_servers[count.index].create_domain == "1" ? "m5.2xlarge" : "t3.xlarge"
   key_name                    = var.general.key_name
-  subnet_id                   = var.ec2_subnet_id
-  private_ip                  = "${var.general.network_prefix}.${var.general.first_ip + 5 + count.index}"
+  subnet_id                   = var.aws.public_subnet_id
+  private_ip                  = "${var.aws.network_prefix}.${var.aws.first_dynamic_ip + count.index}"
   vpc_security_group_ids      = [var.vpc_security_group_ids]
+  iam_instance_profile        = var.windows_servers[count.index].instance_profile_name
   associate_public_ip_address = true
   tags = {
     Name = "ar-win-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"

@@ -54,7 +54,7 @@ data "amazon-ami" "centos-ami" {
 source "amazon-ebs" "phantom" {
   ami_name              = "phantom-v${replace(var.general.version, ".", "-")}"
   region = var.aws.region
-  instance_type         = "t2.2xlarge"
+  instance_type         = "t3.2xlarge"
   launch_block_device_mappings {
     device_name = "/dev/sda1"
     volume_size = "20"

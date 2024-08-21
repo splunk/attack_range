@@ -46,14 +46,9 @@ general:
   install_contentctl: "0"
   # Install splunk/contentctl on linux servers
 
-  network_prefix: "10.211.16"
-
-  network_cidr: "10.211.16.96/28"
-
-  first_ip: "100"
-
-  cortex_xdr: "0"
-  # Install Cortex XDR agents
+  cortex_xdr_linux_agent: ""
+  cortex_xdr_windows_agent: ""
+  # Specify the name of the Cortex XDR Agent.
 
 aws:
   region: "us-west-2"
@@ -79,6 +74,19 @@ aws:
 
   tf_remote_state_dynamo_db_table: "test"
   # Specify the already created DynamoDB table in the same region
+
+  network_prefix: "10.0.1"
+  network_cidr: "10.0.1.0/24"
+  first_dynamic_ip: "20"
+
+  create_vpc: "0"
+  # Enable/disable creation of VPC by setting this to 1 or 0.
+
+  vpc_id: ""
+  public_subnet_id: ""
+  private_subnet_id: ""
+  # VPC ID and subnet arn for AWS.
+
 
 azure:
   location: "West Europe"
@@ -141,8 +149,6 @@ splunk_server:
   install_dltk: "0"
 # Install Deep Learning Toolkit.
 
-  splunk_server_ip: "10.211.16.100"
-
 phantom_server:
   phantom_server: "0"
   # Enable/Disable Phantom Server
@@ -183,6 +189,15 @@ windows_servers_default:
   install_red_team_tools: "0"
   # Install different read team tools by setting this to 1 or 0.
 
+  install_cortex_xdr: "0"
+  # Install Cortex XDR agents by setting this to 1.
+
+  install_crowdstrike: "0"
+  # Install CrowdStrike Falcon by setting this to 1.
+
+  install_carbon_black: "0"
+  # Install Carbon Black Cloud by setting this to 1.
+
   bad_blood: "0"
   # Install Bad Blood by setting this to 1 or 0.
   # More information in chapter Bad Blood under Attack Range Features.
@@ -190,10 +205,7 @@ windows_servers_default:
   aurora_agent: "0"
   # Install Aurora Agenta
 
-  start_ip: "10.211.16.105"
-  # Specify the start IP for the Windows Servers.
-
-  install_dltk: "0"
+  instance_profile_name: ""
 
 linux_servers_default:
   hostname: ar-linux
@@ -211,21 +223,29 @@ linux_servers_default:
   install_red_team_tools: "0"
   # Install different read team tools by setting this to 1.
 
-  bad_blood: "0"
-  # Install Bad Blood by setting this to 1.
+  install_cortex_xdr: "0"
+  # Install Cortex XDR agents by setting this to 1.
+
+  install_crowdstrike: "0"
+  # Install CrowdStrike Falcon by setting this to 1.
+
+  install_carbon_black: "0"
+  # Install Carbon Black Cloud by setting this to 1.
 
   aurora_agent: "0"
 
-  start_ip: "10.211.16.107"
-  # Specify the start IP for the Linux Servers.
+  instance_profile_name: ""
 
-  install_dltk: "0"
+  tenable_key: ""
+
+  nessus_agent_ubuntu: ""
+
 
 kali_server:
   kali_server: "0"
   # Enable Kali Server by setting this to 1.
 
-  kali_server_ip: "10.211.16.103"
+  kali_server_ip: "10.0.1.18"
 
 nginx_server:
   nginx_server: "0"
@@ -237,13 +257,13 @@ nginx_server:
   nginx_image: nginx-web-proxy-v3-0-0
   # Name of the image of the Web proxy. Packer is used to build this images.
 
-  proxy_server_ip: "10.211.16.100"
+  proxy_server_ip: "10.0.1.19"
   # Specify what ip to proxy.
 
   proxy_server_port: "8000"
   # Specify what port to proxy.
 
-  nginx_server_ip: "10.211.16.104"
+  nginx_server_ip: "10.0.1.26"
 
 zeek_server:
   zeek_server: "0"
@@ -252,7 +272,7 @@ zeek_server:
   zeek_image: "zeek-v3-0-0"
   # Specify the image used for Zeek Server.
 
-  zeek_server_ip: "10.211.16.102"
+  zeek_server_ip: "10.0.1.17"
 
 simulation:
   atomic_red_team_repo: redcanaryco

@@ -1,0 +1,10 @@
+- name: Copy Nessus Agent package
+  copy:
+    src: "../../apps/{{ nessus_agent_ubuntu }}"
+    dest: "/tmp/{{ nessus_agent_ubuntu | basename }}"
+
+- name: Install Nessus Agent
+  apt:
+    deb: "/tmp/{{ nessus_agent_ubuntu | basename }}"
+    state: present
+    force: yes

@@ -89,12 +89,12 @@ resource "aws_iam_role_policy" "splunk_logging_policy" {
 resource "aws_instance" "splunk-server" {
   count                       = var.splunk_server.byo_splunk == "0" ? 1 : 0
   ami                         = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.splunk_server_packer[0].id : data.aws_ami.splunk_server[0].id
-  instance_type               = "t2.2xlarge"
+  instance_type               = "t3.2xlarge"
   key_name                    = var.general.key_name
-  subnet_id                   = var.ec2_subnet_id
+  subnet_id                   = var.aws.public_subnet_id
   vpc_security_group_ids      = [var.vpc_security_group_ids]
   private_ip                  = var.splunk_server.splunk_server_ip
-  iam_instance_profile        = ((var.aws.cloudtrail == "1") || (var.general.carbon_black_cloud == "1")) && (var.splunk_server.byo_splunk == "0") ? aws_iam_instance_profile.splunk_profile[0].name : null
+  iam_instance_profile        = ((var.aws.cloudtrail == "1") || (var.general.carbon_black_cloud == "1")) && (var.splunk_server.byo_splunk == "0") ? aws_iam_instance_profile.splunk_profile[0].name : var.splunk_server.instance_profile_name
   associate_public_ip_address = true
 
   root_block_device {
@@ -106,7 +106,6 @@ resource "aws_instance" "splunk-server" {
   tags = {
     Name = "ar-splunk-${var.general.key_name}-${var.general.attack_range_name}"
   }
-
   provisioner "remote-exec" {
     inline = ["echo booted"]
 

@@ -7,33 +7,48 @@
       - ca-certificates
       - curl
       - apache2
+      - git
+    state: latest
+    update_cache: true
+
+- name: Install ModSecurity
+  apt:
+    pkg:
       - libapache2-mod-security2
       - git
     state: latest
     update_cache: true
-  when: install_apache_httpd == "1"
+  when: mod_security == "1"
+
+- name: Install PHP
+  apt:
+    pkg:
+      - php
+    state: latest
+    update_cache: true
+  when: php == "1"
 
 - name: Enable ModSecurity
   shell:
     cmd: sudo a2enmod security2
-  when: install_apache_httpd == "1"
+  when: mod_security == "1"
 
 - name: Copy recommended conf
   shell:
     cmd: sudo cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf
-  when: install_apache_httpd == "1"
+  when: mod_security == "1"
 
 - name: Clone OWASP git repository
   shell:
     cmd: $ git clone https://github.com/coreruleset/coreruleset.git
-  when: install_apache_httpd == "1"
+  when: mod_security == "1"
 
 - name: Enable Core ruleset
   shell:
     cmd: |
       sudo mv coreruleset/crs-setup.conf.example /etc/modsecurity/crs-setup.conf
       sudo mv coreruleset/rules/ /etc/modsecurity/
-  when: install_apache_httpd == "1"
+  when: mod_security == "1"
 
 
 

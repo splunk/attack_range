@@ -27,23 +27,22 @@ data "aws_ami" "linux_server" {
 }
 
 resource "aws_instance" "linux_server" {
-  count                       = length(var.linux_servers)
-  ami                         = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.linux_server_packer[count.index].id : data.aws_ami.linux_server[count.index].id
-  instance_type               = var.zeek_server.zeek_server == "1" ? "m4.2xlarge" : "t2.xlarge"
-  key_name                    = var.general.key_name
-  subnet_id                   = var.ec2_subnet_id
-  vpc_security_group_ids      = [var.vpc_security_group_ids]
-  private_ip                  = "${var.general.network_prefix}.${var.general.first_ip + 7 + count.index}"
+  count                  = length(var.linux_servers)
+  ami                    = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.linux_server_packer[count.index].id : data.aws_ami.linux_server[count.index].id
+  instance_type          = "t3.xlarge"
+  key_name               = var.general.key_name
+  subnet_id              = var.aws.public_subnet_id
+  vpc_security_group_ids = [var.vpc_security_group_ids]
+  iam_instance_profile   = var.linux_servers[count.index].instance_profile_name
+  private_ip             = "${var.aws.network_prefix}.${var.aws.first_dynamic_ip + 3 + count.index}"
+  tags                   = { Name = "ar-linux-${var.general.key_name}-${var.general.attack_range_name}-${count.index}" }
+
   associate_public_ip_address = true
 
   root_block_device {
     volume_type           = "gp2"
     volume_size           = "60"
     delete_on_termination = "true"
-  }
-
-  tags = {
-    Name = "ar-linux-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
   }
 
   provisioner "remote-exec" {

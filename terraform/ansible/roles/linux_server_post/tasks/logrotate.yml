@@ -1,0 +1,43 @@
+    - blockinfile:
+        path: "/etc/logrotate.d/{{ item.path }}"
+        block: "{{ item.conf }}"
+        create: true
+      loop: "{{ lp_logrotate_confd }}"
+
+      lp_logrotate_confd:
+      - path: dmesg
+        conf: |
+          /var/log/dmesg {
+                 daily
+                 rotate 3
+                 size 10M
+                 compress
+                 delaycompress
+          }
+      - path: lastlog
+        conf: |
+          /var/log/lastlog {
+                 daily
+                 rotate 3
+                 size 10M
+                 compress
+                 delaycompress
+          }
+      - path: syslog
+        conf: |
+          /var/log/syslogcd / {
+                 daily
+                 rotate 3
+                 size 10M
+                 compress
+                 delaycompress
+          }
+      - path: dmesg
+        conf: |
+          /var/log/dmesg {
+                 daily
+                 rotate 3
+                 size 10M
+                 compress
+                 delaycompress
+          }

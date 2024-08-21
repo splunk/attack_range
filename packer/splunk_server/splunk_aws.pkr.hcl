@@ -43,7 +43,7 @@ data "amazon-ami" "ubuntu-ami" {
 source "amazon-ebs" "splunk-ubuntu" {
   ami_name              = "splunk-v${replace(var.general.version, ".", "-")}"
   region = var.aws.region
-  instance_type         = "t2.2xlarge"
+  instance_type         = "t3.2xlarge"
   launch_block_device_mappings {
     device_name = "/dev/sda1"
     volume_size = "50"

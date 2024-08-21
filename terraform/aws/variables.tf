@@ -6,8 +6,6 @@ variable "general" {
     key_name              = "attack-range-key-pair"
     attack_range_name     = "ar"
     ip_whitelist          = "0.0.0.0/0"
-    network_prefix        = "10.211.16"
-    network_cidr          = "10.211.16.96/28"
   }
 }
 
@@ -24,9 +22,8 @@ variable "splunk_server" {
   type = map(string)
 
   default = {
-    install_es       = "0"
-    splunk_es_app    = "splunk-enterprise-security_701.spl"
-    splunk_server_ip = "10.211.16.100"
+    install_es    = "0"
+    splunk_es_app = "splunk-enterprise-security_701.spl"
   }
 }
 
@@ -39,7 +36,6 @@ variable "phantom_server" {
     phantom_community_password = "password"
     phantom_repo_url           = "https://repo.phantom.us/phantom/5.2/base/7/x86_64/phantom_repo-5.2.1.78411-1.x86_64.rpm"
     phantom_version            = "5.2.1.78411-1"
-    phantom_server_ip          = "10.211.16.101"
   }
 }
 
@@ -54,7 +50,6 @@ variable "windows_servers" {
       create_domain          = "0"
       join_domain            = "0"
       install_red_team_tools = "0"
-      start_ip               = "10.211.16.105"
     }
   ]
 }
@@ -67,7 +62,6 @@ variable "linux_servers" {
       hostname      = "ar-linux"
       image         = "ubuntu-18-04-v2-0-0"
       sysmon_config = "configs/SwiftOnSecurity.xml"
-      start_ip      = "10.211.16.107"
     }
   ]
 }
@@ -78,8 +72,7 @@ variable "kali_server" {
   type = map(string)
 
   default = {
-    kali_server    = "0"
-    kali_server_ip = "10.211.16.103"
+    kali_server = "0"
   }
 }
 
@@ -89,9 +82,18 @@ variable "nginx_server" {
   default = {
     nginx_server      = "0"
     image             = "nginx-web-proxy-v3-0-0"
-    nginx_server_ip   = "10.211.16.104"
-    proxy_server_ip   = "10.211.16.100"
     proxy_server_port = "8000"
+  }
+}
+
+variable "apache_httpd_server" {
+  type = map(string)
+
+  default = {
+    apache_httpd_server = "0"
+    image               = "apache_httpd-web-v3-0-0"
+    mod_security        = "0"
+    php                 = "0"
   }
 }
 
@@ -99,11 +101,6 @@ variable "zeek_server" {
   type = map(string)
 
   default = {
-    zeek_server    = "0"
-    zeek_server_ip = "10.211.16.102"
+    zeek_server = "0"
   }
 }
-
-variable "vpc_id" {}
-
-variable "ec2_subnet_id" {}

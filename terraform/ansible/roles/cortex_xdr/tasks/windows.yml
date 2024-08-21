@@ -1,9 +1,21 @@
 ---
-
-- name: Copy cortex xdr agent
+- name: Copy Cortex XDR agent installer
   win_copy:
-    src: "../../apps/{{ cortex_agent_name }}"
-    dest: c:\temp\attack_range_x64.msi
+    src: "../../apps/{{ cortex_xdr_windows_agent }}"
+    dest: "{{ ansible_env.TEMP }}\\{{ cortex_xdr_windows_agent }}"
 
-- name: install cortex xdr agent
-  win_command: 'msiexec /i c:\temp\attack_range_x64.msi /l*v C:\temp\cortexxdrinstall.log /qn CID={{ cortex_customer_ID }}'
+- name: Install Cortex XDR agent
+  win_package:
+    path: "{{ ansible_env.TEMP }}\\{{ cortex_xdr_windows_agent }}"
+    arguments: "/qn /l*v {{ ansible_env.TEMP }}\\cortex_xdr_install.log"
+    state: present
+  register: xdr_install_result
+
+- name: Remove Cortex XDR agent installer
+  win_file:
+    path: "{{ ansible_env.TEMP }}\\{{ cortex_xdr_windows_agent }}"
+    state: absent
+
+- name: Reboot if required
+  win_reboot:
+  when: xdr_install_result.reboot_required

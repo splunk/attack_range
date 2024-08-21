@@ -13,5 +13,3 @@
       when: install_contentctl == "0"
     - role: contentctl
       when: install_contentctl == "1"
-    - role: apache_httpd_server
-      when: install_contentctl == "0"

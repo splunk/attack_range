@@ -15,7 +15,7 @@
         {% if phantom_server == '1' %}
         <connection name="ar-phantom-{{ key_name }}-{{ attack_range_name }}">
             <protocol>ssh</protocol>
-            <param name="hostname">10.211.16.101</param>
+            <param name="hostname">{{ phantom_server_ip }}</param>
             <param name="port">22</param>
             <param name="username">centos</param>
             <param name="private-key">{{ lookup('file', private_key_path) }}</param>
@@ -25,7 +25,7 @@
         {% for server in windows|from_json|map('string')|list %}
         <connection name="ar-win-{{ key_name }}-{{ attack_range_name }}-{{ loop.index-1 }}">
             <protocol>rdp</protocol>
-            <param name="hostname">10.211.16.10{{loop.index-1+5}}</param>
+            <param name="hostname">{{ network_prefix }}.{{ first_dynamic_ip + (loop.index-1) }}</param>
             <param name="port">3389</param>
              {% if cloud_provider == 'azure' %}
             <param name="username">AzureAdmin</param>
@@ -42,7 +42,7 @@
         {% for server in linux|from_json|map('string')|list %}
         <connection name="ar-linux-{{ key_name }}-{{ attack_range_name }}-{{ loop.index-1 }}">
             <protocol>ssh</protocol>
-            <param name="hostname">10.211.16.10{{loop.index-1+7}}</param>
+            <param name="hostname">{{ network_prefix }}.{{ (first_dynamic_ip + 3) + (loop.index-1) }}</param>
             <param name="port">22</param>
             <param name="username">ubuntu</param>
             <param name="private-key">{{ lookup('file', private_key_path) }}</param>
@@ -52,7 +52,7 @@
         {% if kali_server == '1' %}
         <connection name="ar-kali-{{ key_name }}-{{ attack_range_name }}">
             <protocol>ssh</protocol>
-            <param name="hostname">10.211.16.103</param>
+            <param name="hostname">{{ kali_server_ip }}</param>
             <param name="port">22</param>
             <param name="username">kali</param>
             <param name="private-key">{{ lookup('file', private_key_path) }}</param>
@@ -62,7 +62,7 @@
         {% if zeek_server == '1' %}
         <connection name="ar-zeek-{{ key_name }}-{{ attack_range_name }}">
             <protocol>ssh</protocol>
-            <param name="hostname">10.211.16.102</param>
+            <param name="hostname">{{ zeek_server_ip }}</param>
             <param name="port">22</param>
             <param name="username">ubuntu</param>
             <param name="private-key">{{ lookup('file', private_key_path) }}</param>

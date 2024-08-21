@@ -30,9 +30,9 @@ data "aws_ami" "nginx_server" {
 resource "aws_instance" "nginx_server" {
   count                       = var.nginx_server.nginx_server == "1" ? 1 : 0
   ami                         = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.nginx_server_packer[0].id : data.aws_ami.nginx_server[0].id
-  instance_type               = "t2.small"
+  instance_type               = "t3.small"
   key_name                    = var.general.key_name
-  subnet_id                   = var.ec2_subnet_id
+  subnet_id                   = var.aws.public_subnet_id
   vpc_security_group_ids      = [var.vpc_security_group_ids]
   private_ip                  = var.nginx_server.nginx_server_ip
   associate_public_ip_address = true

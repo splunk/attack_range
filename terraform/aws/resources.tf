@@ -1,89 +1,91 @@
 module "networkModule" {
-  source = "./modules/network"
+  source  = "./modules/network"
   general = var.general
-  aws = var.aws
-  vpc_id = var.vpc_id
+  aws     = var.aws
 }
 
 module "splunk-server" {
-  source = "./modules/splunk-server"
+  source                 = "./modules/splunk-server"
   vpc_security_group_ids = module.networkModule.sg_vpc_id
-  ec2_subnet_id = var.ec2_subnet_id
-  aws = var.aws
-  splunk_server = var.splunk_server
-  phantom_server = var.phantom_server
-  general = var.general
-  simulation = var.simulation
-  windows_servers = var.windows_servers
-  linux_servers = var.linux_servers
-  kali_server = var.kali_server
-  zeek_server = var.zeek_server
+  ec2_subnet_id          = var.aws.public_subnet_id
+  aws                    = var.aws
+  splunk_server          = var.splunk_server
+  phantom_server         = var.phantom_server
+  general                = var.general
+  simulation             = var.simulation
+  windows_servers        = var.windows_servers
+  linux_servers          = var.linux_servers
+  kali_server            = var.kali_server
+  zeek_server            = var.zeek_server
+  instance_profile_name  = aws_iam_instance_profile.this.name
 }
 
 module "phantom-server" {
-  source = "./modules/phantom-server"
+  source                 = "./modules/phantom-server"
   vpc_security_group_ids = module.networkModule.sg_vpc_id
-  ec2_subnet_id = var.ec2_subnet_id
-  phantom_server = var.phantom_server
-  general = var.general
-  aws = var.aws
-  splunk_server = var.splunk_server
+  ec2_subnet_id          = var.aws.public_subnet_id
+  phantom_server         = var.phantom_server
+  general                = var.general
+  aws                    = var.aws
+  splunk_server          = var.splunk_server
+  instance_profile_name  = aws_iam_instance_profile.this.name
 }
 
 module "windows-server" {
-  source = "./modules/windows"
+  source                 = "./modules/windows"
   vpc_security_group_ids = module.networkModule.sg_vpc_id
-  ec2_subnet_id = var.ec2_subnet_id
-  general = var.general
-  aws = var.aws
-  windows_servers = var.windows_servers
-  simulation = var.simulation
-  zeek_server = var.zeek_server
-  splunk_server = var.splunk_server
-  
+  ec2_subnet_id          = var.aws.public_subnet_id
+  general                = var.general
+  aws                    = var.aws
+  windows_servers        = var.windows_servers
+  simulation             = var.simulation
+  zeek_server            = var.zeek_server
+  splunk_server          = var.splunk_server
+  instance_profile_name  = aws_iam_instance_profile.this.name
 }
 
 module "linux-server" {
-  source = "./modules/linux-server"
+  source                 = "./modules/linux-server"
   vpc_security_group_ids = module.networkModule.sg_vpc_id
-  ec2_subnet_id = var.ec2_subnet_id
-  general = var.general
-  aws = var.aws
-  linux_servers = var.linux_servers
-  simulation = var.simulation
-  zeek_server = var.zeek_server
-  splunk_server = var.splunk_server
+  ec2_subnet_id          = var.aws.public_subnet_id
+  general                = var.general
+  aws                    = var.aws
+  linux_servers          = var.linux_servers
+  simulation             = var.simulation
+  zeek_server            = var.zeek_server
+  splunk_server          = var.splunk_server
+  instance_profile_name  = aws_iam_instance_profile.this.name
 }
 
 module "kali-server" {
-  source = "./modules/kali-server"
+  source                 = "./modules/kali-server"
   vpc_security_group_ids = module.networkModule.sg_vpc_id
-  ec2_subnet_id = var.ec2_subnet_id
-  general = var.general
-  kali_server = var.kali_server
-  aws = var.aws
+  ec2_subnet_id          = var.aws.public_subnet_id
+  general                = var.general
+  kali_server            = var.kali_server
+  aws                    = var.aws
 }
 
 module "nginx-server" {
-  source = "./modules/nginx-server"
+  source                 = "./modules/nginx-server"
   vpc_security_group_ids = module.networkModule.sg_vpc_id
-  ec2_subnet_id = var.ec2_subnet_id
-  general = var.general
-  nginx_server = var.nginx_server
-  aws = var.aws
-  splunk_server = var.splunk_server
+  ec2_subnet_id          = var.aws.public_subnet_id
+  general                = var.general
+  nginx_server           = var.nginx_server
+  aws                    = var.aws
+  splunk_server          = var.splunk_server
 }
 
 module "zeek-server" {
-  source = "./modules/zeek-server"
-  vpc_security_group_ids = module.networkModule.sg_vpc_id
-  ec2_subnet_id = var.ec2_subnet_id
-  general = var.general
-  aws = var.aws
-  zeek_server = var.zeek_server
-  windows_servers = var.windows_servers
+  source                   = "./modules/zeek-server"
+  vpc_security_group_ids   = module.networkModule.sg_vpc_id
+  ec2_subnet_id            = var.aws.public_subnet_id
+  general                  = var.general
+  aws                      = var.aws
+  zeek_server              = var.zeek_server
+  windows_servers          = var.windows_servers
   windows_server_instances = module.windows-server.windows_servers
-  linux_servers = var.linux_servers
-  linux_server_instances = module.linux-server.linux_servers
-  splunk_server = var.splunk_server
+  linux_servers            = var.linux_servers
+  linux_server_instances   = module.linux-server.linux_servers
+  splunk_server            = var.splunk_server
 }

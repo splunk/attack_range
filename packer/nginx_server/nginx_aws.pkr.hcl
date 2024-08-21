@@ -43,7 +43,7 @@ data "amazon-ami" "nginx-ami" {
 source "amazon-ebs" "nginx-web-proxy" {
   ami_name              = "nginx-web-proxy-v${replace(var.general.version, ".", "-")}"
   region = var.aws.region
-  instance_type         = "t2.small"
+  instance_type         = "t3.small"
   launch_block_device_mappings {
     device_name = "/dev/sda1"
     volume_size = "20"
