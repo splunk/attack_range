@@ -417,7 +417,7 @@ starting configuration for AT-ST mech walker
             "type": "select",
             "message": "which version should it be",
             "name": "windows_server_one_version",
-            "choices": ["2016", "2019"],
+            "choices": ["2016", "2019", "2022"],
             "when": lambda answers: answers["windows_server_one"],
         },
         {
@@ -475,7 +475,7 @@ starting configuration for AT-ST mech walker
                 "type": "select",
                 "message": "which version should it be",
                 "name": "windows_server_two_version",
-                "choices": ["2016", "2019"],
+                "choices": ["2016", "2019", "2022"],
                 "when": lambda answers: answers["windows_server_two"],
             },
             {

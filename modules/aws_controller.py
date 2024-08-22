@@ -79,6 +79,13 @@ class AwsController(AttackRangeController):
                 self.config["windows_servers"][i][
                     "windows_ami"
                 ] = "Windows_Server-2019-English-Full-Base-*"
+            elif image_name.startswith("windows-server-2022"):
+                self.config["windows_servers"][i][
+                    "windows_ami"
+                ] = "Windows_Server-2022-English-Full-Base-*"
+            else:
+                self.logger.error("Image " + image_name + " not supported.")
+                sys.exit(1)
 
     def build(self) -> None:
         self.logger.info("[action] > build\n")

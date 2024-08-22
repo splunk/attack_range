@@ -158,8 +158,10 @@ phantom_server:
   phantom_server: "0"
   # Enable/Disable Phantom Server
 
-  phantom_app: "splunk_soar-unpriv-6.2.1.305-7c40b403-el7-x86_64.tgz"
-  # name of the Splunk SOAR package located in apps folder
+  phantom_app: "splunk_soar-unpriv-6.2.2.134-8f694086-el8-x86_64.tgz"
+  # name of the Splunk SOAR package located in apps folder. 
+  # aws, azure: Make sure you use the RHEL 8 version which contains ....el8... in the file name
+  # local: Make sure you use the RHEL 7 version which contains ....el7... in the file name
 
   phantom_byo: "0"
   # Enable/Disable Bring your own Phantom
@@ -176,6 +178,7 @@ windows_servers_default:
 
   windows_image: "windows-server-2019"
   # Name of the image of the Windows Server. 
+  # allowd values: windows-server-2016, windows-server-2019, windows-server-2022
 
   create_domain: "0"
   # Create Domain will turn this Windows Server into a Domain Controller. Enable by setting this to 1.

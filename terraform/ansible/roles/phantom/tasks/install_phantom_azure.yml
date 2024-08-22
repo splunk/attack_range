@@ -1,25 +1,6 @@
 ---
 # Install Phantom from RPM on a fresh CentOS 7 instance
 
-- name: Change mirror to vault.centos.org
-  shell: sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
-  become: yes
-
-- name: Uncomment baseurl lines
-  shell: sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
-  become: yes
-
-- name: Comment out mirrorlist lines
-  shell: sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
-  become: yes
-
-- name: Update all packages
-  yum:
-    name: "*"
-    state: latest
-    update_cache: yes
-  become: yes
-
 - name: Copy Splunk SOAR to server
   become: true
   become_user: centos
@@ -47,4 +28,3 @@
   shell: ./soar-install --splunk-soar-home /opt/soar --no-prompt --ignore-warnings
   args:
     chdir: /home/phantom/splunk-soar
-

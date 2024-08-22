@@ -3,11 +3,11 @@
 data "aws_ami" "latest-centos" {
   count       = (var.phantom_server.phantom_server == "1") ? 1 : 0
   most_recent = true
-  owners      = ["125523088429"] 
+  owners      = ["309956199498"] 
 
   filter {
     name   = "name"
-    values = ["CentOS Linux 7*"]
+    values = ["RHEL-8.9.0_HVM-20240327-x86_64-4-Hourly2-GP3"]
   }
 
   filter {
@@ -45,7 +45,7 @@ resource "aws_instance" "phantom-server" {
 
     connection {
       type        = "ssh"
-      user        = "centos"
+      user        = "ec2-user"
       host        = aws_instance.phantom-server[0].public_ip
       private_key = file(var.aws.private_key_path)
     }
@@ -67,7 +67,7 @@ resource "aws_instance" "phantom-server" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u centos --private-key '${var.aws.private_key_path}' -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e @vars/phantom_vars.json"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key '${var.aws.private_key_path}' -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e @vars/phantom_vars.json"
   }
 }
 

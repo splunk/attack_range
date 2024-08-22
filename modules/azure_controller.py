@@ -52,7 +52,12 @@ class AzureController(AttackRangeController):
                 ] = "MicrosoftWindowsServer"
                 self.config["windows_servers"][i]["azure_offer"] = "WindowsServer"
                 self.config["windows_servers"][i]["azure_sku"] = "2019-Datacenter"
-
+            elif image_name.startswith("windows-server-2022"):
+                self.config["windows_servers"][i][
+                    "azure_publisher"
+                ] = "MicrosoftWindowsServer"
+                self.config["windows_servers"][i]["azure_offer"] = "WindowsServer"
+                self.config["windows_servers"][i]["azure_sku"] = "2022-Datacenter"
             elif image_name.startswith("windows-10"):
                 self.config["windows_servers"][i][
                     "azure_publisher"

@@ -1,8 +1,11 @@
 ---
 # This playbook contains common tasks in this role
 
-- include: install_phantom.yml
-  when: general.cloud_provider != "local"
+- include: install_phantom_aws.yml
+  when: general.cloud_provider == "aws"
+
+- include: install_phantom_azure.yml
+  when: general.cloud_provider == "azure"
 
 - include: install_phantom_local.yml
   when: general.cloud_provider == "local"

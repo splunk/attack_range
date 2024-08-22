@@ -22,10 +22,10 @@ resource "azurerm_network_interface" "phantom-nic" {
 }
 
 resource "azurerm_virtual_machine" "phantom" {
-  count       = var.phantom_server.phantom_server == "1" ? 1 : 0
-  name = "ar-phantom-${var.general.key_name}-${var.general.attack_range_name}"
-  location = var.azure.location
-  resource_group_name  = var.rg_name
+  count                 = var.phantom_server.phantom_server == "1" ? 1 : 0
+  name                  = "ar-phantom-${var.general.key_name}-${var.general.attack_range_name}"
+  location              = var.azure.location
+  resource_group_name   = var.rg_name
   network_interface_ids = [azurerm_network_interface.phantom-nic[count.index].id]
   vm_size               = "Standard_A4_v2"
 
