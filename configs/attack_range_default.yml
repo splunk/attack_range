@@ -160,8 +160,8 @@ phantom_server:
 
   phantom_app: "splunk_soar-unpriv-6.2.2.134-8f694086-el8-x86_64.tgz"
   # name of the Splunk SOAR package located in apps folder. 
-  # aws, azure: Make sure you use the RHEL 8 version which contains ....el8... in the file name
-  # local: Make sure you use the RHEL 7 version which contains ....el7... in the file name
+  # aws: Make sure you use the RHEL 8 version which contains ....el8... in the file name
+  # azure, local: Make sure you use the RHEL 7 version which contains ....el7... in the file name
 
   phantom_byo: "0"
   # Enable/Disable Bring your own Phantom
