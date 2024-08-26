@@ -33,6 +33,7 @@ jobs:
             files: |
               ../attack-range-${{ steps.vars.outputs.tag }}.tar.gz
               ../checksum-%{{ steps.vars.outputs.tag }}.txt
+            token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
   
   build-and-publish-docker-image:
     runs-on: ubuntu-latest
