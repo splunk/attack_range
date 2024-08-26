@@ -3,7 +3,7 @@ name: Splunk TA Update
 on:
   workflow_dispatch:  # Manually trigger the workflow
   schedule:
-    - cron: '35 17 * * *'  # Runs daily at midnight
+    - cron: '03 18 * * *'  # Runs daily at midnight
 
 jobs:
   modify-code:
