@@ -7,34 +7,7 @@ on:
 env:
   IMAGE_NAME: "splunk/attack_range"
 
-jobs:
-  publish-github-release:
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    steps:
-        - name: Checkout repo
-          uses: actions/checkout@v4
-          with:
-            ref: 'develop'
-
-        - name: Set tag
-          id: vars
-          run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
-
-        - name: Prepare Release for Publishing on github
-          run: |
-            cd ..
-            tar -zcvf attack-range-${{ steps.vars.outputs.tag }}.tar.gz attack_range
-            sha256sum attack-range-${{ steps.vars.outputs.tag }}.tar.gz > checksum-${{ steps.vars.outputs.tag }}.txt
-
-        - name: Upload Release Artifacts
-          uses: softprops/action-gh-release@v2
-          with:
-            files: |
-              ../attack-range-${{ steps.vars.outputs.tag }}.tar.gz
-              ../checksum-%{{ steps.vars.outputs.tag }}.txt
-            token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
-  
+jobs:  
   build-and-publish-docker-image:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
