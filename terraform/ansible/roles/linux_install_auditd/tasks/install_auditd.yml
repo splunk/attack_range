@@ -1,0 +1,49 @@
+---
+
+- name: Install auditd and audispd-plugins
+  apt:
+    name:
+      - auditd
+      - audispd-plugins
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Reboot the server
+  reboot:
+    msg: "Rebooting server after installing auditd"
+    connect_timeout: 5
+    reboot_timeout: 300
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+    test_command: uptime
+  become: yes
+
+- name: Download audit rules
+  get_url:
+    url: https://raw.githubusercontent.com/Neo23x0/auditd/master/audit.rules
+    dest: /tmp/audit.rules
+  become: yes
+
+- name: Copy audit rules to /etc/audit/rules.d/
+  copy:
+    src: /tmp/audit.rules
+    dest: /etc/audit/rules.d/audit.rules
+    owner: root
+    group: root
+    mode: '0640'
+    remote_src: yes
+  become: yes
+
+- name: Restart auditd service
+  systemd:
+    name: auditd
+    state: restarted
+  become: yes
+
+- name: Enable auditd service
+  systemd:
+    name: auditd
+    enabled: yes
+    state: started
+  become: yes

@@ -1,71 +1,115 @@
 <user-mapping>
     <authorize 
             username="Admin"
-            password="{{attack_range_password|hash('md5')}}"
+            password="{{general.attack_range_password|hash('md5')}}"
             encoding="md5">
 
-        <connection name="ar-splunk-{{ key_name }}-{{ attack_range_name }}">
+        <connection name="ar-splunk-{{ general.key_name }}-{{ general.attack_range_name }}">
             <protocol>ssh</protocol>
             <param name="hostname">localhost</param>
             <param name="port">22</param>
             <param name="username">ubuntu</param>
-            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
+            {% if general.cloud_provider == 'aws' %}
+            <param name="private-key">{{ lookup('file', aws.private_key_path) }}</param>
+            {% elif general.cloud_provider == 'azure' %}
+            <param name="private-key">{{ lookup('file', azure.private_key_path) }}</param>
+            {% endif %}
         </connection>        
 
-        {% if phantom_server == '1' %}
-        <connection name="ar-phantom-{{ key_name }}-{{ attack_range_name }}">
+        {% if phantom_server.phantom_server == '1' %}
+        <connection name="ar-phantom-{{ general.key_name }}-{{ general.attack_range_name }}">
             <protocol>ssh</protocol>
             <param name="hostname">10.0.1.13</param>
             <param name="port">22</param>
             <param name="username">centos</param>
-            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
+            {% if general.cloud_provider == 'aws' %}
+            <param name="private-key">{{ lookup('file', aws.private_key_path) }}</param>
+            {% elif general.cloud_provider == 'azure' %}
+            <param name="private-key">{{ lookup('file', azure.private_key_path) }}</param>
+            {% endif %}
         </connection>    
         {% endif %}
-
-        {% for server in windows|from_json|map('string')|list %}
-        <connection name="ar-win-{{ key_name }}-{{ attack_range_name }}-{{ loop.index-1 }}">
+        
+        {% if windows_servers is string %}
+            {% set windows_servers_list = windows_servers|from_json %}
+        {% else %}
+            {% set windows_servers_list = windows_servers %}
+        {% endif %}
+        {% for server in windows_servers_list %}
+        <connection name="ar-win-{{ general.key_name }}-{{ general.attack_range_name }}-{{ loop.index-1 }}">
             <protocol>rdp</protocol>
             <param name="hostname">10.0.1.{{loop.index-1+14}}</param>
             <param name="port">3389</param>
-             {% if cloud_provider == 'azure' %}
+             {% if general.cloud_provider == 'azure' %}
             <param name="username">AzureAdmin</param>
             {% else %}
             <param name="username">Administrator</param>
             {% endif %}
-            <param name="password">{{attack_range_password}}</param>
+            <param name="password">{{general.attack_range_password}}</param>
             <param name="ignore-cert">true</param>
             <param name="enable-drive">true</param>
             <param name="drive-path">/home/ubuntu/shared-folder</param>
         </connection>
         {% endfor %}
 
-        {% for server in linux|from_json|map('string')|list %}
-        <connection name="ar-linux-{{ key_name }}-{{ attack_range_name }}-{{ loop.index-1 }}">
+        {% if linux_servers is string %}
+            {% set linux_servers_list = linux_servers|from_json %}
+        {% else %}
+            {% set linux_servers_list = linux_servers %}
+        {% endif %}
+        {% for server in linux_servers_list %}
+        <connection name="ar-linux-{{ general.key_name }}-{{ general.attack_range_name }}-{{ loop.index-1 }}">
             <protocol>ssh</protocol>
             <param name="hostname">10.0.1.{{loop.index-1+21}}</param>
             <param name="port">22</param>
             <param name="username">ubuntu</param>
-            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
+            {% if general.cloud_provider == 'aws' %}
+            <param name="private-key">{{ lookup('file', aws.private_key_path) }}</param>
+            {% elif general.cloud_provider == 'azure' %}
+            <param name="private-key">{{ lookup('file', azure.private_key_path) }}</param>
+            {% endif %}
         </connection>
         {% endfor %}
 
-        {% if kali_server == '1' %}
-        <connection name="ar-kali-{{ key_name }}-{{ attack_range_name }}">
+        {% if kali_server.kali_server == '1' %}
+        <connection name="ar-kali-{{ general.key_name }}-{{ general.attack_range_name }}">
             <protocol>ssh</protocol>
             <param name="hostname">10.0.1.30</param>
             <param name="port">22</param>
             <param name="username">kali</param>
-            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
+            {% if general.cloud_provider == 'aws' %}
+            <param name="private-key">{{ lookup('file', aws.private_key_path) }}</param>
+            {% elif general.cloud_provider == 'azure' %}
+            <param name="private-key">{{ lookup('file', azure.private_key_path) }}</param>
+            {% endif %}
         </connection>    
         {% endif %}
 
-        {% if zeek_server == '1' %}
-        <connection name="ar-zeek-{{ key_name }}-{{ attack_range_name }}">
+        {% if zeek_server.zeek_server == '1' %}
+        <connection name="ar-zeek-{{ general.key_name }}-{{ general.attack_range_name }}">
             <protocol>ssh</protocol>
             <param name="hostname">10.0.1.50</param>
             <param name="port">22</param>
             <param name="username">ubuntu</param>
-            <param name="private-key">{{ lookup('file', private_key_path) }}</param>
+            {% if general.cloud_provider == 'aws' %}
+            <param name="private-key">{{ lookup('file', aws.private_key_path) }}</param>
+            {% elif general.cloud_provider == 'azure' %}
+            <param name="private-key">{{ lookup('file', azure.private_key_path) }}</param>
+            {% endif %}
+        </connection>    
+        {% endif %}
+
+        {% if snort_server.snort_server == '1' %}
+        <connection name="ar-snort-{{ general.key_name }}-{{ general.attack_range_name }}">
+            <protocol>ssh</protocol>
+            <param name="hostname">10.0.1.60</param>
+            <param name="port">22</param>
+            <param name="username">ubuntu</param>
+            {% if general.cloud_provider == 'aws' %}
+            <param name="private-key">{{ lookup('file', aws.private_key_path) }}</param>
+            {% elif general.cloud_provider == 'azure' %}
+            <param name="private-key">{{ lookup('file', azure.private_key_path) }}</param>
+            {% endif %}
         </connection>    
         {% endif %}
 

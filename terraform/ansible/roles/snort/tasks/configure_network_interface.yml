@@ -1,0 +1,23 @@
+---
+
+- name: install /etc/systemd/system/snort3-nic.service to set ens5 settings at boot
+  become: true
+  copy:
+    src: snort3-nic.service
+    dest: /etc/systemd/system/snort3-nic.service
+    owner: root
+    group: root
+    mode: 0755
+    force: yes
+
+- name: systemctl daemon reload
+  become: true
+  command:  "systemctl daemon-reload"
+
+- name: systemctl to enable snort3-nic.service
+  become: true
+  command:  "systemctl enable snort3-nic.service"
+
+- name: systemctl to start snort3-nic.service
+  become: true
+  command:  "systemctl start snort3-nic.service"

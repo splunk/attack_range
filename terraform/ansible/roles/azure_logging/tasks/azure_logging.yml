@@ -4,33 +4,30 @@
   file:
     path: "{{ item }}"
     state: directory
-    owner: splunk
-    group: splunk
     recurse: yes
   with_items:
     - /opt/splunk/etc/apps/Splunk_TA_microsoft-cloudservices/local/
+  when: azure.azure_logging == "1"
 
 - name: Copy new mscs_azure_accounts.conf configuration
   template:
     src: mscs_azure_accounts.conf.j2
     dest: /opt/splunk/etc/apps/Splunk_TA_microsoft-cloudservices/local/mscs_azure_accounts.conf
-    owner: splunk
-    group: splunk
+  when: azure.azure_logging == "1"
 
 - name: Copy new mscs_azure_audit_inputs.conf configuration
   template:
     src: mscs_azure_audit_inputs.conf.j2
     dest: /opt/splunk/etc/apps/Splunk_TA_microsoft-cloudservices/local/mscs_azure_audit_inputs.conf
-    owner: splunk
-    group: splunk
+  when: azure.azure_logging == "1"
 
 - name: Copy new inputs.conf configuration
   template:
     src: inputs.conf.j2
     dest: /opt/splunk/etc/apps/Splunk_TA_microsoft-cloudservices/local/inputs.conf
-    owner: splunk
-    group: splunk
+  when: azure.azure_logging == "1"
 
 - name: restart splunk
   service: name=splunk state=restarted
   become: yes
+  when: azure.azure_logging == "1"

@@ -5,5 +5,6 @@ variable "general" { }
 variable "aws" { }
 variable "linux_servers" { }
 variable "simulation" { }
-variable "zeek_server" { }
 variable "splunk_server" { }
+variable "zeek_server" { }
+variable "snort_server" { }

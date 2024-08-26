@@ -25,7 +25,7 @@
     IEX (IWR https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1)
     Install-AtomicRedTeam -Force
     IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicsfolder.ps1' -UseBasicParsing)
-    Install-AtomicsFolder -Force -RepoOwner "{{ atomic_red_team_repo }}" -Branch "{{ atomic_red_team_branch }}"
+    Install-AtomicsFolder -Force -RepoOwner "{{ simulation.atomic_red_team_repo }}" -Branch "{{ simulation.atomic_red_team_branch }}"
   register: install_art
 
 - name: copy default powershell profile

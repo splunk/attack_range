@@ -1,0 +1,63 @@
+name: Splunk TA Update
+
+on:
+  workflow_dispatch:  # Manually trigger the workflow
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight
+
+jobs:
+  modify-code:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: 'develop'
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'  # or the version your script requires
+
+      - name: Install Dependencies using Poetry
+        run: |
+          pip3 install poetry
+          poetry install
+
+      - name: Run Python Splunk TA checker
+        run: |
+          poetry run python scripts/attack_range_ta_update.py
+
+      - name: Check for changes
+        id: changes
+        run: |
+          # Check if there are any changes after the script execution
+          if [[ -z $(git status --porcelain) ]]; then
+            echo "No changes detected"
+            echo "changes_detected=false" >> $GITHUB_ENV
+          else
+            echo "Changes detected"
+            echo "changes_detected=true" >> $GITHUB_ENV
+          fi
+
+      - name: Commit and push changes if any
+        if: env.changes_detected == 'true'
+        run: |
+          git config user.name 'Splunk TA Updater [bot]'
+          git config user.email 'research@splunk.com'
+          git checkout -b auto-ta-update
+          git add .
+          git commit -m "Automated Splunk TA Update"
+          git push origin auto-ta-update
+
+      - name: Create Pull Request
+        if: env.changes_detected == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Automated Splunk TA Update"
+          branch: auto-ta-update
+          title: "Automated Splunk TA Update"
+          body: "This PR contains updates to Splunk TAs made by the GitHub Actions workflow."
+          labels: automated-pr

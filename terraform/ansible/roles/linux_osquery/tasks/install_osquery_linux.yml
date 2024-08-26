@@ -1,0 +1,70 @@
+---
+# This playbook installs osquery on a linux machine
+- name: Install required system packages
+  become: true
+  apt:
+    name: software-properties-common
+    state: present    
+    update_cache: true
+
+- name: drop the osquery_install.sh script /tmp
+  become: true
+  copy:
+    src: osquery_install.sh
+    dest: /tmp/osquery_install.sh 
+    mode: '0755'
+
+- name: check if osquery service exist
+  stat: path=/etc/init.d/osqueryd
+  register: service_status 
+
+- name: is osquery service exist? if yes stop it!
+  become: true
+  service: 
+    name: osquery
+    state: stopped
+  when: service_status.stat.exists
+
+- name: run osquery_install.sh
+  become: true
+  command: sh /tmp/osquery_install.sh
+
+- name: clean the script
+  become: true
+  command: rm /tmp/osquery_install.sh
+
+- name: copy template.osquery.conf
+  become: true
+  copy:
+    src: template.osquery.conf
+    dest: /etc/osquery/osquery.conf 
+
+- name: copy template.osquery.conf
+  become: true
+  copy:
+    src: template.osquery.conf
+    dest: /var/osquery/osquery.conf 
+
+- name: copy osquery.conf
+  become: true
+  copy:
+    src: ../../configs/osquery.conf
+    dest: /opt/osquery/share/osquery/packs/attack-range.conf
+
+- name: copy custom osquery flags 
+  become: true
+  copy: 
+    src: custom_osquery.flags
+    dest: /etc/osquery/osquery.flags
+
+- name: Ensure osqueryd service is enabled
+  become: true
+  systemd:
+    name: osqueryd
+    enabled: yes
+
+- name: Ensure osqueryd service is started
+  become: true
+  systemd:
+    name: osqueryd
+    state: started

@@ -9,6 +9,5 @@ azure:
   subscription_id: "xxx"
 windows_servers: 
   - hostname: ar-win
-    windows_image: windows-2016-v3-0-0
 linux_servers: 
   - hostname: ar-linux

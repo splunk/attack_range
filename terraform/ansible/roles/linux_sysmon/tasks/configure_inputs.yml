@@ -1,0 +1,15 @@
+---
+
+- name: Create folder directory for inputs configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - /opt/splunkforwarder/etc/apps/sysmon_app/local/
+
+- name: copy inputs.conf to capture sysmon for linux logs
+  copy:
+    src: inputs.conf
+    dest: /opt/splunkforwarder/etc/apps/sysmon_app/local/inputs.conf
+    force: yes

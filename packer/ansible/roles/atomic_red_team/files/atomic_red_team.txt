@@ -1,6 +1,0 @@
-How to run Atomic Red Team:
-
-1) Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force
-2) Invoke-AtomicTest T1003.002 -GetPrereqs
-3) Invoke-AtomicTest T1003.002 -Confirm:$false -TimeoutSeconds 300 -ExecutionLogPath C:\AtomicRedTeam\atc_execution.csv
-4) Invoke-AtomicTest T1003.002 -Cleanup

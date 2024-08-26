@@ -1,4 +1,4 @@
-config.vm.define "ar-splunk-{{config.general.key_name}}-{{config.general.attack_range_name}}" do |config|
+config.vm.define "ar-splunk-{{ config.general.key_name }}-{{ config.general.attack_range_name }}" do |config|
     VM_NAME= "ar-splunk"
     config.vm.box = "generic/ubuntu2004"
     config.vm.hostname = "#{VM_NAME}"
@@ -7,51 +7,35 @@ config.vm.define "ar-splunk-{{config.general.key_name}}-{{config.general.attack_
     config.vm.network "forwarded_port", guest: 8089, host: 8089, protocol: "tcp"
     config.vm.network "forwarded_port", guest: 8080, host: 8080, protocol: "tcp"
     config.vm.network :private_network, ip: "192.168.56.12"
-  
-    config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../packer/ansible/splunk_server.yml"
-        ansible.compatibility_mode = "2.0"
-        ansible.extra_vars = {
-          ansible_python_interpreter: "/usr/bin/python3",
-          splunk_admin_password: 'Pl3ase-k1Ll-me:p',
-          s3_bucket_url: 'https://attack-range-appbinaries.s3-us-west-2.amazonaws.com',
-          splunk_url: 'https://download.splunk.com/products/splunk/releases/8.2.5/linux/splunk-8.2.5-77015bc7a462-Linux-x86_64.tgz',
-{% for key, value in config.general.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-{% for key, value in config.splunk_server.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-        }
+
+    config.vm.provision "file", run: "always" do |file|
+      splunk_vars = {
+        "ansible_python_interpreter" => "/usr/bin/python3",
+        "general" => {{ config.general | tojson }},
+        "splunk_server" => {{ config.splunk_server | tojson }},
+        "phantom_server" => {{ config.phantom_server | tojson }},
+        "kali_server" => {{ config.kali_server | tojson }},
+        "simulation" => {{ config.simulation | tojson }},
+        "windows_servers" => {{ config.windows_servers | tojson }},
+        "linux_servers" => {{ config.linux_servers | tojson }}
+      }
+      
+      File.write("splunk_vars.json", JSON.pretty_generate(splunk_vars))
+      
+      file.source = "splunk_vars.json"
+      file.destination = "/tmp/splunk_vars.json"
     end
 
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../terraform/ansible/splunk_server_post.yml"
+        ansible.playbook = "../terraform/ansible/splunk_server.yml"
         ansible.compatibility_mode = "2.0"
-        ansible.extra_vars = {
-          ansible_python_interpreter: "/usr/bin/python3",  
-          windows_servers_count: {{ config.windows_servers|length }},
-          linux_servers_count: {{ config.linux_servers|length }},
-{% for key, value in config.general.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-{% for key, value in config.splunk_server.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-{% for key, value in config.phantom_server.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-{% for key, value in config.simulation.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-        }
+        ansible.extra_vars = "splunk_vars.json"
     end
   
     config.vm.provider "virtualbox" do |vb, override|
-      vb.gui = true
+      vb.gui = false
       vb.name = "#{VM_NAME}"
       vb.customize ["modifyvm", :id, "--memory", "6144"]
       vb.customize ["modifyvm", :id, "--cpus", "4"]
     end
   end
-  

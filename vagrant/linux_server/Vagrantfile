@@ -1,48 +1,36 @@
-config.vm.define "ar-linux-{{config.general.key_name}}-{{config.general.attack_range_name}}-{{count}}" do |config|
+config.vm.define "ar-linux-{{ config.general.key_name }}-{{ config.general.attack_range_name }}-{{ count }}" do |config|
     config.vm.box = "bento/ubuntu-22.04"
-    config.vm.hostname = "{{ server.hostname }}"
+    config.vm.hostname = "{{ server.hostname }}"
     config.vm.boot_timeout = 600
-    config.vm.network :private_network, ip: "192.168.56.{{21 + count}}"
-    config.vm.network "forwarded_port", guest: 22, host: {{ 2022 + count }}
+    config.vm.network :private_network, ip: "192.168.56.{{ 21 + count }}"
+    config.vm.network "forwarded_port", guest: 22, host: "{{ 2022 + count }}"
     config.vm.synced_folder '.', '/vagrant', disabled: true
-  
-    config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../packer/ansible/linux_server.yml"
-        ansible.compatibility_mode = "2.0"
-        ansible.extra_vars = {
-          ansible_python_interpreter: "/usr/bin/python3",
-          splunk_admin_password: 'Pl3ase-k1Ll-me:p',
-          use_prebuilt_images_with_packer: '0',
-          splunk_uf_url: 'https://download.splunk.com/products/universalforwarder/releases/8.2.5/linux/splunkforwarder-8.2.5-77015bc7a462-linux-2.6-amd64.deb',
-{% for key, value in config.general.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-        }
+
+    config.vm.provision "file", run: "always" do |file|
+      linux_vars = {
+        "ansible_python_interpreter" => "/usr/bin/python3",
+        "general" => {{ config.general | tojson }},
+        "splunk_server" => {{ config.splunk_server | tojson }},
+        "linux_servers" => {{ config.linux_servers[count] | tojson }},
+        "simulation" => {{ config.simulation | tojson }}
+      }
+      
+      File.write("linux_vars.json", JSON.pretty_generate(linux_vars))
+      
+      file.source = "linux_vars.json"
+      file.destination = "/tmp/linux_vars.json"
     end
 
     config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../terraform/ansible/linux_server_post.yml"
+        ansible.playbook = "../terraform/ansible/linux_server.yml"
         ansible.compatibility_mode = "2.0"
-        ansible.extra_vars = {
-          ansible_python_interpreter: "/usr/bin/python3",  
-{% for key, value in config.general.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-{% for key, value in server.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-{% for key, value in config.simulation.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-{% for key, value in config.splunk_server.items() %}
-          {{ key }}: "{{ value }}",
-{% endfor %}
-        }
+        ansible.extra_vars = "linux_vars.json"
+        ansible.host_key_checking = false
     end
   
     config.vm.provider "virtualbox" do |vb, override|
-      vb.gui = true
-      vb.name = "{{ server.hostname }}"
+      vb.gui = false
+      vb.name = "{{ server.hostname }}"
       vb.customize ["modifyvm", :id, "--memory", "2048"]
       vb.customize ["modifyvm", :id, "--cpus", "1"]
     end

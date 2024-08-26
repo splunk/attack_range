@@ -1,8 +1,12 @@
-# all available parameters can be seen in configs/attack_range_default.yml
 general:
-  attack_range_password: "ChangeMe123!"
-  cloud_provider: "aws"
-  key_name: "ar"
+  cloud_provider: local
+  attack_range_password: lsPUBsQr33DPscmfl4i
+local: {}
 windows_servers:
-  - hostname: ar-win 
-    image: windows-2016-v3-0-0
+- hostname: ar-win-1
+  windows_image: windows-server-2016
+linux_servers:
+- hostname: ar-linux
+phantom_server:
+  phantom_server: '0'
+  phantom_app: splunk_soar-unpriv-6.2.2.134-8f694086-el7-x86_64.tgz

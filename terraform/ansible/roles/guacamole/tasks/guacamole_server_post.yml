@@ -26,7 +26,7 @@
   template:
     src: user-mapping.xml
     dest: /etc/guacamole/user-mapping.xml
-  when: cloud_provider != "local"
+  when: general.cloud_provider != "local"
 
 - name: Create a new folder
   file:
@@ -37,7 +37,7 @@
   template:
     src: user-mapping-local.xml
     dest: /etc/guacamole/user-mapping.xml
-  when: cloud_provider == "local"
+  when: general.cloud_provider == "local"
 
 - name: Restart guacd and tomcat
   shell:

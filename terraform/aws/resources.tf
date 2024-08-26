@@ -17,6 +17,7 @@ module "splunk-server" {
   linux_servers = var.linux_servers
   kali_server = var.kali_server
   zeek_server = var.zeek_server
+  snort_server = var.snort_server
 }
 
 module "phantom-server" {
@@ -35,9 +36,10 @@ module "windows-server" {
 	ec2_subnet_id = module.networkModule.ec2_subnet_id
   general = var.general
   aws = var.aws
+  zeek_server = var.zeek_server
+  snort_server = var.snort_server
   windows_servers = var.windows_servers
   simulation = var.simulation
-  zeek_server = var.zeek_server
   splunk_server = var.splunk_server
   
 }
@@ -48,9 +50,10 @@ module "linux-server" {
 	ec2_subnet_id = module.networkModule.ec2_subnet_id
   general = var.general
   aws = var.aws
+  zeek_server = var.zeek_server
+  snort_server = var.snort_server
   linux_servers = var.linux_servers
   simulation = var.simulation
-  zeek_server = var.zeek_server
   splunk_server = var.splunk_server
 }
 
@@ -80,6 +83,20 @@ module "zeek-server" {
   general = var.general
   aws = var.aws
   zeek_server = var.zeek_server
+  windows_servers = var.windows_servers
+  windows_server_instances = module.windows-server.windows_servers
+  linux_servers = var.linux_servers
+  linux_server_instances = module.linux-server.linux_servers
+  splunk_server = var.splunk_server
+}
+
+module "snort-server" {
+  source = "./modules/snort-server"
+	vpc_security_group_ids = module.networkModule.sg_vpc_id
+	ec2_subnet_id = module.networkModule.ec2_subnet_id
+  general = var.general
+  aws = var.aws
+  snort_server = var.snort_server
   windows_servers = var.windows_servers
   windows_server_instances = module.windows-server.windows_servers
   linux_servers = var.linux_servers

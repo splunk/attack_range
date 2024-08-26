@@ -1,4 +1,7 @@
-config.vm.define "ar-phantom-{{config.general.key_name}}-{{config.general.attack_range_name}}" do |config|
+require 'json'
+require 'fileutils'
+
+config.vm.define "ar-phantom-{{ config.general.key_name }}-{{ config.general.attack_range_name }}" do |config|
     VM_NAME_P= "ar-phantom"
     config.vm.box = "bento/centos-7"
     config.vm.hostname = "#{VM_NAME_P}"
@@ -9,41 +12,28 @@ config.vm.define "ar-phantom-{{config.general.key_name}}-{{config.general.attack
     # Add this line near the top of the config block
     config.vm.synced_folder ".", "/vagrant", disabled: true
 
-    config.vm.provision "ansible" do |ansible|
-      ansible.playbook = "../packer/ansible/phantom_server.yml"
-      ansible.compatibility_mode = "2.0"
-      ansible.extra_vars = {
-{% for key, value in config.general.items() %}
-        {{ key }}: "{{ value }}",
-{% endfor %}
-{% for key, value in config.splunk_server.items() %}
-        {{ key }}: "{{ value }}",
-{% endfor %}
-{% for key, value in config.phantom_server.items() %}
-            {{ key }}: "{{ value }}",
-{% endfor %}
+    config.vm.provision "file", run: "always" do |file|
+      phantom_vars = {
+        "general" => {{ config.general | tojson }},
+        "phantom_server" => {{ config.phantom_server | tojson }}
       }
+      
+      # Write the JSON file to the host machine
+      File.write("phantom_vars.json", JSON.pretty_generate(phantom_vars))
+      
+      # Set the source and destination for the file provisioner
+      file.source = "phantom_vars.json"
+      file.destination = "/tmp/phantom_vars.json"
     end
 
     config.vm.provision "ansible" do |ansible|
         ansible.playbook = "../terraform/ansible/phantom_server.yml"
         ansible.compatibility_mode = "2.0"
-        ansible.extra_vars = {
-          use_prebuilt_images_with_packer: '0',
-{% for key, value in config.general.items() %}
-            {{ key }}: "{{ value }}",
-{% endfor %}
-{% for key, value in config.splunk_server.items() %}
-            {{ key }}: "{{ value }}",
-{% endfor %}
-{% for key, value in config.phantom_server.items() %}
-            {{ key }}: "{{ value }}",
-{% endfor %}
-        }
+        ansible.extra_vars = "phantom_vars.json"  # Use the file on the host
     end
   
     config.vm.provider "virtualbox" do |vb, override|
-      vb.gui = true
+      vb.gui = false
       vb.name = "#{VM_NAME_P}"
       vb.customize ["modifyvm", :id, "--memory", "4096"]
       vb.customize ["modifyvm", :id, "--cpus", "4"]

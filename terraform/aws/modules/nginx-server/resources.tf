@@ -1,18 +1,7 @@
 
 
-data "aws_ami" "nginx_server_packer" {
-  count = (var.nginx_server.nginx_server == "1") && (var.general.use_prebuilt_images_with_packer == "1") ? 1 : 0
-  most_recent = true
-  owners      = ["self"] 
-
-  filter {
-    name   = "name"
-    values = [var.nginx_server.nginx_image]
-  }
-}
-
 data "aws_ami" "nginx_server" {
-  count = (var.nginx_server.nginx_server == "1") && (var.general.use_prebuilt_images_with_packer == "0") ? 1 : 0
+  count = (var.nginx_server.nginx_server == "1") ? 1 : 0
   most_recent = true
   owners      = ["099720109477"] # Canonical
 
@@ -29,7 +18,7 @@ data "aws_ami" "nginx_server" {
 
 resource "aws_instance" "nginx_server" {
   count                  = var.nginx_server.nginx_server == "1" ? 1 : 0
-  ami                    = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.nginx_server_packer[0].id : data.aws_ami.nginx_server[0].id
+  ami                    = data.aws_ami.nginx_server[0].id
   instance_type          = "t3.small"
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
@@ -59,13 +48,22 @@ resource "aws_instance" "nginx_server" {
   }
 
   provisioner "local-exec" {
-    working_dir = "../../packer/ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' nginx_web_proxy.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.nginx_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    working_dir = "../ansible"
+    command = <<-EOT
+      cat <<EOF > vars/nginx_vars.json
+      {
+        "ansible_python_interpreter": "/usr/bin/python3",
+        "general": ${jsonencode(var.general)},
+        "splunk_server": ${jsonencode(var.splunk_server)},
+        "nginx_server": ${jsonencode(var.nginx_server)},
+      }
+      EOF
+    EOT
   }
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' nginx_server_post.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.nginx_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' nginx_server.yml -e @vars/nginx_vars.json"
   }
 
 }

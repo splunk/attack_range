@@ -1,7 +1,7 @@
 <user-mapping>
     <authorize 
             username="Admin"
-            password="{{attack_range_password|hash('md5')}}"
+            password="{{general.attack_range_password|hash('md5')}}"
             encoding="md5">
 
         <connection name="ar-splunk">
@@ -12,7 +12,7 @@
             <param name="password">vagrant</param>
         </connection>        
 
-        {% if phantom_server == '1' %}
+        {% if phantom_server.phantom_server == '1' %}
         <connection name="ar-phantom">
             <protocol>ssh</protocol>
             <param name="hostname">192.168.56.13</param>
@@ -22,22 +22,32 @@
         </connection>    
         {% endif %}
 
-        {% for server in range(windows_servers_count) %}
+        {% if windows_servers is string %}
+            {% set windows_servers_list = windows_servers|from_json %}
+        {% else %}
+            {% set windows_servers_list = windows_servers %}
+        {% endif %}
+        {% for server in windows_servers_list %}
         <connection name="ar-win-{{ loop.index-1 }}">
             <protocol>rdp</protocol>
             <param name="hostname">192.168.56.{{loop.index-1+14}}</param>
             <param name="port">3389</param>
-             {% if cloud_provider == 'azure' %}
+             {% if general.cloud_provider == 'azure' %}
             <param name="username">AzureAdmin</param>
             {% else %}
             <param name="username">Administrator</param>
             {% endif %}
-            <param name="password">{{attack_range_password}}</param>
+            <param name="password">{{general.attack_range_password}}</param>
             <param name="ignore-cert">true</param>
         </connection>
         {% endfor %}
-
-        {% for server in range(linux_servers_count) %}
+        
+        {% if linux_servers is string %}
+            {% set linux_servers_list = linux_servers|from_json %}
+        {% else %}
+            {% set linux_servers_list = linux_servers %}
+        {% endif %}
+        {% for server in linux_servers_list %}
         <connection name="ar-linux-{{ loop.index-1 }}">
             <protocol>ssh</protocol>
             <param name="hostname">192.168.56.{{loop.index-1+21}}</param>
@@ -47,7 +57,7 @@
         </connection>
         {% endfor %}
 
-        {% if kali_server == '1' %}
+        {% if kali_server.kali_server == '1' %}
         <connection name="ar-kali">
             <protocol>ssh</protocol>
             <param name="hostname">192.168.56.30</param>

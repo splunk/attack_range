@@ -1,0 +1,8 @@
+- name: Create local folder directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  with_items:
+    - /opt/splunk/etc/apps/DA-ESS-ContentUpdate/local/
+

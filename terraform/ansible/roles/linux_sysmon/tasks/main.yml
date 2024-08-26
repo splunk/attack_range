@@ -1,0 +1,14 @@
+---
+
+- include: install_sysmon_linux.yml
+- include: configure_inputs.yml
+
+- name: Restart splunk uf
+  become: true
+  command: "systemctl restart SplunkForwarder"
+  when: general.cloud_provider != "local"
+
+- name: Restart splunk uf
+  become: true
+  command: "/opt/splunkforwarder/bin/splunk restart"
+  when: general.cloud_provider == "local"

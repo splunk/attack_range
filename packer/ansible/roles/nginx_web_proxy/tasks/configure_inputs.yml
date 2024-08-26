@@ -1,7 +1,0 @@
-- name: copy inputs.conf to capture nginx plus logs
-  copy:
-    src: inputs.conf
-    dest: /opt/splunkforwarder/etc/system/local/inputs.conf
-    owner: splunk
-    group: splunk
-    force: yes

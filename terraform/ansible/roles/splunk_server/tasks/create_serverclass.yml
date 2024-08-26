@@ -1,0 +1,7 @@
+---
+
+- name: copy serverclass.conf to splunk server
+  copy:
+    src: serverclass.conf
+    dest: /opt/splunk/etc/system/local/serverclass.conf
+  notify: restart splunk

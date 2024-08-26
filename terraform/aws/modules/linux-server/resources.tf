@@ -1,17 +1,7 @@
 
-data "aws_ami" "linux_server_packer" {
-  count = (var.general.use_prebuilt_images_with_packer == "1") ? length(var.linux_servers) : 0
-  most_recent = true
-  owners      = ["self"] 
-
-  filter {
-    name   = "name"
-    values = [var.linux_servers[count.index].linux_image]
-  }
-}
 
 data "aws_ami" "linux_server" {
-  count = (var.general.use_prebuilt_images_with_packer == "0") ? length(var.linux_servers) : 0
+  count = length(var.linux_servers)
   most_recent = true
   owners      = ["099720109477"] # Canonical
 
@@ -28,8 +18,8 @@ data "aws_ami" "linux_server" {
 
 resource "aws_instance" "linux_server" {
   count                  = length(var.linux_servers)
-  ami                    = var.general.use_prebuilt_images_with_packer == "1" ? data.aws_ami.linux_server_packer[count.index].id : data.aws_ami.linux_server[count.index].id
-  instance_type          = var.zeek_server.zeek_server == "1" ? "m5.2xlarge" : "t3.xlarge"
+  ami                    = data.aws_ami.linux_server[count.index].id
+  instance_type          = (var.zeek_server.zeek_server == "1" || var.snort_server.snort_server == "1") ? "m5.2xlarge" : "t3.xlarge"
   key_name               = var.general.key_name
   subnet_id              = var.ec2_subnet_id
   vpc_security_group_ids = [var.vpc_security_group_ids]
@@ -58,13 +48,23 @@ resource "aws_instance" "linux_server" {
   }
 
   provisioner "local-exec" {
-    working_dir = "../../packer/ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' linux_server.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])}'"
+    working_dir = "../ansible"
+    command = <<-EOT
+      cat <<EOF > vars/linux_vars.json
+      {
+        "ansible_python_interpreter": "/usr/bin/python3",
+        "general": ${jsonencode(var.general)},
+        "splunk_server": ${jsonencode(var.splunk_server)},
+        "linux_servers": ${jsonencode(var.linux_servers[count.index])},
+        "simulation": ${jsonencode(var.simulation)},
+      }
+      EOF
+    EOT
   }
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' linux_server_post.yml -e 'ansible_python_interpreter=/usr/bin/python3 ${join(" ", [for key, value in var.general : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.linux_servers[count.index] : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.simulation : "${key}=\"${value}\""])} ${join(" ", [for key, value in var.splunk_server : "${key}=\"${value}\""])}'"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' linux_server.yml -e @vars/linux_vars.json"
   }
 
 }

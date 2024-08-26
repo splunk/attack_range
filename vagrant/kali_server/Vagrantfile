@@ -8,7 +8,7 @@ config.vm.define "ar-kali-{{config.general.key_name}}-{{config.general.attack_ra
     config.ssh.password = "vagrant"
   
     config.vm.provider "virtualbox" do |vb, override|
-      vb.gui = true
+      vb.gui = false
       vb.name = "#{VM_NAME_KALI}"
       vb.customize ["modifyvm", :id, "--memory", "2048"]
       vb.customize ["modifyvm", :id, "--cpus", "1"]

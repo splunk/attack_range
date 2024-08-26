@@ -1,0 +1,15 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  roles:
+    - set_hostname_linux
+    - linux_common
+    - linux_universal_forwarder
+    - linux_osquery
+    - linux_sysmon
+    - linux_install_auditd
+    - linux_install_art
+    - linux_server_post
+    - update_sysmon_config_linux
+    - splunk_byo_linux
+    - contentctl

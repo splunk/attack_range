@@ -1,8 +1,0 @@
----
-
-- name: Disable Domain firewall
-  win_firewall:
-    state: disabled
-    profiles:
-    - Domain
-  tags: disable_firewall

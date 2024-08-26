@@ -1,0 +1,80 @@
+---
+
+- name: Create necessary directories for Snort
+  become: true
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /usr/local/etc/rules
+    - /usr/local/etc/so_rules
+    - /usr/local/etc/lists
+    - /var/log/snort
+
+- name: Create empty files for Snort
+  become: true
+  file:
+    path: "{{ item }}"
+    state: touch
+    mode: '0644'
+  loop:
+    - /usr/local/etc/rules/local.rules
+    - /usr/local/etc/lists/default.blocklist
+
+- name: Copy snort.lua configuration file
+  become: true
+  copy:
+    src: snort.lua
+    dest: /usr/local/etc/snort/snort.lua
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+
+- name: Download and extract Snort3 community rules
+  become: true
+  unarchive:
+    src: https://www.snort.org/downloads/community/snort3-community-rules.tar.gz
+    dest: /usr/local/etc/rules
+    remote_src: yes
+
+- name: Download OpenAppID
+  get_url:
+    url: https://www.snort.org/downloads/openappid/33380
+    dest: ~/snort_src/OpenAppID.tgz
+
+- name: Extract OpenAppID
+  unarchive:
+    src: ~/snort_src/OpenAppID.tgz
+    dest: ~/snort_src/
+    remote_src: yes
+
+- name: Copy OpenAppID to Snort directory
+  become: true
+  copy:
+    src: ~/snort_src/odp
+    dest: /usr/local/lib/
+    remote_src: yes
+
+- name: install /etc/systemd/system/snort.service to set ens5 settings at boot
+  become: true
+  copy:
+    src: snort.service
+    dest: /etc/systemd/system/snort.service
+    owner: root
+    group: root
+    mode: 0755
+    force: yes
+
+- name: systemctl daemon reload
+  become: true
+  command:  "systemctl daemon-reload"
+
+- name: systemctl to enable snort.service
+  become: true
+  command:  "systemctl enable snort.service"
+
+- name: systemctl to start snort.service
+  become: true
+  command:  "systemctl start snort.service"

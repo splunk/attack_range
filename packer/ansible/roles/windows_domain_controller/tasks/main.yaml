@@ -1,2 +1,0 @@
-- include: create.yml
-  when: cloud_provider != "azure"

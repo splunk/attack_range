@@ -1,0 +1,4 @@
+---
+
+- include: install_auditd.yml
+- include: configure_inputs_splunk.yml

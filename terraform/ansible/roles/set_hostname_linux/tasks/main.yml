@@ -2,4 +2,4 @@
 
 - name: Change the hostname
   hostname:
-    name: "{{ hostname }}"
+    name: "{{ linux_servers.hostname }}"
