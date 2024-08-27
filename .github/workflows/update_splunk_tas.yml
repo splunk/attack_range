@@ -60,16 +60,15 @@ jobs:
           git config user.name 'Splunk TA Updater [bot]'
           git config user.email 'research@splunk.com'
           git checkout -b auto-ta-update-${{ github.run_number }}
-          git add .
+          git add configs/attack_range_default.yml
           git commit -m "Automated Splunk TA Update"
           git push origin auto-ta-update-${{ github.run_number }}
 
       - name: Create Pull Request
         if: env.changes_detected == 'true'
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GH_PAT }}
-          commit-message: "Automated Splunk TA Update"
           branch: auto-ta-update-${{ github.run_number }}
           base: develop
           title: "Automated Splunk TA Update"
