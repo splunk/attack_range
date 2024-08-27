@@ -38,12 +38,6 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
 
-      - name: Install Packer
-        run: |
-          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-          sudo apt-get update && sudo apt-get install packer
-
       - name: Install Dependencies using Poetry
         run: |
           pip3 install poetry
@@ -53,10 +47,16 @@ jobs:
         run: |
           cp -f configs/github_actions_config_aws.yml attack_range.yml
 
-      - name: Test Terraform Build, Attack, Destroy
+      - name: Build Attack Range
         run: |
           poetry run python attack_range.py build
+
+      - name: Simulate Attack
+        run: |
           poetry run python attack_range.py simulate --target ar-win-ar-github-actions-ar-0 --technique T1003.002
+
+      - name: Destroy Attack Range
+        run: |
           poetry run python attack_range.py destroy
         
       - name: Cleanup terraform on failures
