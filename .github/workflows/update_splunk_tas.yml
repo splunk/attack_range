@@ -62,7 +62,7 @@ jobs:
           git checkout -b auto-ta-update-${{ github.run_number }}
           git add .
           git commit -m "Automated Splunk TA Update"
-          git push https://${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:auto-ta-update-${{ github.run_number }}
+          git push origin auto-ta-update-${{ github.run_number }}
 
       - name: Create Pull Request
         if: env.changes_detected == 'true'
