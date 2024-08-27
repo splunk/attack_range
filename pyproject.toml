@@ -28,6 +28,7 @@ python-vagrant = "^1.0.0"
 
 # Fix issue with docutils ".post1" release
 # https://github.com/python-poetry/poetry/issues/9293#issuecomment-2048205226
+gitpython = "^3.1.43"
 [[tool.poetry.source]]
 name = "pypi-public"
 url = "https://pypi.org/simple/"
