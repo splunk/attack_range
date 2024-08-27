@@ -116,6 +116,9 @@ for data_source in data_sources:
 # Add ATTACK_RANGE_LOCAL_APPS to uploaded_apps
 uploaded_apps.extend(ATTACK_RANGE_LOCAL_APPS)
 
+# Sort uploaded_apps alphabetically
+uploaded_apps.sort()
+
 # Update the attack_range_default.yml file
 config_file = os.path.join(script_dir, "..", "configs", "attack_range_default.yml")
 
