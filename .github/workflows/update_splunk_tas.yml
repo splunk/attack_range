@@ -43,8 +43,8 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          # Check if configs/attack_range_default.yml has changed
-          if git diff --exit-code configs/attack_range_default.yml; then
+          git add configs/attack_range_default.yml
+          if git diff --cached --exit-code configs/attack_range_default.yml; then
             echo "No changes detected in configs/attack_range_default.yml"
             echo "changes_detected=false" >> $GITHUB_ENV
           else
@@ -60,7 +60,6 @@ jobs:
           git config user.name 'Splunk TA Updater [bot]'
           git config user.email 'research@splunk.com'
           git checkout -b auto-ta-update-${{ github.run_number }}
-          git add configs/attack_range_default.yml
           git commit -m "Automated Splunk TA Update"
           git push origin auto-ta-update-${{ github.run_number }}
 
