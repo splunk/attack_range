@@ -1,5 +1,6 @@
 name: build-attack-destroy-aws
 on:
+  workflow_dispatch:  # Manually trigger the workflow
   schedule:
     - cron: '30 8 * * *'
 
