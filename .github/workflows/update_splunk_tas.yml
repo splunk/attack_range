@@ -43,11 +43,12 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          if git diff --exit-code configs/attack_range_default.yml; then
-            echo "No changes detected in configs/attack_range_default.yml"
+          git fetch origin develop
+          if git diff --exit-code origin/develop -- configs/attack_range_default.yml; then
+            echo "No changes detected in configs/attack_range_default.yml compared to develop branch"
             echo "changes_detected=false" >> $GITHUB_ENV
           else
-            echo "Changes detected in configs/attack_range_default.yml"
+            echo "Changes detected in configs/attack_range_default.yml compared to develop branch"
             echo "changes_detected=true" >> $GITHUB_ENV
           fi
 
