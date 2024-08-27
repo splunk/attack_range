@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "attack-range"
-version = "3.0.0"
+version = "3.1.0"
 description = ""
 authors = ["P4T12ICK <pbareiss@splunk.com>"]
 
