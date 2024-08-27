@@ -31,7 +31,7 @@ jobs:
         run: |
           pip3 install poetry
           poetry install
-          poetry add GitPython
+          pip install GitPython
 
       - name: Run Python Splunk TA checker
         env:
@@ -43,15 +43,12 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          # Check if there are any changes after the script execution
-          git_status=$(git status --porcelain)
-          echo "Git status output:"
-          echo "$git_status"
-          if [[ -z "$git_status" ]]; then
-            echo "No changes detected"
+          # Check if configs/attack_range_default.yml has changed
+          if git diff --exit-code configs/attack_range_default.yml; then
+            echo "No changes detected in configs/attack_range_default.yml"
             echo "changes_detected=false" >> $GITHUB_ENV
           else
-            echo "Changes detected"
+            echo "Changes detected in configs/attack_range_default.yml"
             echo "changes_detected=true" >> $GITHUB_ENV
           fi
 
