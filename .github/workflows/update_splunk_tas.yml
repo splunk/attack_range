@@ -44,7 +44,10 @@ jobs:
         id: changes
         run: |
           # Check if there are any changes after the script execution
-          if [[ -z $(git status --porcelain) ]]; then
+          git_status=$(git status --porcelain)
+          echo "Git status output:"
+          echo "$git_status"
+          if [[ -z "$git_status" ]]; then
             echo "No changes detected"
             echo "changes_detected=false" >> $GITHUB_ENV
           else
