@@ -15,7 +15,7 @@ from helpers.attack_range_apps import (
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Clone security_content repository
-repo_url = "git@github.com:splunk/security_content.git"
+repo_url = "https://github.com/splunk/security_content.git"
 repo_path = os.path.join(script_dir, "security_content")
 if not os.path.exists(repo_path):
     Repo.clone_from(repo_url, repo_path)
