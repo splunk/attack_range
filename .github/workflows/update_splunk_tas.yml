@@ -27,6 +27,9 @@ jobs:
           poetry add GitPython
 
       - name: Run Python Splunk TA checker
+        env:
+          SPLUNK_BASE_USERNAME: ${{ secrets.SPLUNK_BASE_USERNAME }}
+          SPLUNK_BASE_PASSWORD: ${{ secrets.SPLUNK_BASE_PASSWORD }}
         run: |
           poetry run python scripts/attack_range_ta_update.py
 
