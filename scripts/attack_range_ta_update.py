@@ -148,3 +148,16 @@ print(f"Updated {config_file} with new splunk_apps list.")
 
 # Remove the security_content folder
 shutil.rmtree(repo_path)
+
+# Remove all files ending with .tgz under apps directory
+apps_dir = os.path.join(script_dir, "apps")
+for filename in os.listdir(apps_dir):
+    if filename.endswith(".tgz"):
+        file_path = os.path.join(apps_dir, filename)
+        try:
+            os.remove(file_path)
+            print(f"Removed {file_path}")
+        except Exception as e:
+            print(f"Failed to delete {file_path}. Reason: {e}")
+
+print("Removed all .tgz files under apps directory.")

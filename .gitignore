@@ -3,6 +3,7 @@ attack_range.yml
 poetry.lock
 terraform/ansible/vars/*.json
 vagrant/*vars.json
+scripts/apps/*.tgz
 
 #keys
 *.key
