@@ -74,4 +74,3 @@ jobs:
           base: develop
           title: "Automated Splunk TA Update"
           body: "This PR contains updates to Splunk TAs made by the GitHub Actions workflow."
-          labels: automated-pr
