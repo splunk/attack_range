@@ -95,7 +95,7 @@ resource "azurerm_virtual_machine" "windows" {
   provisioner "local-exec" {
     working_dir = "../ansible"
     command = <<-EOT
-      cat <<EOF > vars/windows_vars.json
+      cat <<EOF > vars/windows_vars_${count.index}.json
       {
         "ansible_user": "AzureAdmin",
         "ansible_port": 5985,
@@ -112,7 +112,7 @@ resource "azurerm_virtual_machine" "windows" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ansible-playbook -i '${azurerm_public_ip.windows-publicip[count.index].ip_address},' windows.yml -e @vars/windows_vars.json"
+    command = "ansible-playbook -i '${azurerm_public_ip.windows-publicip[count.index].ip_address},' windows.yml -e @vars/windows_vars_${count.index}.json"
   }
 
 }

@@ -50,7 +50,7 @@ resource "aws_instance" "linux_server" {
   provisioner "local-exec" {
     working_dir = "../ansible"
     command = <<-EOT
-      cat <<EOF > vars/linux_vars.json
+      cat <<EOF > vars/linux_vars_${count.index}.json
       {
         "ansible_python_interpreter": "/usr/bin/python3",
         "general": ${jsonencode(var.general)},
@@ -64,7 +64,7 @@ resource "aws_instance" "linux_server" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' linux_server.yml -e @vars/linux_vars.json"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' linux_server.yml -e @vars/linux_vars_${count.index}.json"
   }
 
 }

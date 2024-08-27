@@ -53,10 +53,10 @@ jobs:
         run: |
           git config user.name 'Splunk TA Updater [bot]'
           git config user.email 'research@splunk.com'
-          git checkout -b auto-ta-update
+          git checkout -b auto-ta-update-${{ github.run_number }}
           git add .
           git commit -m "Automated Splunk TA Update"
-          git push https://${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:auto-ta-update
+          git push https://${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:auto-ta-update-${{ github.run_number }}
 
       - name: Create Pull Request
         if: env.changes_detected == 'true'
@@ -64,7 +64,8 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
           commit-message: "Automated Splunk TA Update"
-          branch: auto-ta-update
+          branch: auto-ta-update-${{ github.run_number }}
+          base: develop
           title: "Automated Splunk TA Update"
           body: "This PR contains updates to Splunk TAs made by the GitHub Actions workflow."
           labels: automated-pr

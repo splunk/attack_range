@@ -72,7 +72,7 @@ resource "azurerm_virtual_machine" "linux" {
   provisioner "local-exec" {
     working_dir = "../ansible"
     command = <<-EOT
-      cat <<EOF > vars/linux_vars.json
+      cat <<EOF > vars/linux_vars_${count.index}.json
       {
         "ansible_python_interpreter": "/usr/bin/python3",
         "general": ${jsonencode(var.general)},
@@ -86,7 +86,7 @@ resource "azurerm_virtual_machine" "linux" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.azure.private_key_path}' -i '${azurerm_public_ip.linux-publicip[count.index].ip_address},' linux_server.yml -e @vars/linux_vars.json"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.azure.private_key_path}' -i '${azurerm_public_ip.linux-publicip[count.index].ip_address},' linux_server.yml -e @vars/linux_vars_${count.index}.json"
   }
 
 }

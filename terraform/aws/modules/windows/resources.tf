@@ -1,4 +1,3 @@
-
 data "aws_availability_zones" "available" {}
 
 data "aws_ami" "windows_ami" {
@@ -80,7 +79,7 @@ EOF
   provisioner "local-exec" {
     working_dir = "../ansible"
     command = <<-EOT
-      cat <<EOF > vars/windows_vars.json
+      cat <<EOF > vars/windows_vars_${count.index}.json
       {
         "ansible_user": "Administrator",
         "ansible_password": ${var.general.attack_range_password},
@@ -96,7 +95,7 @@ EOF
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ansible-playbook -i '${self.public_ip},' windows.yml -e @vars/windows_vars.json"
+    command = "ansible-playbook -i '${self.public_ip},' windows.yml -e @vars/windows_vars_${count.index}.json"
   }
 
 }
