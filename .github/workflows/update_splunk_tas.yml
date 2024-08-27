@@ -47,19 +47,21 @@ jobs:
 
       - name: Commit and push changes if any
         if: env.changes_detected == 'true'
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           git config user.name 'Splunk TA Updater [bot]'
           git config user.email 'research@splunk.com'
           git checkout -b auto-ta-update
           git add .
           git commit -m "Automated Splunk TA Update"
-          git push origin auto-ta-update
+          git push https://${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:auto-ta-update
 
       - name: Create Pull Request
         if: env.changes_detected == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
           commit-message: "Automated Splunk TA Update"
           branch: auto-ta-update
           title: "Automated Splunk TA Update"
