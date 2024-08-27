@@ -31,7 +31,7 @@ jobs:
         run: |
           pip3 install poetry
           poetry install
-          pip3 install GitPython
+          poetry add GitPython
 
       - name: Run Python Splunk TA checker
         env:
