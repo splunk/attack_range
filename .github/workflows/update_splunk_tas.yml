@@ -17,7 +17,7 @@ jobs:
           token: ${{ secrets.GH_PAT }}  # Add this line to use the PAT for checkout
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'  # or the version your script requires
 
@@ -43,8 +43,7 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          git add configs/attack_range_default.yml
-          if git diff --cached --exit-code configs/attack_range_default.yml; then
+          if git diff --exit-code configs/attack_range_default.yml; then
             echo "No changes detected in configs/attack_range_default.yml"
             echo "changes_detected=false" >> $GITHUB_ENV
           else
@@ -52,23 +51,13 @@ jobs:
             echo "changes_detected=true" >> $GITHUB_ENV
           fi
 
-      - name: Commit and push changes if any
-        if: env.changes_detected == 'true'
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-        run: |
-          git config user.name 'Splunk TA Updater [bot]'
-          git config user.email 'research@splunk.com'
-          git checkout -b auto-ta-update-${{ github.run_number }}
-          git commit -m "Automated Splunk TA Update"
-          git push origin auto-ta-update-${{ github.run_number }}
-
       - name: Create Pull Request
         if: env.changes_detected == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GH_PAT }}
+          commit-message: Updated TAs
           branch: auto-ta-update-${{ github.run_number }}
           base: develop
-          title: "Automated Splunk TA Update"
+          title: Automated Splunk TA Update ${{ github.run_number }}
           body: "This PR contains updates to Splunk TAs made by the GitHub Actions workflow."
