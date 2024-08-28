@@ -38,6 +38,8 @@ jobs:
           if_key_exists: fail 
 
       - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
 
       - name: Install Dependencies using Poetry
         run: |
