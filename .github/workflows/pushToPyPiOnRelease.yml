@@ -1,0 +1,35 @@
+name: pushToPyPiOnRelease
+on:
+  release:
+    types: [published]
+
+
+jobs:
+  pushToPypi:
+    runs-on: "ubuntu-22.04"
+    steps:
+
+      #Checkout the current branch
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      #Install the given version of Python we will test against
+      - name: Install Required Python Version
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          architecture: "x64"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Set up PyPi Token
+        run: |
+          poetry config pypi-token.pypi "${{ secrets.PYPI_API_KEY }}"
+      
+      - name: Publish to PyPi
+        run: poetry publish --build
