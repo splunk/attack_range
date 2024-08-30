@@ -1,7 +1,7 @@
 ---
 
-- include: install_sysmon_linux.yml
-- include: configure_inputs.yml
+- import_tasks: install_sysmon_linux.yml
+- import_tasks: configure_inputs.yml
 
 - name: Restart splunk uf
   become: true

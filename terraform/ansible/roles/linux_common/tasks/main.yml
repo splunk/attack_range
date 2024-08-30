@@ -1,6 +1,6 @@
 ---
-#- include: set-hostname.yml
-#- include: update_packages.yml
-- include: disable-dnssec.yml
-- include: disable-autoupgrade.yml
-- include: update_sshd_config.yml
+#- import_tasks: set-hostname.yml
+#- import_tasks: update_packages.yml
+- import_tasks: disable-dnssec.yml
+- import_tasks: disable-autoupgrade.yml
+- import_tasks: update_sshd_config.yml

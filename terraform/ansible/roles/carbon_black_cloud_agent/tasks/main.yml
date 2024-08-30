@@ -1,4 +1,4 @@
 ---
 
-- include: install.yml
+- import_tasks: install.yml
   when: general.carbon_black_cloud == "1"

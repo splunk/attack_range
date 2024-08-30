@@ -1,4 +1,4 @@
 ---
 
-- include: crowdstrike_install.yml
+- import_tasks: crowdstrike_install.yml
   when: general.crowdstrike_falcon == "1"
