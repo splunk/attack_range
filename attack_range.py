@@ -14,37 +14,6 @@ os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
 
 def init(args):
     config_path = args.config
-    print("""                   
-                              __
-                            .d$$b
-                          .' TO$;\\
-                         /  : TP._;
-                        / _.;  :Tb|
-                       /   /   ;j$j
-                   _.-"       d$$$$
-                 .' ..       d$$$$;
-                /  /P'      d$$$$P. |\\
-               /   "      .d$$$P' |\^"l
-             .'           `T$P^\"\"\"\"\"  :
-         ._.'      _.'                ;
-      `-.-".-'-' ._.       _.-"    .-"
-    `.-" _____  ._              .-"
-   -(.g$$$$$$$b.              .'
-     ""^^T$$$P^)            .(:
-       _/  -"  /.'         /:/;
-    ._.'-'`-'  ")/         /;/;
- `-.-"..--""   " /         /  ;
-.-" ..--""        -'          :
-..--""--.-"         (\      .-(\\
-  ..--""              `-\(\/;`
-    _.                      :
-                            ;`-
-                           :\\
-                           ;  bug
-
-By: Splunk Threat Research Team [STRT] - research@splunk.com
-
-    """)
 
     # parse config
     config = ConfigHandler.read_config(config_path)
