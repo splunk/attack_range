@@ -3,7 +3,7 @@
 data "aws_ami" "latest-centos" {
   count       = (var.phantom_server.phantom_server == "1") ? 1 : 0
   most_recent = true
-  owners      = ["309956199498"] 
+  owners      = ["309956199498"]
 
   filter {
     name   = "name"
@@ -23,16 +23,16 @@ data "aws_ami" "latest-centos" {
 
 # install Phantom on a bare CentOS 7 instance
 resource "aws_instance" "phantom-server" {
-  count                  = var.phantom_server.phantom_server == "1" ? 1 : 0
-  ami                    = data.aws_ami.latest-centos[0].id
-  instance_type          = "t3.xlarge"
-  key_name               = var.general.key_name
-  subnet_id              = var.ec2_subnet_id
-  vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip             = "10.0.1.13"
+  count                       = var.phantom_server.phantom_server == "1" ? 1 : 0
+  ami                         = data.aws_ami.latest-centos[0].id
+  instance_type               = "t3.xlarge"
+  key_name                    = var.general.key_name
+  subnet_id                   = var.ec2_subnet_id
+  vpc_security_group_ids      = [var.vpc_security_group_ids]
+  private_ip                  = var.phantom_server.phantom_server_ip
   associate_public_ip_address = true
   root_block_device {
-    volume_type           = "gp2"
+    volume_type           = "gp3"
     volume_size           = "30"
     delete_on_termination = "true"
   }
@@ -45,7 +45,7 @@ resource "aws_instance" "phantom-server" {
 
     connection {
       type        = "ssh"
-      user        = "ec2-user"
+      user        = "centos"
       host        = aws_instance.phantom-server[0].public_ip
       private_key = file(var.aws.private_key_path)
     }
@@ -53,7 +53,7 @@ resource "aws_instance" "phantom-server" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = <<-EOT
+    command     = <<-EOT
       cat <<EOF > vars/phantom_vars.json
       {
         "general": ${jsonencode(var.general)},
@@ -67,7 +67,7 @@ resource "aws_instance" "phantom-server" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key '${var.aws.private_key_path}' -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e @vars/phantom_vars.json"
+    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key '${var.aws.private_key_path}' -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e @vars/phantom_vars.json"
   }
 }
 

@@ -45,6 +45,14 @@ general:
   # All these fields are needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server.
   # See the chapter Carbon Black in the docs page Attack Range Features.
 
+  cortex_xdr_ubuntu_agent: ""
+  cortex_xdr_windows_agent: ""
+  # Specify the name of the Palo Alto Cortex XDR Agent.
+
+  cisco_amp_windows_agent: ""
+  cisco_amp_linux_agent: ""
+  # Specify the name of the Cisco AMP Agent.
+
   install_contentctl: "0"
   # Install splunk/contentctl on linux servers
 
@@ -201,6 +209,18 @@ windows_servers_default:
   # Install Bad Blood by setting this to 1 or 0.
   # More information in chapter Bad Blood under Attack Range Features.
 
+  install_cortex_xdr: "0"
+  # Install Cortex XDR agents by setting this to 1.
+
+  install_crowdstrike: "0"
+  # Install CrowdStrike Falcon by setting this to 1.
+
+  install_carbon_black: "0"
+  # Install Carbon Black Cloud by setting this to 1.
+
+  install_cisco_amp: "0"
+  # Install Cisco AMP by setting this to 1.
+
   aurora_agent: "0"
   # Install Aurora Agent
 
@@ -213,6 +233,33 @@ linux_servers_default:
 
   sysmon_config: "SysMonLinux-CatchAll.xml"
 # Specify a Sysmon config located under configs/ .
+
+  install_red_team_tools: "0"
+  # Install different read team tools by setting this to 1.
+
+  install_cortex_xdr: "0"
+  # Install Cortex XDR agents by setting this to 1.
+
+  install_crowdstrike: "0"
+  # Install CrowdStrike Falcon by setting this to 1.
+
+  install_carbon_black: "0"
+  # Install Carbon Black Cloud by setting this to 1.
+
+  install_cisco_amp: "0"
+  # Install Cisco AMP by setting this to 1.
+
+  install_aurora_agent: "0"
+  # Install Aurora Agent
+
+  aurora_agent: "0"
+
+  install_awscli: "0"
+  # Install awscli by setting this to 1.
+
+  instance_profile_name: ""
+
+  tenable_key: ""
 
 kali_server:
   kali_server: "0"

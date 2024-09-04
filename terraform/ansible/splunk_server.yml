@@ -1,13 +1,14 @@
 - hosts: all
-  gather_facts: False
+  gather_facts: true
   become: true
-  vars:  
+  vars:
     hostname: splunk-server
     cloudtrail: "0"
     azure_logging: "0"
     kali_server: "0"
   roles:
     - linux_common
+    - awscli
     - splunk_server
     - splunk_server_post
     - phantom_byo_splunk

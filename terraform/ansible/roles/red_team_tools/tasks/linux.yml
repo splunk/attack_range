@@ -1,0 +1,76 @@
+---
+- name: Install required system packages
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - git
+    state: latest
+    update_cache: true
+
+- name: Create /opt/tools directory
+  file:
+    path: /opt/tools
+    state: directory
+    mode: 0755
+
+- name: Git clone SharpHound
+  shell: git clone https://github.com/BloodHoundAD/SharpHound3.git /opt/tools/SharpHound3
+
+- name: Git clone MailSniper
+  shell: git clone https://github.com/dafthack/MailSniper.git /opt/tools/MailSniper
+
+- name: Git clone juicy-potato
+  shell: git clone https://github.com/decoder-it/juicy-potato.git /opt/tools/juicy-potato
+
+- name: Git clone SharpChrome
+  shell: git clone https://github.com/djhohnstein/SharpChrome.git /opt/tools/SharpChrome
+
+- name: Git clone Egress-Assess
+  shell: git clone https://github.com/FortyNorthSecurity/Egress-Assess.git /opt/tools/Egress-Assess
+
+- name: Git clone SharpGPOAbuse
+  shell: git clone https://github.com/FSecureLABS/SharpGPOAbuse.git /opt/tools/SharpGPOAbuse
+
+- name: Git clone SharpGPOAbuse
+  shell: git clone https://github.com/gentilkiwi/mimikatz.git /opt/tools/mimikatz
+
+- name: Git clone Seatbelt
+  shell: git clone https://github.com/GhostPack/Seatbelt.git /opt/tools/Seatbelt
+
+- name: Git clone DAMP
+  shell: git clone https://github.com/HarmJ0y/DAMP.git /opt/tools/DAMP
+
+- name: Git clone UACME
+  shell: git clone https://github.com/hfiref0x/UACME.git /opt/tools/UACME
+
+- name: Git clone SpoolSample
+  shell: git clone https://github.com/leechristensen/SpoolSample.git /opt/tools/SpoolSample
+
+- name: Git clone PowerUpSQL
+  shell: git clone https://github.com/NetSPI/PowerUpSQL.git /opt/tools/PowerUpSQL
+
+- name: Git clone PowerShdll
+  shell: git clone https://github.com/p3nt4/PowerShdll.git /opt/tools/PowerShdll
+
+- name: Git clone PowerSploit
+  shell: git clone https://github.com/PowerShellMafia/PowerSploit.git /opt/tools/PowerSploit
+
+- name: Git clone MiscTools
+  shell: git clone https://github.com/rasta-mouse/MiscTools.git /opt/tools/MiscTools
+
+- name: Git clone Sherlock
+  shell: git clone https://github.com/rasta-mouse/Sherlock.git /opt/tools/Sherlock
+
+- name: Git clone Watson
+  shell: git clone https://github.com/rasta-mouse/Watson.git /opt/tools/Watson
+
+- name: Git clone SharpView
+  shell: git clone https://github.com/tevora-threat/SharpView.git /opt/tools/SharpView
+
+- name: Git clone donut
+  shell: git clone https://github.com/TheWover/donut.git /opt/tools/donut
+
+
+

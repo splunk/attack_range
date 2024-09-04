@@ -1,7 +1,7 @@
 
 
 data "aws_ami" "snort_server" {
-  count       = (var.snort_server.snort_server == "1")  ? 1 : 0
+  count       = (var.snort_server.snort_server == "1") ? 1 : 0
   most_recent = true
   owners      = ["099720109477"] # Canonical
 
@@ -17,14 +17,20 @@ data "aws_ami" "snort_server" {
 }
 
 resource "aws_instance" "snort_sensor" {
-  count       = var.snort_server.snort_server == "1" ? 1 : 0
-  ami           = data.aws_ami.snort_server[0].id
-  instance_type = "m5.2xlarge"
-  key_name      = var.general.key_name
-  subnet_id = var.ec2_subnet_id
-  vpc_security_group_ids = [var.vpc_security_group_ids]
-  private_ip = "10.0.1.60"
+  count                       = var.snort_server.snort_server == "1" ? 1 : 0
+  ami                         = data.aws_ami.snort_server[0].id
+  instance_type               = "m5.2xlarge"
+  key_name                    = var.general.key_name
+  subnet_id                   = var.ec2_subnet_id
+  vpc_security_group_ids      = [var.vpc_security_group_ids]
+  private_ip                  = var.snort_server.snort_server_ip
   associate_public_ip_address = true
+
+  root_block_device {
+    volume_type           = "gp3"
+    volume_size           = "120"
+    delete_on_termination = "true"
+  }
 
   tags = {
     Name = "ar-snort-${var.general.key_name}-${var.general.attack_range_name}"
@@ -43,7 +49,7 @@ resource "aws_instance" "snort_sensor" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = <<-EOT
+    command     = <<-EOT
       cat <<EOF > vars/snort_vars.json
       {
         "ansible_python_interpreter": "/usr/bin/python3",
@@ -57,46 +63,46 @@ resource "aws_instance" "snort_sensor" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' snort_server.yml -e @vars/snort_vars.json"
+    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' snort_server.yml -e @vars/snort_vars.json"
   }
 }
 
 resource "aws_eip" "snort_ip" {
-  count       = (var.snort_server.snort_server == "1") && (var.aws.use_elastic_ips == "1") ? 1 : 0
-  instance    = aws_instance.snort_sensor[0].id
+  count    = (var.snort_server.snort_server == "1") && (var.aws.use_elastic_ips == "1") ? 1 : 0
+  instance = aws_instance.snort_sensor[0].id
 }
 
 resource "aws_ec2_traffic_mirror_target" "snort_target" {
-  count = var.snort_server.snort_server == "1" ? 1 : 0
+  count                = var.snort_server.snort_server == "1" ? 1 : 0
   description          = "VPC Tap for Snort"
   network_interface_id = aws_instance.snort_sensor[0].primary_network_interface_id
 }
 
 resource "aws_ec2_traffic_mirror_filter" "snort_filter" {
-  count = var.snort_server.snort_server == "1" ? 1 : 0
+  count       = var.snort_server.snort_server == "1" ? 1 : 0
   description = "Snort Mirror Filter - Allow All"
 }
 
 resource "aws_ec2_traffic_mirror_filter_rule" "snort_outbound" {
-  count = var.snort_server.snort_server == "1" ? 1 : 0
-  description = "Snort Outbound Rule"
+  count                    = var.snort_server.snort_server == "1" ? 1 : 0
+  description              = "Snort Outbound Rule"
   traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.snort_filter[0].id
-  destination_cidr_block = "0.0.0.0/0"
-  source_cidr_block = "0.0.0.0/0"
-  rule_number = 1
-  rule_action = "accept"
-  traffic_direction = "egress"
+  destination_cidr_block   = "0.0.0.0/0"
+  source_cidr_block        = "0.0.0.0/0"
+  rule_number              = 1
+  rule_action              = "accept"
+  traffic_direction        = "egress"
 }
 
 resource "aws_ec2_traffic_mirror_filter_rule" "snort_inbound" {
-  count = var.snort_server.snort_server == "1" ? 1 : 0
-  description = "Snort Inbound Rule"
+  count                    = var.snort_server.snort_server == "1" ? 1 : 0
+  description              = "Snort Inbound Rule"
   traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.snort_filter[0].id
-  destination_cidr_block = "0.0.0.0/0"
-  source_cidr_block = "0.0.0.0/0"
-  rule_number = 1
-  rule_action = "accept"
-  traffic_direction = "ingress"
+  destination_cidr_block   = "0.0.0.0/0"
+  source_cidr_block        = "0.0.0.0/0"
+  rule_number              = 1
+  rule_action              = "accept"
+  traffic_direction        = "ingress"
 }
 
 resource "aws_ec2_traffic_mirror_session" "snort_windows_session" {
@@ -106,7 +112,7 @@ resource "aws_ec2_traffic_mirror_session" "snort_windows_session" {
   traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.snort_filter[0].id
   traffic_mirror_target_id = aws_ec2_traffic_mirror_target.snort_target[0].id
   network_interface_id     = var.windows_server_instances[count.index].primary_network_interface_id
-  session_number           = 100
+  session_number           = 101
 }
 
 resource "aws_ec2_traffic_mirror_session" "snort_linux_session" {
@@ -116,5 +122,5 @@ resource "aws_ec2_traffic_mirror_session" "snort_linux_session" {
   traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.snort_filter[0].id
   traffic_mirror_target_id = aws_ec2_traffic_mirror_target.snort_target[0].id
   network_interface_id     = var.linux_server_instances[count.index].primary_network_interface_id
-  session_number           = 100
+  session_number           = 101
 }

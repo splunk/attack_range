@@ -1,0 +1,15 @@
+---
+- name: Copy Nessus Agent package
+  copy:
+    src: "../../apps/{{ general.nessus_ubuntu_agent }}"
+    dest: "/tmp/{{ general.nessus_ubuntu_agent }}"
+
+- name: Install Nessus Agent
+  apt:
+    deb: "/tmp/{{ general.nessus_ubuntu_agent }}"
+    state: present
+    force: yes
+
+- name: Link the Nessus Agent
+  shell: |
+    /opt/nessus_agent/sbin/nessuscli agent link --key="{{ general.nessus_agent_key }}" --groups="Linux" --cloud

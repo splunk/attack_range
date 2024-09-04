@@ -1,0 +1,31 @@
+---
+- name: Copy Cortex XDR agent
+  copy:
+    src: "../../apps/{{ general.cortex_xdr_ubuntu_agent }}"
+    dest: "/tmp/{{ general.cortex_xdr_ubuntu_agent }}"
+
+- name: Install Cortex XDR agent
+  become: true
+  block:
+    - name: Create directory for Cortex XDR
+      file:
+        path: /etc/panw
+        state: directory
+        mode: 0755
+
+    - name: Copy configuration file
+      copy:
+        src: "../../apps/cortex.conf"
+        dest: /etc/panw/cortex.conf
+        mode: 0644
+
+    - name: Install Cortex XDR agent
+      apt:
+        deb: "/tmp/{{ general.cortex_xdr_ubuntu_agent }}"
+        state: present
+        force: yes
+
+- name: Clean up
+  file:
+    path: "/tmp"
+    state: absent

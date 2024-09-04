@@ -12,13 +12,13 @@
   copy:
     src: osquery_install.sh
     dest: /tmp/osquery_install.sh 
-    mode: '0755'
+    mode: "0755"
 
 - name: check if osquery service exist
   stat: path=/etc/init.d/osqueryd
   register: service_status 
 
-- name: is osquery service exist? if yes stop it!
+- name: does osquery service exist? if yes stop it!
   become: true
   service: 
     name: osquery

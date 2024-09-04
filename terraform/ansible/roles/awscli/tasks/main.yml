@@ -1,0 +1,26 @@
+---
+
+- name: Install AWS CLI
+  apt:
+    pkg:
+      - awscli
+      - python3-botocore
+      - python3-boto3
+    state: present
+    update_cache: true
+
+- name: Create .aws directory
+  file:
+    path: "/home/{{ ansible_user }}/.aws"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0700
+
+- name: Configure AWS CLI
+  template:
+    src: config.j2
+    dest: "/home/{{ ansible_user }}/.aws/config"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0600

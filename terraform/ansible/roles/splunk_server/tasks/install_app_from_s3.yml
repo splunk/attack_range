@@ -1,9 +1,11 @@
 ---
-
 - name: download {{ item }} from S3 bucket
-  get_url:
-    url: '{{ splunk_server.s3_bucket_url }}/{{ item }}'
+  become: true
+  aws_s3:
+    bucket: "{{ splunk_server.s3_bucket_url }}"
+    object: "{{ splunk_server.s3_bucket_prefix }}/{{ item }}"
     dest: /tmp/{{ item }}
+    mode: get
 
 - name: Install {{ item }} via REST
   uri:
@@ -15,6 +17,6 @@
     body: "name=/tmp/{{ item }}&update=true&filename=true"
     headers:
       Content-Type: "application/x-www-form-urlencoded"
-    status_code: [ 200, 201 ]
+    status_code: [200, 201]
     timeout: 300
   notify: restart splunk

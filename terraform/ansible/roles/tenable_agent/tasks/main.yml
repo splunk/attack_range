@@ -1,0 +1,6 @@
+---
+- include_tasks: ubuntu.yml
+  when: ansible_os_family == "Debian" and general.nessus_agent == "1"
+
+- include_tasks: windows.yml
+  when: ansible_os_family == "Windows" and general.nessus_agent == "1"

@@ -1,7 +1,7 @@
 data "aws_availability_zones" "available" {}
 
 data "aws_ami" "windows_ami" {
-  count = length(var.windows_servers)
+  count       = length(var.windows_servers)
   most_recent = true
   owners      = ["801119661308"] # Canonical
 
@@ -9,7 +9,7 @@ data "aws_ami" "windows_ami" {
     name   = "name"
     values = [var.windows_servers[count.index].windows_ami]
   }
-  
+
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
@@ -18,13 +18,13 @@ data "aws_ami" "windows_ami" {
 
 
 resource "aws_instance" "windows_server" {
-  count = length(var.windows_servers)
-  ami = data.aws_ami.windows_ami[count.index].id
-  instance_type = (var.zeek_server.zeek_server == "1" || var.snort_server.snort_server == "1") ? "m5.2xlarge" : "t3.xlarge"
-  key_name = var.general.key_name
-  subnet_id = var.ec2_subnet_id
-  private_ip = "10.0.1.${14 + count.index}"
-  vpc_security_group_ids = [var.vpc_security_group_ids]
+  count                       = length(var.windows_servers)
+  ami                         = data.aws_ami.windows_ami[count.index].id
+  instance_type               = (var.zeek_server.zeek_server == "1" || var.snort_server.snort_server == "1") ? "m5.2xlarge" : "t3.xlarge"
+  key_name                    = var.general.key_name
+  subnet_id                   = var.ec2_subnet_id
+  private_ip                  = "${var.aws.network_prefix}.${var.aws.first_dynamic_ip + count.index}"
+  vpc_security_group_ids      = [var.vpc_security_group_ids]
   associate_public_ip_address = true
   tags = {
     Name = "ar-win-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
@@ -54,18 +54,19 @@ Resize-Partition -DriveLetter $drive_letter -Size $size.SizeMax
 EOF
 
   root_block_device {
+    volume_type           = "gp3"
+    volume_size           = "60"
     delete_on_termination = true
-    volume_size           = 50
   }
 
   provisioner "remote-exec" {
     inline = [
       "echo booted"
-      ]
+    ]
 
     connection {
-      type     = "winrm"
-      user     = "Administrator"
+      type = "winrm"
+      user = "Administrator"
       #password = "${rsadecrypt(aws_instance.windows_server[count.index].password_data, file(var.aws.private_key_path))}"
       password = var.general.attack_range_password
       host     = self.public_ip
@@ -78,13 +79,14 @@ EOF
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = <<-EOT
+    command     = <<-EOT
       cat <<EOF > vars/windows_vars_${count.index}.json
       {
         "ansible_user": "Administrator",
         "ansible_password": ${var.general.attack_range_password},
         "attack_range_password": ${var.general.attack_range_password},
         "general": ${jsonencode(var.general)},
+        "aws": ${jsonencode(var.aws)},
         "splunk_server": ${jsonencode(var.splunk_server)},
         "simulation": ${jsonencode(var.simulation)},
         "windows_servers": ${jsonencode(var.windows_servers[count.index])},
@@ -95,12 +97,12 @@ EOF
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ansible-playbook -i '${self.public_ip},' windows.yml -e @vars/windows_vars_${count.index}.json"
+    command     = "ansible-playbook -i '${self.public_ip},' windows.yml -e @vars/windows_vars_${count.index}.json"
   }
 
 }
 
 resource "aws_eip" "windows_ip" {
-  count = (var.aws.use_elastic_ips == "1") ? length(var.windows_servers) : 0
+  count    = (var.aws.use_elastic_ips == "1") ? length(var.windows_servers) : 0
   instance = aws_instance.windows_server[count.index].id
 }

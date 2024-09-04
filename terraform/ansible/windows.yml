@@ -22,3 +22,6 @@
     - windows_install_attack_simulation
     - crowdstrike_falcon_agent
     - carbon_black_cloud_agent
+    - cortex_xdr
+    - tenable_agent
+    - cisco_amp

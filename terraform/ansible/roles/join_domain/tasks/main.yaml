@@ -1,9 +1,9 @@
 
-- include: create.yml
+- include_tasks: create.yml
   when: windows_servers.join_domain == "1" and general.cloud_provider != "local"
 
-- include: create_local.yml
+- include_tasks: create_local.yml
   when: windows_servers.join_domain == "1" and general.cloud_provider == "local"
 
-- include: windows-disable-firewall.yml
+- include_tasks: windows-disable-firewall.yml
   when: windows_servers.join_domain == "1"

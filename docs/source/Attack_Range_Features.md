@@ -39,6 +39,46 @@ windows_servers:
 ````
 You need to update all the fields with your values.
 
+## Cisco Secure Endpoint
+
+can use the following attack_range.yml configuration:
+````yml
+general:
+  cisco_amp_ubuntu_agent: amp_ubuntu-20-04-amd64.deb
+  cisco_amp_windows_agent: amp.exe
+windows_servers:
+  - hostname: ar-win
+    image: windows-2019-v3-0-0
+    install_cisco_amp: "1"
+linux_servers:
+  - hostname: ar-linux-1
+    install_cisco_amp: '1'
+````
+
+## Palo Alto Cortex XDR Endpoint
+
+can use the following attack_range.yml configuration:
+````yml
+general:
+  cortex_xdr_windows_agent: cortex-xdr-win-8-4_x64.msi
+  cortex_xdr_ubuntu_agent:  cortex-8.4.1.125963.deb
+ windows_servers:
+  - hostname: ar-win
+    image: windows-2019-v3-0-0
+    install_cortex_xdr: "1"
+linux_servers:
+  - hostname: ar-linux-1
+    install_cortex_xdr: '1'
+````
+
+## Tenable Nessus agent
+Install a Tenable Nessus agent on Windows and Linux endpoints. The Windows agent is generic and downloaded directly from Tenable.
+can use the following attack_range.yml configuration:
+````yml
+general:
+  nessus_agent: "1"
+  nessus_ubuntu_agent: NessusAgent-10.7.2-ubuntu1604_amd64.deb
+````
 
 ## BadBlood
 [BadBlood by Secframe](https://github.com/davidprowe/BadBlood) fills a Microsoft Active Directory Domain with a structure and thousands of objects. The output of the tool is a domain similar to a domain in the real world. After BadBlood is ran on a domain, security analysts and engineers can practice using tools to gain an understanding and prescribe to securing Active Directory. BadBlood can be enabled by setting the parameter bad_blood to 1 as shown in the following example:
