@@ -1,0 +1,12 @@
+- hosts: all
+  gather_facts: True
+  become: True
+  vars:
+    hostname: ar-httpd
+  roles:
+    - linux_common
+    - linux_universal_forwarder
+    - linux_osquery
+    - linux_sysmon
+    - linux_install_auditd
+    - httpd_server_post

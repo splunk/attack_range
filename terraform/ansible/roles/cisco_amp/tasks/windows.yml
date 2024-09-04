@@ -1,0 +1,16 @@
+---
+- name: Copy Cisco AMP agent installer
+  win_copy:
+    src: "../../apps/{{ general.cisco_amp_windows_agent }}"
+    dest: "{{ ansible_env.TEMP }}\\{{ general.cisco_amp_windows_agent }}"
+
+- name: Install Cisco AMP
+  win_package:
+    path: "{{ ansible_env.TEMP }}\\{{ general.cisco_amp_windows_agent }}"
+    arguments: "/S"
+    state: present
+
+- name: Remove Cisco AMP installer
+  win_file:
+    path: "{{ ansible_env.TEMP }}\\{{ general.cisco_amp_windows_agent }}"
+    state: absent

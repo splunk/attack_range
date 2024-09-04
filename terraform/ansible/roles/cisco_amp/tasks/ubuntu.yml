@@ -1,0 +1,10 @@
+- name: Copy Cisco AMP Agent package
+  copy:
+    src: "../../apps/{{ general.cisco_amp_agent_ubuntu }}"
+    dest: "/tmp/{{ general.cisco_amp_agent_ubuntu }}"
+
+- name: Install Cisco AMP client
+  apt:
+    deb: "/tmp/{{ general.cisco_amp_agent_ubuntu }}"
+    state: present
+    force: true

@@ -1,0 +1,7 @@
+---
+
+- include_tasks: install.yml
+  when: prelude == "1" and cloud_provider!='local'
+
+- include_tasks: install_local.yml
+  when: prelude == "1" and cloud_provider=='local'

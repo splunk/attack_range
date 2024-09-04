@@ -1,6 +1,6 @@
 - hosts: all
-  gather_facts: False
-  become: true
+  gather_facts: True
+  become: True
   roles:
     - set_hostname_linux
     - linux_common
@@ -13,3 +13,6 @@
     - update_sysmon_config_linux
     - splunk_byo_linux
     - contentctl
+    - red_team_tools
+    - tenable_agent
+    - cortex_xdr

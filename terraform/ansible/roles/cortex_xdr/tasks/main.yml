@@ -1,0 +1,6 @@
+---
+- include_tasks: ubuntu.yml
+  when: ansible_os_family == "Debian" and linux_servers.install_cortex_xdr  == "1"
+
+- include_tasks: windows.yml
+  when: ansible_os_family == "Windows" and windows_servers.install_cortex_xdr == "1"

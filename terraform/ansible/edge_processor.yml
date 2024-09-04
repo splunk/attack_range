@@ -1,0 +1,8 @@
+- hosts: all
+  gather_facts: True
+  become: True
+  vars:
+    hostname: ar-edge
+  roles:
+    - linux_common
+    - edge_processor

@@ -1,0 +1,156 @@
+- name: Clone sqli-labs repository
+  become: true
+  git:
+    repo: https://github.com/gwuniversity/sqli-labs.git
+    dest: /var/www/html/sqli-labs
+    force: yes
+  when: httpd_server.install_sqli == "1"
+
+- name: Create db-creds.inc file
+  become: true
+  copy:
+    content: |
+      <?php
+        $dbuser ='root';
+        $dbpass ='password';
+        $dbname ="security";
+        $host = 'localhost';
+        $dbname1 = "challenges";
+      ?>
+    dest: /var/www/html/sqli-labs/sql-connections/db-creds.inc
+    mode: 0644
+  when: httpd_server.install_sqli == "1"
+
+- name: Clone Mutillidae repository
+  become: true
+  git:
+    repo: https://github.com/webpwnized/mutillidae.git
+    dest: /tmp/mutillidae
+    force: yes
+  when: httpd_server.install_mutillidae == "1"
+
+- name: Create /var/www/html/mutillidae directory
+  become: true
+  file:
+    path: /var/www/html/mutillidae
+    state: directory
+    mode: 0755
+  when: httpd_server.install_mutillidae == "1"
+
+- name: Copy application files
+  become: true
+  copy:
+    src: /tmp/mutillidae/src/
+    remote_src: yes
+    dest: /var/www/mutillidae/
+    mode: 0644
+    directory_mode: 0755
+  notify:
+    - restart apache
+  when: httpd_server.install_mutillidae == "1"
+
+- name: Copy Apache configuration files
+  become: true
+  copy:
+    src: /tmp/mutillidae/src/configuration/apache-configuration/
+    remote_src: yes
+    dest: /etc/apache2/
+    mode: 0644
+    directory_mode: 0755
+  notify:
+    - restart apache
+  when: httpd_server.install_mutillidae == "1"
+
+- name: Replace strings in Mutillidae Apache configuration
+  become: true
+  replace:
+    path: /etc/apache2/sites-available/mutillidae.conf
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+  loop:
+    - { regexp: "mutillidae-selfsigned.crt", replace: "attackrange.cert" }
+    - { regexp: "mutillidae-selfsigned.key", replace: "attackrange.key" }
+  notify:
+    - restart apache
+  when: httpd_server.install_mutillidae == "1"
+
+- name: Create database-config.inc file
+  become: true
+  copy:
+    content: |
+      <?php
+      define('DB_HOST', '127.0.0.1');
+      define('DB_USERNAME', 'root');
+      define('DB_PASSWORD', 'password');
+      define('DB_NAME', 'mutillidae');
+      define('DB_PORT', 3306);
+      ?>
+    dest: /var/www/mutillidae/includes/database-config.inc
+    mode: 0644
+  when: httpd_server.install_mutillidae == "1"
+
+- name: Enable Mutillidae site
+  become: true
+  command: a2ensite mutillidae
+  notify:
+    - restart apache
+  when: httpd_server.install_mutillidae == "1"
+
+- name: Clone DVWA repository
+  become: true
+  git:
+    repo: https://github.com/digininja/DVWA.git
+    dest: /var/www/html/DVWA
+    force: yes
+  when: httpd_server.install_dvwa == "1"
+
+- name: Copy DVWA configuration file
+  become: true
+  copy:
+    src: /var/www/html/DVWA/config/config.inc.php.dist
+    dest: /var/www/html/DVWA/config/config.inc.php
+    remote_src: yes
+    mode: 0644
+  when: httpd_server.install_dvwa == "1"
+
+- name: Set ownership and permissions for DVWA config file
+  become: true
+  file:
+    path: /var/www/html/DVWA/config/config.inc.php
+    owner: www-data
+    group: www-data
+    mode: 0644
+  when: httpd_server.install_dvwa == "1"
+
+- name: Set ownership and permissions for DVWA directory
+  become: true
+  file:
+    path: /var/www/html/DVWA
+    owner: www-data
+    group: www-data
+    mode: 0755
+    recurse: yes
+  when: httpd_server.install_dvwa == "1"
+
+- name: Get PHP version
+  command: php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;'
+  register: php_version
+  when: httpd_server.install_dvwa == "1"
+
+- name: Configure PHP settings
+  become: true
+  lineinfile:
+    path: "/etc/php/{{ php_version.stdout }}/fpm/php.ini"
+    regexp: "^{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: "^allow_url_include =", line: "allow_url_include = on" }
+    - { regexp: "^allow_url_fopen =", line: "allow_url_fopen = on" }
+    - { regexp: "^display_errors =", line: "display_errors = on" }
+    - {
+        regexp: "^display_startup_errors =",
+        line: "display_startup_errors = on",
+      }
+  notify:
+    - restart php-fpm
+  when: httpd_server.install_dvwa == "1"

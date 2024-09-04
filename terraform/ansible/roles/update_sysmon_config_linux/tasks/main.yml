@@ -1,4 +1,4 @@
 ---
 
-- include: update_sysmon_config.yml
+- include_tasks: update_sysmon_config.yml
   when: linux_servers.sysmon_config != "SysMonLinux-CatchAll.xml"

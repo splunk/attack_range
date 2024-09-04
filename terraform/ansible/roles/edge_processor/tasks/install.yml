@@ -1,0 +1,29 @@
+- name: Download Splunk Edge installation package
+  get_url:
+    url: "{{ edge_processor.splunk_edge_url }}"
+    dest: "/tmp/splunk-edge.tar.gz"
+    mode: 0644
+
+- name: Extract installation package
+  shell:
+    cmd: |
+      sudo mkdir /opt/splunk-edge
+      sudo tar -xzf /tmp/splunk-edge.tar.gz -C /opt/
+
+- name: Copy config.yaml file
+  template:
+    src: config.j2
+    dest: /opt/splunk-edge/etc/config.yaml
+
+- name: Create token file
+  become: true
+  copy:
+    content: "{{ edge_processor.splunk_edge_token }}"
+    dest: /opt/splunk-edge/var/token
+    mode: 0644
+
+- name: Install the Edge Proccessor
+  shell:
+    cmd: |
+      sudo mkdir /opt/splunk-edge/var/log
+      nohup ./splunk-edge/bin/splunk-edge run >> ./splunk-edge/var/log/install-splunk-edge.out 2>&1 </dev/null &

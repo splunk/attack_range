@@ -1,4 +1,4 @@
 ---
 
-- include: config.yml
+- include_tasks: config.yml
   when: general.carbon_black_cloud == "1"
