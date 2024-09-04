@@ -1,4 +1,5 @@
 ---
+
 - name: Change dns server to domain controller
   win_dns_client:
     adapter_names: "{{ ansible_interfaces.0.connection_name }}"

@@ -1,6 +1,3 @@
 - name: restart splunk
-  command: /opt/splunk/bin/splunk restart
+  service: name=splunk state=restarted
   become: yes
-  register: splunk_restart
-  failed_when: splunk_restart.rc != 0
-  changed_when: splunk_restart.rc == 0
