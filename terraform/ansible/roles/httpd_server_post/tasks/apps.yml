@@ -52,11 +52,13 @@
 - name: Copy Apache configuration files
   become: true
   copy:
-    src: /tmp/mutillidae/src/configuration/apache-configuration/
-    remote_src: yes
+    src: apache/
     dest: /etc/apache2/
     mode: 0644
     directory_mode: 0755
+    owner: root
+    group: root
+    force: yes
   notify:
     - restart apache
   when: httpd_server.install_mutillidae == "1"
