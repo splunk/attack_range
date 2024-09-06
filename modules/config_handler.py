@@ -29,7 +29,10 @@ class ConfigHandler:
             "simulation",
             "zeek_server",
             "snort_server",
-        ]
+            'httpd_server',
+            'edge_processor',
+            'waf'
+            ]
 
         for parent_key in parent_keys:
             if parent_key in yml_dict:
@@ -121,6 +124,20 @@ class ConfigHandler:
             and config["general"]["cloud_provider"] == "azure"
         ):
             print("ERROR: Snort Server not supported in Azure.")
+            sys.exit(1)
+
+        if (
+            config["edge_processor"]["edge_processor"] == "1"
+            and config["general"]["cloud_provider"] == "azure"
+        ):
+            print("ERROR: Splunk Edge Processor not supported in Azure.")
+            sys.exit(1)
+
+        if (
+            config["httpd_server"]["httpd_server"] == "1"
+            and config["general"]["cloud_provider"] == "azure"
+        ):
+            print("ERROR: Apache HTTPD server not supported in Azure.")
             sys.exit(1)
 
         if (

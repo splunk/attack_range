@@ -1,0 +1,23 @@
+<IfModule mod_ssl.c>
+  <VirtualHost _default_:443>
+    ServerAdmin admin@attackrange.local
+    ServerName server_domain_or_IP
+
+    DocumentRoot /var/www/html
+
+    ErrorLog /var/log/apache2/error.log
+    CustomLog /var/log/apache2/access.log combined
+
+    SSLEngine on
+
+    SSLCertificateFile      /etc/ssl/certs/attackrange.cert
+    SSLCertificateKeyFile   /etc/ssl/private/attackrange.key
+
+    <FilesMatch "\.(cgi|shtml|phtml|php)$">
+        SSLOptions +StdEnvVars
+    </FilesMatch>
+    <Directory /usr/lib/cgi-bin>
+        SSLOptions +StdEnvVars
+    </Directory>
+  </VirtualHost>
+</IfModule>

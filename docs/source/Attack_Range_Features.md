@@ -16,7 +16,7 @@ general:
   crowdstrike_logs_sqs_url: ""
 windows_servers:
   - hostname: ar-win 
-    image: windows-2016-v3-0-0
+    image: windows-2019-v3-0-0
 ````
 You need to update all the fields with your values.
 
@@ -35,7 +35,8 @@ general:
   carbon_black_cloud_s3_bucket: ""
 windows_servers:
   - hostname: ar-win 
-    image: windows-2016-v3-0-0
+    image: windows-2019-v3-0-0
+    carbon_black_cloud: "1"
 ````
 You need to update all the fields with your values.
 
@@ -89,7 +90,7 @@ general:
   key_name: "ar"
 windows_servers:
   - hostname: ar-win 
-    image: windows-2016-v3-0-0
+    image: windows-2019-v3-0-0
     create_domain: "1"
     bad_blood: "1"
 ````

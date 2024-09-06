@@ -25,6 +25,7 @@ resource "aws_instance" "windows_server" {
   subnet_id                   = var.ec2_subnet_id
   private_ip                  = "${var.aws.network_prefix}.${var.aws.first_dynamic_ip + count.index}"
   vpc_security_group_ids      = [var.vpc_security_group_ids]
+  iam_instance_profile        = var.instance_profile_name
   associate_public_ip_address = true
   tags = {
     Name = "ar-win-${var.general.key_name}-${var.general.attack_range_name}-${count.index}"
@@ -54,9 +55,8 @@ Resize-Partition -DriveLetter $drive_letter -Size $size.SizeMax
 EOF
 
   root_block_device {
-    volume_type           = "gp3"
-    volume_size           = "60"
-    delete_on_termination = true
+    volume_type = "gp3"
+    volume_size = "60"
   }
 
   provisioner "remote-exec" {

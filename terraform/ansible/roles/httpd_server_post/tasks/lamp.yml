@@ -1,0 +1,48 @@
+- name: Install Apache, MySQL, PHP, and related packages
+  apt:
+    name:
+      - mariadb-server
+      - php
+      - mariadb-client
+      - libapache2-mod-php
+      - php-mysql
+      - php-curl
+      - php-xml
+      - php-gd
+      - php-fpm
+    state: present
+    update_cache: yes
+
+- name: Get PHP version
+  command: php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;'
+  register: php_version
+
+- name: Start and enable MySQL service
+  systemd:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: Create phpinfo.php file
+  become: true
+  copy:
+    content: "<?php phpinfo(); ?>"
+    dest: /var/www/html/phpinfo.php
+    mode: 0644
+  notify:
+    - restart apache
+
+- name: Enable Apache modules
+  become: true
+  command: "a2enmod {{ item }}"
+  loop:
+    - proxy_fcgi
+    - setenvif
+  notify:
+    - restart apache
+
+- name: Enable PHP-FPM configuration
+  become: true
+  command: "a2enconf php{{ php_version.stdout }}-fpm"
+  notify:
+    - restart apache

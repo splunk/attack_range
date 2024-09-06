@@ -1,0 +1,44 @@
+---
+- name: Install required system packages
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - apache2
+      - git
+    state: latest
+    update_cache: true
+
+- name: Install ModSecurity
+  apt:
+    pkg:
+      - libapache2-mod-security2
+      - git
+    state: latest
+    update_cache: true
+
+- name: Install PHP
+  apt:
+    pkg:
+      - php
+    state: latest
+    update_cache: true
+
+- name: Enable ModSecurity
+  shell:
+    cmd: sudo a2enmod security2
+
+- name: Copy recommended conf
+  shell:
+    cmd: sudo cp /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf
+
+- name: Clone OWASP git repository
+  shell:
+    cmd: git clone https://github.com/coreruleset/coreruleset.git
+
+- name: Enable Core ruleset
+  shell:
+    cmd: sudo mv coreruleset/rules/ /etc/modsecurity/
+  notify:
+    - restart apache

@@ -6,13 +6,13 @@ data "aws_ami" "zeek_server" {
   owners      = ["099720109477"] # Canonical
 
   filter {
-      name   = "name"
-      values = ["*ubuntu-focal-20.04-amd64-server-*"]
+    name   = "name"
+    values = ["*ubuntu-focal-20.04-amd64-server-*"]
   }
 
   filter {
-      name   = "virtualization-type"
-      values = ["hvm"]
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }
 

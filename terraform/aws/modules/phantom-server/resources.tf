@@ -30,6 +30,7 @@ resource "aws_instance" "phantom-server" {
   subnet_id                   = var.ec2_subnet_id
   vpc_security_group_ids      = [var.vpc_security_group_ids]
   private_ip                  = var.phantom_server.phantom_server_ip
+  iam_instance_profile        = var.phantom_server.instance_profile_name
   associate_public_ip_address = true
   root_block_device {
     volume_type           = "gp3"

@@ -1,0 +1,58 @@
+- name: Install required system packages
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - apache2
+      - git
+    state: latest
+    update_cache: true
+
+- name: Enable mod_ssl module
+  apache2_module:
+    state: present
+    name: ssl
+
+- name: Create attackrange.conf file
+  become: true
+  template:
+    src: attackrange.j2
+    dest: /etc/apache2/sites-available/attackrange.conf
+    mode: 0644
+  notify:
+    - restart apache
+
+- name: Create SSL directory structure
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+  loop:
+    - /etc/ssl/certs
+    - /etc/ssl/private
+
+- name: Download SSL certificate
+  copy:
+    src: "../../aws/s3/www/attackrange.cert"
+    dest: /etc/ssl/certs/attackrange.cert
+    mode: 0644
+
+- name: Download SSL key
+  copy:
+    src: "../../aws/s3/www/attackrange.key"
+    dest: /etc/ssl/private/attackrange.key
+    mode: 0600
+
+- name: Enable attackrange.conf site
+  become: true
+  command: a2ensite attackrange.conf
+  notify:
+    - restart apache
+
+- include_tasks: modsec.yml
+  when: httpd_server.install_modsec == "1"
+- include_tasks: lamp.yml
+  when: httpd_server.install_lamp == "1"
+- include_tasks: apps.yml
+  when: httpd_server.install_dvwa == "1" or httpd_server.install_mutillidae == "1" or httpd_server.install_sqli == "1"

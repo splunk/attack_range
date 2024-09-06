@@ -4,23 +4,23 @@
   become: true
   apt:
     name: software-properties-common
-    state: present    
+    state: present
     update_cache: true
 
 - name: drop the osquery_install.sh script /tmp
   become: true
   copy:
     src: osquery_install.sh
-    dest: /tmp/osquery_install.sh 
+    dest: /tmp/osquery_install.sh
     mode: "0755"
 
 - name: check if osquery service exist
   stat: path=/etc/init.d/osqueryd
-  register: service_status 
+  register: service_status
 
 - name: does osquery service exist? if yes stop it!
   become: true
-  service: 
+  service:
     name: osquery
     state: stopped
   when: service_status.stat.exists
@@ -37,13 +37,13 @@
   become: true
   copy:
     src: template.osquery.conf
-    dest: /etc/osquery/osquery.conf 
+    dest: /etc/osquery/osquery.conf
 
 - name: copy template.osquery.conf
   become: true
   copy:
     src: template.osquery.conf
-    dest: /var/osquery/osquery.conf 
+    dest: /var/osquery/osquery.conf
 
 - name: copy osquery.conf
   become: true
@@ -51,9 +51,9 @@
     src: ../../configs/osquery.conf
     dest: /opt/osquery/share/osquery/packs/attack-range.conf
 
-- name: copy custom osquery flags 
+- name: copy custom osquery flags
   become: true
-  copy: 
+  copy:
     src: custom_osquery.flags
     dest: /etc/osquery/osquery.flags
 

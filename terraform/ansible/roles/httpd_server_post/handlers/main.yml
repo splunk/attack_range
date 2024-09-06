@@ -1,0 +1,8 @@
+- name: restart apache
+  service:
+    name: apache2
+    state: restarted
+- name: restart php-fpm
+  service:
+    name: php{{ php_version.stdout }}-fpm
+    state: restarted

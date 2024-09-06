@@ -189,22 +189,26 @@ class AwsController(AttackRangeController):
         for instance in instances:
             if instance["State"]["Name"] == "running":
                 instances_running = True
+                try:
+                    public_ip = instance['NetworkInterfaces'][0]['Association'].get('PublicIp', None)
+                except Exception as e:
+                    public_ip = None
+                private_ip = instance['NetworkInterfaces'][0]['PrivateIpAddress']
+                ip_address = public_ip if public_ip else private_ip
                 response.append(
                     [
                         instance["Tags"][0]["Value"],
                         instance["State"]["Name"],
-                        instance["NetworkInterfaces"][0]["Association"]["PublicIp"],
+                        ip_address,
                         instance["InstanceId"],
                     ]
                 )
                 instance_name = instance["Tags"][0]["Value"]
                 if instance_name.startswith("ar-splunk"):
-                    splunk_ip = instance["NetworkInterfaces"][0]["Association"][
-                        "PublicIp"
-                    ]
+                    splunk_ip = ip_address
                     messages.append(
                         "\nAccess Guacamole via:\n\tWeb > http://"
-                        + instance["NetworkInterfaces"][0]["Association"]["PublicIp"]
+                        + ip_address
                         + ":8080/guacamole"
                         + "\n\tusername: Admin \n\tpassword: "
                         + self.config["general"]["attack_range_password"]
@@ -212,30 +216,22 @@ class AwsController(AttackRangeController):
                     if self.config["splunk_server"]["install_es"] == "1":
                         messages.append(
                             "\nAccess Splunk via:\n\tWeb > https://"
-                            + instance["NetworkInterfaces"][0]["Association"][
-                                "PublicIp"
-                            ]
+                            + ip_address
                             + ":8000\n\tSSH > ssh -i"
                             + self.config["aws"]["private_key_path"]
                             + " ubuntu@"
-                            + instance["NetworkInterfaces"][0]["Association"][
-                                "PublicIp"
-                            ]
+                            + ip_address
                             + "\n\tusername: admin \n\tpassword: "
                             + self.config["general"]["attack_range_password"]
                         )
                     else:
                         messages.append(
                             "\nAccess Splunk via:\n\tWeb > http://"
-                            + instance["NetworkInterfaces"][0]["Association"][
-                                "PublicIp"
-                            ]
+                            + ip_address
                             + ":8000\n\tSSH > ssh -i"
                             + self.config["aws"]["private_key_path"]
                             + " ubuntu@"
-                            + instance["NetworkInterfaces"][0]["Association"][
-                                "PublicIp"
-                            ]
+                            + ip_address
                             + "\n\tusername: admin \n\tpassword: "
                             + self.config["general"]["attack_range_password"]
                         )
@@ -246,39 +242,31 @@ class AwsController(AttackRangeController):
                     ):
                         messages.append(
                             "\nAccess Phantom via:\n\tWeb > https://"
-                            + instance["NetworkInterfaces"][0]["Association"][
-                                "PublicIp"
-                            ]
+                            + ip_address
                             + ":8443"
                             + "\n\tSSH > ssh -i"
                             + self.config["aws"]["private_key_path"]
                             + " centos@"
-                            + instance["NetworkInterfaces"][0]["Association"][
-                                "PublicIp"
-                            ]
+                            + ip_address
                             + "\n\tusername: soar_local_admin \n\tpassword: "
                             + self.config["general"]["attack_range_password"]
                         )
                     else:
                         messages.append(
                             "\nAccess Phantom via:\n\tWeb > https://"
-                            + instance["NetworkInterfaces"][0]["Association"][
-                                "PublicIp"
-                            ]
+                            + ip_address
                             + ":8443"
                             + "\n\tSSH > ssh -i"
                             + self.config["aws"]["private_key_path"]
                             + " centos@"
-                            + instance["NetworkInterfaces"][0]["Association"][
-                                "PublicIp"
-                            ]
+                            + ip_address
                             + "\n\tusername: admin \n\tpassword: "
                             + self.config["general"]["attack_range_password"]
                         )
                 elif instance_name.startswith("ar-win"):
                     messages.append(
                         "\nAccess Windows via:\n\tRDP > rdp://"
-                        + instance["NetworkInterfaces"][0]["Association"]["PublicIp"]
+                        + ip_address
                         + ":3389\n\tusername: Administrator \n\tpassword: "
                         + self.config["general"]["attack_range_password"]
                     )
@@ -287,7 +275,7 @@ class AwsController(AttackRangeController):
                         "\nAccess Linux via:\n\tSSH > ssh -i"
                         + self.config["aws"]["private_key_path"]
                         + " ubuntu@"
-                        + instance["NetworkInterfaces"][0]["Association"]["PublicIp"]
+                        + ip_address
                         + "\n\tusername: ubuntu \n\tpassword: "
                         + self.config["general"]["attack_range_password"]
                     )
@@ -296,7 +284,7 @@ class AwsController(AttackRangeController):
                         "\nAccess Kali via:\n\tSSH > ssh -i"
                         + self.config["aws"]["private_key_path"]
                         + " kali@"
-                        + instance["NetworkInterfaces"][0]["Association"]["PublicIp"]
+                        + ip_address
                         + "\n\tusername: kali \n\tpassword: "
                         + self.config["general"]["attack_range_password"]
                     )
@@ -305,7 +293,7 @@ class AwsController(AttackRangeController):
                         "\nAccess Nginx Web Proxy via:\n\tSSH > ssh -i"
                         + self.config["aws"]["private_key_path"]
                         + " ubuntu@"
-                        + instance["NetworkInterfaces"][0]["Association"]["PublicIp"]
+                        + ip_address
                         + "\n\tusername: kali \n\tpassword: "
                         + self.config["general"]["attack_range_password"]
                     )
@@ -314,7 +302,7 @@ class AwsController(AttackRangeController):
                         "\nAccess Zeek via:\n\tSSH > ssh -i"
                         + self.config["aws"]["private_key_path"]
                         + " ubuntu@"
-                        + instance["NetworkInterfaces"][0]["Association"]["PublicIp"]
+                        + ip_address
                         + "\n\tusername: ubuntu \n\tpassword: "
                         + self.config["general"]["attack_range_password"]
                     )
@@ -323,7 +311,7 @@ class AwsController(AttackRangeController):
                         "\nAccess Snort via:\n\tSSH > ssh -i"
                         + self.config["aws"]["private_key_path"]
                         + " ubuntu@"
-                        + instance["NetworkInterfaces"][0]["Association"]["PublicIp"]
+                        + ip_address
                         + "\n\tusername: ubuntu \n\tpassword: "
                         + self.config["general"]["attack_range_password"]
                     )

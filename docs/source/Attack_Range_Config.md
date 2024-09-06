@@ -25,7 +25,7 @@ general:
   # ip_whitelist = 0.0.0.0/0,35.153.82.195/32
 
   crowdstrike_falcon: "0"
-  # Enable/Disable CrowdStrike Falcon by setting this to 1 or 0.
+# Enable/Disable Crowdstrike Falcon by setting this to 1 or 0.
 
   crowdstrike_agent_name: "WindowsSensor.exe"
   crowdstrike_customer_ID: ""
@@ -33,8 +33,8 @@ general:
   crowdstrike_logs_access_key_id: ""
   crowdstrike_logs_secret_access_key: ""
   crowdstrike_logs_sqs_url: ""
-  # All these fields are needed to automatically deploy a CrowdStrike Agent and ingest CrowdStrike Falcon logs into the Splunk Server.
-  # See the chapter CrowdStrike Falcon in the docs page Attack Range Features.
+# All these fields are needed to automatically deploy a Crowdstrike Agent and ingest Crowdstrike Falcon logs into the Splunk Server.
+# See the chapter Crowdstrike Falcon in the docs page Attack Range Features.
 
   carbon_black_cloud: "0"
   # Enable/Disable VMWare Carbon Black Cloud by setting this to 1 or 0.
@@ -292,4 +292,14 @@ simulation:
 
   atomic_red_team_branch: master
   # Specify the branch for Atomic Red Team.
+
+  prelude: "0"
+# Install Prelude by setting this to 1.
+
+  prelude_operator_url: "https://download.prelude.org/latest?arch=x64&platform=linux&variant=zip&edition=headless"
+# Specify where to download Prelude Operator from.
+
+  prelude_account_email: "test@test.com"
+# Email account login into a Prelude Operator UI.
+# Required for connecting to redirector, can be found on the GUI under connect -> deploy manual redirector -> accountEmail.
 ````
