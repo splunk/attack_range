@@ -1,5 +1,5 @@
 [aws_s3://cb_events]
-aws_account = splunk_role_{{ general.attack_range_name }}_{{ general.key_name }}
+aws_account = splunk_role_{{ general.key_name }}_{{ general.attack_range_name }}
 bucket_name = {{ general.carbon_black_cloud_s3_bucket }}
 character_set = auto
 ct_blacklist = ^$

@@ -2,7 +2,7 @@
 
 - name: Copy carbon black cloud agent 
   win_copy:
-    src: "../../apps/{{ general.carbon_black_cloud_agent_name }}"
+    src: "../../apps/{{ windows_servers.carbon_black_windows_agent }}"
     dest: C:\Temp\WindowsSensor.msi
 
 - name: install carbon black cloud agent

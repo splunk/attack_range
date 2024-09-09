@@ -1,0 +1,4 @@
+---
+
+- include_tasks: install.yml
+  when: windows_servers.install_carbon_black == "1"

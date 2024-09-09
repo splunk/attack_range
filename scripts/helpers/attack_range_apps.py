@@ -47,6 +47,10 @@ ATTACK_RANGE_SPLUNKBASE_APPS = [
         "name": "Snort Alert for Splunk",
         "url": "https://splunkbase.splunk.com/app/5488",
     },
+    {
+        "name": "VMware Carbon Black Cloud",
+        "url": "https://splunkbase.splunk.com/app/5332",
+    },
 ]
 
 ATTACK_RANGE_LOCAL_APPS = [

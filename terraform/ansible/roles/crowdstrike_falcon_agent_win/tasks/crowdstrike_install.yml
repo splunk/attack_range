@@ -2,7 +2,7 @@
 
 - name: Copy crowdstrike falcon agent 
   win_copy:
-    src: "../../apps/{{ general.crowdstrike_agent_name }}"
+    src: "../../apps/{{ windows_servers.crowdstrike_windows_agent }}"
     dest: c:\temp\WindowsSensor.exe
 
 - name: install crowdstrike falcon agent 
