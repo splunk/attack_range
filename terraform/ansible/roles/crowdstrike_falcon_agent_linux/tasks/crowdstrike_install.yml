@@ -1,0 +1,21 @@
+---
+
+- name: Copy CrowdStrike Falcon agent
+  copy:
+    src: "../../apps/{{ linux_servers.crowdstrike_linux_agent }}"
+    dest: /tmp/crowdstrike_linux_agent.deb
+
+- name: Install CrowdStrike Falcon agent
+  apt:
+    deb: "/tmp/crowdstrike_linux_agent.deb"
+    state: present
+  become: yes
+
+- name: Set your CID on the sensor
+  shell: /opt/CrowdStrike/falconctl -s --cid={{ general.crowdstrike_customer_ID }}
+  become: yes
+
+- name: restart crowdstrike falcon agent
+  service:
+    name: falcon-sensor
+    state: restarted

@@ -20,5 +20,5 @@
     - splunk_byo_windows
     - windows_aurora_agent
     - windows_install_attack_simulation
-    - crowdstrike_falcon_agent
-    - carbon_black_cloud_agent
+    - crowdstrike_falcon_agent_win
+    - carbon_black_cloud_agent_win

@@ -13,3 +13,4 @@
     - update_sysmon_config_linux
     - splunk_byo_linux
     - contentctl
+    - crowdstrike_falcon_agent_linux

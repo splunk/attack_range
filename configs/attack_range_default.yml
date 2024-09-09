@@ -19,7 +19,6 @@ general:
   crowdstrike_falcon: "0"
   # Enable/Disable CrowdStrike Falcon by setting this to 1 or 0.
 
-  crowdstrike_agent_name: "WindowsSensor.exe"
   crowdstrike_customer_ID: ""
   crowdstrike_logs_region: ""
   crowdstrike_logs_access_key_id: ""
@@ -31,7 +30,6 @@ general:
   carbon_black_cloud: "0"
   # Enable/Disable VMWare Carbon Black Cloud by setting this to 1 or 0.
 
-  carbon_black_cloud_agent_name: "installer_vista_win7_win8-64-3.8.0.627.msi"
   carbon_black_cloud_company_code: ""
   carbon_black_cloud_s3_bucket: ""
   # All these fields are needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server.
@@ -142,6 +140,7 @@ splunk_server:
     - splunk_attack_range_reporting-1.0.9.tar.gz
     - status-indicator---custom-visualization_150.tgz
     - ta-for-zeek_108.tgz
+    - vmware-carbon-black-cloud_210.tgz
   # List of Splunk Apps to install on the Splunk Server
 
   byo_splunk: "0"
@@ -198,6 +197,18 @@ windows_servers_default:
   # Install Bad Blood by setting this to 1 or 0.
   # More information in chapter Bad Blood under Attack Range Features.
 
+  install_crowdstrike: "0"
+  # Install CrowdStrike Falcon by setting this to 1.
+
+  crowdstrike_windows_agent: "WindowsSensor.exe"
+  # Name of the CrowdStrike Windows Agent stored in apps/ folder.
+
+  install_carbon_black: "0"
+  # Install Carbon Black Cloud by setting this to 1.
+
+  carbon_black_windows_agent: "installer_vista_win7_win8-64-4.0.1.1428.msi"
+  # Name of the Carbon Black Windows Agent stored in apps/ folder.
+
   aurora_agent: "0"
   # Install Aurora Agent
 
@@ -210,6 +221,13 @@ linux_servers_default:
 
   sysmon_config: "SysMonLinux-CatchAll.xml"
 # Specify a Sysmon config located under configs/ .
+
+  install_crowdstrike: "0"
+  # Install CrowdStrike Falcon by setting this to 1.
+
+  crowdstrike_linux_agent: "falcon-sensor_7.18.0-17106_amd64.deb"
+  # Name of the CrowdStrike Windows Agent stored in apps/ folder.
+
 
 kali_server:
   kali_server: "0"
