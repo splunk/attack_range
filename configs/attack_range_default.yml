@@ -125,7 +125,7 @@ splunk_server:
     - splunk-add-on-for-microsoft-cloud-services_532.tgz
     - splunk-add-on-for-microsoft-office-365_451.tgz
     - splunk-add-on-for-microsoft-windows_890.tgz
-    - splunk-add-on-for-nginx_322.tgz
+    - splunk-add-on-for-nginx_330.tgz
     - splunk-add-on-for-okta-identity-cloud_221.tgz
     - splunk-add-on-for-sysmon-for-linux_100.tgz
     - splunk-add-on-for-sysmon_401.tgz
@@ -140,7 +140,7 @@ splunk_server:
     - splunk_attack_range_reporting-1.0.9.tar.gz
     - status-indicator---custom-visualization_150.tgz
     - ta-for-zeek_108.tgz
-    - vmware-carbon-black-cloud_210.tgz
+    - vmware-carbon-black-cloud_222.tgz
   # List of Splunk Apps to install on the Splunk Server
 
   byo_splunk: "0"
