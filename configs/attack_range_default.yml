@@ -122,8 +122,8 @@ splunk_server:
     - splunk-add-on-for-crowdstrike-fdr_200.tgz
     - splunk-add-on-for-github_300.tgz
     - splunk-add-on-for-google-workspace_281.tgz
-    - splunk-add-on-for-microsoft-cloud-services_532.tgz
-    - splunk-add-on-for-microsoft-office-365_451.tgz
+    - splunk-add-on-for-microsoft-cloud-services_540.tgz
+    - splunk-add-on-for-microsoft-office-365_452.tgz
     - splunk-add-on-for-microsoft-windows_890.tgz
     - splunk-add-on-for-nginx_330.tgz
     - splunk-add-on-for-okta-identity-cloud_221.tgz
@@ -132,7 +132,7 @@ splunk_server:
     - splunk-add-on-for-unix-and-linux_920.tgz
     - splunk-app-for-stream_813.tgz
     - splunk-common-information-model-(cim)_532.tgz
-    - splunk-es-content-update_4391.tgz
+    - splunk-es-content-update_4400.tgz
     - splunk-machine-learning-toolkit_542.tgz
     - splunk-sankey-diagram---custom-visualization_160.tgz
     - splunk-security-essentials_380.tgz
