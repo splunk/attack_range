@@ -1,5 +1,23 @@
 # Attack Range Features
 
+## Cisco Secure Endpoint
+A Cisco Secure Endpoint agent can be automatically installed on the Windows server in Attack Range. It is required that the agent is downloaded into the apps folder before running the build command. The logs can ingested automatically to the Splunk server when you enable the Cisco Secure Endpoint log forwarding. You can use the following attack_range.yml configuration:
+````yml
+general:
+  attack_range_password: "ChangeMe123!"
+  cloud_provider: "aws"
+  key_name: "ar"
+  cisco_secure_endpoint: "1" # forward cisco secure endpoint logs to splunk
+  cisco_secure_endpoint_api_id: ""
+  cisco_secure_endpoint_api_secret: ""
+windows_servers:
+  - hostname: ar-win 
+    install_cisco_secure_endpoint: "1"
+    cisco_secure_endpoint_windows_agent: "amp_Server.exe"
+````
+You need to update all the fields with your values.
+
+
 ## CrowdStrike Falcon
 A CrowdStrike Falcon agent can be automatically installed on the Windows Servers in Attack Range. It is required that the agent is downloaded into the apps folder before running the build command. The logs can ingested automatically to the Splunk server when you have the CrowdStrike Falcon Data Replicator (FDR) entitlement. You can use the following `attack_range.yml` configuration:
 ````yml
@@ -7,8 +25,7 @@ general:
   attack_range_password: "ChangeMe123!"
   cloud_provider: "aws"
   key_name: "ar"
-  crowdstrike_falcon: "1"
-  crowdstrike_agent_name: "WindowsSensor.exe"
+  crowdstrike_falcon: "1" # forward crowdstrike logs to splunk
   crowdstrike_customer_ID: ""
   crowdstrike_logs_region: ""
   crowdstrike_logs_access_key_id: ""
@@ -16,7 +33,8 @@ general:
   crowdstrike_logs_sqs_url: ""
 windows_servers:
   - hostname: ar-win 
-    image: windows-2016-v3-0-0
+    install_crowdstrike: "1"
+    crowdstrike_linux_agent: "falcon-sensor_7.18.0-17106_amd64.deb"
 ````
 You need to update all the fields with your values.
 
@@ -29,13 +47,13 @@ general:
   attack_range_password: "ChangeMe123!"
   cloud_provider: "aws"
   key_name: "ar"
-  carbon_black_cloud: "1"
-  carbon_black_cloud_agent_name: "installer_vista_win7_win8-64-3.8.0.627.msi"
+  carbon_black_cloud: "1" # forward carbon black logs to splunk
   carbon_black_cloud_company_code: ""
   carbon_black_cloud_s3_bucket: ""
 windows_servers:
   - hostname: ar-win 
-    image: windows-2016-v3-0-0
+    install_carbon_black: "1"
+    carbon_black_windows_agent: "installer_vista_win7_win8-64-4.0.1.1428.msi"
 ````
 You need to update all the fields with your values.
 

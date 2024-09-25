@@ -99,8 +99,8 @@ appid =
 {
     -- appid requires this to use appids in rules
     --app_detector_dir = 'directory to load appid detectors from'
-app_detector_dir = '/usr/local/lib',
-log_stats = true,
+    app_detector_dir = '/usr/local/lib',
+    log_stats = true,
 }
 
 --[[
@@ -185,12 +185,13 @@ classifications = default_classifications
 ips =
 {
     -- use this to enable decoder and inspector alerts
-enable_builtin_rules = true,
-include = RULE_PATH .. "/local.rules",
-include = RULE_PATH .. "/snort3-community-rules/snort3-community.rules",
+    enable_builtin_rules = true,
+
     -- use include for rules files; be sure to set your path
     -- note that rules files can include other rules files
     -- (see also related path vars at the top of snort_defaults.lua)
+    include = RULE_PATH .. "/local.rules",
+    include = RULE_PATH .. "/snort3-community-rules/snort3-community.rules",
 
     variables = default_variables
 }
@@ -253,10 +254,6 @@ rate_filter =
 -- you can enable with defaults from the command line with -A <alert_type>
 -- uncomment below to set non-default configs
 --alert_csv = { }
-alert_fast = {file = true,
-packet = false,
-limit = 10,
-}
 --alert_fast = { }
 --alert_full = { }
 --alert_sfsocket = { }
@@ -280,3 +277,93 @@ limit = 10,
 if ( tweaks ~= nil ) then
     include(tweaks .. '.lua')
 end
+
+---------------------------------------------------------------------------
+-- 9. custom configurations 
+---------------------------------------------------------------------------
+
+-- replace alert_fast with alert_json for logging
+--- alert_json will provide much more useful information
+alert_json =
+{
+    -- enables all informational fields
+    fields = 'action class b64_data client_bytes client_pkts dir dst_addr dst_ap dst_port ' ..
+            'eth_dst eth_len eth_src eth_type flowstart_time geneve_vni gid icmp_code icmp_id ' .. 
+            'icmp_seq icmp_type iface ip_id ip_len msg mpls pkt_gen pkt_len pkt_num priority ' .. 
+            'proto rev rule seconds server_bytes server_pkts service sgt sid src_addr src_ap ' .. 
+            'src_port target tcp_ack tcp_flags tcp_len tcp_seq tcp_win timestamp tos ttl udp_len vlan',
+
+    file = true,
+    limit = 10,
+}
+
+-- this detects ARP attacks and anomalies
+--- disabled by default in all of our base policies
+arp_spoof = nil
+
+detection =
+{
+    -- increases limits pcre backtracking
+    pcre_match_limit = 3500,
+    -- increases limits for pcre stack consumption
+    pcre_match_limit_recursion = 3500,
+}
+
+-- increases logs
+event_queue =
+{
+    log = 15,
+    max_queue = 15,
+}
+
+-- checks for end of encryption
+ftp_server.check_encrypted = true
+
+-- decompress pdf files in response bodies
+http_inspect.decompress_pdf = true
+-- decompress swf files in response bodies
+http_inspect.decompress_swf = true
+-- decompress zip files in response bodies
+http_inspect.decompress_zip = true
+-- normalizes %uNNNN and %UNNNN encodings
+http_inspect.percent_u = true
+-- normalize javascript in response bodies
+http_inspect.normalize_javascript = true
+
+-- decompress pdf files in MIME attachments
+imap.decompress_pdf = true
+-- decompress swf files in MIME attachments
+imap.decompress_swf = true
+-- decompress zip files in MIME attachments
+imap.decompress_zip = true
+
+-- disable latency enforcements
+latency = nil
+
+-- decompress pdf files in MIME attachments
+pop.decompress_pdf = true
+-- decompress swf files in MIME attachments
+pop.decompress_swf = true
+-- decompress zip files in MIME attachments
+pop.decompress_zip = true
+
+-- disable port scan module
+port_scan = nil
+
+-- enable detection on TCP payload before reassembly
+search_engine.detect_raw_tcp = true
+
+-- decompress pdf files in MIME attachments
+smtp.decompress_pdf = true
+-- decompress swf files in MIME attachments
+smtp.decompress_swf = true
+-- decompress zip files in MIME attachments
+smtp.decompress_zip = true
+
+-- enables builtin detection that will alert if fragment length is < 100 bytes
+stream_ip.min_frag_length = 100
+
+-- check for end of encryption
+telnet.check_encrypted = true
+-- eliminate escape sequences
+telnet.normalize = true

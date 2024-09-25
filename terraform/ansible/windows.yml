@@ -22,3 +22,4 @@
     - windows_install_attack_simulation
     - crowdstrike_falcon_agent_win
     - carbon_black_cloud_agent_win
+    - cisco_secure_endpoint_win

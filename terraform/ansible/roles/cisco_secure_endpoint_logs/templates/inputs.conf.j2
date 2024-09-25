@@ -1,0 +1,15 @@
+[amp4e_events_input]
+api_host = api.amp.cisco.com
+api_id = {{ general.cisco_secure_endpoint_api_id }}
+disabled = false
+eai_app_name = search
+eai_user_name = admin
+python_version = python3
+rcvbuf = 1572864
+start_by_shell = 0
+
+[amp4e_events_input://{{ stream_name }}]
+api_host = api.amp.cisco.com
+api_id = {{ general.cisco_secure_endpoint_api_id }}
+index = cisco_secure_endpoint
+stream_name = {{ stream_name }}
