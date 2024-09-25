@@ -25,9 +25,8 @@ general:
   # ip_whitelist = 0.0.0.0/0,35.153.82.195/32
 
   crowdstrike_falcon: "0"
-  # Enable/Disable CrowdStrike Falcon by setting this to 1 or 0.
+  # Enable/Disable CrowdStrike Falcon log forwarding to Splunk by setting this to 1 or 0.
 
-  crowdstrike_agent_name: "WindowsSensor.exe"
   crowdstrike_customer_ID: ""
   crowdstrike_logs_region: ""
   crowdstrike_logs_access_key_id: ""
@@ -37,13 +36,18 @@ general:
   # See the chapter CrowdStrike Falcon in the docs page Attack Range Features.
 
   carbon_black_cloud: "0"
-  # Enable/Disable VMWare Carbon Black Cloud by setting this to 1 or 0.
+  # Enable/Disable VMWare Carbon Black Cloud log forwarding to Splunkby setting this to 1 or 0.
 
-  carbon_black_cloud_agent_name: "installer_vista_win7_win8-64-3.8.0.627.msi"
   carbon_black_cloud_company_code: ""
   carbon_black_cloud_s3_bucket: ""
   # All these fields are needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server.
   # See the chapter Carbon Black in the docs page Attack Range Features.
+
+  cisco_secure_endpoint: "0"
+  # Enable/Disable Cisco Secure Endpoint log forwarding to Splunk by setting this to 1 or 0.
+  cisco_secure_endpoint_api_id: ""
+  cisco_secure_endpoint_api_secret: ""
+  # All these fields are needed to automatically ingest Cisco Secure Endpoint logs into the Splunk Server.
 
   install_contentctl: "0"
   # Install splunk/contentctl on linux servers
@@ -121,33 +125,39 @@ splunk_server:
   # Url to download Splunk Universal Forwarder Windows.
 
   splunk_apps:
-    - splunk-add-on-for-microsoft-windows_880.tgz
-    - splunk-timeline-custom-visualization_162.tgz
-    - status-indicator-custom-visualization_150.tgz
-    - splunk-sankey-diagram-custom-visualization_160.tgz
-    - punchcard-custom-visualization_150.tgz
-    - splunk_attack_range_reporting-1.0.9.tar.gz
-    - splunk-common-information-model-cim_532.tgz
-    - DA-ESS-ContentUpdate-latest.tar.gz
-    - python-for-scientific-computing-for-linux-64-bit_420.tgz
-    - splunk-machine-learning-toolkit_541.tgz
-    - splunk-security-essentials_380.tgz
-    - splunk-add-on-for-sysmon_400.tgz
-    - splunk-add-on-for-sysmon-for-linux_100.tgz
-    - splunk-add-on-for-amazon-web-services-aws_760.tgz
-    - splunk-add-on-for-microsoft-office-365_451.tgz
-    - splunk-add-on-for-amazon-kinesis-firehose_131r7d1d093.tgz
-    - splunk-add-on-for-unix-and-linux_910.tgz
-    - ta-for-zeek_108.tgz
-    - splunk-add-on-for-nginx_322.tgz
-    - phantom-app-for-splunk_4035.tgz
-    - TA-osquery.tar.gz
-    - splunk-add-on-for-microsoft-cloud-services_530.tgz
-    - splunk-add-on-for-crowdstrike-fdr_150.tgz
-    - vmware-carbon-black-cloud_115.tgz
-    - splunk-add-on-for-carbon-black_210.tgz
     - TA-aurora-0.2.0.tar.gz
+    - TA-osquery.tar.gz
+    - app-for-circleci_011.tgz
+    - cisco-secure-endpoint-formerly-amp-for-endpoints-cim-add-on_212.tgz
+    - cisco-secure-endpoint-formerly-amp-for-endpoints_300.tgz
+    - palo-alto-networks-add-on-for-splunk_813.tgz
+    - punchcard---custom-visualization_150.tgz
+    - python-for-scientific-computing-(for-linux-64-bit)_421.tgz
     - snort-alert-for-splunk_111.tgz
+    - snort-3-json-alerts_105.tgz
+    - splunk-add-on-for-amazon-web-services-(aws)_770.tgz
+    - splunk-add-on-for-crowdstrike-fdr_200.tgz
+    - splunk-add-on-for-github_300.tgz
+    - splunk-add-on-for-google-workspace_281.tgz
+    - splunk-add-on-for-microsoft-cloud-services_532.tgz
+    - splunk-add-on-for-microsoft-office-365_451.tgz
+    - splunk-add-on-for-microsoft-windows_890.tgz
+    - splunk-add-on-for-nginx_322.tgz
+    - splunk-add-on-for-okta-identity-cloud_221.tgz
+    - splunk-add-on-for-sysmon-for-linux_100.tgz
+    - splunk-add-on-for-sysmon_401.tgz
+    - splunk-add-on-for-unix-and-linux_920.tgz
+    - splunk-app-for-stream_813.tgz
+    - splunk-common-information-model-(cim)_532.tgz
+    - splunk-es-content-update_4391.tgz
+    - splunk-machine-learning-toolkit_542.tgz
+    - splunk-sankey-diagram---custom-visualization_160.tgz
+    - splunk-security-essentials_380.tgz
+    - splunk-timeline---custom-visualization_162.tgz
+    - splunk_attack_range_reporting-1.0.9.tar.gz
+    - status-indicator---custom-visualization_150.tgz
+    - ta-for-zeek_108.tgz
+    - vmware-carbon-black-cloud_210.tgz
   # List of Splunk Apps to install on the Splunk Server
 
   byo_splunk: "0"
@@ -166,8 +176,10 @@ phantom_server:
   phantom_server: "0"
   # Enable/Disable Phantom Server
 
-  phantom_app: "splunk_soar-unpriv-6.2.1.305-7c40b403-el7-x86_64.tgz"
-  # name of the Splunk SOAR package located in apps folder
+  phantom_app: "splunk_soar-unpriv-6.2.2.134-8f694086-el8-x86_64.tgz"
+  # name of the Splunk SOAR package located in apps folder. 
+  # aws: Make sure you use the RHEL 8 version which contains ....el8... in the file name
+  # azure, local: Make sure you use the RHEL 7 version which contains ....el7... in the file name
 
   phantom_byo: "0"
   # Enable/Disable Bring your own Phantom
@@ -184,6 +196,7 @@ windows_servers_default:
 
   windows_image: "windows-server-2019"
   # Name of the image of the Windows Server. 
+  # allowd values: windows-server-2016, windows-server-2019, windows-server-2022
 
   create_domain: "0"
   # Create Domain will turn this Windows Server into a Domain Controller. Enable by setting this to 1.
@@ -201,6 +214,24 @@ windows_servers_default:
   # Install Bad Blood by setting this to 1 or 0.
   # More information in chapter Bad Blood under Attack Range Features.
 
+  install_crowdstrike: "0"
+  # Install CrowdStrike Falcon by setting this to 1.
+
+  crowdstrike_windows_agent: "WindowsSensor.exe"
+  # Name of the CrowdStrike Windows Agent stored in apps/ folder.
+
+  install_carbon_black: "0"
+  # Install Carbon Black Cloud by setting this to 1.
+
+  carbon_black_windows_agent: "installer_vista_win7_win8-64-4.0.1.1428.msi"
+  # Name of the Carbon Black Windows Agent stored in apps/ folder.
+
+  install_cisco_secure_endpoint: "0"
+  # Install Cisco Secure Endpoint by setting this to 1.
+
+  cisco_secure_endpoint_windows_agent: "amp_Server.exe"
+  # Name of the Cisco Secure Endpoint Windows Agent stored in apps/ folder.
+
   aurora_agent: "0"
   # Install Aurora Agent
 
@@ -213,6 +244,13 @@ linux_servers_default:
 
   sysmon_config: "SysMonLinux-CatchAll.xml"
 # Specify a Sysmon config located under configs/ .
+
+  install_crowdstrike: "0"
+  # Install CrowdStrike Falcon by setting this to 1.
+
+  crowdstrike_linux_agent: "falcon-sensor_7.18.0-17106_amd64.deb"
+  # Name of the CrowdStrike Windows Agent stored in apps/ folder.
+
 
 kali_server:
   kali_server: "0"

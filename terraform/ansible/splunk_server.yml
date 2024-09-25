@@ -16,3 +16,4 @@
     - carbon_black_cloud_logs
     - crowdstrike_falcon_logging
     - guacamole
+    - cisco_secure_endpoint_logs

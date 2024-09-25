@@ -17,7 +17,7 @@ general:
   # ip_whitelist = 0.0.0.0/0,35.153.82.195/32
 
   crowdstrike_falcon: "0"
-  # Enable/Disable CrowdStrike Falcon by setting this to 1 or 0.
+  # Enable/Disable CrowdStrike Falcon log forwarding to Splunk by setting this to 1 or 0.
 
   crowdstrike_customer_ID: ""
   crowdstrike_logs_region: ""
@@ -28,12 +28,18 @@ general:
   # See the chapter CrowdStrike Falcon in the docs page Attack Range Features.
 
   carbon_black_cloud: "0"
-  # Enable/Disable VMWare Carbon Black Cloud by setting this to 1 or 0.
+  # Enable/Disable VMWare Carbon Black Cloud log forwarding to Splunkby setting this to 1 or 0.
 
   carbon_black_cloud_company_code: ""
   carbon_black_cloud_s3_bucket: ""
   # All these fields are needed to automatically deploy a Carbon Black Agent and ingest Carbon Black logs into the Splunk Server.
   # See the chapter Carbon Black in the docs page Attack Range Features.
+
+  cisco_secure_endpoint: "0"
+  # Enable/Disable Cisco Secure Endpoint log forwarding to Splunk by setting this to 1 or 0.
+  cisco_secure_endpoint_api_id: ""
+  cisco_secure_endpoint_api_secret: ""
+  # All these fields are needed to automatically ingest Cisco Secure Endpoint logs into the Splunk Server.
 
   install_contentctl: "0"
   # Install splunk/contentctl on linux servers
@@ -114,10 +120,13 @@ splunk_server:
     - TA-aurora-0.2.0.tar.gz
     - TA-osquery.tar.gz
     - app-for-circleci_011.tgz
+    - cisco-secure-endpoint-formerly-amp-for-endpoints-cim-add-on_212.tgz
+    - cisco-secure-endpoint-formerly-amp-for-endpoints_300.tgz
     - palo-alto-networks-add-on-for-splunk_813.tgz
     - punchcard---custom-visualization_150.tgz
     - python-for-scientific-computing-(for-linux-64-bit)_421.tgz
     - snort-alert-for-splunk_111.tgz
+    - snort-3-json-alerts_105.tgz
     - splunk-add-on-for-amazon-web-services-(aws)_770.tgz
     - splunk-add-on-for-crowdstrike-fdr_200.tgz
     - splunk-add-on-for-github_300.tgz
@@ -208,6 +217,12 @@ windows_servers_default:
 
   carbon_black_windows_agent: "installer_vista_win7_win8-64-4.0.1.1428.msi"
   # Name of the Carbon Black Windows Agent stored in apps/ folder.
+
+  install_cisco_secure_endpoint: "0"
+  # Install Cisco Secure Endpoint by setting this to 1.
+
+  cisco_secure_endpoint_windows_agent: "amp_Server.exe"
+  # Name of the Cisco Secure Endpoint Windows Agent stored in apps/ folder.
 
   aurora_agent: "0"
   # Install Aurora Agent

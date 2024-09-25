@@ -1,0 +1,4 @@
+---
+
+- include_tasks: cisco_secure_endpoint.yml
+  when: windows_servers.install_cisco_secure_endpoint == "1"

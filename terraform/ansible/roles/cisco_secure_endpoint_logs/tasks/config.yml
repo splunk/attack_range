@@ -1,0 +1,137 @@
+---
+
+- name: Get cval from Splunk login page
+  uri:
+    url: http://localhost:8000/en-US/account/login
+    method: GET
+    return_content: yes
+    validate_certs: no
+  register: login_response
+
+- name: Extract cval from response
+  ansible.builtin.set_fact:
+    cval: "{{ login_response.cookies_string | regex_search('cval=([0-9]+)', '\\1') | first }}"
+
+- name: Login to Splunk using cval
+  uri:
+    url: http://localhost:8000/en-US/account/login
+    method: POST
+    headers:
+      Cookie: "cval={{ cval }}"
+    body_format: form-urlencoded
+    body:
+      username: admin
+      password: "{{ general.attack_range_password }}"
+      cval: "{{ cval }}"
+    validate_certs: no
+    status_code: [200, 201, 302]  # Accept these status codes as success
+  register: login_result
+
+- name: Extract CSRF token and session ID
+  set_fact:
+    splunkweb_csrf_token_8000: "{{ login_result.set_cookie | regex_search('splunkweb_csrf_token_8000=([^;]+)', '\\1') | first }}"
+    splunkd_8000: "{{ login_result.set_cookie | regex_search('splunkd_8000=([^;]+)', '\\1') | first }}"
+
+- name: Get Splunk session key
+  uri:
+    url: https://localhost:8089/services/auth/login
+    method: POST
+    body_format: form-urlencoded
+    body:
+      username: admin
+      password: "{{ general.attack_range_password }}"
+      output_mode: json
+    validate_certs: no
+    return_content: yes
+  register: auth_response
+
+- name: Extract and store session key
+  set_fact:
+    splunk_session_key: "{{ auth_response.json.sessionKey }}"
+
+- name: Save API key
+  uri:
+    url: http://localhost:8000/en-GB/custom/amp4e_events_input/amp_streams_api_controller/save_api_key
+    method: POST
+    headers:
+      Authorization: "Splunk {{ splunk_session_key }}"
+      Cookie: "splunkd_8000={{ splunkd_8000 }}; splunkweb_csrf_token_8000={{ splunkweb_csrf_token_8000 }}"
+      Content-Type: "application/x-www-form-urlencoded"
+      X-Requested-With: "XMLHttpRequest"
+      X-Splunk-Form-Key: "{{ splunkweb_csrf_token_8000 }}"
+    body_format: form-urlencoded
+    body:
+      api_id: "{{ general.cisco_secure_endpoint_api_id }}"
+      api_key: "{{ general.cisco_secure_endpoint_api_secret }}"
+    validate_certs: no
+    status_code: [200, 201, 202, 204]
+  register: save_api_key_result
+
+- name: Save Inputs Configuration
+  uri:
+    url: http://localhost:8000/en-US/splunkd/__raw/servicesNS/nobody/amp4e_events_input/configs/conf-inputs/amp4e_events_input
+    method: POST
+    headers:
+      Authorization: "Splunk {{ splunk_session_key }}"
+      Cookie: "splunkd_8000={{ splunkd_8000 }}; splunkweb_csrf_token_8000={{ splunkweb_csrf_token_8000 }}"
+      Content-Type: "application/x-www-form-urlencoded"
+      X-Requested-With: "XMLHttpRequest"
+      X-Splunk-Form-Key: "{{ splunkweb_csrf_token_8000 }}"
+    body_format: form-urlencoded
+    body:
+      output_mode: "json"
+      rcvbuf: 1572864
+      disabled: "false"
+      eai_acl: ""
+      eai_app_name: "search"
+      eai_user_name: "admin"
+      host: "$decideOnStartup"
+      index: "cisco_secure_endpoint"
+      interval: 0
+      python_version: "python3"
+      start_by_shell: 0
+      api_id: "{{ general.cisco_secure_endpoint_api_id }}"
+      api_host: "api.amp.cisco.com"
+      api_key: ""
+    validate_certs: no
+    status_code: [200, 201, 202, 204]
+  register: save_inputs_configuration_response
+
+- name: Generate stream name
+  set_fact:
+    stream_name: "cisco_secure_endpoint_input_{{ 999999 | random }}"
+
+- name: Save Streams Configuration
+  uri:
+    url: http://localhost:8000/en-US/custom/amp4e_events_input/amp_streams_api_controller/save_stream
+    method: POST
+    headers:
+      Authorization: "Splunk {{ splunk_session_key }}"
+      Cookie: "splunkd_8000={{ splunkd_8000 }}; splunkweb_csrf_token_8000={{ splunkweb_csrf_token_8000 }}"
+      Content-Type: "application/x-www-form-urlencoded"
+      X-Requested-With: "XMLHttpRequest"
+      X-Splunk-Form-Key: "{{ splunkweb_csrf_token_8000 }}"
+    body_format: form-urlencoded
+    body:
+      name: "{{ stream_name }}"
+      index: "cisco_secure_endpoint"
+      stream_name: "{{ stream_name }}"
+      groups_names: ""
+      event_types_names: ""
+      groups: ""
+      event_types: ""
+      api_host: "api.amp.cisco.com"
+      api_id: "{{ general.cisco_secure_endpoint_api_id }}"
+      api_key: "{{ general.cisco_secure_endpoint_api_secret }}"
+    validate_certs: no
+    status_code: [200, 201, 202, 204]
+  register: save_streams_configuration_response
+
+- name: Copy new inputs.conf configuration
+  template:
+    src: inputs.conf.j2
+    dest: /opt/splunk/etc/apps/amp4e_events_input/local/inputs.conf
+
+- name: restart splunk
+  service: name=splunk state=restarted
+  become: yes

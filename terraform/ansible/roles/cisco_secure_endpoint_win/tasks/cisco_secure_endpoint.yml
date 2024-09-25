@@ -1,0 +1,17 @@
+---
+
+- name: Copy cisco secure endpoint agent 
+  win_copy:
+    src: "../../apps/{{ windows_servers.cisco_secure_endpoint_windows_agent }}"
+    dest: C:\temp\amp_Server.exe
+
+- name: Install Cisco AMP
+  win_package:
+    path: C:\temp\amp_Server.exe
+    arguments: "/S"
+    state: present
+
+- name: Remove Cisco AMP installer
+  win_file:
+    path: C:\temp\amp_Server.exe
+    state: absent
