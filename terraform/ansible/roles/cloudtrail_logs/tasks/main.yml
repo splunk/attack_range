@@ -1,4 +1,4 @@
 ---
 
-- include: configure_inputs.yml
+- include_tasks: configure_inputs.yml
   when: general.cloud_provider == "aws"

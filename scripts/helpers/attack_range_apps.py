@@ -59,6 +59,10 @@ ATTACK_RANGE_SPLUNKBASE_APPS = [
         "name": "Snort 3 JSON Alerts",
         "url": "https://splunkbase.splunk.com/app/4633",
     },
+    {
+        "name": "VMware Carbon Black Cloud",
+        "url": "https://splunkbase.splunk.com/app/5332",
+    },
 ]
 
 ATTACK_RANGE_LOCAL_APPS = [

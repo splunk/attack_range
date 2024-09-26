@@ -4,19 +4,19 @@
   hostname:
     name: "{{ hostname }}"
 
-- include: change_splunk_password.yml
+- include_tasks: change_splunk_password.yml
 
-- include: phantom_server_configure.yml
+- include_tasks: phantom_server_configure.yml
   when: phantom_server.phantom_server == "1" and not general.cloud_provider == "local"
 
-- include: phantom_server_configure_local.yml
+- include_tasks: phantom_server_configure_local.yml
   when: phantom_server.phantom_server == "1" and general.cloud_provider == "local"
 
-- include: install_enterprise_security.yml
+- include_tasks: install_enterprise_security.yml
   when: splunk_server.install_es == "1"
 
-- include: install_botsv3_dataset.yml
+- include_tasks: install_botsv3_dataset.yml
   when: splunk_server.ingest_bots3_data == "1"
 
-- include: install_dltk.yml
+- include_tasks: install_dltk.yml
   when: splunk_server.install_dltk == "1"

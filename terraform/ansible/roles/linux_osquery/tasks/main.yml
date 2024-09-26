@@ -1,7 +1,7 @@
 ---
 
-- include: install_osquery_linux.yml
-- include: collect_osquery_logs.yml
+- include_tasks: install_osquery_linux.yml
+- include_tasks: collect_osquery_logs.yml
 
 - name: Restart splunk uf
   become: true

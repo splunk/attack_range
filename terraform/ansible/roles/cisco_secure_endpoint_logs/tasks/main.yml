@@ -1,4 +1,4 @@
 ---
 
-- include: config.yml
+- include_tasks: config.yml
   when: general.cisco_secure_endpoint == "1"
