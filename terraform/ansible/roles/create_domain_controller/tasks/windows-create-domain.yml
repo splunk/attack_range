@@ -4,8 +4,8 @@
   win_feature:
     name: DNS
     state: present
-    include_management_tools: yes
-    include_sub_features: yes
+    include_tasks_management_tools: yes
+    include_tasks_sub_features: yes
   register: _windows_dns_server
 
 - name: reboot | Rebooting Server
@@ -29,8 +29,8 @@
 - name: features | Installing AD Domain Services
   win_feature:
     name: AD-Domain-Services
-    include_management_tools: yes
-    include_sub_features: yes
+    include_tasks_management_tools: yes
+    include_tasks_sub_features: yes
     state: present
 
 - name: Creating a windows domain

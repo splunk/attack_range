@@ -4,7 +4,7 @@
   ignore_errors: yes
   win_regedit:
     key: "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit"
-    value: ProcessCreationIncludeCmdLine_Enabled
+    value: ProcessCreationinclude_tasksCmdLine_Enabled
     datatype: dword
     data: 1
 

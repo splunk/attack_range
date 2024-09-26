@@ -1,10 +1,10 @@
 ---
 
-- include: windows-disable-defender.yml
-- include: windows-enable-ps-logging.yml
-- include: windows-enable-4688-cmd-line-audit.yml
-- include: install_choco.yml
-- include: install_app_chocolatey.yml
+- include_tasks: windows-disable-defender.yml
+- include_tasks: windows-enable-ps-logging.yml
+- include_tasks: windows-enable-4688-cmd-line-audit.yml
+- include_tasks: install_choco.yml
+- include_tasks: install_app_chocolatey.yml
   with_items:
     - "firefox"
     - "git"
@@ -12,6 +12,6 @@
     - "7zip"
     - "adobereader"
     - "python"
-- include: advanced_logging.yml
+- include_tasks: advanced_logging.yml
   when: windows_servers.advanced_logging == "1"
 

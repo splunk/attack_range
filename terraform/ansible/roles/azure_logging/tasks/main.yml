@@ -1,4 +1,4 @@
 ---
 
-- include: azure_logging.yml
+- include_tasks: azure_logging.yml
   when: general.cloud_provider == "azure"

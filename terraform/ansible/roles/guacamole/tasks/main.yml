@@ -1,7 +1,7 @@
 ---
 
-- include: install_packages.yml
-- include: setup_tomcat.yml
-- include: guacamole_server.yml
-- include: guacamole_client.yml
-- include: guacamole_server_post.yml
+- include_tasks: install_packages.yml
+- include_tasks: setup_tomcat.yml
+- include_tasks: guacamole_server.yml
+- include_tasks: guacamole_client.yml
+- include_tasks: guacamole_server_post.yml

@@ -1,6 +1,6 @@
 ---
 
-- include: install_snort.yml
-- include: configure_network_interface.yml
-- include: configure_snort.yml
-- include: configure_splunk_input.yml
+- include_tasks: install_snort.yml
+- include_tasks: configure_network_interface.yml
+- include_tasks: configure_snort.yml
+- include_tasks: configure_splunk_input.yml

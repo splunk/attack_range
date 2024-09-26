@@ -1,23 +1,23 @@
 ---
 # This playbook contains common tasks in this role
 
-- include: splunk.yml
-- include: configure_inputs.yml
-- include: configure_indexes.yml
-- include: configure_limits.yml
-- include: configure_web_conf.yml
-- include: configure_server_conf.yml
-- include: create_serverclass.yml
+- include_tasks: splunk.yml
+- include_tasks: configure_inputs.yml
+- include_tasks: configure_indexes.yml
+- include_tasks: configure_limits.yml
+- include_tasks: configure_web_conf.yml
+- include_tasks: configure_server_conf.yml
+- include_tasks: create_serverclass.yml
 
 - name: Convert splunk_apps string to list
   set_fact:
     splunk_apps_list: "{{ splunk_server.splunk_apps.split(',') }}"
 
-- include: install_app_from_s3.yml
+- include_tasks: install_app_from_s3.yml
   with_items: "{{ splunk_apps_list }}"
 
-- include: configure_attack_range_dashboard.yml
-- include: configure_escu.yml
-- include: configure_props.yml
-- include: configure_cim.yml
-- include: configure_phantom.yml
+- include_tasks: configure_attack_range_dashboard.yml
+- include_tasks: configure_escu.yml
+- include_tasks: configure_props.yml
+- include_tasks: configure_cim.yml
+- include_tasks: configure_phantom.yml
