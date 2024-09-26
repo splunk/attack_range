@@ -120,13 +120,13 @@ splunk_server:
     - TA-aurora-0.2.0.tar.gz
     - TA-osquery.tar.gz
     - app-for-circleci_011.tgz
-    - cisco-secure-endpoint-formerly-amp-for-endpoints-cim-add-on_212.tgz
-    - cisco-secure-endpoint-formerly-amp-for-endpoints_300.tgz
+    - cisco-secure-endpoint-(formerly-amp-for-endpoints)-cim-add-on_212.tgz
+    - cisco-secure-endpoint-(formerly-amp-for-endpoints)_300.tgz
     - palo-alto-networks-add-on-for-splunk_813.tgz
     - punchcard---custom-visualization_150.tgz
     - python-for-scientific-computing-(for-linux-64-bit)_421.tgz
-    - snort-alert-for-splunk_111.tgz
     - snort-3-json-alerts_105.tgz
+    - snort-alert-for-splunk_111.tgz
     - splunk-add-on-for-amazon-web-services-(aws)_770.tgz
     - splunk-add-on-for-crowdstrike-fdr_200.tgz
     - splunk-add-on-for-github_300.tgz
@@ -149,7 +149,6 @@ splunk_server:
     - splunk_attack_range_reporting-1.0.9.tar.gz
     - status-indicator---custom-visualization_150.tgz
     - ta-for-zeek_108.tgz
-    - vmware-carbon-black-cloud_222.tgz
   # List of Splunk Apps to install on the Splunk Server
 
   byo_splunk: "0"
