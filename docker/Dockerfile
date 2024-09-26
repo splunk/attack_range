@@ -4,13 +4,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y 
 RUN apt-get install -y python3.10 git unzip python3-pip awscli curl vim lsb-release software-properties-common
 
-RUN curl -s https://releases.hashicorp.com/terraform/1.4.5/terraform_1.4.5_linux_amd64.zip -o terraform.zip && \
+RUN curl -s https://releases.hashicorp.com/terraform/1.9.6/terraform_1.9.6_linux_amd64.zip -o terraform.zip && \
          unzip terraform.zip && \
          mv terraform /usr/local/bin/
-
-RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-RUN apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-RUN apt update && apt install packer
 
 RUN git clone https://github.com/splunk/attack_range.git
 RUN echo 'alias python=python3' >> ~/.bashrc
