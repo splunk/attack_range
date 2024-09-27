@@ -46,7 +46,7 @@ resource "aws_instance" "phantom-server" {
     connection {
       type        = "ssh"
       user        = "ec2-user"
-      host        = aws_instance.phantom-server[0].public_ip
+      host        = self.public_ip
       private_key = file(var.aws.private_key_path)
     }
   }
@@ -67,7 +67,7 @@ resource "aws_instance" "phantom-server" {
 
   provisioner "local-exec" {
     working_dir = "../ansible"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key '${var.aws.private_key_path}' -i '${aws_instance.phantom-server[0].public_ip},' phantom_server.yml -e @vars/phantom_vars.json"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' phantom_server.yml -e @vars/phantom_vars.json"
   }
 }
 

@@ -57,7 +57,7 @@ resource "aws_instance" "zeek_sensor" {
   provisioner "local-exec" {
     working_dir = "../ansible"
     command = <<-EOT
-      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${aws_instance.zeek_sensor[0].public_ip},' zeek_server.yml -e "@vars/zeek_vars.json"
+      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' zeek_server.yml -e "@vars/zeek_vars.json"
     EOT
   }
 }

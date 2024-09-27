@@ -100,7 +100,7 @@ resource "aws_instance" "splunk-server" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      host        = aws_instance.splunk-server[0].public_ip
+      host        = self.public_ip
       private_key = file(var.aws.private_key_path)
     }
   }
@@ -129,7 +129,7 @@ resource "aws_instance" "splunk-server" {
   provisioner "local-exec" {
     working_dir = "../ansible"
     command = <<-EOT
-      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${aws_instance.splunk-server[0].public_ip},' splunk_server.yml -e "@vars/splunk_vars.json"
+      ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ubuntu --private-key '${var.aws.private_key_path}' -i '${self.public_ip},' splunk_server.yml -e "@vars/splunk_vars.json"
     EOT
   }
 

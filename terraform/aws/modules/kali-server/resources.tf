@@ -35,7 +35,7 @@ resource "aws_instance" "kali_machine" {
     connection {
       type        = "ssh"
       user        = "kali"
-      host        = aws_instance.kali_machine[count.index].public_ip
+      host        = self.public_ip
       private_key = file(var.aws.private_key_path)
     }
   }
