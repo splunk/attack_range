@@ -10,12 +10,7 @@ RUN curl -s https://releases.hashicorp.com/terraform/1.9.6/terraform_1.9.6_linux
 
 RUN echo 'alias python=python3' >> ~/.bashrc
 
-RUN mkdir -p /attack_range
-COPY configs/ /attack_range/configs/
-COPY modules/ /attack_range/modules/
-COPY terraform/ /attack_range/terraform/
-RUN mkdir -p /attack_range/apps/
-COPY pyproject.toml attack_range.py attack_range.yml README.md LICENSE /attack_range/
+RUN git clone https://github.com/splunk/attack_range.git
 
 WORKDIR /attack_range
 
