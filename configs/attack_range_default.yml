@@ -149,7 +149,7 @@ splunk_server:
     - splunk_attack_range_reporting-1.0.9.tar.gz
     - status-indicator---custom-visualization_150.tgz
     - ta-for-zeek_108.tgz
-    - vmware-carbon-black-cloud_222.tgz
+    - vmware-carbon-black-cloud_223.tgz
   # List of Splunk Apps to install on the Splunk Server
 
   byo_splunk: "0"
