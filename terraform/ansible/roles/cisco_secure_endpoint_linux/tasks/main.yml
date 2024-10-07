@@ -1,0 +1,4 @@
+---
+
+- include_tasks: config.yml
+  when: linux_servers.install_cisco_secure_endpoint == "1"

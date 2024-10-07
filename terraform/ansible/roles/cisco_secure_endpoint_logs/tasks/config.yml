@@ -2,7 +2,7 @@
 
 - name: Get cval from Splunk login page
   uri:
-    url: http://localhost:8000/en-US/account/login
+    url: "{% if splunk_server.install_es == '1' %}https{% else %}http{% endif %}://localhost:8000/en-US/account/login"
     method: GET
     return_content: yes
     validate_certs: no
@@ -14,7 +14,7 @@
 
 - name: Login to Splunk using cval
   uri:
-    url: http://localhost:8000/en-US/account/login
+    url: "{% if splunk_server.install_es == '1' %}https{% else %}http{% endif %}://localhost:8000/en-US/account/login"
     method: POST
     headers:
       Cookie: "cval={{ cval }}"
@@ -51,7 +51,7 @@
 
 - name: Save API key
   uri:
-    url: http://localhost:8000/en-GB/custom/amp4e_events_input/amp_streams_api_controller/save_api_key
+    url: "{% if splunk_server.install_es == '1' %}https{% else %}http{% endif %}://localhost:8000/en-GB/custom/amp4e_events_input/amp_streams_api_controller/save_api_key"
     method: POST
     headers:
       Authorization: "Splunk {{ splunk_session_key }}"
@@ -69,7 +69,7 @@
 
 - name: Save Inputs Configuration
   uri:
-    url: http://localhost:8000/en-US/splunkd/__raw/servicesNS/nobody/amp4e_events_input/configs/conf-inputs/amp4e_events_input
+    url: "{% if splunk_server.install_es == '1' %}https{% else %}http{% endif %}://localhost:8000/en-US/splunkd/__raw/servicesNS/nobody/amp4e_events_input/configs/conf-inputs/amp4e_events_input"
     method: POST
     headers:
       Authorization: "Splunk {{ splunk_session_key }}"
@@ -91,7 +91,7 @@
       python_version: "python3"
       start_by_shell: 0
       api_id: "{{ general.cisco_secure_endpoint_api_id }}"
-      api_host: "api.amp.cisco.com"
+      api_host: "{{ general.cisco_secure_endpoint_api_host }}"
       api_key: ""
     validate_certs: no
     status_code: [200, 201, 202, 204]
@@ -103,7 +103,7 @@
 
 - name: Save Streams Configuration
   uri:
-    url: http://localhost:8000/en-US/custom/amp4e_events_input/amp_streams_api_controller/save_stream
+    url: "{% if splunk_server.install_es == '1' %}https{% else %}http{% endif %}://localhost:8000/en-US/custom/amp4e_events_input/amp_streams_api_controller/save_stream"
     method: POST
     headers:
       Authorization: "Splunk {{ splunk_session_key }}"

@@ -14,3 +14,4 @@
     - splunk_byo_linux
     - contentctl
     - crowdstrike_falcon_agent_linux
+    - cisco_secure_endpoint_linux

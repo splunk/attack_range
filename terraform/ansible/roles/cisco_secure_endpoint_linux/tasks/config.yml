@@ -1,0 +1,12 @@
+---
+
+- name: Copy Cisco Secure Endpoint Linux agent
+  copy:
+    src: "../../apps/{{ linux_servers.cisco_secure_endpoint_linux_agent }}"
+    dest: /tmp/cisco_secure_endpoint_linux_agent.deb
+
+- name: Install Cisco Secure Endpoint Linux agent
+  apt:
+    deb: "/tmp/cisco_secure_endpoint_linux_agent.deb"
+    state: present
+  become: yes
