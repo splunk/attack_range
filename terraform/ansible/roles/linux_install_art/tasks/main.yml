@@ -9,5 +9,17 @@
     Install-AtomicRedTeam -Force'
   register: output_art
 
+- name: create directory for default powershell profile
+  file: 
+   path: /root/.config/powershell
+   recurse: yes
+   state: directory
+
+- name: copy default powershell profile
+  copy:
+    src: Microsoft.PowerShell_profile.ps1
+    dest: /root/.config/powershell/Microsoft.PowerShell_profile.ps1
+    force: yes
+
 - debug:
     var: output_art.stdout_lines
