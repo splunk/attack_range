@@ -39,6 +39,7 @@ general:
   # Enable/Disable Cisco Secure Endpoint log forwarding to Splunk by setting this to 1 or 0.
   cisco_secure_endpoint_api_id: ""
   cisco_secure_endpoint_api_secret: ""
+  cisco_secure_endpoint_api_host: "api.amp.cisco.com"
   # All these fields are needed to automatically ingest Cisco Secure Endpoint logs into the Splunk Server.
 
   install_contentctl: "0"
@@ -243,6 +244,11 @@ linux_servers_default:
   crowdstrike_linux_agent: "falcon-sensor_7.18.0-17106_amd64.deb"
   # Name of the CrowdStrike Windows Agent stored in apps/ folder.
 
+  install_cisco_secure_endpoint: "0"
+  # Install Cisco Secure Endpoint by setting this to 1.
+
+  cisco_secure_endpoint_linux_agent: "amp_Server_ubuntu-20-04-amd64.deb"
+  # Name of the Cisco Secure Endpoint Linux Agent stored in apps/ folder.
 
 kali_server:
   kali_server: "0"
