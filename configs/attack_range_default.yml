@@ -133,7 +133,7 @@ splunk_server:
     - splunk-add-on-for-crowdstrike-fdr_201.tgz
     - splunk-add-on-for-github_300.tgz
     - splunk-add-on-for-google-workspace_281.tgz
-    - splunk-add-on-for-microsoft-cloud-services_540.tgz
+    - splunk-add-on-for-microsoft-cloud-services_541.tgz
     - splunk-add-on-for-microsoft-office-365_452.tgz
     - splunk-add-on-for-microsoft-windows_890.tgz
     - splunk-add-on-for-nginx_330.tgz
