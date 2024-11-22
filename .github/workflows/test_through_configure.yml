@@ -90,7 +90,7 @@ jobs:
     
     - name: Install awscli
       run: |
-        apt-get install -y awscli
+        sudo apt-get install -y awscli
 
     - name: Run AWS configure
       run: |
