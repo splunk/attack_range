@@ -5,6 +5,7 @@ on:
 jobs:
   test-macos-through-configure:
     strategy:
+        fail-fast: false
         matrix:
             python_version: ["3.9", "3.10", "3.11", "3.12"]
             operating_sysem: ["macos-12", "macos-13", "macos-14", "macos-15"]
@@ -90,7 +91,7 @@ jobs:
     
     - name: Install awscli
       run: |
-        sudo apt-get install -y awscli
+        sudo apt install -y awscli
 
     - name: Run AWS configure
       run: |
