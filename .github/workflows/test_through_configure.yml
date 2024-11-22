@@ -52,6 +52,7 @@ jobs:
     - name: Install Python Poetry
       run: |
         curl -sSL https://install.python-poetry.org/ | python -
+        poetry install --no-interaction
         yes "\n" | poetry run attack_range.py configure 
     
     - name: Run attack_range configure with defaults
@@ -110,6 +111,7 @@ jobs:
     - name: Install Python Poetry
       run: |
         curl -sSL https://install.python-poetry.org/ | python -
+        poetry install --no-interaction
         ls -lah
         yes "\n" | poetry run attack_range.py configure 
         
