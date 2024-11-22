@@ -3,11 +3,11 @@ on:
   push:
 
 jobs:
-  test-ubuntu-through-configure:
+  test-macos-through-configure:
     strategy:
         matrix:
             python_version: ["3.9", "3.10", "3.11", "3.12"]
-    runs-on: ["ubuntu-20.04", "ubuntu-22.04"]
+    runs-on: ["macos-12", "macos-13", "macos-14", "macos-15"]
     steps:
 
     #Install the given version of Python we will test against
@@ -26,6 +26,7 @@ jobs:
 
     - name: Install terraform, packer, and awscli via brew
       run: | 
+        #yes "\n" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         brew update
         brew install terraform
         cd terraform/aws && terraform init && cd ../..
@@ -35,7 +36,7 @@ jobs:
     
     - name: Run AWS configure
       run: |
-        aws configure < "${{ secrets.AWS_ACCESS_KEY_ID }}\n${{ secrets.AWS_SECRET_ACCESS_KEY }}\neu-central-1\njson\n"
+        echo "${{ secrets.AWS_ACCESS_KEY_ID }}\n${{ secrets.AWS_SECRET_ACCESS_KEY }}\neu-central-1\njson\n" | aws configure
     
     - name: Install SSH key
       uses: shimataro/ssh-key-action@v2
@@ -45,9 +46,68 @@ jobs:
           known_hosts: unnecessary
           if_key_exists: fail 
 
-    - name: Install and Run Poetry with all defaults
+    - name: Install Python Poetry
       run: |
         curl -sSL https://install.python-poetry.org/ | python -
-        poetry run attack_range.py configure < "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+        yes "\n" | poetry run attack_range.py configure 
+    
+    - name: Run attack_range configure with defaults
+      run: |
+        yes "\n" | poetry run attack_range.py configure 
+    
+    #Done, we will not actually set up the range
+
+  test-ubuntu-through-configure:
+    strategy:
+        matrix:
+            python_version: ["3.9", "3.10", "3.11", "3.12"]
+    runs-on: ["ubuntu-20.04", "ubuntu-22.04", "ubuntu-24.04"]
+    steps:
+
+    #Install the given version of Python we will test against
+    - name: Install Required Python Version
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python_version }}
+        architecture: "x64"
+
+
+    # The following is intentionally different from the instructions 
+    # because we want to test the current branch:
+    # git clone https://github.com/splunk/attack_range.git
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    # https://developer.hashicorp.com/terraform/install
+    - name: Install terraform
+      run: |
+        wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+        sudo apt update && sudo apt install terraform
+    
+    - name: Install awscli
+      run: |
+        apt-get install -y awscli
+
+    - name: Run AWS configure
+      run: |
+        echo "${{ secrets.AWS_ACCESS_KEY_ID }}\n${{ secrets.AWS_SECRET_ACCESS_KEY }}\neu-central-1\njson\n" | aws configure
+    
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+          key: ${{ secrets.AR_SSH_PRIVATE_KEY }}
+          name: ar-github-actions
+          known_hosts: unnecessary
+          if_key_exists: fail 
+
+    - name: Install Python Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org/ | python -
+        yes "\n" | poetry run attack_range.py configure 
+        
+    - name: Run attack_range configure with defaults
+      run: |
+        yes "\n" | poetry run attack_range.py configure 
     
     #Done, we will not actually set up the range
