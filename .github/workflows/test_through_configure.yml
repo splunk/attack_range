@@ -62,6 +62,7 @@ jobs:
 
   test-ubuntu-through-configure:
     strategy:
+        fail-fast: false
         matrix:
             python_version: ["3.9", "3.10", "3.11", "3.12"]
             operating_system: ["ubuntu-20.04", "ubuntu-22.04", "ubuntu-24.04"]
