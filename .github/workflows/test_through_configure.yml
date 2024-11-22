@@ -39,7 +39,7 @@ jobs:
     
     - name: Run AWS configure
       run: |
-        echo "${{ secrets.AWS_ACCESS_KEY_ID }}\n${{ secrets.AWS_SECRET_ACCESS_KEY }}\neu-central-1\njson\n" | aws configure
+        echo -e "${{ secrets.AWS_ACCESS_KEY_ID }}\n${{ secrets.AWS_SECRET_ACCESS_KEY }}\neu-central-1\njson\n\n" | aws configure
     
     - name: Install SSH key
       uses: shimataro/ssh-key-action@v2
@@ -96,7 +96,7 @@ jobs:
 
     - name: Run AWS configure
       run: |
-        echo "${{ secrets.AWS_ACCESS_KEY_ID }}\n${{ secrets.AWS_SECRET_ACCESS_KEY }}\neu-central-1\njson\n" | aws configure
+        echo -e "${{ secrets.AWS_ACCESS_KEY_ID }}\n${{ secrets.AWS_SECRET_ACCESS_KEY }}\neu-central-1\njson\n\n" | aws configure
     
     - name: Install SSH key
       uses: shimataro/ssh-key-action@v2
