@@ -7,7 +7,9 @@ jobs:
     strategy:
         matrix:
             python_version: ["3.9", "3.10", "3.11", "3.12"]
-    runs-on: ["macos-12", "macos-13", "macos-14", "macos-15"]
+            operating_sysem: ["macos-12", "macos-13", "macos-14", "macos-15"]
+
+    runs-on: ${{ matrix.operating_system }}
     steps:
 
     #Install the given version of Python we will test against
@@ -61,7 +63,8 @@ jobs:
     strategy:
         matrix:
             python_version: ["3.9", "3.10", "3.11", "3.12"]
-    runs-on: ["ubuntu-20.04", "ubuntu-22.04", "ubuntu-24.04"]
+            operating_system: ["ubuntu-20.04", "ubuntu-22.04", "ubuntu-24.04"]
+    runs-on: ${{ matrix.operating_system }}
     steps:
 
     #Install the given version of Python we will test against
