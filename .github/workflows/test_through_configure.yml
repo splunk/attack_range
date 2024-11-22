@@ -1,0 +1,53 @@
+name: test-through-configure
+on:
+  push:
+
+jobs:
+  test-ubuntu-through-configure:
+    strategy:
+        matrix:
+            python_version: ["3.9", "3.10", "3.11", "3.12"]
+    runs-on: ["ubuntu-20.04", "ubuntu-22.04"]
+    steps:
+
+    #Install the given version of Python we will test against
+    - name: Install Required Python Version
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python_version }}
+        architecture: "x64"
+
+
+    # The following is intentionally different from the instructions 
+    # because we want to test the current branch:
+    # git clone https://github.com/splunk/attack_range.git
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Install terraform, packer, and awscli via brew
+      run: | 
+        brew update
+        brew install terraform
+        cd terraform/aws && terraform init && cd ../..
+        brew tap hashicorp/tap
+        brew install hashicorp/tap/packer
+        brew install awscli
+    
+    - name: Run AWS configure
+      run: |
+        aws configure < "${{ secrets.AWS_ACCESS_KEY_ID }}\n${{ secrets.AWS_SECRET_ACCESS_KEY }}\neu-central-1\njson\n"
+    
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+          key: ${{ secrets.AR_SSH_PRIVATE_KEY }}
+          name: ar-github-actions
+          known_hosts: unnecessary
+          if_key_exists: fail 
+
+    - name: Install and Run Poetry with all defaults
+      run: |
+        curl -sSL https://install.python-poetry.org/ | python -
+        poetry run attack_range.py configure < "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    
+    #Done, we will not actually set up the range
