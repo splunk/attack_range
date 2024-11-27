@@ -129,22 +129,22 @@ splunk_server:
     - python-for-scientific-computing-(for-linux-64-bit)_422.tgz
     - snort-3-json-alerts_105.tgz
     - snort-alert-for-splunk_111.tgz
-    - splunk-add-on-for-amazon-web-services-(aws)_771.tgz
+    - splunk-add-on-for-amazon-web-services-(aws)_780.tgz
     - splunk-add-on-for-crowdstrike-fdr_202.tgz
     - splunk-add-on-for-github_310.tgz
     - splunk-add-on-for-google-workspace_300.tgz
     - splunk-add-on-for-microsoft-cloud-services_541.tgz
     - splunk-add-on-for-microsoft-office-365_460.tgz
-    - splunk-add-on-for-microsoft-security_230.tgz
-    - splunk-add-on-for-microsoft-windows_900.tgz
+    - splunk-add-on-for-microsoft-security_240.tgz
+    - splunk-add-on-for-microsoft-windows_901.tgz
     - splunk-add-on-for-nginx_330.tgz
     - splunk-add-on-for-okta-identity-cloud_221.tgz
     - splunk-add-on-for-sysmon-for-linux_100.tgz
     - splunk-add-on-for-sysmon_402.tgz
     - splunk-add-on-for-unix-and-linux_920.tgz
     - splunk-app-for-stream_813.tgz
-    - splunk-common-information-model-(cim)_532.tgz
-    - splunk-es-content-update_4420.tgz
+    - splunk-common-information-model-(cim)_600.tgz
+    - splunk-es-content-update_4430.tgz
     - splunk-machine-learning-toolkit_550.tgz
     - splunk-sankey-diagram---custom-visualization_160.tgz
     - splunk-security-essentials_381.tgz
