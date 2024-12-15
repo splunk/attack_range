@@ -132,7 +132,7 @@ splunk_server:
     - splunk-add-on-for-amazon-web-services-(aws)_780.tgz
     - splunk-add-on-for-crowdstrike-fdr_202.tgz
     - splunk-add-on-for-github_310.tgz
-    - splunk-add-on-for-google-workspace_300.tgz
+    - splunk-add-on-for-google-workspace_301.tgz
     - splunk-add-on-for-microsoft-cloud-services_541.tgz
     - splunk-add-on-for-microsoft-office-365_460.tgz
     - splunk-add-on-for-microsoft-security_241.tgz
@@ -152,7 +152,7 @@ splunk_server:
     - splunk_attack_range_reporting-1.0.9.tar.gz
     - status-indicator---custom-visualization_150.tgz
     - ta-for-zeek_108.tgz
-    - vmware-carbon-black-cloud_223.tgz
+    - vmware-carbon-black-cloud_224.tgz
   # List of Splunk Apps to install on the Splunk Server
 
   byo_splunk: "0"
