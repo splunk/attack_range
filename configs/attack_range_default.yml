@@ -138,7 +138,7 @@ splunk_server:
     - splunk-add-on-for-microsoft-security_241.tgz
     - splunk-add-on-for-microsoft-windows_901.tgz
     - splunk-add-on-for-nginx_330.tgz
-    - splunk-add-on-for-okta-identity-cloud_221.tgz
+    - splunk-add-on-for-okta-identity-cloud_300.tgz
     - splunk-add-on-for-sysmon-for-linux_100.tgz
     - splunk-add-on-for-sysmon_402.tgz
     - splunk-add-on-for-unix-and-linux_920.tgz
