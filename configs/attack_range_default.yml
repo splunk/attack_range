@@ -130,7 +130,7 @@ splunk_server:
     - snort-3-json-alerts_105.tgz
     - snort-alert-for-splunk_111.tgz
     - splunk-add-on-for-amazon-web-services-(aws)_780.tgz
-    - splunk-add-on-for-crowdstrike-fdr_202.tgz
+    - splunk-add-on-for-crowdstrike-fdr_203.tgz
     - splunk-add-on-for-github_310.tgz
     - splunk-add-on-for-google-workspace_301.tgz
     - splunk-add-on-for-microsoft-cloud-services_541.tgz
