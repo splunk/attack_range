@@ -124,7 +124,7 @@ splunk_server:
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)-cim-add-on_212.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)_300.tgz
     - cisco-security-cloud_311.tgz
-    - cisco-splunk-add-on-for-appdynamics_310.tgz
+    - cisco-splunk-add-on-for-appdynamics_312.tgz
     - microsoft-defender-advanced-hunting-add-on-for-splunk_141.tgz
     - palo-alto-networks-add-on-for-splunk_813.tgz
     - punchcard---custom-visualization_150.tgz
