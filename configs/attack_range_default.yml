@@ -118,44 +118,45 @@ splunk_server:
   # Url to download Splunk Universal Forwarder Windows.
 
   splunk_apps:
+    - CiscoSecurityCloud_311.tgz
+    - DA-ESS-ContentUpdate_520.tgz
+    - Splunk_ML_Toolkit_550.tgz
+    - Splunk_SA_CIM_603.tgz
+    - Splunk_SA_Scientific_Python_linux_x86_64_422.tgz
+    - Splunk_Security_Essentials_381.tgz
+    - Splunk_TA_AppDynamics_312.tgz
+    - Splunk_TA_CrowdStrike_FDR_204.tgz
+    - Splunk_TA_Google_Workspace_303.tgz
+    - Splunk_TA_MS_Security_241.tgz
+    - Splunk_TA_aws_791.tgz
+    - Splunk_TA_github_310.tgz
+    - Splunk_TA_microsoft-cloudservices_543.tgz
+    - Splunk_TA_microsoft_sysmon_402.tgz
+    - Splunk_TA_nginx_330.tgz
+    - Splunk_TA_nix_1000.tgz
+    - Splunk_TA_okta_identity_cloud_300.tgz
+    - Splunk_TA_paloalto_813.tgz
+    - Splunk_TA_paloalto_networks_200.tgz
+    - Splunk_TA_sysmon-for-linux_100.tgz
+    - Splunk_TA_windows_901.tgz
+    - Splunk_TA_zeek_108.tgz
+    - TA-Suricata_233.tgz
     - TA-aurora-0.2.0.tar.gz
+    - TA-cisco-amp4e_212.tgz
+    - TA-microsoft-365-defender-advanced-hunting-add-on_141.tgz
     - TA-osquery.tar.gz
-    - app-for-circleci_011.tgz
-    - cisco-secure-endpoint-(formerly-amp-for-endpoints)-cim-add-on_212.tgz
-    - cisco-secure-endpoint-(formerly-amp-for-endpoints)_300.tgz
-    - cisco-security-cloud_311.tgz
-    - cisco-splunk-add-on-for-appdynamics_312.tgz
-    - microsoft-defender-advanced-hunting-add-on-for-splunk_141.tgz
-    - palo-alto-networks-add-on-for-splunk_813.tgz
-    - punchcard---custom-visualization_150.tgz
-    - python-for-scientific-computing-(for-linux-64-bit)_422.tgz
-    - snort-3-json-alerts_105.tgz
-    - snort-alert-for-splunk_112.tgz
-    - splunk-add-on-for-amazon-web-services-(aws)_791.tgz
-    - splunk-add-on-for-crowdstrike-fdr_204.tgz
-    - splunk-add-on-for-github_310.tgz
-    - splunk-add-on-for-google-workspace_303.tgz
-    - splunk-add-on-for-microsoft-cloud-services_543.tgz
-    - splunk-add-on-for-microsoft-office-365_480.tgz
-    - splunk-add-on-for-microsoft-security_241.tgz
-    - splunk-add-on-for-microsoft-windows_901.tgz
-    - splunk-add-on-for-nginx_330.tgz
-    - splunk-add-on-for-okta-identity-cloud_300.tgz
-    - splunk-add-on-for-sysmon-for-linux_100.tgz
-    - splunk-add-on-for-sysmon_402.tgz
-    - splunk-add-on-for-unix-and-linux_1000.tgz
-    - splunk-app-for-stream_813.tgz
-    - splunk-common-information-model-(cim)_602.tgz
-    - splunk-es-content-update_511.tgz
-    - splunk-machine-learning-toolkit_550.tgz
-    - splunk-sankey-diagram---custom-visualization_160.tgz
-    - splunk-security-essentials_381.tgz
-    - splunk-ta-for-suricata_233.tgz
-    - splunk-timeline---custom-visualization_162.tgz
+    - TA_Snort3_json_105.tgz
+    - amp4e_events_input_300.tgz
+    - circleci_app_011.tgz
+    - punchcard_app_150.tgz
+    - sankey_diagram_app_160.tgz
+    - snortalert_112.tgz
+    - splunk_app_stream_813.tgz
     - splunk_attack_range_reporting-1.0.9.tar.gz
-    - status-indicator---custom-visualization_150.tgz
-    - ta-for-zeek_108.tgz
-    - vmware-carbon-black-cloud_224.tgz
+    - splunk_ta_o365_480.tgz
+    - status_indicator_app_150.tgz
+    - timeline_app_162.tgz
+    - vmware_app_for_splunk_224.tgz
   # List of Splunk Apps to install on the Splunk Server
 
   byo_splunk: "0"
