@@ -145,7 +145,7 @@ splunk_server:
     - splunk-add-on-for-sysmon-for-linux_100.tgz
     - splunk-add-on-for-sysmon_402.tgz
     - splunk-add-on-for-unix-and-linux_1000.tgz
-    - splunk-app-for-stream_813.tgz
+    - splunk-app-for-stream_815.tgz
     - splunk-common-information-model-(cim)_603.tgz
     - splunk-es-content-update_520.tgz
     - splunk-machine-learning-toolkit_550.tgz
