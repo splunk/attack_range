@@ -142,7 +142,7 @@ splunk_server:
     - app-for-circleci_011.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)-cim-add-on_212.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)_300.tgz
-    - cisco-security-cloud_311.tgz
+    - cisco-security-cloud_320.tgz
     - cisco-splunk-add-on-for-appdynamics_312.tgz
     - microsoft-defender-advanced-hunting-add-on-for-splunk_141.tgz
     - palo-alto-networks-add-on-for-splunk_813.tgz
@@ -174,7 +174,7 @@ splunk_server:
     - splunk-timeline---custom-visualization_162.tgz
     - splunk_attack_range_reporting-1.0.9.tar.gz
     - status-indicator---custom-visualization_150.tgz
-    - ta-for-zeek_108.tgz
+    - ta-for-zeek_109.tgz
     - vmware-carbon-black-cloud_225.tgz
   # List of Splunk Apps to install on the Splunk Server
 
