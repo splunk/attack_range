@@ -142,7 +142,7 @@ splunk_server:
     - app-for-circleci_011.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)-cim-add-on_212.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)_300.tgz
-    - cisco-security-cloud_311.tgz
+    - cisco-security-cloud_320.tgz
     - cisco-splunk-add-on-for-appdynamics_312.tgz
     - microsoft-defender-advanced-hunting-add-on-for-splunk_141.tgz
     - palo-alto-networks-add-on-for-splunk_813.tgz
@@ -150,10 +150,10 @@ splunk_server:
     - python-for-scientific-computing-(for-linux-64-bit)_422.tgz
     - snort-3-json-alerts_105.tgz
     - snort-alert-for-splunk_112.tgz
-    - splunk-add-on-for-amazon-web-services-(aws)_791.tgz
+    - splunk-add-on-for-amazon-web-services-(aws)_7100.tgz
     - splunk-add-on-for-crowdstrike-fdr_204.tgz
     - splunk-add-on-for-github_310.tgz
-    - splunk-add-on-for-google-workspace_303.tgz
+    - splunk-add-on-for-google-workspace_304.tgz
     - splunk-add-on-for-microsoft-cloud-services_550.tgz
     - splunk-add-on-for-microsoft-office-365_480.tgz
     - splunk-add-on-for-microsoft-security_250.tgz
@@ -166,7 +166,7 @@ splunk_server:
     - splunk-add-on-for-unix-and-linux_1010.tgz
     - splunk-app-for-stream_815.tgz
     - splunk-common-information-model-(cim)_604.tgz
-    - splunk-es-content-update_540.tgz
+    - splunk-es-content-update_550.tgz
     - splunk-machine-learning-toolkit_550.tgz
     - splunk-sankey-diagram---custom-visualization_160.tgz
     - splunk-security-essentials_381.tgz
@@ -174,7 +174,7 @@ splunk_server:
     - splunk-timeline---custom-visualization_162.tgz
     - splunk_attack_range_reporting-1.0.9.tar.gz
     - status-indicator---custom-visualization_150.tgz
-    - ta-for-zeek_108.tgz
+    - ta-for-zeek_1010.tgz
     - vmware-carbon-black-cloud_225.tgz
   # List of Splunk Apps to install on the Splunk Server
 
