@@ -155,7 +155,7 @@ splunk_server:
     - splunk-add-on-for-github_310.tgz
     - splunk-add-on-for-google-workspace_304.tgz
     - splunk-add-on-for-microsoft-cloud-services_550.tgz
-    - splunk-add-on-for-microsoft-office-365_480.tgz
+    - splunk-add-on-for-microsoft-office-365_481.tgz
     - splunk-add-on-for-microsoft-security_250.tgz
     - splunk-add-on-for-microsoft-windows_901.tgz
     - splunk-add-on-for-nginx_330.tgz
