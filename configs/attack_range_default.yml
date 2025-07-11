@@ -136,10 +136,11 @@ splunk_server:
     - TA-aurora-0.2.0.tar.gz
     - TA-osquery.tar.gz
     - app-for-circleci_011.tgz
+    - cisco-endpoint-security-analytics-(cesa)-add-on-for-splunk_407.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)-cim-add-on_212.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)_300.tgz
-    - cisco-security-cloud_323.tgz
-    - cisco-splunk-add-on-for-appdynamics_312.tgz
+    - cisco-security-cloud_330.tgz
+    - cisco-splunk-add-on-for-appdynamics_314.tgz
     - microsoft-defender-advanced-hunting-add-on-for-splunk_141.tgz
     - palo-alto-networks-add-on-for-splunk_813.tgz
     - punchcard---custom-visualization_150.tgz
@@ -147,25 +148,25 @@ splunk_server:
     - snort-3-json-alerts_105.tgz
     - snort-alert-for-splunk_112.tgz
     - splunk-add-on-for-amazon-web-services-(aws)_7100.tgz
-    - splunk-add-on-for-crowdstrike-fdr_204.tgz
-    - splunk-add-on-for-github_310.tgz
+    - splunk-add-on-for-crowdstrike-fdr_205.tgz
+    - splunk-add-on-for-github_320.tgz
     - splunk-add-on-for-google-workspace_304.tgz
     - splunk-add-on-for-microsoft-cloud-services_550.tgz
-    - splunk-add-on-for-microsoft-office-365_480.tgz
-    - splunk-add-on-for-microsoft-security_250.tgz
+    - splunk-add-on-for-microsoft-office-365_481.tgz
+    - splunk-add-on-for-microsoft-security_254.tgz
     - splunk-add-on-for-microsoft-windows_901.tgz
     - splunk-add-on-for-nginx_330.tgz
-    - splunk-add-on-for-okta-identity-cloud_300.tgz
+    - splunk-add-on-for-okta-identity-cloud_400.tgz
     - splunk-add-on-for-palo-alto-networks_201.tgz
     - splunk-add-on-for-sysmon-for-linux_100.tgz
-    - splunk-add-on-for-sysmon_402.tgz
+    - splunk-add-on-for-sysmon_403.tgz
     - splunk-add-on-for-unix-and-linux_1010.tgz
     - splunk-app-for-stream_815.tgz
-    - splunk-common-information-model-(cim)_604.tgz
-    - splunk-es-content-update_560.tgz
+    - splunk-common-information-model-(cim)_610.tgz
+    - splunk-es-content-update_590.tgz
     - splunk-machine-learning-toolkit_560.tgz
     - splunk-sankey-diagram---custom-visualization_160.tgz
-    - splunk-security-essentials_381.tgz
+    - splunk-security-essentials_382.tgz
     - splunk-ta-for-suricata_233.tgz
     - splunk-timeline---custom-visualization_162.tgz
     - splunk_attack_range_reporting-1.0.9.tar.gz
