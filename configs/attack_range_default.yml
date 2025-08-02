@@ -152,7 +152,7 @@ splunk_server:
     - splunk-add-on-for-github_320.tgz
     - splunk-add-on-for-google-workspace_304.tgz
     - splunk-add-on-for-microsoft-cloud-services_550.tgz
-    - splunk-add-on-for-microsoft-office-365_481.tgz
+    - splunk-add-on-for-microsoft-office-365_490.tgz
     - splunk-add-on-for-microsoft-security_254.tgz
     - splunk-add-on-for-microsoft-windows_901.tgz
     - splunk-add-on-for-nginx_330.tgz
@@ -165,7 +165,7 @@ splunk_server:
     - splunk-app-for-stream_815.tgz
     - splunk-common-information-model-(cim)_610.tgz
     - splunk-es-content-update_5100.tgz
-    - splunk-machine-learning-toolkit_560.tgz
+    - splunk-machine-learning-toolkit_561.tgz
     - splunk-sankey-diagram---custom-visualization_160.tgz
     - splunk-security-essentials_382.tgz
     - splunk-ta-for-suricata_233.tgz
