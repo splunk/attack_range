@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: 'develop'
           token: ${{ secrets.GH_PAT }}  # Add this line to use the PAT for checkout
