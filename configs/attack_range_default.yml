@@ -135,6 +135,7 @@ splunk_server:
   splunk_apps:
     - TA-aurora-0.2.0.tar.gz
     - TA-osquery.tar.gz
+    - add-on-for-cisco-network-data_278.tgz
     - app-for-circleci_011.tgz
     - cisco-endpoint-security-analytics-(cesa)-add-on-for-splunk_407.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)-cim-add-on_212.tgz
@@ -164,7 +165,7 @@ splunk_server:
     - splunk-add-on-for-vmware-esxi-logs_422.tgz
     - splunk-app-for-stream_815.tgz
     - splunk-common-information-model-(cim)_610.tgz
-    - splunk-es-content-update_5120.tgz
+    - splunk-es-content-update_5130.tgz
     - splunk-machine-learning-toolkit_561.tgz
     - splunk-sankey-diagram---custom-visualization_160.tgz
     - splunk-security-essentials_382.tgz
@@ -172,7 +173,7 @@ splunk_server:
     - splunk-timeline---custom-visualization_162.tgz
     - splunk_attack_range_reporting-1.0.9.tar.gz
     - status-indicator---custom-visualization_150.tgz
-    - ta-for-zeek_1010.tgz
+    - ta-for-zeek_1011.tgz
     - vmware-carbon-black-cloud_225.tgz
   # List of Splunk Apps to install on the Splunk Server
 
