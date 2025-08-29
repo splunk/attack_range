@@ -53,7 +53,7 @@ general:
   # Install splunk/contentctl on linux servers
 
 aws:
-  region: "us-west-2"
+  region: "us-west-1"
   # Region used in AWS. This should be the same as the region configured in AWS CLI.
 
   private_key_path: "~/.ssh/id_rsa"
