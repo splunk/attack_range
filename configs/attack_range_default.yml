@@ -166,7 +166,7 @@ splunk_server:
     - splunk-ai-toolkit_563.tgz
     - splunk-app-for-stream_815.tgz
     - splunk-common-information-model-(cim)_620.tgz
-    - splunk-es-content-update_5130.tgz
+    - splunk-es-content-update_5140.tgz
     - splunk-sankey-diagram---custom-visualization_160.tgz
     - splunk-security-essentials_382.tgz
     - splunk-ta-for-suricata_233.tgz
