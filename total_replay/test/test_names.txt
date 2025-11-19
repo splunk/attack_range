@@ -1,0 +1,13 @@
+wsreset_uac_bypass.yml
+wscript_or_cscript_suspicious_child_process.yml
+windows_user_deletion_via_net.yml
+Windows User Disabled Via Net
+Windows Chromium Browser No Security Sandbox Process
+004e32e2-146d-11ec-a83f-acde48001122
+01d29b48-ff6f-11eb-b81e-acde48001123
+#T1014
+T1589.001
+Amos Stealer
+PromptLock
+f64579c0-203f-11ec-abcc-acde48001122
+004e32e2-146d-11ec-a83f-acde48001122

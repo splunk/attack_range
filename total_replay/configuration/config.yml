@@ -1,0 +1,12 @@
+settings:
+  security_content_detection_path: ~/path/to/your/security_content/detections
+  attack_range_dir_path: ~/path/to/your/attack_range
+  attack_data_dir_path: ~/path/to/your/attack_data
+  attack_range_py_name: attack_range.py
+  output_dir_name : output
+  cache_replay_yaml_name : cache_replay_data.yml
+  replayed_yaml_cache_dir_name: replayed_yaml_cache
+  python_interpreter_name: python3
+  attack_range_version_on: True
+  attack_data_version_on: False
+  debug_print: False

@@ -30,6 +30,8 @@ google-cloud-storage = "*"
 google-cloud-bigtable = "*"
 google-cloud-secret-manager = "*"
 google-auth = "*"
+rich = "^14.1.0"
+typer = "^0.16.0"
 
 [[tool.poetry.source]]
 name = "pypi-public"
