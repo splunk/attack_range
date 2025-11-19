@@ -134,7 +134,7 @@ C. TOTAL-REPLAY downloads the required Attack Data each time you execute or repl
 
 ### Other
 
-or replaying captured datasets or event logs during detection development or testing outside of the Splunk Security Content or Splunk Attack Data GitHub repositories, we recommend using the built-in replay.py feature provided by either Splunk Attack Range or Attack Data.
+For replaying captured datasets or event logs during detection development or testing outside of the Splunk Security Content or Splunk Attack Data GitHub repositories, we recommend using the built-in replay.py feature provided by either Splunk Attack Range or Attack Data.
 
 If you have multiple datasets to replay and your metadata matches the format required by TOTAL-REPLAY for caching downloaded datasets, you can recreate that format and use the `local_data_path` feature to replay the data directly from the cache.
 
