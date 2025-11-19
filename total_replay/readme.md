@@ -63,7 +63,8 @@ settings:
   attack_data_dir_path: ~/path/to/your/attack_data
 ```
 8. enable the `attack_data_version_on` config setting in total_replay->configuration->config.yml:
-   **NOTE: You can enable  either `attack_range_version_on` or `attack_data_version_on` settings**
+
+   **NOTE: You can only enable  either `attack_range_version_on` or `attack_data_version_on` settings**
 ```
 attack_data_version_on: True
 ```
