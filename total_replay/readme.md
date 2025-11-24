@@ -33,6 +33,10 @@ settings:
 ```
 attack_range_version_on: True
 ```
+5. if you encounter problem with colorama python library just update it.
+```  
+poetry update colorama
+```
 
 #### TOTAL-REPLAY IN SPLUNK ATTACK-DATA REPO:
 ---
