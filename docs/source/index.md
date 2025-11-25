@@ -22,5 +22,6 @@ Attack Data <Attack_Data>
 Attack Range Features <Attack_Range_Features>
 CapAttack <Cap_Attack>
 Cost Explorer <Cost_Explorer>
+Total Replay <Total_Replay>
 
 ```
