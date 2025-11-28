@@ -52,7 +52,7 @@
 - name: Run es post-install setup
   command: "/opt/splunk/bin/splunk search '| essinstall --ssl_enablement auto' -auth admin:{{ general.attack_range_password }}"
   become: yes
-  async: 600
+  async: 1200
   poll: 60
 
 - name: restart splunk

@@ -132,7 +132,7 @@ resource "google_compute_firewall" "allow_web_services" {
 
     allow { 
         protocol = "tcp" 
-        ports    = ["80", "443", "8080", "8443", "8888"] 
+        ports    = ["80", "443", "8080", "8088", "8443", "8888"] 
     } 
     
     source_ranges = split(",", var.general.ip_whitelist) 

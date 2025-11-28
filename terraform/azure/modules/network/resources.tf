@@ -48,6 +48,18 @@ resource "azurerm_network_security_group" "attackrange-nsg" {
   }
 
   security_rule {
+    name                       = "Splunk_8088"
+    priority                   = 1022
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "8088"
+    source_address_prefixes    = [var.general.ip_whitelist]
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
     name                       = "Splunk_8089"
     priority                   = 1003
     direction                  = "Inbound"
