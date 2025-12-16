@@ -135,13 +135,13 @@ splunk_server:
   splunk_apps:
     - TA-aurora-0.2.0.tar.gz
     - TA-osquery.tar.gz
-    - add-on-for-cisco-network-data_279.tgz
     - app-for-circleci_011.tgz
     - cisco-endpoint-security-analytics-(cesa)-add-on-for-splunk_407.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)-cim-add-on_212.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)_300.tgz
     - cisco-security-cloud_351.tgz
     - cisco-splunk-add-on-for-appdynamics_315.tgz
+    - deprecated-add-on-for-cisco-network-data_279.tgz
     - microsoft-defender-advanced-hunting-add-on-for-splunk_141.tgz
     - palo-alto-networks-add-on-for-splunk_813.tgz
     - punchcard---custom-visualization_150.tgz
@@ -153,11 +153,11 @@ splunk_server:
     - splunk-add-on-for-github_320.tgz
     - splunk-add-on-for-google-workspace_310.tgz
     - splunk-add-on-for-microsoft-cloud-services_600.tgz
-    - splunk-add-on-for-microsoft-office-365_500.tgz
+    - splunk-add-on-for-microsoft-office-365_510.tgz
     - splunk-add-on-for-microsoft-security_300.tgz
-    - splunk-add-on-for-microsoft-windows_911.tgz
+    - splunk-add-on-for-microsoft-windows_912.tgz
     - splunk-add-on-for-nginx_330.tgz
-    - splunk-add-on-for-okta-identity-cloud_410.tgz
+    - splunk-add-on-for-okta-identity-cloud_500.tgz
     - splunk-add-on-for-palo-alto-networks_300.tgz
     - splunk-add-on-for-sysmon-for-linux_100.tgz
     - splunk-add-on-for-sysmon_500.tgz
@@ -166,7 +166,7 @@ splunk_server:
     - splunk-ai-toolkit_564.tgz
     - splunk-app-for-stream_815.tgz
     - splunk-common-information-model-(cim)_630.tgz
-    - splunk-es-content-update_5180.tgz
+    - splunk-es-content-update_5190.tgz
     - splunk-sankey-diagram---custom-visualization_160.tgz
     - splunk-security-essentials_382.tgz
     - splunk-ta-for-suricata_233.tgz
@@ -174,7 +174,7 @@ splunk_server:
     - splunk_attack_range_reporting-1.0.9.tar.gz
     - status-indicator---custom-visualization_150.tgz
     - ta-for-zeek_1011.tgz
-    - ta-ollama_014.tgz
+    - ta-ollama_015.tgz
     - vmware-carbon-black-cloud_225.tgz
   # List of Splunk Apps to install on the Splunk Server
 
