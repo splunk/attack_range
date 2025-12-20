@@ -148,7 +148,7 @@ splunk_server:
     - python-for-scientific-computing-(for-linux-64-bit)_424.tgz
     - snort-3-json-alerts_105.tgz
     - snort-alert-for-splunk_112.tgz
-    - splunk-add-on-for-amazon-web-services-(aws)_800.tgz
+    - splunk-add-on-for-amazon-web-services-(aws)_810.tgz
     - splunk-add-on-for-crowdstrike-fdr_205.tgz
     - splunk-add-on-for-github_320.tgz
     - splunk-add-on-for-google-workspace_310.tgz
