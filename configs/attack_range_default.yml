@@ -139,10 +139,10 @@ splunk_server:
     - cisco-endpoint-security-analytics-(cesa)-add-on-for-splunk_407.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)-cim-add-on_212.tgz
     - cisco-secure-endpoint-(formerly-amp-for-endpoints)_300.tgz
-    - cisco-security-cloud_352.tgz
-    - cisco-splunk-add-on-for-appdynamics_315.tgz
+    - cisco-security-cloud_353.tgz
+    - cisco-splunk-add-on-for-appdynamics_316.tgz
     - deprecated-add-on-for-cisco-network-data_279.tgz
-    - microsoft-defender-advanced-hunting-add-on-for-splunk_141.tgz
+    - microsoft-defender-advanced-hunting-add-on-for-splunk_142.tgz
     - palo-alto-networks-add-on-for-splunk_813.tgz
     - punchcard---custom-visualization_150.tgz
     - python-for-scientific-computing-(for-linux-64-bit)_424.tgz
