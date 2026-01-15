@@ -31,7 +31,7 @@ resource "aws_instance" "zeek_sensor" {
   }
 
   root_block_device {
-    volume_type = "gp2"
+    volume_type = "gp3"
     volume_size = "20"
     delete_on_termination = "true"
     encrypted  = "true"

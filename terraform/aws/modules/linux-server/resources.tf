@@ -27,7 +27,7 @@ resource "aws_instance" "linux_server" {
   associate_public_ip_address = true
 
   root_block_device {
-    volume_type = "gp2"
+    volume_type = "gp3"
     volume_size = "60"
     delete_on_termination = "true"
     encrypted  = "true"

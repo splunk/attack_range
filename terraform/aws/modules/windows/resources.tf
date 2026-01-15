@@ -68,6 +68,7 @@ Resize-Partition -DriveLetter $drive_letter -Size $size.SizeMax
 EOF
 
   root_block_device {
+    volume_type           = "gp3"
     delete_on_termination = true
     volume_size           = 50
     encrypted  = "true"
