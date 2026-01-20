@@ -14,7 +14,7 @@
   when: general.cloud_provider == "local"
 
 - include_tasks: configure_phantom.yml
-  when: phantom_server.phantom_app | regex_search("splunk_soar-unpriv-6")
+  when: phantom_server.phantom_app | regex_search("splunk_soar-unpriv-[67]")
 
 - include_tasks: configure_phantom_old.yml
   when: phantom_server.phantom_app | regex_search("splunk_soar-unpriv-5")
