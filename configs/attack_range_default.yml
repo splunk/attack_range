@@ -145,7 +145,7 @@ splunk_server:
     - microsoft-defender-advanced-hunting-add-on-for-splunk_142.tgz
     - palo-alto-networks-add-on-for-splunk_813.tgz
     - punchcard---custom-visualization_150.tgz
-    - python-for-scientific-computing-(for-linux-64-bit)_424.tgz
+    - python-for-scientific-computing-(for-linux-64-bit)_425.tgz
     - snort-3-json-alerts_105.tgz
     - snort-alert-for-splunk_112.tgz
     - splunk-add-on-for-amazon-web-services-(aws)_810.tgz
@@ -166,9 +166,9 @@ splunk_server:
     - splunk-ai-toolkit_564.tgz
     - splunk-app-for-stream_815.tgz
     - splunk-common-information-model-(cim)_630.tgz
-    - splunk-es-content-update_5190.tgz
+    - splunk-es-content-update_5200.tgz
     - splunk-sankey-diagram---custom-visualization_160.tgz
-    - splunk-security-essentials_382.tgz
+    - splunk-security-essentials_383.tgz
     - splunk-ta-for-suricata_233.tgz
     - splunk-timeline---custom-visualization_162.tgz
     - splunk_attack_range_reporting-1.0.9.tar.gz
