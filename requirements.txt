@@ -16,7 +16,7 @@ certifi==2024.8.30
 cffi==1.17.1
 charset-normalizer==3.3.2
 colorama==0.4.6
-cryptography==44.0.1
+cryptography==46.0.5
 deprecation==2.1.0
 docutils==0.21.2
 flask==3.0.0
