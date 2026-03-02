@@ -1,4 +1,5 @@
 # Splunk Attack Range v5
+
 ![Attack Range Logo](docs/attack_range.png)
 
 The Splunk Attack Range builds instrumented cloud environments (AWS, Azure, GCP), simulates attacks, and forwards data into Splunk for detection development and testing.
@@ -28,8 +29,9 @@ The Splunk Attack Range builds instrumented cloud environments (AWS, Azure, GCP)
 2. **Clone and start:**
 
    ```bash
-   git clone <repo-url>
-   cd attack_range_2
+   git clone https://github.com/splunk/attack_range
+   cd attack_range
+   docker compose -f docker/docker-compose.yml build --no-cache
    docker compose -f docker/docker-compose.yml up
    ```
 
@@ -56,18 +58,24 @@ The Splunk Attack Range builds instrumented cloud environments (AWS, Azure, GCP)
 ## Ways to run
 
 | Method | Use case |
-|-------|----------|
+|--------|----------|
 | **Docker Compose** (recommended) | Run API + web app + optional CLI with one `docker compose`; no local Python/Ansible/Terraform. |
 | **Web app** | Build, destroy, simulate, and share via the UI at port 4321. |
 | **REST API** | Automate from scripts or CI; full OpenAPI docs at `/openapi/swagger`. |
-| **CLI** | `attack_range.py build | destroy | simulate | share` for terminal-based workflows. |
+| **CLI** | `attack_range.py build \| destroy \| simulate \| share` for terminal-based workflows. |
 
 ---
 
 ## Documentation
 
 - **Full docs (Read the Docs):** [https://attack-range.readthedocs.io/](https://attack-range.readthedocs.io/en/latest/)
-- Chapters: **Getting Started**, **Configuration**, **Networking**, **Sharing**, **Templates**, **Ansible Roles**
+- Chapters:
+  - [Getting Started](https://attack-range.readthedocs.io/en/latest/getting-started.html)
+  - [Configuration](https://attack-range.readthedocs.io/en/latest/configuration.html)
+  - [Networking](https://attack-range.readthedocs.io/en/latest/networking.html)
+  - [Sharing](https://attack-range.readthedocs.io/en/latest/sharing.html)
+  - [Templates](https://attack-range.readthedocs.io/en/latest/templates.html)
+  - [Ansible Roles](https://attack-range.readthedocs.io/en/latest/ansible-roles.html)
 
 ---
 
@@ -79,7 +87,8 @@ The Splunk Attack Range builds instrumented cloud environments (AWS, Azure, GCP)
 
 ---
 
-## Support 
+## Support
+
 Please use the [GitHub issue tracker](https://github.com/splunk/attack_range/issues) to submit bugs or request features.
 
 If you have questions or need support, you can:
@@ -90,16 +99,19 @@ If you have questions or need support, you can:
 
 ---
 
-## Contributing 
+## Contributing
+
 We welcome feedback and contributions from the community! Please see our [contribution guidelines](docs/CONTRIBUTING.md) for more information on how to get involved.
 
 ---
 
-## Author
+## Author(s)
+
 * [Jose Hernandez](https://twitter.com/_josehelps)
 * [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 
 ## Contributors
+
 * [Bhavin Patel](https://twitter.com/hackpsy)
 * [Rod Soto](https://twitter.com/rodsoto)
 * Russ Nolen

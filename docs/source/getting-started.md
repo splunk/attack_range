@@ -18,14 +18,16 @@ Docker Compose runs the API, web app, and (optionally) the CLI without installin
 1. **Start the stack:**
 
    ```bash
-   cd attack_range_2
-   docker compose -f docker/docker-compose.yml up 
+   git clone https://github.com/splunk/attack_range.git
+   cd attack_range
+   docker compose -f docker/docker-compose.yml build --no-cache
+   docker compose -f docker/docker-compose.yml up
    ```
 
    This starts:
 
-   - **API** on port **4000**
-   - **Web app** on port **4321**
+   - The **API** on port **4000**
+   - The **Web app** on port **4321**
 
 2. **Open the web app:** [http://localhost:4321](http://localhost:4321)
 
@@ -33,8 +35,8 @@ Docker Compose runs the API, web app, and (optionally) the CLI without installin
 
    - Choose a template (e.g. **aws/splunk_minimal_aws**).
    - Click build. The backend runs **Phase 1** (VPN infrastructure).
-   - When status is **Waiting for VPN**, download the WireGuard client config.
-   - Connect to the VPN using WireGuard (Desktop or mobile).
+   - When status changes to **Waiting for VPN**, download/copy the WireGuard client config.
+   - Connect to the VPN using WireGuard (Desktop or mobile). If you are using WSL2 make sure to install WireGuard on the host machine not the WSL instance.
    - Click **Continue build** to run **Phase 2** (lab: Splunk, Windows, etc.).
 
 4. **Optional — CLI in Docker:**
@@ -107,9 +109,9 @@ Config can be a path or an attack range ID (e.g. `uuid.yml` in `config/`). If om
 
 Attack Range uses a two-phase build so the lab is only reachable over VPN:
 
-1. **Phase 1 (VPN):** Terraform creates the network and a router; Ansible configures WireGuard on the router and generates a client config. Status becomes **wait_for_vpn**.
-2. **You:** Download the WireGuard config, connect with the WireGuard client.
-3. **Phase 2 (Lab):** You trigger the continuation (in the app or with a second API call or by answering the CLI prompt). Ansible provisions Splunk, Windows, Kali, etc. over the VPN. Status becomes **running**.
+1. **Phase 1 (VPN):** Terraform creates the network and a router; Ansible configures WireGuard on the router and generates a client config. Status becomes `wait_for_vpn`.
+2. **You:** Download or copy the WireGuard config, connect with the WireGuard client.
+3. **Phase 2 (Lab):** You trigger the continuation (in the app or with a second API call or by answering the CLI prompt). Ansible provisions Splunk, Windows, Kali, etc. over the VPN. Status becomes `running`.
 
 This keeps lab IPs (e.g. 10.0.2.x) off the public internet.
 
