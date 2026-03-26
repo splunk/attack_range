@@ -13,7 +13,7 @@
     "test:debug": "playwright test --debug"
   },
   "dependencies": {
-    "astro": "^5.16.9",
+    "astro": "^5.18.1",
     "@astrojs/node": "^9.0.0"
   },
   "devDependencies": {
