@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "astro": "^5.16.9",
-    "@astrojs/node": "^9.0.0"
+    "@astrojs/node": "^10.0.5"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",
