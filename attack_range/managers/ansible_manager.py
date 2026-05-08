@@ -18,6 +18,7 @@ import shlex
 import logging
 import ansible_runner
 from typing import Optional, Dict, Any
+from attack_range.utils import strip_ansi
 
 # Galaxy role that must always be updated to latest before VPN playbooks (vpn.yaml, vpn_config.yaml)
 WIREGUARD_GALAXY_ROLE = "p4t12ick.ar_wireguard_vpn"
@@ -598,11 +599,15 @@ class AnsibleManager:
                 extra_vars_parts = [f"-e {k}={shlex.quote(str(v))}" for k, v in extra_vars.items()]
                 cmdline = f"{cmdline} {' '.join(extra_vars_parts)}"
 
+        ansible_env = os.environ.copy()
+        ansible_env["ANSIBLE_NO_COLOR"] = "1"
+
         runner = ansible_runner.run(
             private_data_dir=self.ansible_dir,
             cmdline=cmdline,
             playbook=playbook_name,
-            verbosity=2,  # Increased verbosity for better error diagnostics
+            verbosity=2,
+            envvars=ansible_env,
         )
 
         if extra_vars_path and os.path.exists(extra_vars_path):
@@ -633,12 +638,12 @@ class AnsibleManager:
                     if event.get('event') in ['runner_on_failed', 'runner_on_unreachable', 'runner_on_error']:
                         host = event_data.get('host', 'unknown')
                         task = event_data.get('task', 'unknown')
-                        msg = event_data.get('msg', 'No error message')
+                        msg = strip_ansi(str(event_data.get('msg', 'No error message')))
                         error_events.append(f"Host: {host}, Task: {task}, Error: {msg}")
                 
                 if error_events:
                     self.logger.error("Ansible playbook errors:")
-                    for error in error_events[-10:]:  # Show last 10 errors
+                    for error in error_events[-10:]:
                         self.logger.error(f"  - {error}")
             
             # Try to read stdout/stderr from the runner's artifact directory
@@ -646,9 +651,8 @@ class AnsibleManager:
                 stdout_path = os.path.join(self.ansible_dir, 'artifacts', str(runner.config.ident), 'stdout')
                 if os.path.exists(stdout_path):
                     with open(stdout_path, 'r') as f:
-                        stdout_content = f.read()
+                        stdout_content = strip_ansi(f.read())
                         if stdout_content:
-                            # Log last 50 lines of stdout
                             lines = stdout_content.strip().split('\n')
                             self.logger.error("Last 50 lines of Ansible output:")
                             for line in lines[-50:]:
@@ -721,11 +725,15 @@ class AnsibleManager:
                 extra_vars_parts = [f"-e {k}={shlex.quote(str(v))}" for k, v in extra_vars.items()]
                 cmdline = f"{cmdline} {' '.join(extra_vars_parts)}"
 
+        ansible_env = os.environ.copy()
+        ansible_env["ANSIBLE_NO_COLOR"] = "1"
+
         runner = ansible_runner.run(
             private_data_dir=self.ansible_dir,
             cmdline=cmdline,
             playbook=playbook_name,
-            verbosity=2,  # Increased verbosity for better error diagnostics
+            verbosity=2,
+            envvars=ansible_env,
         )
 
         if extra_vars_path and os.path.exists(extra_vars_path):
@@ -970,13 +978,13 @@ class AnsibleManager:
                     if event.get('event') in ['runner_on_failed', 'runner_on_unreachable', 'runner_on_error']:
                         host = event_data.get('host', 'unknown')
                         task = event_data.get('task', 'unknown')
-                        msg = event_data.get('msg', 'No error message')
+                        msg = strip_ansi(str(event_data.get('msg', 'No error message')))
                         error_events.append(f"Host: {host}, Task: {task}, Error: {msg}")
                 
                 if error_events:
                     error_details.extend(error_events)
                     self.logger.error("Ansible playbook errors:")
-                    for error in error_events[-10:]:  # Show last 10 errors
+                    for error in error_events[-10:]:
                         self.logger.error(f"  - {error}")
             
             # Try to read stdout/stderr from the runner's artifact directory
@@ -984,9 +992,8 @@ class AnsibleManager:
                 stdout_path = os.path.join(self.ansible_dir, 'artifacts', str(runner.config.ident), 'stdout')
                 if os.path.exists(stdout_path):
                     with open(stdout_path, 'r') as f:
-                        stdout_content = f.read()
+                        stdout_content = strip_ansi(f.read())
                         if stdout_content:
-                            # Get last 50 lines of stdout
                             lines = stdout_content.strip().split('\n')
                             last_lines = lines[-50:] if len(lines) > 50 else lines
                             error_details.append("Last Ansible output:")

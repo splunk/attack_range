@@ -11,7 +11,8 @@ import json
 import subprocess
 import shutil
 import logging
-from python_terraform import Terraform, IsNotFlagged
+from python_terraform import Terraform, IsNotFlagged, IsFlagged
+from attack_range.utils import strip_ansi
 
 
 class TerraformManager:
@@ -110,7 +111,7 @@ class TerraformManager:
                 text=True
             )
             if init_result.returncode != 0:
-                msg = init_result.stderr or init_result.stdout or "Terraform init failed"
+                msg = strip_ansi(init_result.stderr or init_result.stdout or "Terraform init failed")
                 self.logger.error(f"Terraform init failed: {msg}")
                 raise RuntimeError(msg)
             self.logger.info("Terraform initialized successfully")
@@ -131,7 +132,7 @@ class TerraformManager:
                 text=True
             )
             if init_result.returncode != 0:
-                msg = init_result.stderr or init_result.stdout or "Terraform init failed"
+                msg = strip_ansi(init_result.stderr or init_result.stdout or "Terraform init failed")
                 self.logger.error(f"Terraform init failed: {msg}")
                 raise RuntimeError(msg)
             self.logger.info("Terraform initialized successfully")
@@ -144,8 +145,11 @@ class TerraformManager:
         """
         self.logger.info("Applying terraform configuration...")
         return_code, stdout, stderr = self.terraform.apply(
-            capture_output="yes", skip_plan=True, no_color=IsNotFlagged
+            capture_output="yes", skip_plan=True, no_color=IsFlagged
         )
+
+        stdout = strip_ansi(stdout) if stdout else stdout
+        stderr = strip_ansi(stderr) if stderr else stderr
 
         if return_code != 0:
             self.logger.error("Terraform apply failed!")
@@ -189,31 +193,33 @@ class TerraformManager:
         self.logger.info("Destroying terraform infrastructure...")
         return_code, stdout, stderr = self.terraform.destroy(
             capture_output="yes",
-            no_color=IsNotFlagged,
+            no_color=IsFlagged,
             force=IsNotFlagged,
             auto_approve=True,
         )
 
+        stdout = strip_ansi(stdout) if stdout else stdout
+        stderr = strip_ansi(stderr) if stderr else stderr
+
         if return_code != 0:
-            # Check if error is due to locked state
             error_output = stderr or stdout or ""
             if "Error acquiring the state lock" in error_output or "lock is currently held" in error_output.lower():
-                # Try to extract lock ID from error message
                 import re
                 lock_id_match = re.search(r'Lock ID:\s*([a-f0-9-]+)', error_output, re.IGNORECASE)
                 if lock_id_match:
                     lock_id = lock_id_match.group(1)
                     self.logger.warning(f"Terraform state is locked. Attempting to unlock with ID: {lock_id}")
                     self.force_unlock(lock_id)
-                    # Retry destroy after unlock
                     self.logger.info("Retrying terraform destroy after unlock...")
                     return_code, stdout, stderr = self.terraform.destroy(
                         capture_output="yes",
-                        no_color=IsNotFlagged,
+                        no_color=IsFlagged,
                         force=IsNotFlagged,
                         auto_approve=True,
                     )
-            
+                    stdout = strip_ansi(stdout) if stdout else stdout
+                    stderr = strip_ansi(stderr) if stderr else stderr
+
             if return_code != 0:
                 self.logger.error(f"Terraform destroy failed: {stderr}")
                 raise RuntimeError(stderr or "Terraform destroy failed")
