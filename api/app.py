@@ -13,6 +13,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional, Tuple, List
 
 from flask import jsonify, request
+from attack_range.utils import strip_ansi
 from flask_openapi3 import OpenAPI, Info, Tag
 from flask_cors import CORS
 from pydantic import ValidationError
@@ -493,16 +494,16 @@ def run_build_vpn_phase(config: Dict[str, Any], config_path: str, attack_range_i
             with operations_lock:
                 running_operations[attack_range_id]["status"] = "error"
                 running_operations[attack_range_id]["end_time"] = datetime.now().isoformat()
-                running_operations[attack_range_id]["error"] = str(e)
+                running_operations[attack_range_id]["error"] = strip_ansi(str(e))
                 running_operations[attack_range_id]["error_phase"] = "build_vpn"
-                running_operations[attack_range_id]["traceback"] = traceback.format_exc()
+                running_operations[attack_range_id]["traceback"] = strip_ansi(traceback.format_exc())
 
             # Update error status in config file (via controller if available, else direct write)
             try:
                 controller = AttackRangeController(config, config_path=config_path)
-                controller.config_manager.update_status("error", error=str(e), error_phase="build_vpn")
+                controller.config_manager.update_status("error", error=strip_ansi(str(e)), error_phase="build_vpn")
             except Exception:
-                _write_config_error_status(config_path, str(e), "build_vpn")
+                _write_config_error_status(config_path, strip_ansi(str(e)), "build_vpn")
 
 
 def run_build_lab_phase(attack_range_id: str):
@@ -552,18 +553,18 @@ def run_build_lab_phase(attack_range_id: str):
                     config_path = get_config_path_from_attack_range_id(attack_range_id)
                 running_operations[attack_range_id]["status"] = "error"
                 running_operations[attack_range_id]["end_time"] = datetime.now().isoformat()
-                running_operations[attack_range_id]["error"] = str(e)
+                running_operations[attack_range_id]["error"] = strip_ansi(str(e))
                 running_operations[attack_range_id]["error_phase"] = "build_lab"
-                running_operations[attack_range_id]["traceback"] = traceback.format_exc()
+                running_operations[attack_range_id]["traceback"] = strip_ansi(traceback.format_exc())
 
             # Update error status in config file (via controller if available, else direct write)
             if config_path:
                 try:
                     config = load_yaml_file(config_path)
                     controller = AttackRangeController(config, config_path=config_path)
-                    controller.config_manager.update_status("error", error=str(e), error_phase="build_lab")
+                    controller.config_manager.update_status("error", error=strip_ansi(str(e)), error_phase="build_lab")
                 except Exception:
-                    _write_config_error_status(config_path, str(e), "build_lab")
+                    _write_config_error_status(config_path, strip_ansi(str(e)), "build_lab")
 
 
 def run_destroy_operation(
@@ -603,13 +604,13 @@ def run_destroy_operation(
         with operations_lock:
             running_operations[attack_range_id]["status"] = "failed"
             running_operations[attack_range_id]["end_time"] = datetime.now().isoformat()
-            running_operations[attack_range_id]["error"] = str(e)
-            running_operations[attack_range_id]["traceback"] = traceback.format_exc()
+            running_operations[attack_range_id]["error"] = strip_ansi(str(e))
+            running_operations[attack_range_id]["traceback"] = strip_ansi(traceback.format_exc())
 
         if config_path:
             try:
                 c = AttackRangeController(config, config_path=config_path)
-                c.config_manager.update_status("failed", error=str(e))
+                c.config_manager.update_status("failed", error=strip_ansi(str(e)))
             except Exception:
                 pass
 

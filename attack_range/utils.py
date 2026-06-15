@@ -6,10 +6,29 @@ for template resolution and config preparation.
 """
 
 import os
+import re
 import uuid
 import yaml
 from typing import Dict, Any, Tuple, Optional
 from datetime import datetime
+
+_ANSI_ESCAPE_RE = re.compile(r'\x1b\[[0-9;]*[a-zA-Z]')
+
+
+def strip_ansi(text: str) -> str:
+    """
+    Remove ANSI escape sequences from text.
+
+    Subprocess output from tools like Terraform and Ansible may contain
+    terminal color codes (e.g., '\\x1b[31m') that are not readable in
+    web app logs, structured error messages, or API responses.
+
+    :param text: String that may contain ANSI escape sequences
+    :return: String with all ANSI sequences removed
+    """
+    if not text:
+        return text
+    return _ANSI_ESCAPE_RE.sub('', text)
 
 
 def resolve_template_path(template: str, templates_dir: str) -> str:
