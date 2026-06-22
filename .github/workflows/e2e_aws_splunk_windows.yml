@@ -79,7 +79,7 @@ jobs:
 
       - name: Upload config for destroy fallback
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-attack-range-config
           path: config/
