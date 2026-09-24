@@ -107,6 +107,23 @@ Keys must match the role name in your template exactly. During build, overridden
 
 Roles not listed in `ATTACK_RANGE_LOCAL_ROLES` continue to install from Ansible Galaxy.
 
+## Cisco FMC Galaxy role
+
+The `P4T12ICK.ar_cisco_fmc` role waits for the FMC REST API and for FTDv to finish booting, starts a 90-day Smart License evaluation (required before FMCv will accept FTD), creates a lab access policy, then registers FTDv and waits until the device appears in FMC. FMC accepting registration (`202`) is not enough — first boot plus sftunnel join often takes another 10–30 minutes. Seeing FTD under **Devices** is registration success, not a successful policy deploy. The REST add-device API defaults the performance tier to **FTDv50** (12 vCPU / 24 GB); this lab uses `c5.xlarge` (4 vCPU / 8 GB), so the role registers **FTDv5**, names Ethernet0/0 `outside` (`10.0.4.x`) and Ethernet0/1 `inside` (`10.0.5.x`), and submits the first deploy. Use it from the `aws/cisco_fmc_ftd_aws` template. The AWS account must already be subscribed to the Cisco FMCv and FTDv Marketplace listings. **FMC/FTD logging to Splunk is not automated** — configure Audit Log and Integrations > Splunk in the FMC GUI after the build (see [Templates](templates.md#cisco_fmc_ftd_aws)).
+
+## Splunk syslog inputs
+
+The `aws/cisco_fmc_ftd_aws` template builds **Splunk first**, then FMC/FTD, then Windows on the FTD inside network:
+
+1. `P4T12ICK.ludus_ar_splunk` — install Splunk Enterprise on `10.0.2.10` with **Cisco Security Cloud** in `ludus_ar_splunk_apps`, and with `ludus_ar_splunk_syslog: true` create index `syslog` plus UDP/TCP inputs on **514** (FMC audit, `cisco:fmc:audit`) and **1514** (FTD events, `cisco:ftd:syslog`).
+2. `P4T12ICK.ar_cisco_fmc` — register FTD, name inside/outside interfaces, attach security zones, add an allow-and-log rule with lab IPS policy **AR-IPS-Policy** (Balanced base, Snort 3 SID `1:498` **INDICATOR-COMPROMISE id check returned root** enabled so `http://testmyids.com/` alerts), PAT `10.0.5.0/24` to the outside interface, and route VPN/mgmt/default via outside. Configure FMC Audit Log (`10.0.2.10:514`) and Integrations > Splunk (`10.0.2.10:1514`) in the GUI after the build.
+3. `P4T12ICK.ludus_ar_windows` — Windows Server 2022 at `10.0.5.11` (`network: inside`). Traffic to Splunk and the internet is steered through FTDv (inside PAT to the outside interface).
+
+Search in Splunk:
+
+- Audit logs: `index=syslog sourcetype=cisco:fmc:audit`
+- Firewall events: `index=syslog sourcetype=cisco:ftd:syslog`
+
 ## Summary
 
 - **Templates** define which Ansible roles run on which servers via the **roles** list under each server in `attack_range`.

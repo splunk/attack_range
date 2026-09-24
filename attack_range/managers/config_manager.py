@@ -99,6 +99,40 @@ class ConfigManager:
                 f"Zeek server: {zeek_server_name}"
             )
 
+    def validate_cisco_aws_only(self) -> None:
+        """
+        Validate that Cisco FMC/FTD servers are only used with the AWS provider.
+        Marketplace AMIs and multi-NIC FTDv layout are AWS-specific.
+        """
+        attack_range_config = self.config.get("attack_range", [])
+        cisco_servers = [
+            server.get("name")
+            for server in attack_range_config
+            if server.get("cisco_fmc") or server.get("cisco_ftd")
+        ]
+        if not cisco_servers:
+            return
+
+        if self.cloud_provider != "aws":
+            self.logger.error(
+                "Cisco FMC/FTD deployment is only supported on AWS. "
+                f"Found Cisco server(s): {', '.join(str(name) for name in cisco_servers)}."
+            )
+            sys.exit(1)
+
+        password = str(self.config.get("general", {}).get("attack_range_password") or "")
+        if password and not (
+            len(password) >= 8
+            and any(c.isupper() for c in password)
+            and any(c.islower() for c in password)
+            and any(c.isdigit() for c in password)
+        ):
+            self.logger.warning(
+                "Cisco FMC/FTD admin passwords typically require at least 8 characters "
+                "including uppercase, lowercase, and a digit. The current "
+                "attack_range_password may be rejected by day-0 configuration."
+            )
+
     def generate_and_set_attack_range_id(self) -> str:
         """
         Generate a new UUID and set it in general.attack_range_id.
@@ -241,6 +275,9 @@ class ConfigManager:
             for key, value in kwargs.items():
                 if value is not None:
                     self.config["general"][key] = value
+            if status not in ["error", "failed"]:
+                self.config["general"].pop("error", None)
+                self.config["general"].pop("error_phase", None)
             return
         
         try:
@@ -260,6 +297,11 @@ class ConfigManager:
             for key, value in kwargs.items():
                 if value is not None:
                     config["general"][key] = value
+
+            # Drop leftover failure fields when leaving an error state (e.g. lab retry)
+            if status not in ["error", "failed"]:
+                config["general"].pop("error", None)
+                config["general"].pop("error_phase", None)
             
             # Store timestamps
             if status in ["build_vpn", "build_lab", "running"]:
@@ -279,6 +321,9 @@ class ConfigManager:
             for key, value in kwargs.items():
                 if value is not None:
                     self.config["general"][key] = value
+            if status not in ["error", "failed"]:
+                self.config["general"].pop("error", None)
+                self.config["general"].pop("error_phase", None)
                     
         except Exception as e:
             self.logger.warning(f"Failed to update config status in {self.config_path}: {e}")

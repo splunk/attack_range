@@ -23,6 +23,8 @@ import logging
 import ansible_runner
 from typing import Optional, Dict, Any, List
 
+from attack_range.utils import server_private_ip
+
 # Galaxy role that must always be updated to latest before VPN playbooks (vpn.yaml, vpn_config.yaml)
 WIREGUARD_GALAXY_ROLE = "p4t12ick.ar_wireguard_vpn"
 WG_CI_CLIENT_CONFIG = "client1.conf"
@@ -339,19 +341,28 @@ class AnsibleManager:
             ip_last_octet = server.get("ip_last_octet")
             is_windows = server.get("windows", False)
             is_linux = server.get("linux", False)
+            is_cisco_fmc = bool(server.get("cisco_fmc"))
+            is_cisco_ftd = bool(server.get("cisco_ftd"))
             roles = server.get("roles", [])
 
             if not server_name or ip_last_octet is None:
                 self.logger.warning(f"Skipping server entry missing name or ip_last_octet: {server}")
                 continue
 
-            # Generate IP address
-            private_ip = f"10.0.2.{ip_last_octet}"
+            private_ip = server_private_ip(server)
 
             # Build host configuration
             host_config = {}
 
-            if is_windows:
+            if is_cisco_fmc or is_cisco_ftd:
+                # Appliances have no Python/SSH for Ansible; FMC is configured via REST from the controller.
+                host_config = {
+                    "ansible_connection": "local",
+                    "ansible_python_interpreter": sys.executable,
+                    "ansible_user": server.get("user_name", "admin"),
+                    "ansible_password": self.config["general"]["attack_range_password"],
+                }
+            elif is_windows:
                 # Windows configuration
                 # Use user_name from config if provided, otherwise default based on cloud provider
                 windows_user = server.get("user_name")
@@ -370,9 +381,9 @@ class AnsibleManager:
                     "ansible_winrm_scheme": "http",
                     "ansible_winrm_kerberos_delegation": False,
                     "ansible_winrm_message_encryption": "never",
-                    "ansible_winrm_retry_timeout": 600,
-                    "ansible_winrm_retry_interval": 10,
-                    "ansible_winrm_connection_retries": 3,
+                    "ansible_winrm_retry_timeout": 3600,
+                    "ansible_winrm_retry_interval": 15,
+                    "ansible_winrm_connection_retries": 40,
                 }
             elif is_linux:
                 # Linux configuration
@@ -501,6 +512,13 @@ class AnsibleManager:
 
         self.logger.info("Inventory password updated successfully")
 
+    def _vpn_allowed_ips(self) -> str:
+        """Return WireGuard AllowedIPs for lab subnets, including Cisco FTD data nets when present."""
+        cidrs = ["10.0.1.0/24", "10.0.2.0/24"]
+        if any(server.get("cisco_ftd") for server in self.config.get("attack_range", [])):
+            cidrs.extend(["10.0.3.0/24", "10.0.4.0/24", "10.0.5.0/24"])
+        return ", ".join(cidrs)
+
     def _get_vpn_clients(self) -> list:
         """Return vpn_clients from config or default for playbook generation."""
         return self.config.get("general", {}).get("vpn_clients") or [
@@ -534,7 +552,7 @@ class AnsibleManager:
                     "role": "p4t12ick.ar_wireguard_vpn",
                     "vpn_physical_interface": physical_interface,
                     "vpn_address": "10.0.1.10/24",
-                    "vpn_allowed_ips": "10.0.1.0/24, 10.0.2.0/24",
+                    "vpn_allowed_ips": self._vpn_allowed_ips(),
                     "vpn_endpoint": router_public_ip,
                     "wireguard_action": "deploy",
                     "vpn_clients": vpn_clients,
@@ -564,7 +582,7 @@ class AnsibleManager:
                 {
                     "role": "p4t12ick.ar_wireguard_vpn",
                     "wireguard_action": "get_config",
-                    "vpn_allowed_ips": "10.0.1.0/24, 10.0.2.0/24",
+                    "vpn_allowed_ips": self._vpn_allowed_ips(),
                     "vpn_clients": vpn_clients,
                 }
             ],
@@ -598,6 +616,10 @@ class AnsibleManager:
         plays_by_hosts = {}
 
         for entry in attack_range_config:
+            if entry.get("cisco_ftd"):
+                # FTD is configured by day-0 user-data and FMC registration, not SSH Ansible.
+                continue
+
             entry_name = entry.get("name")
             roles = entry.get("roles", [])
 
@@ -662,6 +684,7 @@ class AnsibleManager:
             }
             # Check if this is a Windows host - don't set become: true for Windows
             is_windows = False
+            is_cisco_fmc = False
             entry_become = None
             for entry in attack_range_config:
                 entry_name = entry.get("name")
@@ -669,19 +692,43 @@ class AnsibleManager:
                 # Check if this entry matches the hosts_name
                 if entry_name == hosts_name:
                     is_windows = entry.get("windows", False)
+                    is_cisco_fmc = bool(entry.get("cisco_fmc"))
                     entry_become = entry.get("become")
                     break
                 # Check if any role in this entry has inventory_name matching hosts_name
                 for role in roles:
                     if isinstance(role, dict) and role.get("inventory_name") == hosts_name:
                         is_windows = entry.get("windows", False)
+                        is_cisco_fmc = bool(entry.get("cisco_fmc"))
                         entry_become = entry.get("become")
                         break
-                if entry_become is not None or is_windows:
+                if entry_become is not None or is_windows or is_cisco_fmc:
                     break
 
             # Don't set become: true for Windows hosts, otherwise default to become: true
-            if is_windows:
+            if is_cisco_fmc:
+                play["connection"] = "local"
+                play["gather_facts"] = False
+                play["become"] = False if entry_become is None else entry_become
+            elif is_windows:
+                play["gather_facts"] = True
+                play["pre_tasks"] = [
+                    {
+                        "name": "Wait for WinRM",
+                        "ansible.builtin.wait_for": {
+                            "host": "{{ inventory_hostname }}",
+                            "port": 5985,
+                            "timeout": 3600,
+                            "sleep": 10,
+                            "msg": "WinRM on {{ inventory_hostname }}:5985 did not become reachable",
+                        },
+                        "delegate_to": "localhost",
+                        "vars": {
+                            "ansible_connection": "local",
+                            "ansible_python_interpreter": "{{ ansible_playbook_python }}",
+                        },
+                    }
+                ]
                 # Windows hosts don't use become: true at playbook level
                 if entry_become is not None:
                     play["become"] = entry_become
@@ -1015,7 +1062,18 @@ class AnsibleManager:
             return execution_output if execution_output else None
         else:
             self.logger.error(f"Playbook {playbook_name} failed with status: {runner.status}")
-            
+
+            # Atomic simulations often capture per-test results before a later task
+            # (for example cleanup WinRM errors) fails the playbook. Return partial
+            # output so callers can record failed atomics instead of aborting.
+            if execution_output and execution_output.get("results"):
+                self.logger.warning(
+                    "Playbook failed but atomic execution results were captured; "
+                    "returning partial execution output"
+                )
+                execution_output["playbook_status"] = runner.status
+                return execution_output
+
             # Collect error details
             error_details = [f"Playbook failed with status: {runner.status}"]
             
@@ -1178,6 +1236,17 @@ class AnsibleManager:
                 if os.path.isdir(candidate):
                     return candidate
         return None
+
+    def _is_bundled_role(self, role_name: str) -> bool:
+        """Return True for repo-shipped roles that must not be installed from Galaxy."""
+        if not role_name or "." in role_name:
+            return False
+        role_dir = os.path.join(self._roles_install_path(), role_name)
+        tasks_candidates = (
+            os.path.join(role_dir, "tasks", "main.yml"),
+            os.path.join(role_dir, "tasks", "main.yaml"),
+        )
+        return any(os.path.isfile(candidate) for candidate in tasks_candidates)
 
     def _is_role_installed(self, role_name: str) -> bool:
         """
@@ -1400,6 +1469,9 @@ class AnsibleManager:
 
         failed_roles = []
         for role_name in sorted(roles_to_install):
+            if self._is_bundled_role(role_name):
+                self.logger.info(f"Using bundled role '{role_name}', skipping Galaxy install")
+                continue
             if not self.install_ansible_galaxy_role(role_name):
                 failed_roles.append(role_name)
 
@@ -1407,7 +1479,7 @@ class AnsibleManager:
             self.logger.error(f"Failed to install {len(failed_roles)} role(s): {', '.join(failed_roles)}")
             sys.exit(1)
 
-        self.logger.info(f"All {len(roles_to_install)} ansible galaxy roles installed successfully")
+        self.logger.info(f"All {len(roles_to_install)} ansible role(s) installed successfully")
 
     def _validate_role_directory(self, path: str) -> None:
         """Require a directory with tasks/main.yml or tasks/main.yaml."""

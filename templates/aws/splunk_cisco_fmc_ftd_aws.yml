@@ -1,0 +1,111 @@
+general:
+  attack_range_password: Changeme123!
+  cloud_provider: aws
+  attack_range_name: ar
+  ip_whitelist: 0.0.0.0/0
+  description: AWS deployment with Splunk, Cisco FMCv, FTDv, Windows behind FTD, and Kali
+aws:
+  region: eu-central-1
+  aws_default_tags:
+    splunkit_environment_type: non-prd
+    splunkit_data_classification: private
+attack_range:
+- name: splunk
+  ami_name_filter: ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*
+  ami_owner: "099720109477"
+  instance_type: t3.xlarge
+  ip_last_octet: 10
+  linux: true
+  user_name: ubuntu
+  roles:
+  - role: P4T12ICK.ludus_ar_splunk
+    vars:
+      ludus_ar_splunk_url: https://download.splunk.com/products/splunk/releases/10.2.2/linux/splunk-10.2.2-80b90d638de6-linux-amd64.tgz
+      ludus_ar_splunk_password: Changeme123!
+      ludus_ar_splunk_syslog: true
+      ludus_ar_splunk_apps:
+        - splunk-add-on-for-microsoft-windows_901.tgz
+        - splunk-add-on-for-sysmon-for-linux_100.tgz
+        - splunk-add-on-for-sysmon_402.tgz
+        - splunk-add-on-for-unix-and-linux_1000.tgz
+        - splunk-common-information-model-(cim)_602.tgz
+        - DA-ESS-ContentUpdate-latest.tar.gz
+        - cisco-security-cloud_372.tgz
+  - role: P4T12ICK.ar_guacamole
+    vars:
+      ar_guacamole_password: Changeme123!
+      ar_guacamole_servers:
+        - name: splunk
+          protocol: ssh
+          hostname: 10.0.2.10
+          port: 22
+          username: ubuntu
+          password: Changeme123!
+        - name: kali
+          protocol: vnc
+          hostname: 10.0.2.12
+          port: 5901
+          password: s3cr3t!
+- name: fmc
+  cisco_fmc: true
+  ami_name_filter: Cisco-Secure-Firewall-Management-Center-(FMCv)-x86-10.0.1-1-c2367183-*
+  ami_owner: aws-marketplace
+  ami_product_code: bhx85r4r91ls2uwl69ajm9v1b
+  instance_type: c5.4xlarge
+  ip_last_octet: 20
+  user_name: admin
+  become: false
+  root_volume_size: 250
+  roles:
+  - role: P4T12ICK.ar_cisco_fmc
+    vars:
+      ar_cisco_fmc_password: Changeme123!
+      ar_cisco_fmc_ftd_name: ftd
+      ar_cisco_fmc_ftd_mgmt_ip: 10.0.2.21
+      ar_cisco_fmc_reg_key: cisco
+      ar_cisco_fmc_nat_id: cisco
+      ar_cisco_fmc_ftd_performance_tier: FTDv5
+      ar_cisco_fmc_ftd_outside_ip: 10.0.4.21
+      ar_cisco_fmc_ftd_inside_ip: 10.0.5.21
+      ar_cisco_fmc_syslog_host: 10.0.2.10
+      ar_cisco_fmc_syslog_port: 514
+      ar_cisco_fmc_syslog_tag: FMC-AUDIT-LOG
+      ar_cisco_fmc_splunk_port: 1514
+      ar_cisco_fmc_splunk_tag: FMC-EVENTS
+- name: ftd
+  cisco_ftd: true
+  ami_name_filter: Cisco-Secure-Firewall-(FTDv)-x86-10.0.0-140-ad0af76e-*
+  ami_owner: aws-marketplace
+  ami_product_code: a8sxy6easi2zumgtyr564z6y7
+  instance_type: c5.xlarge
+  ip_last_octet: 21
+  user_name: admin
+  root_volume_size: 120
+  reg_key: cisco
+  nat_id: cisco
+- name: win
+  ami_name_filter: Windows_Server-2022-English-Full-Base-*
+  ami_owner: "801119661308"
+  instance_type: t3.large
+  ip_last_octet: 11
+  network: inside
+  windows: true
+  user_name: Administrator
+  roles:
+  - role: P4T12ICK.ludus_ar_windows
+    vars:
+      ludus_ar_windows_password: Changeme123!
+      ludus_ar_windows_splunk_ip: 10.0.2.10
+- name: kali
+  ami_name_filter: debian-kali-last-snapshot-amd64-*
+  ami_owner: "679593333241"
+  ami_product_code: 7lgvy7mt78lgoi4lant0znp5h
+  instance_type: t3.large
+  ip_last_octet: 12
+  linux: true
+  user_name: kali
+  roles:
+  - role: P4T12ICK.ar_kali
+    vars:
+      ar_kali_password: s3cr3t!
+      ar_kali_metasploit_rpc_password: changeme123!
