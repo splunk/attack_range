@@ -7,7 +7,8 @@ terraform/ansible/inventory.yaml
 terraform/ansible/lab.yaml
 terraform/ansible/vpn.yaml
 terraform/ansible/vpn_config.yaml
-terraform/ansible/client_configs/
+# Galaxy-installed roles
+terraform/ansible/roles/*
 terraform/ansible/artifacts/*
 terraform/ansible/env/*
 vagrant/*vars.json

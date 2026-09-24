@@ -13,7 +13,7 @@ class HealthResponse(BaseModel):
 class BuildRequest(BaseModel):
     """Request model for building an attack range."""
     template: Optional[str] = Field(None, description="Template name or path (e.g., 'aws/splunk_minimal_aws', 'splunk_minimal_aws.yml') - Required for new builds")
-    attack_range_id: Optional[str] = Field(None, description="Attack range ID to continue building (for phase 2 after VPN connection)")
+    attack_range_id: Optional[str] = Field(None, description="Attack range ID to continue building (for phase 2 after VPN connection, or to retry the lab playbook after a lab-phase error)")
     cloud_overrides: Optional[Dict[str, Dict[str, Any]]] = Field(
         None,
         description="Cloud-specific values to inject into config when copying template to configs (e.g. {\"azure\": {\"location\": \"West Europe\", \"subscription_id\": \"xxx\"}})"
@@ -77,7 +77,7 @@ class OperationStatusResponse(BaseModel):
     attack_range_name: Optional[str] = Field(None, description="Attack range name (from general.attack_range_name)")
     template_name: Optional[str] = Field(None, description="Template name used for this attack range")
     router_public_ip: Optional[str] = Field(None, description="Router public IP address")
-    wireguard_config: Optional[str] = Field(None, description="WireGuard VPN configuration (available during wait_for_vpn status)")
+    wireguard_config: Optional[str] = Field(None, description="WireGuard VPN configuration (available during wait_for_vpn and lab-phase error retry)")
     wireguard_config_path: Optional[str] = Field(None, description="Path to WireGuard config file")
     sharing: Optional[Dict[str, str]] = Field(None, description="Shared WireGuard configs: name -> config (from general.sharing)")
     result: Optional[Dict[str, Any]] = Field(None, description="Operation result (for completed operations)")

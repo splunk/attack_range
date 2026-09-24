@@ -56,8 +56,9 @@ attack_range:
       ludus_ar_windows_password: changeme123!
       ludus_ar_windows_splunk_ip: 10.0.2.10
 - name: kali
-  ami_name_filter: kali-last-snapshot-amd64-*
+  ami_name_filter: debian-kali-last-snapshot-amd64-*
   ami_owner: "679593333241"
+  ami_product_code: 7lgvy7mt78lgoi4lant0znp5h
   instance_type: t3.large
   ip_last_octet: 12
   linux: true
@@ -66,3 +67,4 @@ attack_range:
   - role: P4T12ICK.ar_kali
     vars:
       ar_kali_password: s3cr3t!
+      ar_kali_metasploit_rpc_password: changeme123!

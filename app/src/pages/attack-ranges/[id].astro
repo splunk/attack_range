@@ -175,7 +175,7 @@ if (id) {
 									{server.ip_last_octet !== undefined && (
 										<div class="server-detail">
 											<span class="detail-label">IP:</span>
-											<span class="detail-value">10.0.2.{server.ip_last_octet}</span>
+											<span class="detail-value">{server.private_ip || `10.0.2.${server.ip_last_octet}`}</span>
 										</div>
 									)}
 									{server.roles && server.roles.length > 0 && (
@@ -210,6 +210,35 @@ if (id) {
 					)}
 					{attackRange.error && (
 						<pre class="error-message-pre">{attackRange.error}</pre>
+					)}
+					{attackRange.traceback && (
+						<details>
+							<summary>Traceback</summary>
+							<pre><code>{attackRange.traceback}</code></pre>
+						</details>
+					)}
+					{attackRange.error_phase === 'build_lab' && (
+						<div class="lab-retry-section">
+							<p>Reconnect WireGuard if needed, then retry the lab playbook. You can also destroy this range from the button above.</p>
+							{attackRange.router_public_ip && (
+								<p>Router IP: <strong>{attackRange.router_public_ip}</strong></p>
+							)}
+							{attackRange.wireguard_config && (
+								<div class="wireguard-config">
+									<details data-attack-range-id={attackRange.attack_range_id}>
+										<summary>WireGuard Config</summary>
+										<pre><code>{attackRange.wireguard_config}</code></pre>
+									</details>
+								</div>
+							)}
+							<button
+								class="btn-primary continue-button"
+								data-id={attackRange.attack_range_id}
+								data-label="Retry Lab Playbook"
+							>
+								Retry Lab Playbook
+							</button>
+						</div>
 					)}
 				</div>
 			)}
@@ -267,7 +296,11 @@ if (id) {
 							</details>
 						</div>
 					)}
-					<button class="btn-primary continue-button" data-id={attackRange.attack_range_id}>
+					<button
+						class="btn-primary continue-button"
+						data-id={attackRange.attack_range_id}
+						data-label="Continue Build (After VPN Connection)"
+					>
 						Continue Build (After VPN Connection)
 					</button>
 				</div>
@@ -443,20 +476,6 @@ if (id) {
 						</button>
 					</form>
 					<div id="splunk-export-result" class="simulation-result" style="display: none;"></div>
-				</div>
-			)}
-
-			{attackRange.status === 'error' && (
-				<div class="detail-section error-section">
-					<h3>Error</h3>
-					<p><strong>Phase:</strong> {attackRange.error_phase || 'Unknown'}</p>
-					<p><strong>Message:</strong> {attackRange.error || 'Unknown error'}</p>
-					{attackRange.traceback && (
-						<details>
-							<summary>Traceback</summary>
-							<pre><code>{attackRange.traceback}</code></pre>
-						</details>
-					)}
 				</div>
 			)}
 
@@ -709,16 +728,16 @@ if (id) {
 			});
 		}
 
-		// Handle continue build button
-		const continueButton = document.querySelector('.continue-button');
-		if (continueButton) {
+		// Handle continue / retry lab playbook buttons
+		document.querySelectorAll('.continue-button').forEach((continueButton) => {
 			continueButton.addEventListener('click', async () => {
 				const attackRangeId = (continueButton as HTMLElement).dataset.id;
 				if (!attackRangeId) return;
 
 				const btn = continueButton as HTMLButtonElement;
+				const defaultLabel = btn.dataset.label || btn.textContent || 'Continue';
 				btn.disabled = true;
-				btn.textContent = 'Continuing...';
+				btn.textContent = 'Starting...';
 
 				try {
 					const response = await fetch(`${API_BASE_URL}/attack-range/build`, {
@@ -734,17 +753,16 @@ if (id) {
 						throw new Error(error.message || 'Failed to continue build');
 					}
 
-					// Reload page to show updated status
 					setTimeout(() => {
 						window.location.reload();
 					}, 1000);
 				} catch (error) {
 					alert(`Error: ${error instanceof Error ? error.message : 'Failed to continue build'}`);
 					btn.disabled = false;
-					btn.textContent = 'Continue Build (After VPN Connection)';
+					btn.textContent = defaultLabel;
 				}
 			});
-		}
+		});
 
 		// Handle simulation form
 		const simulateForm = document.getElementById('simulate-form') as HTMLFormElement;
@@ -1312,6 +1330,17 @@ if (id) {
 
 	.continue-button {
 		margin-top: 1.25rem;
+	}
+
+	.lab-retry-section {
+		margin-top: 1.25rem;
+		padding-top: 1.25rem;
+		border-top: 1px solid rgba(239, 68, 68, 0.2);
+	}
+
+	.lab-retry-section p {
+		margin: 0 0 0.75rem;
+		color: var(--color-text-muted);
 	}
 
 	.error-section {
