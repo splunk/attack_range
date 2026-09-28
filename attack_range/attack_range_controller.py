@@ -169,6 +169,9 @@ class AttackRangeController:
         # Validate zeek_monitor configuration
         self.config_manager.validate_zeek_monitor_config()
 
+        # Validate Cisco FMC/FTD is AWS-only
+        self.config_manager.validate_cisco_aws_only()
+
         # Check if attack range with this attack_range_id is already deployed
         config_file_path = os.path.join(self.attack_range_dir, f"{attack_range_id}.yml")
         if os.path.exists(config_file_path):
@@ -376,18 +379,36 @@ class AttackRangeController:
         if abort_check and abort_check():
             raise RuntimeError("Build aborted")
 
-        # Update inventory with attack_range servers
-        self.ansible_manager.update_inventory_attack_range_servers()
+        try:
+            # Update inventory with attack_range servers
+            self.ansible_manager.update_inventory_attack_range_servers()
 
-        # Update lab.yaml playbook based on config
-        self.ansible_manager.update_lab_playbook()
+            # Update lab.yaml playbook based on config
+            self.ansible_manager.update_lab_playbook()
 
-        # Update inventory password for Windows hosts
-        self.ansible_manager.update_inventory_password()
+            # Update inventory password for Windows hosts
+            self.ansible_manager.update_inventory_password()
 
-        # Run lab ansible playbook (lab.yaml) to configure attack range servers
-        self.logger.info("Running lab deployment playbook...")
-        self.ansible_manager.run_ansible_playbook("lab.yaml")
+            # Run lab ansible playbook (lab.yaml) to configure attack range servers
+            self.logger.info("Running lab deployment playbook...")
+            self.ansible_manager.run_ansible_playbook_safe("lab.yaml")
+        except (Exception, SystemExit) as e:
+            if isinstance(e, SystemExit) and e.code in (0, None):
+                raise
+            if "Build aborted" in str(e):
+                raise
+            error_msg = str(e) if not isinstance(e, SystemExit) else "Lab Ansible playbook failed."
+            if len(error_msg) > 8000:
+                error_msg = error_msg[-8000:]
+            self.config_manager.update_status(
+                "error",
+                error=error_msg,
+                error_phase="build_lab",
+                router_public_ip=router_public_ip,
+            )
+            if isinstance(e, SystemExit):
+                raise RuntimeError(error_msg) from e
+            raise
         if abort_check and abort_check():
             raise RuntimeError("Build aborted")
 

@@ -80,12 +80,14 @@ Each entry under `attack_range` is a machine:
 |-------|-------------|
 | `name` | Host name; used as Ansible inventory host and as simulation target. |
 | `instance_type` | Cloud instance type (e.g. `t3.xlarge`, `Standard_D4s_v3`). |
-| `ip_last_octet` | Last octet of the private IP (e.g. 10 → `10.0.2.10`). |
+| `ip_last_octet` | Last octet of the private IP (e.g. 10 → `10.0.2.10`, or `10.0.5.10` when `network: inside`). |
+| `network` | Optional AWS subnet: `mgmt` (default, `10.0.2.0/24`), `inside` (`10.0.5.0/24` behind FTDv), `outside` (`10.0.4.0/24`), `diag` (`10.0.3.0/24`). |
 | `linux` / `windows` | OS type. |
+| `cisco_fmc` / `cisco_ftd` | AWS-only flags that deploy Cisco Secure Firewall Management Center or Threat Defense from Marketplace AMIs (multi-NIC for FTD, day-0 config, no generic Linux user-data). |
 | `user_name` | SSH (Linux) or RDP (Windows) user. |
 | `roles` | List of Ansible roles (and optional `vars`) applied to this server. |
 
-Additional provider-specific fields (e.g. `ami_name_filter`, `image_offer`) are set per server in templates.
+Additional provider-specific fields (e.g. `ami_name_filter`, `ami_owner`, `ami_product_code`, `image_offer`) are set per server in templates.
 
 ## Where configs live
 

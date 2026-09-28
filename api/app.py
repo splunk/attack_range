@@ -21,8 +21,9 @@ from pydantic import ValidationError
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from attack_range.attack_range_controller import AttackRangeController
+from attack_range.build_status import can_retry_lab_phase, is_stale_lab_build
 from attack_range.splunk_export import SplunkExportError, export_raw_events
-from attack_range.utils import prepare_config_from_template, resolve_template_path, load_yaml_file, save_yaml_file
+from attack_range.utils import prepare_config_from_template, resolve_template_path, load_yaml_file, save_yaml_file, server_private_ip
 from api.cloud_fields import get_cloud_fields_schema, get_gcp_zones_for_region
 from api.models import (
     HealthResponse,
@@ -96,7 +97,7 @@ WIREGUARD_CONFIG_DIR = os.path.join(BASE_DIR, "wireguard_config")
 
 # Global state for tracking running operations
 running_operations: Dict[str, Dict[str, Any]] = {}
-operations_lock = threading.Lock()
+operations_lock = threading.RLock()
 
 
 def check_cli_available(cli_command: str, version_flag: str = "--version") -> Tuple[bool, Optional[str]]:
@@ -382,6 +383,82 @@ def get_templates() -> list:
 # Note: get_wireguard_config and update_config_status are now handled by the controller
 
 
+def _is_lab_thread_alive(attack_range_id: str) -> bool:
+    with operations_lock:
+        op = running_operations.get(attack_range_id) or {}
+        thread = op.get("thread")
+        return bool(thread is not None and getattr(thread, "is_alive", lambda: False)())
+
+
+def _mark_lab_playbook_error(attack_range_id: str, config_path: Optional[str], error: str) -> None:
+    """Persist lab-playbook failure so the UI can offer destroy or retry."""
+    message = error or "Lab Ansible playbook failed."
+    if len(message) > 8000:
+        message = message[-8000:]
+    with operations_lock:
+        op = running_operations.get(attack_range_id)
+        if op is not None:
+            op["status"] = "error"
+            op["error"] = message
+            op["error_phase"] = "build_lab"
+            op["end_time"] = datetime.now().isoformat()
+    if config_path:
+        try:
+            config = load_yaml_file(config_path)
+            controller = AttackRangeController(config, config_path=config_path)
+            controller.config_manager.update_status(
+                "error", error=message, error_phase="build_lab"
+            )
+        except Exception:
+            _write_config_error_status(config_path, message, "build_lab")
+
+
+def _reconcile_stale_lab_status(
+    attack_range_id: str,
+    operation_dict: Dict[str, Any],
+    config_path: Optional[str],
+) -> Dict[str, Any]:
+    """If lab Ansible exited without updating status, surface an error instead of build_lab."""
+    status = operation_dict.get("status")
+    if not is_stale_lab_build(status, _is_lab_thread_alive(attack_range_id)):
+        return operation_dict
+    error_msg = (
+        operation_dict.get("error")
+        or "Lab Ansible playbook failed or the build process exited unexpectedly."
+    )
+    _mark_lab_playbook_error(attack_range_id, config_path, error_msg)
+    operation_dict["status"] = "error"
+    operation_dict["error"] = error_msg
+    operation_dict["error_phase"] = "build_lab"
+    return operation_dict
+
+
+def _attach_wireguard_config(
+    operation_dict: Dict[str, Any],
+    general: Optional[Dict[str, Any]],
+    attack_range_id: str,
+) -> None:
+    """Expose WireGuard config whenever the lab playbook can be started or retried."""
+    if not can_retry_lab_phase(operation_dict.get("status"), operation_dict.get("error_phase")):
+        return
+    general = general or {}
+    wireguard_config = general.get("wireguard_config")
+    if wireguard_config:
+        operation_dict["wireguard_config"] = wireguard_config
+        operation_dict["wireguard_config_path"] = os.path.join(
+            WIREGUARD_CONFIG_DIR, f"{attack_range_id}.conf"
+        )
+        return
+    wireguard_config_path = os.path.join(WIREGUARD_CONFIG_DIR, f"{attack_range_id}.conf")
+    if os.path.exists(wireguard_config_path):
+        operation_dict["wireguard_config_path"] = wireguard_config_path
+        try:
+            with open(wireguard_config_path, "r") as f:
+                operation_dict["wireguard_config"] = f.read()
+        except Exception:
+            pass
+
+
 def get_config_path_from_attack_range_id(attack_range_id: str) -> Optional[str]:
     """Get config file path from attack_range_id."""
     config_filename = f"{attack_range_id}.yml"
@@ -569,28 +646,20 @@ def run_build_lab_phase(attack_range_id: str):
                 "config_file": config_path
             }
             
-    except Exception as e:
+    except (Exception, SystemExit) as e:
+        if isinstance(e, SystemExit) and e.code in (0, None):
+            raise
         is_aborted = "Build aborted" in str(e)
+        if is_aborted:
+            return
         config_path = None
-        if not is_aborted:
-            with operations_lock:
-                config_path = running_operations[attack_range_id].get("config_path")
-                if not config_path:
-                    config_path = get_config_path_from_attack_range_id(attack_range_id)
-                running_operations[attack_range_id]["status"] = "error"
-                running_operations[attack_range_id]["end_time"] = datetime.now().isoformat()
-                running_operations[attack_range_id]["error"] = str(e)
-                running_operations[attack_range_id]["error_phase"] = "build_lab"
-                running_operations[attack_range_id]["traceback"] = traceback.format_exc()
-
-            # Update error status in config file (via controller if available, else direct write)
-            if config_path:
-                try:
-                    config = load_yaml_file(config_path)
-                    controller = AttackRangeController(config, config_path=config_path)
-                    controller.config_manager.update_status("error", error=str(e), error_phase="build_lab")
-                except Exception:
-                    _write_config_error_status(config_path, str(e), "build_lab")
+        with operations_lock:
+            op = running_operations.get(attack_range_id) or {}
+            config_path = op.get("config_path") or get_config_path_from_attack_range_id(attack_range_id)
+            op["traceback"] = traceback.format_exc()
+            running_operations[attack_range_id] = op
+        error_msg = str(e) if not isinstance(e, SystemExit) else "Lab Ansible playbook failed."
+        _mark_lab_playbook_error(attack_range_id, config_path, error_msg)
 
 
 def run_destroy_operation(
@@ -676,7 +745,7 @@ def health():
     tags=[attack_range_tag],
     responses={202: BuildResponse, 400: ErrorResponse, 404: ErrorResponse, 500: ErrorResponse},
     summary="Build attack range",
-    description="Build a new attack range (provide 'template') OR continue existing build after VPN connection (provide 'attack_range_id'). This is an asynchronous operation."
+    description="Build a new attack range (provide 'template') OR continue after VPN / retry the lab playbook after a lab-phase error (provide 'attack_range_id'). This is an asynchronous operation."
 )
 def build_attack_range(body: BuildRequest):
     """Build a new attack range or continue existing build."""
@@ -704,51 +773,78 @@ def build_attack_range(body: BuildRequest):
             
             # Check status from running_operations or config file
             status = None
+            error_phase = None
             config_path = None
-            
+
             with operations_lock:
                 if attack_range_id in running_operations:
                     status = running_operations[attack_range_id].get("status")
+                    error_phase = running_operations[attack_range_id].get("error_phase")
                     config_path = running_operations[attack_range_id].get("config_path")
-            
-            # If not in running_operations, check config file
-            if not status:
+
+            if not config_path:
                 config_path = get_config_path_from_attack_range_id(attack_range_id)
-                if config_path:
-                    operation = load_operation_from_config(config_path)
-                    if operation:
-                        status = operation.get("status")
-                        # Update running_operations with info from config
-                        with operations_lock:
-                            if attack_range_id not in running_operations:
-                                running_operations[attack_range_id] = operation
-                                running_operations[attack_range_id]["config_path"] = config_path
-            
+
+            persisted = None
+            if config_path:
+                persisted = load_operation_from_config(config_path)
+                if persisted:
+                    status = persisted.get("status") or status
+                    error_phase = persisted.get("error_phase") or error_phase
+                    with operations_lock:
+                        if attack_range_id not in running_operations:
+                            running_operations[attack_range_id] = persisted
+                        running_operations[attack_range_id]["config_path"] = config_path
+
+            snapshot = _reconcile_stale_lab_status(
+                attack_range_id,
+                {"status": status, "error_phase": error_phase},
+                config_path,
+            )
+            status = snapshot.get("status")
+            error_phase = snapshot.get("error_phase")
+
             if not status:
                 return jsonify(ErrorResponse(
                     message=f"No build found for attack_range_id: {attack_range_id}",
                     details="Make sure you started a build first"
                 ).model_dump()), 404
-            
-            if status != "wait_for_vpn":
+
+            if _is_lab_thread_alive(attack_range_id):
                 return jsonify(ErrorResponse(
-                    message=f"Build is not waiting for VPN connection. Current status: {status}",
-                    details="The attack range must be in 'wait_for_vpn' status to continue"
+                    message="Lab build is already in progress",
+                    details="Wait for the current lab playbook to finish, then retry if it fails"
                 ).model_dump()), 400
-            
+
+            if not can_retry_lab_phase(status, error_phase):
+                return jsonify(ErrorResponse(
+                    message=f"Cannot retry the lab playbook from status '{status}'",
+                    details="Reconnect WireGuard and retry after a lab-phase error, or continue from wait_for_vpn"
+                ).model_dump()), 400
+
             # Ensure config_path is set in running_operations
             if config_path:
                 with operations_lock:
                     if attack_range_id in running_operations:
                         running_operations[attack_range_id]["config_path"] = config_path
-            
+
             # Start phase 2 in a separate thread
             thread = threading.Thread(
                 target=run_build_lab_phase,
                 args=(attack_range_id,)
             )
             thread.daemon = True
-            thread.start()
+            with operations_lock:
+                if attack_range_id not in running_operations:
+                    running_operations[attack_range_id] = {
+                        "type": "build",
+                        "status": "build_lab",
+                        "attack_range_id": attack_range_id,
+                        "config_path": config_path,
+                    }
+                running_operations[attack_range_id]["status"] = "build_lab"
+                running_operations[attack_range_id]["thread"] = thread
+                thread.start()
             
             return jsonify(BuildResponse(
                 status="accepted",
@@ -1009,6 +1105,7 @@ def get_attack_range_status(path: AttackRangeIdPath):
             operation["attack_range_id"] = attack_range_id
     
     # If config file exists, prioritize status from config file over running_operations
+    general = None
     if config_path and os.path.exists(config_path):
         config_content = load_yaml_file(config_path)
         if config_content:
@@ -1017,6 +1114,12 @@ def get_attack_range_status(path: AttackRangeIdPath):
             if config_status and operation:
                 # Config file is source of truth for status
                 operation["status"] = config_status
+            if operation and general.get("error"):
+                operation["error"] = general["error"]
+            if operation and general.get("error_phase"):
+                operation["error_phase"] = general["error_phase"]
+            if operation and general.get("router_public_ip"):
+                operation["router_public_ip"] = general["router_public_ip"]
             # Merge sharing from config (e.g. after a share) when available
             if operation and general.get("sharing") and isinstance(general.get("sharing"), dict):
                 operation["sharing"] = general["sharing"]
@@ -1035,6 +1138,9 @@ def get_attack_range_status(path: AttackRangeIdPath):
         return jsonify(ErrorResponse(
             message=f"Attack range not found: {attack_range_id}"
         ).model_dump()), 404
+
+    operation = _reconcile_stale_lab_status(attack_range_id, operation, config_path)
+    _attach_wireguard_config(operation, general, attack_range_id)
     
     # If running and has config_file, load architecture and Guacamole info
     # This ensures architecture and guacamole_info are loaded even when operation is in running_operations
@@ -1065,6 +1171,7 @@ def get_attack_range_status(path: AttackRangeIdPath):
     
     build_statuses = ("queued", "build_vpn", "build_lab")
     operation["abort_allowed"] = operation.get("status") in build_statuses and not operation.get("terraform_running", False)
+    operation.pop("thread", None)
 
     # Validate and return as OperationStatusResponse
     return jsonify(OperationStatusResponse(**operation).model_dump()), 200
@@ -1215,6 +1322,8 @@ def load_architecture_from_config(config_path: str) -> Optional[List[Dict[str, A
                             "name": server.get("name", ""),
                             "instance_type": server.get("instance_type"),
                             "ip_last_octet": server.get("ip_last_octet"),
+                            "private_ip": server_private_ip(server) if server.get("ip_last_octet") is not None else None,
+                            "network": server.get("network"),
                             "os_type": os_type,
                             "roles": roles if roles else None,
                             "zeek": server.get("zeek"),
@@ -1305,25 +1414,8 @@ def load_operation_from_config(config_path: str) -> Optional[Dict[str, Any]]:
         
         operation_dict["result"] = result
         
-        # Add wireguard config if status is wait_for_vpn
-        if status == "wait_for_vpn":
-            # First try to get wireguard_config from config YAML file (general.wireguard_config)
-            wireguard_config = general.get("wireguard_config")
-            if wireguard_config:
-                operation_dict["wireguard_config"] = wireguard_config
-                # Also set the path for reference
-                wireguard_config_path = os.path.join(WIREGUARD_CONFIG_DIR, f"{attack_range_id}.conf")
-                operation_dict["wireguard_config_path"] = wireguard_config_path
-            else:
-                # Fallback: read from file system (for backward compatibility)
-                wireguard_config_path = os.path.join(WIREGUARD_CONFIG_DIR, f"{attack_range_id}.conf")
-                if os.path.exists(wireguard_config_path):
-                    operation_dict["wireguard_config_path"] = wireguard_config_path
-                    try:
-                        with open(wireguard_config_path, 'r') as f:
-                            operation_dict["wireguard_config"] = f.read()
-                    except Exception:
-                        pass
+        operation_dict = _reconcile_stale_lab_status(attack_range_id, operation_dict, config_path)
+        _attach_wireguard_config(operation_dict, general, attack_range_id)
 
         # Add sharing (general.sharing: name -> config) when available
         sharing = general.get("sharing")
@@ -1385,6 +1477,15 @@ def list_attack_ranges():
                     attack_range_name = general.get("attack_range_name")
                     if attack_range_name:
                         operation_dict["attack_range_name"] = attack_range_name
+                    if general.get("error"):
+                        operation_dict["error"] = general["error"]
+                    if general.get("error_phase"):
+                        operation_dict["error_phase"] = general["error_phase"]
+                    if general.get("router_public_ip"):
+                        operation_dict["router_public_ip"] = general["router_public_ip"]
+                    _attach_wireguard_config(operation_dict, general, ar_id)
+
+            operation_dict = _reconcile_stale_lab_status(ar_id, operation_dict, config_path)
             
             # If running and has config_file, load architecture and Guacamole info
             if operation_dict.get("status") == "running" and op.get("result") and op["result"].get("config_file"):
@@ -1402,6 +1503,7 @@ def list_attack_ranges():
                         operation_dict["result"] = {}
                     operation_dict["result"]["guacamole_info"] = guacamole_info
             
+            operation_dict.pop("thread", None)
             operations_list.append(OperationStatusResponse(**operation_dict))
     
     # Then, scan config directory for config files that aren't in running_operations

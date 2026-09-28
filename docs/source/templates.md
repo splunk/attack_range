@@ -29,44 +29,90 @@ The **template identifier** you use in the API or CLI can be:
 - **Name only:** `splunk_minimal_aws` (searched across all provider dirs)
 - **With extension:** `splunk_minimal_aws.yml`
 
-## Built-in templates (by provider)
+## Built-in templates
+
+Each template is a ready-to-build lab. Identifiers are `provider/name` (for example `aws/cisco_fmc_ftd_aws`). Exact instance types, images, and role vars are in the YAML; use `GET /templates/<provider>/<name>` to inspect.
 
 ### AWS (`templates/aws/`)
 
-| Template | Description |
-|----------|-------------|
-| `splunk_minimal_aws.yml` | Single Splunk server (minimal). |
-| `splunk_linux_aws.yml` | Splunk + Linux servers. |
-| `splunk_windows_aws.yml` | Splunk + Windows. |
-| `splunk_windows_kali_aws.yml` | Splunk + Windows + Kali. |
-| `splunk_ad_aws.yml` | Splunk + Active Directory style layout. |
-| `splunk_es_aws.yml` | Splunk + Enterprise Security. |
-| `splunk_soar_aws.yml` | Splunk + SOAR. |
-| `splunk_zeek_windows_aws.yml` | Splunk + Zeek + Windows. |
+#### `splunk_minimal_aws`
+
+Single Splunk Enterprise server. Use this as the smallest working range or as a starting point for a custom template.
+
+#### `splunk_minimal_all_apps`
+
+Same layout as `splunk_minimal_aws`, with a larger set of Splunk apps/TAs preinstalled (Windows, Sysmon, Unix, CIM, Content Update, Cisco Security Cloud, and others).
+
+#### `splunk_linux_aws`
+
+Splunk plus a Linux endpoint for testing Linux-based attacks. Forwarders send host data into Splunk.
+
+#### `splunk_windows_aws`
+
+Splunk plus a Windows endpoint for testing Windows-based attacks. Sysmon and the Windows TA are installed on the endpoint.
+
+#### `splunk_windows_kali_aws`
+
+Splunk, a Windows endpoint, and Kali Linux (Guacamole VNC to Kali). Use this when you want an attacker box in the same range as the victim.
+
+#### `splunk_ad_aws`
+
+Splunk, a Windows Active Directory domain controller, and a domain-joined Windows endpoint.
+
+#### `splunk_es_aws`
+
+Splunk with the Enterprise Security add-on for advanced security analytics.
+
+#### `splunk_soar_aws`
+
+Splunk plus a Splunk SOAR (Phantom) instance.
+
+#### `splunk_zeek_windows_aws`
+
+Splunk, a Zeek network sensor, and a Windows endpoint whose traffic is monitored by Zeek.
+
+#### `cisco_fmc_ftd_aws` {#cisco_fmc_ftd_aws}
+
+AWS-only lab: Splunk, Cisco Secure Firewall Management Center (FMCv), Threat Defense (FTDv), a Windows victim on the FTD inside network (`10.0.5.11`), and Kali.
+
+The AWS account must already be subscribed to the Cisco FMCv and FTDv BYOL Marketplace listings. First boot plus FTD registration can take 45–90 minutes. Access:
+
+- Splunk: `http://10.0.2.10:8000` (admin / `attack_range_password`)
+- FMC: `https://10.0.2.20` (admin / `attack_range_password`)
+- Windows RDP: `10.0.5.11` (Administrator / `attack_range_password`)
+
+**Logging to Splunk is not configured automatically.** Splunk is built first with syslog listeners (UDP/TCP **514** for FMC audit, sourcetype `cisco:fmc:audit`; UDP/TCP **1514** for FTD events, sourcetype `cisco:ftd:syslog`) and the Cisco Security Cloud TA. After the range is **running**, send FMC/FTD logs to Splunk in the FMC GUI:
+
+1. Open **System > Configuration > Audit Log**. Enable syslog to Splunk at `10.0.2.10` UDP **514** (facility AUDIT, tag `FMC-AUDIT-LOG`).
+2. Open **Integrations > Splunk** and create a profile that sends events to `10.0.2.10` UDP **1514**.
+3. **Deploy** the changes to FTD.
+
+Search in Splunk:
+
+- Audit logs: `index=syslog sourcetype=cisco:fmc:audit`
+- Firewall events: `index=syslog sourcetype=cisco:ftd:syslog`
 
 ### Azure (`templates/azure/`)
 
 | Template | Description |
 |----------|-------------|
 | `splunk_minimal_azure.yml` | Single Splunk server. |
-| `splunk_linux_azure.yml` | Splunk + Linux. |
-| `splunk_windows_azure.yml` | Splunk + Windows. |
-| `splunk_full_azure.yml` | Full stack. |
-| `splunk_ad_azure.yml` | Splunk + AD. |
-| `splunk_es_azure.yml` | Splunk + Enterprise Security. |
+| `splunk_linux_azure.yml` | Splunk plus a Linux endpoint for testing Linux-based attacks. |
+| `splunk_windows_azure.yml` | Splunk plus a Windows endpoint for testing Windows-based attacks. |
+| `splunk_full_azure.yml` | Splunk plus Linux and Windows endpoints. |
+| `splunk_ad_azure.yml` | Splunk, Windows Active Directory domain controller, and a domain-joined Windows endpoint. |
+| `splunk_es_azure.yml` | Splunk with the Enterprise Security add-on. |
 
 ### GCP (`templates/gcp/`)
 
 | Template | Description |
 |----------|-------------|
 | `splunk_minimal_gcp.yml` | Single Splunk server. |
-| `splunk_linux_gcp.yml` | Splunk + Linux. |
-| `splunk_windows_gcp.yml` | Splunk + Windows. |
-| `splunk_ad_gcp.yml` | Splunk + AD. |
-| `splunk_es_gcp.yml` | Splunk + Enterprise Security. |
-| `splunk_zeek_windows_gcp.yml` | Splunk + Zeek + Windows. |
-
-Exact contents (instance types, images, roles) may vary; use the file or the API `GET /templates/<provider>/<name>` to inspect.
+| `splunk_linux_gcp.yml` | Splunk plus a Linux endpoint for testing Linux-based attacks. |
+| `splunk_windows_gcp.yml` | Splunk plus a Windows endpoint for testing Windows-based attacks. |
+| `splunk_ad_gcp.yml` | Splunk, Windows Active Directory domain controller, and a domain-joined Windows endpoint. |
+| `splunk_es_gcp.yml` | Splunk with the Enterprise Security add-on. |
+| `splunk_zeek_windows_gcp.yml` | Splunk, Zeek network monitoring, and a Windows endpoint. |
 
 ## Template structure
 
@@ -77,9 +123,9 @@ A template has the same layout as a [configuration](configuration.md) file:
 2. **Provider block** — Either `aws`, `azure`, or `gcp` with region, tags, and (for AWS) optional key/image defaults.
 
 3. **attack_range** — List of servers. Each server has:
-   - `name`, `instance_type`, `ip_last_octet`, `linux` or `windows`, `user_name`
+   - `name`, `instance_type`, `ip_last_octet`, `linux` or `windows` (or `cisco_fmc` / `cisco_ftd` on AWS), `user_name`
    - Provider-specific image/AMI fields (e.g. `ami_name_filter`/`ami_owner` for AWS, `image_publisher`/`image_offer`/`image_sku` for Azure)
-   - **roles** — Ansible roles (and `vars`) applied to that host (e.g. `P4T12ICK.ludus_ar_splunk`, `P4T12ICK.ar_guacamole`, `P4T12ICK.ludus_ar_windows`, `P4T12ICK.ar_kali`)
+   - **roles** — Ansible roles (and `vars`) applied to that host (e.g. `P4T12ICK.ludus_ar_splunk`, `P4T12ICK.ar_cisco_fmc`, `P4T12ICK.ar_guacamole`, `P4T12ICK.ludus_ar_windows`, `P4T12ICK.ar_kali`)
 
 ## Listing and fetching templates
 

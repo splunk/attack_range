@@ -59,6 +59,24 @@ def resolve_template_path(template: str, templates_dir: str) -> str:
     return os.path.abspath(template_path)
 
 
+# Third octet of 10.0.X.0/24 lab networks. Default (mgmt) is the private subnet.
+SERVER_NETWORK_THIRD_OCTET = {
+    "mgmt": 2,
+    "private": 2,
+    "diag": 3,
+    "outside": 4,
+    "inside": 5,
+}
+
+
+def server_private_ip(server: Dict[str, Any]) -> str:
+    """Return the private IPv4 address for an attack_range server entry."""
+    last_octet = server.get("ip_last_octet")
+    network = str(server.get("network") or "mgmt").lower()
+    third = SERVER_NETWORK_THIRD_OCTET.get(network, 2)
+    return f"10.0.{third}.{last_octet}"
+
+
 def load_yaml_file(file_path: str) -> Dict[str, Any]:
     """
     Load YAML file and return as dictionary.

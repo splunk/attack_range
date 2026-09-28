@@ -1,0 +1,56 @@
+general:
+  attack_range_password: changeme123!
+  cloud_provider: aws
+  attack_range_name: ar
+  ip_whitelist: 0.0.0.0/0
+  description: Minimal AWS deployment with Splunk only instance
+aws:
+  region: eu-central-1
+  aws_default_tags:
+    splunkit_environment_type: non-prd
+    splunkit_data_classification: private
+attack_range:
+- name: splunk
+  ami_name_filter: ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*
+  ami_owner: "099720109477"
+  instance_type: t3.xlarge
+  ip_last_octet: 10
+  linux: true
+  user_name: ubuntu
+  roles:
+  - role: P4T12ICK.ludus_ar_splunk
+    vars:
+      ludus_ar_splunk_url: https://download.splunk.com/products/splunk/releases/10.2.2/linux/splunk-10.2.2-80b90d638de6-linux-amd64.tgz
+      ludus_ar_splunk_password: changeme123!
+      ludus_ar_splunk_apps:
+        - splunk-add-on-for-microsoft-windows_1001.tgz
+        - splunk-add-on-for-sysmon-for-linux_100.tgz
+        - splunk-add-on-for-sysmon_500.tgz
+        - splunk-add-on-for-unix-and-linux_1020.tgz
+        - splunk-common-information-model-(cim)_602.tgz
+        - DA-ESS-ContentUpdate-latest.tar.gz
+        - splunk-add-on-for-okta-identity-cloud_502.tgz
+        - cisco-security-cloud_372.tgz
+        - cisco-secure-access-add-on-for-splunk_1050.tar.gz
+        - splunk-add-on-for-crowdstrike-fdr_205.tgz
+        - splunk-add-on-for-microsoft-iis_130.tgz
+        - ccx-add-on-for-suricata_101.tgz
+        - ta-for-zeek_1011.tgz
+        - splunk-add-on-for-nginx_330.tgz
+        - splunk-add-on-for-palo-alto-networks_301.tgz
+        - zscaler-technical-add-on-for-splunk_4016.tgz
+        - splunk-add-on-for-amazon-kinesis-firehose_132.tgz
+        - splunk-add-on-for-amazon-web-services-aws_811.tgz
+        - splunk-add-on-for-google-cloud-platform_470.tgz
+        - splunk-add-on-for-google-workspace_311.tgz
+        - splunk-add-on-for-microsoft-cloud-services_611.tgz
+        - splunk-add-on-for-microsoft-office-365_602.tgz
+        - microsoft-defender-advanced-hunting-add-on-for-splunk_142.tgz
+        - splunk-add-on-for-microsoft-security_300.tgz
+        - crowdstrike-falcon-event-streams-technical-add-on_321.tgz
+        - splunk-add-on-for-github_320.tgz
+        - cisco-splunk-add-on-for-appdynamics_321.tgz
+        - cisco-endpoint-security-analytics-cesa-add-on-for-splunk_407.tgz
+        - splunk-add-on-for-vmware-esxi-logs_422.tgz
+        - splunk-add-on-for-vmware-indexes_403.tgz
+        - add-on-for-cisco-network-data_279.tgz

@@ -19,6 +19,7 @@ attack_range:
   roles:
   - role: P4T12ICK.ludus_ar_splunk
     vars:
+      ludus_ar_splunk_url: https://download.splunk.com/products/splunk/releases/10.2.2/linux/splunk-10.2.2-80b90d638de6-linux-amd64.tgz
       ludus_ar_splunk_password: changeme123!
   - role: P4T12ICK.ar_splunk_enterprise_security
     vars:
