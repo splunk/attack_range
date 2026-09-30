@@ -32,14 +32,17 @@ resource "aws_instance" "router" {
   subnet_id              = var.subnet_id
   private_ip             = var.private_ip
   vpc_security_group_ids = [aws_security_group.default.id]
+  metadata_options {
+    http_tokens = "required"
+  }
 
   associate_public_ip_address = true
 
   root_block_device {
-    volume_type = "gp3"
-    volume_size = "30"
+    volume_type           = "gp3"
+    volume_size           = "30"
     delete_on_termination = "true"
-    encrypted  = "true"
+    encrypted             = "true"
   }
 
   tags = {
