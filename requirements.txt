@@ -58,7 +58,7 @@ smmap==5.0.3
 splunk-sdk==2.1.1
 tabulate==0.10.0
 typing_extensions==4.16.0
-urllib3==2.7.0
+urllib3==2.8.0
 wcwidth==0.8.2
 Werkzeug==3.1.8
 xmltodict==1.0.4
