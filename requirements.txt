@@ -60,7 +60,7 @@ tabulate==0.10.0
 typing_extensions==4.16.0
 urllib3==2.7.0
 wcwidth==0.8.2
-Werkzeug==3.1.8
+Werkzeug==3.1.9
 xmltodict==1.0.4
 google-cloud-compute==1.51.0
 google-cloud-storage==3.13.1
