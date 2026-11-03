@@ -12,7 +12,7 @@ azure-mgmt-storage==25.1.0
 azure-storage-blob==12.30.0
 boto3==1.43.79
 botocore==1.43.79
-certifi==2026.7.22
+certifi==2026.10.19
 cffi==2.1.1
 charset-normalizer==3.5.1
 colorama==0.4.6
