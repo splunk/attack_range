@@ -12,6 +12,12 @@
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug"
   },
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "overrides": {
+    "undici": "8.12.3"
+  },
   "dependencies": {
     "astro": "^7.0.6",
     "@astrojs/node": "^11.0.2"
