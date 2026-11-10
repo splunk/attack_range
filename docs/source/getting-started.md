@@ -18,7 +18,7 @@ Docker Compose runs the API, web app, and (optionally) the CLI without installin
 1. **Start the stack:**
 
    ```bash
-   cd attack_range_2
+   cd attack_range
    docker compose -f docker/docker-compose.yml up 
    ```
 
