@@ -477,7 +477,7 @@ The API is built with:
 ### Directory Structure
 
 ```
-attack_range_2/
+attack_range/
 ├── api/                    # API application code
 ├── config/                 # Saved attack range configs ({attack_range_id}.yml)
 ├── wireguard_config/       # WireGuard VPN configs ({attack_range_id}.conf)

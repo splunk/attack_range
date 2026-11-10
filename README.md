@@ -29,7 +29,7 @@ The Splunk Attack Range builds instrumented cloud environments (AWS, Azure, GCP)
 
    ```bash
    git clone <repo-url>
-   cd attack_range_2
+   cd attack_range
    docker compose -f docker/docker-compose.yml up
    ```
 
