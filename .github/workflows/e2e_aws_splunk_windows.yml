@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.1.0
 
       - name: Install system packages
         run: |
@@ -33,13 +33,13 @@ jobs:
           rm /tmp/terraform.zip
           terraform version
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6.3.0
         with:
           python-version: '3.12'
           architecture: 'x64'
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v5.1.1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -79,7 +79,7 @@ jobs:
 
       - name: Upload config for destroy fallback
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: e2e-attack-range-config
           path: config/
@@ -101,7 +101,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.1.0
 
       - name: Install system packages
         run: |
@@ -117,13 +117,13 @@ jobs:
           rm /tmp/terraform.zip
           terraform version
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6.3.0
         with:
           python-version: '3.12'
           architecture: 'x64'
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v5.1.1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -133,7 +133,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Download E2E config artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         continue-on-error: true
         with:
           name: e2e-attack-range-config
