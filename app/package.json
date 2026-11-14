@@ -19,7 +19,7 @@
     "undici": "8.12.3"
   },
   "dependencies": {
-    "astro": "^7.0.6",
+    "astro": "^7.4.12",
     "@astrojs/node": "^11.0.2"
   },
   "devDependencies": {
