@@ -1,0 +1,19 @@
+apiVersion: v0.1
+kind: ServerBinding
+metadata:
+  name: win-aws
+spec:
+  server: win
+  provider: aws
+  location: eu-central-1
+  realize:
+    server: instance
+    interface: network-interface
+    public: elastic-ip
+  aws:
+    instanceType: t3.large
+    ami: ami-0b2ef977993c34a19
+    keyName: ar
+    rootVolume:
+      sizeGiB: 60
+      type: gp3

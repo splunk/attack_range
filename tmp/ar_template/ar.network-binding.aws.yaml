@@ -1,0 +1,16 @@
+apiVersion: v0.1
+kind: NetworkBinding
+metadata:
+  name: ar-aws
+spec:
+  network: ar
+  provider: aws
+  location: eu-central-1
+  realize:
+    network: vpc
+    segment: subnet
+    internet: internet-gateway
+    nat: nat-gateway
+    filter: security-group
+  aws:
+    availabilityZone: eu-central-1a

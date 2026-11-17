@@ -1,0 +1,19 @@
+apiVersion: v0.1
+kind: ServerBinding
+metadata:
+  name: splunk-aws
+spec:
+  server: splunk
+  provider: aws
+  location: eu-central-1
+  realize:
+    server: instance
+    interface: network-interface
+    public: elastic-ip
+  aws:
+    instanceType: t3.xlarge
+    ami: ami-093faf52ba1e451a2
+    keyName: ar
+    rootVolume:
+      sizeGiB: 60
+      type: gp3

@@ -1,0 +1,15 @@
+apiVersion: v0.1
+kind: NetworkBinding
+metadata:
+  name: lab-azure
+spec:
+  network: lab
+  provider: azure
+  location: westeurope
+  realize:
+    network: virtual-network
+    segment: subnet
+    nat: nat-gateway
+    filter: network-security-group
+  azure:
+    resourceGroup: lab

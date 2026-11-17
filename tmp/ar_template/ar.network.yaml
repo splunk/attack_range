@@ -1,0 +1,54 @@
+apiVersion: v0.1
+kind: Network
+metadata:
+  name: ar
+spec:
+  addressSpace:
+    cidr: 10.0.0.0/16
+
+  zones:
+    - name: edge
+      exposure: internet
+    - name: private
+      exposure: private
+
+  segments:
+    - name: public
+      zone: edge
+      cidr: 10.0.1.0/24
+    - name: mgmt
+      zone: private
+      cidr: 10.0.2.0/24
+      filters:
+        - open
+
+  gateways:
+    - name: internet
+      type: internet
+      attach: public
+    - name: egress
+      type: nat
+      attach: public
+      serves:
+        - mgmt
+
+  reachability:
+    - from: mgmt
+      to: internet
+      via: egress
+
+  perimeter:
+    sources:
+      - 0.0.0.0/0
+
+  filters:
+    - name: open
+      rules:
+        - direction: ingress
+          protocol: any
+          sources:
+            - 0.0.0.0/0
+        - direction: egress
+          protocol: any
+          destinations:
+            - 0.0.0.0/0

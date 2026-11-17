@@ -1,0 +1,20 @@
+apiVersion: v0.1
+kind: Server
+metadata:
+  name: win
+spec:
+  network: ar
+  access:
+    username: Administrator
+    authorizedKeys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAttackRangeKeySuppliedAtBuild
+  provisioning:
+    - type: ansible
+      role: P4T12ICK.ludus_ar_windows
+      vars:
+        ludus_ar_windows_password: changeme123!
+        ludus_ar_windows_splunk_ip: 10.0.2.10
+  interfaces:
+    - name: eth0
+      segment: mgmt
+      address: 10.0.2.11

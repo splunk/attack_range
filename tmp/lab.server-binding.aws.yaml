@@ -1,0 +1,19 @@
+apiVersion: v0.1
+kind: ServerBinding
+metadata:
+  name: app-1-aws
+spec:
+  server: app-1
+  provider: aws
+  location: eu-central-1
+  realize:
+    server: instance
+    interface: network-interface
+    public: elastic-ip
+  aws:
+    instanceType: t3.micro
+    ami: ami-0123456789abcdef0
+    keyName: lab
+    rootVolume:
+      sizeGiB: 30
+      type: gp3
