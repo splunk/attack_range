@@ -6,6 +6,9 @@ spec:
   network: lab
   provider: azure
   location: westeurope
+  tags:
+    splunkit_environment_type: non-prd
+    splunkit_data_classification: private
   realize:
     network: virtual-network
     segment: subnet

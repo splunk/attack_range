@@ -2,9 +2,29 @@
 
 from typing import Annotated, Literal, Optional, Union
 
-from pydantic import Field
+from pydantic import AfterValidator, Field, StringConstraints, field_validator
 
 from .common import ApiVersion, Metadata, Name, SpecModel
+
+RESERVED_TAGS = ("Name", "attack-range")
+"""Tag keys the renderers set on every resource."""
+_FORBIDDEN_TAG_CHARACTERS = set("<>%&\\?/")
+
+
+def _check_tag_key(key: str) -> str:
+    if key.lower().startswith(("aws:", "azure")):
+        raise ValueError(f"tag key '{key}' uses a prefix reserved by the cloud provider")
+    if forbidden := sorted(_FORBIDDEN_TAG_CHARACTERS.intersection(key)):
+        raise ValueError(f"tag key '{key}' contains {' '.join(forbidden)}")
+    if key in RESERVED_TAGS:
+        raise ValueError(f"tag key '{key}' is set by attack range")
+    return key
+
+
+TagKey = Annotated[str, StringConstraints(min_length=1, max_length=128), AfterValidator(_check_tag_key)]
+TagValue = Annotated[str, StringConstraints(max_length=256)]
+Tags = dict[TagKey, TagValue]
+"""Tags for every resource of the range. Keys follow the rules that AWS and Azure share."""
 
 
 class AwsNetworkRealize(SpecModel):
@@ -29,6 +49,7 @@ class AwsNetworkBindingSpec(SpecModel):
     network: Name
     provider: Literal["aws"]
     location: str = Field(min_length=1)
+    tags: Tags = Field(default_factory=dict)
     realize: AwsNetworkRealize
     aws: AwsNetworkSettings
 
@@ -54,6 +75,7 @@ class AzureNetworkBindingSpec(SpecModel):
     network: Name
     provider: Literal["azure"]
     location: str = Field(min_length=1)
+    tags: Tags = Field(default_factory=dict)
     realize: AzureNetworkRealize
     azure: AzureNetworkSettings
 
@@ -87,8 +109,16 @@ class VmwareNetworkBindingSpec(SpecModel):
     network: Name
     provider: Literal["vmware"]
     location: str = Field(min_length=1)
+    tags: Tags = Field(default_factory=dict)
     realize: VmwareNetworkRealize
     vmware: VmwareNetworkSettings
+
+    @field_validator("tags")
+    @classmethod
+    def _no_tags(cls, tags: Tags) -> Tags:
+        if tags:
+            raise ValueError("VMware bindings do not support tags in v0.1")
+        return tags
 
 
 NetworkBindingSpec = Annotated[

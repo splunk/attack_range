@@ -6,6 +6,9 @@ spec:
   network: lab
   provider: aws
   location: eu-central-1
+  tags:
+    splunkit_environment_type: non-prd
+    splunkit_data_classification: private
   realize:
     network: vpc
     segment: subnet
