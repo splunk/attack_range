@@ -9,6 +9,7 @@ import sys
 import re
 from typing import Optional
 import os
+from collections.abc import Mapping
 
 from .base_provider import BaseCloudProvider, BackendParams
 
@@ -16,13 +17,33 @@ from .base_provider import BaseCloudProvider, BackendParams
 try:
     from azure.identity import DefaultAzureCredential
     from azure.mgmt.storage import StorageManagementClient
-    from azure.mgmt.resource import ResourceManagementClient
+    try:
+        # azure-mgmt-resource >= 24 moved the client into the "resources" subpackage
+        from azure.mgmt.resource.resources import ResourceManagementClient
+    except ImportError:
+        from azure.mgmt.resource import ResourceManagementClient
     from azure.core.exceptions import AzureError, ResourceNotFoundError
     from azure.storage.blob import BlobServiceClient
     from azure.mgmt.storage.models import StorageAccountCreateParameters, Sku, Kind
     AZURE_AVAILABLE = True
-except ImportError:
+    AZURE_IMPORT_ERROR = None
+except ImportError as e:
     AZURE_AVAILABLE = False
+    AZURE_IMPORT_ERROR = e
+
+
+def _first_storage_key(list_keys_result) -> str:
+    """
+    Return the first key value from a StorageAccountListKeysResult.
+
+    azure-mgmt-storage >= 25 models are MutableMappings, so `.keys` is the dict
+    method rather than the key list; older (msrest) models only support attributes.
+    """
+    if isinstance(list_keys_result, Mapping):
+        key_list = list_keys_result["keys"]
+    else:
+        key_list = list_keys_result.keys
+    return key_list[0].value
 
 
 class AzureProvider(BaseCloudProvider):
@@ -32,7 +53,7 @@ class AzureProvider(BaseCloudProvider):
         """Initialize Azure provider."""
         super().__init__(config, logger)
         if not AZURE_AVAILABLE:
-            self.logger.warning("Azure SDK not available. Some features may not work.")
+            self.logger.warning(f"Azure SDK not available ({AZURE_IMPORT_ERROR}). Some features may not work.")
 
     def get_region(self, required: bool = True) -> Optional[str]:
         """
@@ -183,7 +204,7 @@ class AzureProvider(BaseCloudProvider):
 
             # Get storage account keys
             keys = storage_client.storage_accounts.list_keys(resource_group_name, account_name)
-            key = keys.keys[0].value
+            key = _first_storage_key(keys)
 
             # Use Azure Storage SDK to check container
             blob_service_client = BlobServiceClient(
@@ -221,7 +242,7 @@ class AzureProvider(BaseCloudProvider):
 
             # Get storage account keys
             keys = storage_client.storage_accounts.list_keys(resource_group_name, account_name)
-            key = keys.keys[0].value
+            key = _first_storage_key(keys)
 
             # Use Azure Storage SDK to create container
             blob_service_client = BlobServiceClient(
