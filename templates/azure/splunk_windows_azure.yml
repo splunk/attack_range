@@ -35,7 +35,7 @@ attack_range:
           protocol: rdp
           hostname: 10.0.2.11
           port: 3389
-          username: Administrator
+          username: AzureAdmin
           password: changeme123!
 - name: win
   image_publisher: MicrosoftWindowsServer
