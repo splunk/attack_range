@@ -204,11 +204,41 @@ export interface SimulateResponse {
 	techniques: string[];
 	atomics: AtomicTestTarget[];
 	atomic_files?: AtomicFileTarget[];
-	execution_output?: {
-		[host: string]: Array<{
-			technique: string;
-			output: string[];
-		}>;
+	execution_status?: string | null;
+	execution_summary?: AtomicExecutionSummary | null;
+	execution_output?: AtomicExecutionOutput | null;
+}
+
+export interface AtomicExecutionSummary {
+	total: number;
+	succeeded: number;
+	failed: number;
+}
+
+export interface AtomicExecutionResult {
+	technique: string;
+	guid: string;
+	success: boolean;
+	failed: boolean;
+	return_code: number;
+	stdout_lines: string[];
+	stderr_lines: string[];
+	stdout: string;
+	stderr: string;
+	error: string;
+}
+
+/** Mirrors _extract_atomic_simulation_output() in attack_range/managers/ansible_manager.py */
+export interface AtomicExecutionOutput {
+	status: string;
+	summary: AtomicExecutionSummary;
+	results: AtomicExecutionResult[];
+	by_host: {
+		[host: string]: {
+			status: string;
+			summary: AtomicExecutionSummary;
+			results: AtomicExecutionResult[];
+		};
 	};
 }
 

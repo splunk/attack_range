@@ -843,17 +843,42 @@ if (id) {
 						<p>${result.message}</p>
 					`;
 					
-					// Display execution output if available
-					if (result.execution_output) {
+					// Display execution output if available.
+					// Shape: { status, summary, results, by_host: { [host]: { status, summary, results } } }
+					const escapeHtml = (value: unknown) =>
+						String(value ?? '')
+							.replace(/&/g, '&amp;')
+							.replace(/</g, '&lt;')
+							.replace(/>/g, '&gt;')
+							.replace(/"/g, '&quot;')
+							.replace(/'/g, '&#39;');
+					const executionOutput = result.execution_output;
+					if (executionOutput && typeof executionOutput === 'object') {
+						const summary = executionOutput.summary;
+						const byHost =
+							executionOutput.by_host && typeof executionOutput.by_host === 'object'
+								? executionOutput.by_host
+								: { [result.target]: { results: executionOutput.results } };
 						outputHtml += '<div class="execution-output">';
 						outputHtml += '<h5>Execution Output:</h5>';
-						for (const [host, outputs] of Object.entries(result.execution_output)) {
+						if (summary) {
+							outputHtml += `<p><strong>Status:</strong> ${escapeHtml(executionOutput.status)} (${escapeHtml(summary.succeeded)}/${escapeHtml(summary.total)} succeeded, ${escapeHtml(summary.failed)} failed)</p>`;
+						}
+						for (const [host, hostPayload] of Object.entries(byHost)) {
+							const hostResults = Array.isArray(hostPayload?.results) ? hostPayload.results : [];
 							outputHtml += `<div class="host-output">`;
-							outputHtml += `<strong>Host: ${host}</strong>`;
-							for (const output of outputs) {
+							outputHtml += `<strong>Host: ${escapeHtml(host)}</strong>`;
+							for (const entry of hostResults) {
+								const label = entry.guid ? `${entry.technique}:${entry.guid}` : entry.technique;
+								const state = entry.success ? 'succeeded' : `failed (rc=${entry.return_code})`;
+								const lines = [
+									...(Array.isArray(entry.stdout_lines) ? entry.stdout_lines : []),
+									...(Array.isArray(entry.stderr_lines) ? entry.stderr_lines : []),
+								];
+								if (!entry.success && entry.error) lines.push(entry.error);
 								outputHtml += `<div class="technique-output">`;
-								outputHtml += `<strong>Technique: ${output.technique}</strong>`;
-								outputHtml += `<pre class="output-lines">${output.output.join('\n')}</pre>`;
+								outputHtml += `<strong>Technique: ${escapeHtml(label)} — ${escapeHtml(state)}</strong>`;
+								outputHtml += `<pre class="output-lines">${escapeHtml(lines.join('\n'))}</pre>`;
 								outputHtml += `</div>`;
 							}
 							outputHtml += `</div>`;
