@@ -6,13 +6,16 @@ from attack_range.application.cyber_range import CyberRange
 from attack_range.domain.entities import Server
 from attack_range.domain.entities.network import IngressRule
 from attack_range.domain.entities.network_binding import AwsNetworkBindingSpec
-from attack_range.domain.entities.server_binding import AwsServerBindingSpec
+from attack_range.domain.entities.server_binding import AwsServerBindingSpec, AwsServerSettings
+
+from ..wireguard import WireGuardError, access_sources, listen_port, load_gateway, overlay_network
 
 from .base import (
     RenderError,
     Renderer,
     TerraformDocument,
     data_ref,
+    cloud_name,
     literal,
     port_ranges,
     ref,
@@ -23,6 +26,7 @@ from .base import (
 VPC = "vpc"
 INTERNET_GATEWAY = "igw"
 PERIMETER = "perimeter"
+VPN = "wireguard"
 EPHEMERAL_PORTS = (1024, 65535)
 
 
@@ -40,19 +44,22 @@ class AwsRenderer(Renderer):
             settings["default_tags"] = {"tags": cyber_range.tags}
         doc.require_provider("aws", "hashicorp/aws", "~> 5.0", settings)
 
-        self._network(doc, cyber_range, binding)
+        self._network(doc, cyber_range)
         self._routing(doc, cyber_range, binding)
         self._filters(doc, cyber_range, binding)
         self._perimeter(doc, cyber_range)
+        if cyber_range.ssh_public_key:
+            self._key_pair(doc, cyber_range)
 
         servers: dict[str, Any] = {}
         for server in cyber_range.servers:
             servers[server.metadata.name] = self._server(doc, cyber_range, server)
+        self._wireguard(doc, cyber_range)
         doc.add_output("vpc_id", ref("aws_vpc", VPC, "id"))
         doc.add_output("servers", servers)
         return doc.to_dict()
 
-    def _network(self, doc: TerraformDocument, cyber_range: CyberRange, binding: AwsNetworkBindingSpec) -> None:
+    def _network(self, doc: TerraformDocument, cyber_range: CyberRange) -> None:
         spec = cyber_range.network.spec
         doc.add_resource("aws_vpc", VPC, {
             "cidr_block": str(spec.address_space.cidr),
@@ -64,7 +71,7 @@ class AwsRenderer(Renderer):
             doc.add_resource("aws_subnet", tf_name(segment), {
                 "vpc_id": ref("aws_vpc", VPC, "id"),
                 "cidr_block": str(cidr),
-                "availability_zone": binding.aws.availability_zone,
+                "availability_zone": f"{cyber_range.location}a",
                 "map_public_ip_on_launch": False,
                 "tags": self.tags(cyber_range, segment),
             })
@@ -127,7 +134,7 @@ class AwsRenderer(Renderer):
         for filter_ in filters:
             group = tf_name(filter_.name)
             doc.add_resource("aws_security_group", group, {
-                "name": f"{cyber_range.name}-{filter_.name}",
+                "name": cloud_name(cyber_range, filter_.name, limit=255),
                 "description": f"Filter {filter_.name} of {cyber_range.name}",
                 "vpc_id": ref("aws_vpc", VPC, "id"),
                 "tags": self.tags(cyber_range, filter_.name),
@@ -205,6 +212,7 @@ class AwsRenderer(Renderer):
             existing_groups.append(data_ref("aws_security_group", data_name, "id"))
 
         interfaces: list[dict[str, Any]] = []
+        public_addresses: list[str] = []
         public_ip = None
         for index, interface in enumerate(server.spec.interfaces):
             eni = tf_name(name, interface.name)
@@ -235,13 +243,16 @@ class AwsRenderer(Renderer):
                     "tags": self.tags(cyber_range, f"{name}-{interface.name}-eip"),
                     "depends_on": [f"aws_internet_gateway.{INTERNET_GATEWAY}"],
                 })
+                # Associate while the interface is free. AWS rejects the association once the
+                # instance that owns the interface is still pending.
+                public_addresses.append(f"aws_eip.{eni}")
                 if public_ip is None:
                     public_ip = ref("aws_eip", eni, "public_ip")
 
         instance: dict[str, Any] = {
-            "ami": settings.ami,
+            "ami": self._ami(doc, name, settings),
             "instance_type": settings.instance_type,
-            "key_name": settings.key_name,
+            "key_name": self._key_name(cyber_range, name, settings),
             "network_interface": interfaces,
             "root_block_device": {
                 "volume_size": settings.root_volume.size_gib,
@@ -249,11 +260,127 @@ class AwsRenderer(Renderer):
             },
             "tags": self.tags(cyber_range, name),
         }
+        if public_addresses:
+            instance["depends_on"] = public_addresses
         if settings.iam_instance_profile:
             instance["iam_instance_profile"] = settings.iam_instance_profile
         user_data = cyber_range.user_data(server)
         if user_data is not None:
             instance["user_data"] = literal(user_data)
+            # EC2 runs this script on first boot only. A later edit has to replace the instance.
+            instance["user_data_replace_on_change"] = True
         doc.add_resource("aws_instance", tf_name(name), instance)
 
         return {"private_ip": ref("aws_instance", tf_name(name), "private_ip"), "public_ip": public_ip}
+
+    def _wireguard(self, doc: TerraformDocument, cyber_range: CyberRange) -> None:
+        """Ubuntu gateway from config/wireguard, placed on the range's internet subnet."""
+        segments = self.internet_gateway_segments(cyber_range)
+        if not segments:
+            raise RenderError("a wireguard gateway needs an internet gateway on an internet-exposed segment")
+        segment = segments[0]
+        try:
+            server, binding = load_gateway("aws")
+            port = listen_port(server)
+            overlay_network(cyber_range.network.spec.address_space.cidr)
+        except WireGuardError as error:
+            raise RenderError(str(error)) from error
+        if not isinstance(binding.spec, AwsServerBindingSpec):
+            raise RenderError("wireguard AWS binding is not an aws ServerBinding")
+        settings = binding.spec.aws
+        name = server.metadata.name
+        sources = access_sources(
+            None if cyber_range.network.spec.perimeter is None else list(cyber_range.network.spec.perimeter.sources)
+        )
+        doc.add_resource("aws_security_group", VPN, {
+            "name": cloud_name(cyber_range, name, limit=255),
+            "description": f"WireGuard gateway of {cyber_range.name}",
+            "vpc_id": ref("aws_vpc", VPC, "id"),
+            "tags": self.tags(cyber_range, name),
+        })
+        for index, source in enumerate(sources):
+            doc.add_resource("aws_vpc_security_group_ingress_rule", tf_name(VPN, "udp", str(index)), {
+                "security_group_id": ref("aws_security_group", VPN, "id"),
+                "cidr_ipv4": source,
+                "ip_protocol": "udp",
+                "from_port": port,
+                "to_port": port,
+            })
+            doc.add_resource("aws_vpc_security_group_ingress_rule", tf_name(VPN, "ssh", str(index)), {
+                "security_group_id": ref("aws_security_group", VPN, "id"),
+                "cidr_ipv4": source,
+                "ip_protocol": "tcp",
+                "from_port": 22,
+                "to_port": 22,
+            })
+        doc.add_resource("aws_vpc_security_group_egress_rule", tf_name(VPN, "out"), {
+            "security_group_id": ref("aws_security_group", VPN, "id"),
+            "cidr_ipv4": "0.0.0.0/0",
+            "ip_protocol": "-1",
+        })
+        doc.add_resource("aws_network_interface", VPN, {
+            "subnet_id": ref("aws_subnet", tf_name(segment), "id"),
+            "security_groups": [ref("aws_security_group", VPN, "id")],
+            "source_dest_check": True,
+            "tags": self.tags(cyber_range, name),
+        })
+        doc.add_resource("aws_eip", VPN, {
+            "domain": "vpc",
+            "network_interface": ref("aws_network_interface", VPN, "id"),
+            "tags": self.tags(cyber_range, f"{name}-eip"),
+            "depends_on": [f"aws_internet_gateway.{INTERNET_GATEWAY}"],
+        })
+        ami = self._ami(doc, name, settings)
+        instance: dict[str, Any] = {
+            "ami": ami,
+            "instance_type": settings.instance_type,
+            "network_interface": [{
+                "network_interface_id": ref("aws_network_interface", VPN, "id"),
+                "device_index": 0,
+            }],
+            "root_block_device": {
+                "volume_size": settings.root_volume.size_gib,
+                "volume_type": settings.root_volume.type,
+            },
+            "tags": self.tags(cyber_range, name),
+        }
+        if cyber_range.ssh_public_key:
+            instance["key_name"] = ref("aws_key_pair", "range", "key_name")
+        # The address must be on the interface before the instance starts. Associating it
+        # while the instance is pending is rejected with IncorrectInstanceState.
+        instance["depends_on"] = [f"aws_eip.{VPN}"]
+        doc.add_resource("aws_instance", VPN, instance)
+        doc.add_output("wireguard", {
+            "public_ip": ref("aws_eip", VPN, "public_ip"),
+            "private_ip": ref("aws_instance", VPN, "private_ip"),
+        })
+
+    @staticmethod
+    def _key_pair(doc: TerraformDocument, cyber_range: CyberRange) -> None:
+        """Import the range public key. Destroy removes this key pair with the rest of the range."""
+        doc.add_resource("aws_key_pair", "range", {
+            "key_name": cloud_name(cyber_range, "key"),
+            "public_key": cyber_range.ssh_public_key,
+            "tags": AwsRenderer.tags(cyber_range, "key"),
+        })
+
+    @staticmethod
+    def _key_name(cyber_range: CyberRange, name: str, settings: AwsServerSettings) -> str:
+        if cyber_range.ssh_public_key:
+            return ref("aws_key_pair", "range", "key_name")
+        if settings.key_name:
+            return settings.key_name
+        raise RenderError(f"server '{name}' has no key pair")
+
+    @staticmethod
+    def _ami(doc: TerraformDocument, name: str, settings: AwsServerSettings) -> str:
+        if settings.ami is not None:
+            return settings.ami
+        if settings.ami_owner is None or settings.ami_name_filter is None:
+            raise RenderError(f"server '{name}' sets neither ami nor amiNameFilter and amiOwner")
+        data_name = doc.add_data("aws_ami", tf_name(name), {
+            "most_recent": True,
+            "owners": [settings.ami_owner],
+            "filter": [{"name": "name", "values": [settings.ami_name_filter]}],
+        })
+        return data_ref("aws_ami", data_name, "id")

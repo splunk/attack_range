@@ -1,0 +1,6 @@
+---
+
+- name: install Chocolatey CLI
+  win_chocolatey:
+    name: 'chocolatey'
+    state: latest

@@ -46,7 +46,9 @@ class Destroy:
 
         try:
             cyber_range = self._documents.load(record.id, record.provider)
-            cyber_range = dataclasses.replace(cyber_range, local_state=record.local_state)
+            cyber_range = dataclasses.replace(
+                cyber_range, local_state=record.local_state, user_name=record.user_name
+            )
             result = self._provisioner.destroy(cyber_range)
         except (CyberRangeError, ProvisionerError) as error:
             self._present(record_failure(self._store, record, RangeState.DESTROY_FAILED, str(error)))

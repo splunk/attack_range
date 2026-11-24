@@ -1,0 +1,1 @@
+{"AdminPassword":"$PASSWORD$","Hostname":"ftd","FirewallMode":"routed","ManageLocally":"Yes"}

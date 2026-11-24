@@ -1,0 +1,13 @@
+---
+# deploy configures the gateway. get_config fetches the client file back to the controller.
+wireguard_action: deploy
+
+vpn_package: wireguard
+vpn_listen_port: 51820
+vpn_physical_interface: ens5
+vpn_address: ""
+vpn_allowed_ips: ""
+vpn_endpoint: ""
+vpn_clients_dir: /etc/wireguard
+client_config_local_dir: client_configs
+vpn_clients: []

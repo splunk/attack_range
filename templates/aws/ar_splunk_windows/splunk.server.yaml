@@ -1,0 +1,71 @@
+apiVersion: v0.1
+kind: Server
+metadata:
+  name: splunk
+spec:
+  network: ar
+  access:
+    username: ubuntu
+  provisioning:
+    - type: ansible
+      role: splunk
+      repository: https://github.com/splunk/ansible-role-for-splunk
+      revision: v2.2.0
+      rolePath: roles/splunk
+      groups:
+        - full
+        - search
+      collections:
+        - ansible.posix
+        - community.general
+      vars:
+        deployment_task: check_splunk.yml
+        splunk_admin_password: $PASSWORD$
+        splunk_package_version: "10.6.2.5"
+        build_id: b07ce3b48d58
+        splunk_download_local: false
+        ansible_python_interpreter: /usr/bin/python3
+
+    - type: ansible
+      role: splunk
+      repository: https://github.com/splunk/ansible-role-for-splunk
+      revision: v2.2.0
+      rolePath: roles/splunk
+      collections:
+        - amazon.aws
+      environment:
+        AWS_DEFAULT_REGION: us-west-2
+      vars:
+        deployment_task: configure_apps.yml
+        splunk_admin_password: $PASSWORD$
+        splunk_app_s3_bucket: attack-range-appbinaries
+        splunk_app_deploy_path: etc/apps
+        apps:
+          - name: splunk-add-on-for-attack-range
+            download_app_source: s3
+            s3_object: splunk-add-on-for-attack-range.tgz
+          - name: splunk-add-on-for-microsoft-windows_901
+            download_app_source: s3
+            s3_object: splunk-add-on-for-microsoft-windows_901.tgz
+          - name: splunk-add-on-for-sysmon-for-linux_100
+            download_app_source: s3
+            s3_object: splunk-add-on-for-sysmon-for-linux_100.tgz
+          - name: splunk-add-on-for-sysmon_402
+            download_app_source: s3
+            s3_object: splunk-add-on-for-sysmon_402.tgz
+          - name: splunk-add-on-for-unix-and-linux_1000
+            download_app_source: s3
+            s3_object: splunk-add-on-for-unix-and-linux_1000.tgz
+          - name: splunk-common-information-model-cim_602
+            download_app_source: s3
+            s3_object: splunk-common-information-model-(cim)_602.tgz
+          - name: DA-ESS-ContentUpdate-latest
+            download_app_source: s3
+            s3_object: DA-ESS-ContentUpdate-latest.tar.gz
+          - name: cisco-security-cloud_372
+            download_app_source: s3
+            s3_object: cisco-security-cloud_372.tgz
+  interfaces:
+    - name: eth0
+      segment: mgmt
+      address: 10.0.2.10

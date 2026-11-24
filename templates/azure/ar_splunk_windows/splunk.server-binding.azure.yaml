@@ -1,0 +1,20 @@
+apiVersion: v0.1
+kind: ServerBinding
+metadata:
+  name: splunk-azure
+spec:
+  server: splunk
+  provider: azure
+  location: westeurope
+  realize:
+    server: virtual-machine
+    interface: network-interface
+    public: public-ip
+  azure:
+    size: Standard_D4s_v3
+    image_publisher: Canonical
+    image_offer: 0001-com-ubuntu-server-jammy
+    image_sku: 22_04-lts
+    osDisk:
+      sizeGiB: 127
+      storageAccountType: StandardSSD_LRS

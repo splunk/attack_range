@@ -22,16 +22,42 @@ The same Server document can be bound to AWS, Azure, or VMware. Instance type, i
 | `access` | yes | Login identity for the guest. |
 | `interfaces` | yes | One or more attachments to segments. The first entry is the primary interface. |
 | `bootstrap` | no | Guest bootstrap file. Delivery depends on the ServerBinding provider. |
-| `provisioning` | no | Ordered steps run on the guest after it accepts SSH. |
+| `provisioning` | no | Ordered steps run on the guest after it accepts the connection in `access`. |
 
 ### Access
 
-v0.1 describes a Linux guest.
+`access` is the account and the credential the provisioner uses to connect. Set `password` or `sshKey`, not both. When neither is set, the connection uses the range SSH key.
 
 | Field | Required | Meaning |
 |---|---|---|
 | `access.username` | yes | Account name on the guest. |
-| `access.authorizedKeys` | yes | One or more SSH public keys. The document holds public keys only. |
+| `access.password` | no | Login password. `$PASSWORD$` is replaced with the password from `config.yaml`. Mutually exclusive with `sshKey`. |
+| `access.sshKey` | no | SSH private key used to connect. `range` is the key generated for the range. Any other value is a path to a private key. Mutually exclusive with `password`. Defaults to `range`. |
+| `access.winrm` | no | WinRM settings. Set this to provision a Windows guest. The connection then uses `password`. |
+| `access.winrm.port` | no | WinRM port. Default `5985`. |
+| `access.winrm.scheme` | no | `http` or `https`. Default `http`. |
+| `access.winrm.transport` | no | `basic`, `ntlm`, `credssp`, or `kerberos`. Default `basic`. |
+| `access.winrm.certValidation` | no | `ignore` or `validate`. Default `ignore`. |
+| `access.winrm.timeoutSeconds` | no | WinRM operation timeout in seconds. Default `600`. |
+| `access.authorizedKeys` | no | Extra SSH public keys installed for this account. These are not the connection key. |
+
+```yaml
+access:
+  username: ubuntu
+  sshKey: range
+```
+
+```yaml
+access:
+  username: Administrator
+  password: $PASSWORD$
+  winrm:
+    port: 5985
+    scheme: http
+    transport: basic
+    certValidation: ignore
+    timeoutSeconds: 600
+```
 
 ### Interfaces
 
@@ -51,7 +77,7 @@ A name in `filters` is a filter on `network`. The effective set and the perimete
 |---|---|---|
 | `bootstrap.userData` | yes, when `bootstrap` is set | File name of the guest bootstrap, including its extension. |
 
-The value is a file name such as `app-1.ps1`. It has an extension and no path separator. The file lives in [tmp/user-data](../tmp/user-data). The compiler reads that file and hands the contents to the provider.
+The value is a file name such as `win.ps1` or `app-1.ps1`. It has an extension and no path separator. When `bootstrap` is omitted, a file named `<server>.<provider>.*` in `attack_range_infrastructure/config/user_data` is used, so a server named `win` on Azure reads `win.azure.ps1`. A set name such as `win.ps1` is read from that same directory as `win.aws.ps1` or `win.azure.ps1`. Any other name is read from `user-data/` next to the template. The compiler hands the contents to the provider.
 
 AWS delivers the file contents as instance user data. Azure delivers them as custom data. VMware v0.1 sets the guest address and hostname through guest customization and does not deliver `userData`. A template used on VMware already contains the guest setup.
 
@@ -68,8 +94,14 @@ An `ansible` step runs one role against the guest. Several roles are several ste
 
 | Field | Required | Meaning |
 |---|---|---|
-| `role` | yes | Ansible role name. A namespace prefix is written `namespace.role`, for example `P4T12ICK.common`. |
-| `vars` | no | Mapping of variable names to values passed to that role. |
+| `role` | yes | Ansible role name. A namespace prefix is written `namespace.role`, for example `P4T12ICK.common`. With `repository`, this is the name the cloned role is installed as. |
+| `repository` | no | `https` git repository to clone. When set, the role is not installed from Ansible Galaxy. |
+| `revision` | no | Branch or tag to clone. Requires `repository`. |
+| `rolePath` | no | Directory of the role inside `repository`. Requires `repository`. Omitted means the repository root is the role. |
+| `groups` | no | Inventory groups this guest joins before the role runs. |
+| `collections` | no | Ansible collections installed before the role, for example `community.general`. |
+| `environment` | no | Environment variables for this role. These also apply to tasks the role delegates to localhost. |
+| `vars` | no | Mapping of variable names to values passed to that role. `$USER$` and `$PASSWORD$` in a value are replaced with the user name and password from `config.yaml`. |
 
 A `python` step runs one script on the guest with `python3`, as `access.username`. `source` is `local` or `remote`.
 

@@ -46,8 +46,22 @@ class YamlRangeStore(RangeStore):
             except ValueError:
                 continue
             if self._home.record_file(range_id).is_file():
-                records.append(self.get(range_id))
+                try:
+                    records.append(self.get(range_id))
+                except ValueError:
+                    continue
         return records
+
+    def delete(self, range_id: UUID) -> None:
+        """Remove the record, and the range folder once nothing else is left in it."""
+        path = self._home.record_file(range_id)
+        if not path.is_file():
+            raise RangeNotFound(f"no cyber range with id {range_id}")
+        path.unlink()
+        try:
+            path.parent.rmdir()
+        except OSError:
+            pass
 
     def _write(self, record: RangeRecord) -> None:
         """Write to a temporary file and rename it, so a reader never sees half a record."""

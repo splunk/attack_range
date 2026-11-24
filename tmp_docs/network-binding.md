@@ -22,11 +22,10 @@ A [ServerBinding](server-binding.md) is a separate kind. It places a server into
 | `provider` | yes | `aws`, `azure`, or `vmware`. |
 | `location` | yes | Provider location. The provider defines the legal values. |
 | `realize` | yes | Map from language functions to the provider resource kind that implements them. |
-| `aws` | when `provider` is `aws` | AWS placement for the subnets. |
 | `azure` | when `provider` is `azure` | Azure resource group. |
 | `vmware` | when `provider` is `vmware` | Datacenter and the port group for each segment. |
 
-The block that matches `provider` is required. The other provider blocks are absent.
+Azure and VMware require the block that matches `provider`. The other provider blocks are absent. AWS has no provider block.
 
 ## `realize` keys
 
@@ -52,9 +51,7 @@ A key may emit zero, one, or several provider resources. A key the compiler does
 | `nat` | `nat-gateway` | One NAT gateway in the attach segment, plus a default route on each served segment that reachability selects. |
 | `filter` | `security-group` | One security group per filter. The compiler attaches that group to every interface that lists the filter, and to every interface whose segment lists the filter. |
 
-| Field | Required | Meaning |
-|---|---|---|
-| `aws.availabilityZone` | yes | Availability zone for every subnet, for example `eu-central-1a`. |
+Every subnet is placed in the first availability zone of `location`, formed by appending `a`. A region of `eu-central-1` places the subnets in `eu-central-1a`. There is no availability zone field to set.
 
 A segment filter is the same security group on each interface in the segment. The compiler does not create a network ACL. Several groups on one interface allow the union of their rules. The perimeter is applied to ingress sources on `internet` segments before those rules are written.
 

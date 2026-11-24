@@ -1,0 +1,18 @@
+apiVersion: v0.1
+kind: NetworkBinding
+metadata:
+  name: ar-azure
+spec:
+  network: ar
+  provider: azure
+  location: westeurope
+  tags:
+    splunkit_environment_type: non-prd
+    splunkit_data_classification: private
+  realize:
+    network: virtual-network
+    segment: subnet
+    nat: nat-gateway
+    filter: network-security-group
+  azure:
+    resourceGroup: ar

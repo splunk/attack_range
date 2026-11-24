@@ -1,0 +1,9 @@
+[Interface]
+Address = {{ item[0].address }}
+PrivateKey = {{ item[1].content | b64decode | trim }}
+DNS = 1.1.1.1, 8.8.8.8
+
+[Peer]
+PublicKey = {{ vpn_public_key }}
+AllowedIPs = {{ vpn_allowed_ips }}
+Endpoint = {{ vpn_endpoint }}:{{ vpn_listen_port }}

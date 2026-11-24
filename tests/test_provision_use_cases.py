@@ -1,12 +1,14 @@
 import dataclasses
 from datetime import timedelta
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Sequence
 from uuid import UUID, uuid4
 
 import pytest
 
-from attack_range.application.cyber_range import CyberRange, CyberRangeError
+from attack_range.application.cyber_range import CyberRange, CyberRangeError, Document
+from attack_range.application.guest_provisioner import GatewayConfig, GuestProvisioner
+from attack_range.application.operator import HangChoice, Operator
 from attack_range.application.provisioner import ProvisionResult, Provisioner, ProvisionerError
 from attack_range.application.range_documents import RangeDocuments
 from attack_range.application.repository import CyberRangeRepository
@@ -23,6 +25,7 @@ from attack_range.use_cases.list_ranges import (
 )
 from attack_range.use_cases.plan import Plan, PlanInputDto
 from attack_range.use_cases.provision import ProvisionOutputBoundary, ProvisionOutputDto
+from attack_range.use_cases.provision_guests import provision_guests
 from conftest import load_cyber_range
 from mocks.in_memory_range_store import InMemoryRangeStore
 
@@ -40,6 +43,9 @@ class InMemoryRepository(CyberRangeRepository):
         assert self._cyber_range is not None
         return self._cyber_range
 
+    def read(self, location: Path) -> tuple[list[Document], dict[str, str]]:
+        raise NotImplementedError
+
 
 class InMemoryDocuments(RangeDocuments):
     def __init__(self, cyber_range: CyberRange, error: str = "") -> None:
@@ -52,8 +58,22 @@ class InMemoryDocuments(RangeDocuments):
             raise ValueError(self._error)
         self.imported[range_id] = source
 
+    def paths(self, range_id: UUID) -> list[Path]:
+        return []
+
     def load(self, range_id: UUID, provider: Provider) -> CyberRange:
         return dataclasses.replace(self._cyber_range, id=range_id)
+
+    def read(self, range_id: UUID) -> tuple[list[Document], dict[str, str]]:
+        raise NotImplementedError
+
+    def replace(
+        self, range_id: UUID, documents: Sequence[Document], bootstrap_files: dict[str, str]
+    ) -> None:
+        raise NotImplementedError
+
+    def delete(self, range_id: UUID) -> None:
+        self.imported.pop(range_id, None)
 
 
 class RecordingProvisioner(Provisioner):
@@ -132,6 +152,7 @@ def build(
     provisioner: RecordingProvisioner,
     documents: Optional[InMemoryDocuments] = None,
     local_state: bool = False,
+    user_name: str = "",
 ) -> ProvisionOutputDto:
     boundary = RecordingBoundary()
     Build(
@@ -140,7 +161,7 @@ def build(
         documents=documents or InMemoryDocuments(cyber_range),
         store=store,
         provisioner=provisioner,
-    ).execute(BuildInputDto(location=Path("range"), provider="aws", local_state=local_state))
+    ).execute(BuildInputDto(location=Path("range"), provider="aws", local_state=local_state, user_name=user_name))
     return boundary.presented
 
 
@@ -203,6 +224,213 @@ def test_build_registers_and_builds(cyber_range: CyberRange, store: InMemoryRang
     assert applied.id == record.id and applied.local_state
     assert presented.state is RangeState.BUILT
     assert presented.outputs == {"servers": {"win": {}}}
+
+
+def test_build_connects_the_vpn_before_provisioning_servers(
+    cyber_range: CyberRange, store: InMemoryRangeStore
+) -> None:
+    events: list[object] = []
+
+    class Guests(GuestProvisioner):
+        def provision_gateway(self, cyber_range: CyberRange, public_ip: str) -> GatewayConfig:
+            events.append(("gateway", public_ip))
+            return GatewayConfig(text="client-config", path=Path("client.conf"))
+
+        def existing_gateway(self, cyber_range: CyberRange) -> GatewayConfig | None:
+            return None
+
+        def vpn_reaches(self, address: str) -> bool:
+            return True
+
+        def provision_servers(self, cyber_range: CyberRange, addresses: dict[str, str]) -> None:
+            events.append(("servers", addresses))
+
+    class Prompt(Operator):
+        def connect_vpn(self, config: str) -> None:
+            events.append(("vpn", config))
+
+        def confirm_vpn(self, path: Path) -> None:
+            events.append(("confirm", path))
+
+        def hung_command(self, title: str, idle_seconds: int, last_line: str, output: int):
+            return HangChoice.ABORT
+
+    outputs = {
+        "wireguard": {"public_ip": "203.0.113.10", "private_ip": "10.0.1.99"},
+        "servers": {"splunk": {"private_ip": "10.0.2.10", "public_ip": None}},
+    }
+    boundary = RecordingBoundary()
+    Build(
+        output_boundary=boundary,
+        repository=InMemoryRepository(cyber_range),
+        documents=InMemoryDocuments(cyber_range),
+        store=store,
+        provisioner=RecordingProvisioner(ProvisionResult(success=True, output="ok", outputs=outputs)),
+        guests=Guests(),
+        operator=Prompt(),
+    ).execute(BuildInputDto(location=Path("range"), provider="aws"))
+
+    assert events == [
+        ("gateway", "203.0.113.10"),
+        ("vpn", "client-config"),
+        ("servers", {"splunk": "10.0.2.10"}),
+    ]
+    assert boundary.presented.outputs["wireguard"]["client_config"] == "client.conf"
+    assert boundary.presented.success
+
+
+def test_update_reuses_the_existing_vpn_when_it_is_already_up(cyber_range: CyberRange) -> None:
+    events: list[object] = []
+    config = GatewayConfig(text="existing", path=Path("client.conf"))
+
+    class Guests(GuestProvisioner):
+        def provision_gateway(self, cyber_range: CyberRange, public_ip: str) -> GatewayConfig:
+            events.append("provision")
+            return config
+
+        def existing_gateway(self, cyber_range: CyberRange) -> GatewayConfig | None:
+            return config
+
+        def vpn_reaches(self, address: str) -> bool:
+            events.append(("reaches", address))
+            return True
+
+        def provision_servers(self, cyber_range: CyberRange, addresses: dict[str, str]) -> None:
+            events.append(("servers", addresses))
+
+    class Prompt(Operator):
+        def connect_vpn(self, config: str) -> None:
+            events.append("connect")
+
+        def confirm_vpn(self, path: Path) -> None:
+            events.append("confirm")
+
+        def hung_command(self, title: str, idle_seconds: int, last_line: str, output: int):
+            return HangChoice.ABORT
+
+    outputs = provision_guests(
+        dataclasses.replace(cyber_range, provider="aws"),
+        {
+            "wireguard": {"public_ip": "203.0.113.10", "private_ip": "10.0.1.99"},
+            "servers": {"splunk": {"private_ip": "10.0.2.10"}},
+        },
+        Guests(),
+        Prompt(),
+        reuse_vpn=True,
+    )
+
+    assert events == [("reaches", "10.0.1.99"), ("servers", {"splunk": "10.0.2.10"})]
+    assert outputs["wireguard"]["client_config"] == "client.conf"
+
+
+def test_update_waits_for_the_existing_vpn_before_provisioning(cyber_range: CyberRange) -> None:
+    events: list[object] = []
+    ready = {"up": False}
+
+    class Guests(GuestProvisioner):
+        def provision_gateway(self, cyber_range: CyberRange, public_ip: str) -> GatewayConfig:
+            events.append("provision")
+            return GatewayConfig(text="", path=Path("new.conf"))
+
+        def existing_gateway(self, cyber_range: CyberRange) -> GatewayConfig | None:
+            return GatewayConfig(text="existing", path=Path("client.conf"))
+
+        def vpn_reaches(self, address: str) -> bool:
+            events.append("check")
+            return ready["up"]
+
+        def provision_servers(self, cyber_range: CyberRange, addresses: dict[str, str]) -> None:
+            events.append(("servers", addresses))
+
+    class Prompt(Operator):
+        def connect_vpn(self, config: str) -> None:
+            events.append("connect")
+
+        def confirm_vpn(self, path: Path) -> None:
+            events.append(("confirm", path))
+            ready["up"] = True
+
+        def hung_command(self, title: str, idle_seconds: int, last_line: str, output: int):
+            return HangChoice.ABORT
+
+    provision_guests(
+        dataclasses.replace(cyber_range, provider="aws"),
+        {
+            "wireguard": {"public_ip": "203.0.113.10", "private_ip": "10.0.1.99"},
+            "servers": {"splunk": {"private_ip": "10.0.2.10"}},
+        },
+        Guests(),
+        Prompt(),
+        reuse_vpn=True,
+    )
+
+    assert events == [
+        "check",
+        ("confirm", Path("client.conf")),
+        "check",
+        ("servers", {"splunk": "10.0.2.10"}),
+    ]
+
+
+def test_update_skips_servers_whose_config_did_not_change(cyber_range: CyberRange) -> None:
+    events: list[object] = []
+
+    class Guests(GuestProvisioner):
+        def provision_gateway(self, cyber_range: CyberRange, public_ip: str) -> GatewayConfig:
+            events.append("provision")
+            return GatewayConfig(text="", path=Path("new.conf"))
+
+        def existing_gateway(self, cyber_range: CyberRange) -> GatewayConfig | None:
+            return GatewayConfig(text="existing", path=Path("client.conf"))
+
+        def vpn_reaches(self, address: str) -> bool:
+            events.append("vpn")
+            return True
+
+        def provision_servers(self, cyber_range: CyberRange, addresses: dict[str, str]) -> None:
+            events.append(addresses)
+
+    class Prompt(Operator):
+        def connect_vpn(self, config: str) -> None:
+            events.append("connect")
+
+        def confirm_vpn(self, path: Path) -> None:
+            events.append("confirm")
+
+        def hung_command(self, title: str, idle_seconds: int, last_line: str, output: int):
+            return HangChoice.ABORT
+
+    provision_guests(
+        dataclasses.replace(cyber_range, provider="aws"),
+        {
+            "wireguard": {"public_ip": "203.0.113.10", "private_ip": "10.0.1.99"},
+            "servers": {"splunk": {"private_ip": "10.0.2.10"}, "win": {"private_ip": "10.0.2.11"}},
+        },
+        Guests(),
+        Prompt(),
+        reuse_vpn=True,
+        servers=set(),
+    )
+
+    assert events == []
+
+
+def test_build_records_the_user_name(cyber_range: CyberRange, store: InMemoryRangeStore) -> None:
+    provisioner = RecordingProvisioner()
+
+    presented = build(cyber_range, store, provisioner, user_name="ada")
+
+    assert store.get(presented.range_id).user_name == "ada"
+    assert provisioner.calls[0][1].user_name == "ada"
+
+
+def test_destroy_uses_the_recorded_user_name(cyber_range: CyberRange, store: InMemoryRangeStore) -> None:
+    range_id = build(cyber_range, store, RecordingProvisioner(), user_name="ada").range_id
+    provisioner = RecordingProvisioner()
+
+    destroy(cyber_range, store, provisioner, range_id)
+
+    assert provisioner.calls[0][1].user_name == "ada"
 
 
 def test_each_build_gets_a_new_id(cyber_range: CyberRange, store: InMemoryRangeStore) -> None:

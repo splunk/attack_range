@@ -13,7 +13,7 @@ The Splunk Attack Range builds instrumented lab environments for detection devel
 
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - [Terraform](https://developer.hashicorp.com/terraform/install) 1.10 or newer, installed separately (`uv sync` does not install it). `plan`, `build`, and `destroy` run it from your `PATH`, or from the path given with `--terraform`. Version 1.10 is the first that can lock S3 state without DynamoDB. On macOS: `brew tap hashicorp/tap && brew install hashicorp/tap/terraform`
-- Credentials for your provider in the usual places: `~/.aws` or `AWS_*` for AWS, `az login` or `ARM_*` for Azure (with `ARM_SUBSCRIPTION_ID` set), `VSPHERE_SERVER`, `VSPHERE_USER`, and `VSPHERE_PASSWORD` for VMware
+- Credentials for your provider in the usual places: `~/.aws` or `AWS_*` for AWS, `az login` or `ARM_*` for Azure (the subscription is the one from `az account show`, unless `ARM_SUBSCRIPTION_ID` is set), `VSPHERE_SERVER`, `VSPHERE_USER`, and `VSPHERE_PASSWORD` for VMware
 
 **Install**
 
@@ -28,17 +28,30 @@ uv sync
 ```bash
 uv run attack-range plan tmp/ar_template      # show what would be created; registers nothing
 uv run attack-range build tmp/ar_template     # register a new range, create it, and print its id
+uv run attack-range update add <RANGE_ID> PATH       # merge changed or new documents and apply them
+uv run attack-range update change <RANGE_ID> PATH    # apply a modified file or folder already in the range
+uv run attack-range update remove <RANGE_ID> FILES   # remove config files, as shown by get, and apply
 uv run attack-range list                      # show the ranges and their state
+uv run attack-range get <RANGE_ID>            # show one range, its network, and its servers
 uv run attack-range destroy <RANGE_ID>        # remove a range again (asks for confirmation)
+uv run attack-range init                      # set or replace the stored user name and password
+uv run attack-range upload azure VHD --region westeurope   # upload a .vhd and print its image id
 ```
 
 `plan` and `build` take a template: a directory of range documents, or a single `.yaml` file that holds all documents separated by `---`. [`tmp/ar_template`](tmp/ar_template) is a Splunk server and a Windows server on AWS. Every `build` registers a new range under a fresh UUID, even from the same template, so one template can run several times. After `build`, the CLI prints the id and the private and public IP address of every server. `destroy` takes that id.
 
+`update` takes that id and a file or directory of documents. A document with the same kind and name as one already in the range changes that document's parameters. A document that is not in the range yet is added. Documents the path does not mention stay as they are. When nothing changed, `update` does not run Terraform.
+
+`get` takes that id and prints the range: its record, the network and servers from its documents, and the history of its states.
+
+`upload azure` takes a `.vhd` file and a region. It creates a resource group, a storage account, and a managed image, named `<resource>-<id>-<user name>` like the other cloud resources. The storage account drops the hyphens so Azure accepts it. The command prints the image id to use as `azure.imageId`. The VHD must be a multiple of 512 bytes. `--os-type` defaults to `Linux` and `--generation` defaults to `V1`.
+
 | Option | Command | Meaning |
 |--------|---------|---------|
 | `--provider aws\|azure\|vmware` | `plan`, `build` | Which bindings to use. Needed only when the template binds the network to more than one provider, like [`tmp`](tmp). |
+| `--set NAME.PATH=VALUE` | `plan`, `build`, `update add` | Replace a field. Repeat the option for several fields. `NAME` is the document name, or `*` for every document of this provider that has the field. `VALUE` is YAML. |
 | `--local-state` | `build` | Keep the Terraform state in the range folder instead of S3 or Azure Blob Storage. `destroy` uses the same choice. |
-| `--terraform BIN` | `plan`, `build`, `destroy` | Terraform binary to run. Default: `terraform`. |
+| `--terraform BIN` | `plan`, `build`, `update`, `destroy` | Terraform binary to run. Default: `terraform`. |
 | `-y`, `--yes` | `destroy` | Skip the confirmation. Required when not running in a terminal. |
 | `--all` | `list` | Include destroyed ranges. |
 
@@ -46,20 +59,29 @@ uv run attack-range destroy <RANGE_ID>        # remove a range again (asks for c
 
 ## The home folder and range states
 
-The first run creates `~/.attack_range` (set `ATTACK_RANGE_HOME` to use another folder):
+The first run creates `~/.attack_range` (set `ATTACK_RANGE_HOME` to use another folder) and asks for a user name and a password. Both are stored in `config.yaml` and reused after that. `attack-range init` asks again and replaces both. `$PASSWORD$` uses the new password the next time a range is loaded. The file is written so only the owner can read it. The user name is a lowercase letter followed by lowercase letters, digits, or hyphens, at most 32 characters, and it does not end with a hyphen. The password is at least 8 characters and includes a letter, a number, and a special character. A config that already has a user name asks for the password the next time attack-range runs. Outside a terminal, write `user_name` and `password` in that file before running a command. A template may use `$USER$` and `$PASSWORD$` in a document or a user-data file. Loading the range replaces them with these config values. The template files keep the tokens.
+
+Cloud resources are named `<resource>-<first group of the range id>-<user name>`, for example `win-e6fffcb8-ada`. A range keeps the user name it was built with, so editing `config.yaml` later does not rename resources that already exist. `plan` has no range id yet; it keeps a preview id in the plan folder so the names in a plan stay stable, and `build` uses the range's own id. A name that a provider cannot accept at full length keeps the id prefix and drops the user name, which is what happens to a Windows computer name.
 
 ```text
 ~/.attack_range/
+├── config.yaml                 # user_name and password, asked for the first time attack-range runs
 ├── plans/
-│   └── <name>-<provider>/      # Terraform code of `plan`, with local state
+│   └── <name>-<provider>/      # Terraform code of `plan`, with local state and a preview id
 └── ranges/
     └── <range id>/
-        ├── range.yaml          # name, provider, location, template path, state, outputs, history
+        ├── range.yaml          # name, user name, provider, location, template path, state, outputs, history
         ├── documents/          # copy of the template's .yaml files and the user-data files they use
+        ├── keys/               # SSH key pair; the private key stays here
+        ├── wireguard/          # WireGuard client.conf for an AWS or Azure range
         └── terraform/          # generated Terraform code
 ```
 
 `build` copies the template into `documents/`, so later edits to the template don't change a running range. `destroy` reads the copy.
+
+An AWS build generates a 2048-bit RSA key pair in `keys/` and imports the public key as an EC2 key pair named `key-<range id prefix>-<user name>`. Every server in the range uses that pair, including Windows. `destroy` deletes the EC2 key pair with the rest of the range. The private key stays in `keys/`.
+
+An AWS or Azure build also creates a WireGuard gateway on the internet subnet. The guest is the Server and ServerBinding documents in `attack_range_infrastructure/config/wireguard/`. After Terraform finishes, Ansible provisions that gateway and prints the client configuration. Copy it into the WireGuard app and enable the tunnel, then press Enter. The build then provisions the other servers over the VPN. The client configuration is also written to `wireguard/client.conf`. `update add` and `update change` keep the existing WireGuard configuration. They check that the tunnel reaches the gateway and ask you to enable the existing tunnel when it does not. Ansible then runs only for servers whose document or binding was added or changed. `update change` takes a modified file or folder, and every document in it must already be in the range. `update remove` takes a comma-separated list of those config files and deletes them before applying. A server binding is removed only together with its server, and a server is removed only together with its binding. `get` prints the public endpoint and the path of the file.
 
 Each range moves through these states, and `range.yaml` records every change with its time and error:
 
@@ -82,6 +104,8 @@ stateDiagram-v2
 
 A failed or interrupted build ends in `build_failed` and can still be destroyed. A failed destroy can be run again. After a successful destroy, the record and documents stay, and only `terraform/` is deleted. `list` hides destroyed ranges unless you pass `--all`.
 
+Destroyed ranges are kept for 30 days. After that, the next command (any of `plan`, `build`, `destroy`, or `list`) deletes their record and documents, and says so on stderr. Ranges in any other state are never deleted.
+
 ---
 
 ## Describing a range
@@ -95,7 +119,7 @@ A template holds four kinds of documents (API version `v0.1`), either in the `*.
 | `Server` | One guest: login, interfaces with their segment and address, optional bootstrap file, and provisioning steps. Provider neutral. |
 | `ServerBinding` | How one provider realizes the server, for example instance type, AMI, and root volume on AWS. |
 
-Bootstrap files named by `bootstrap.userData` are read from `user-data/` in the template directory (or next to the template file). One directory can hold bindings for several providers next to each other. Each command uses the bindings of one provider.
+When `bootstrap.userData` is omitted, a server uses `attack_range_infrastructure/config/user_data/<server>.<provider>.*` when that file exists. A set name is read from `user-data/` in the template directory, except a name such as `win.ps1`, which uses `config/user_data/win.<provider>.ps1`. One directory can hold bindings for several providers next to each other. Each command uses the bindings of one provider.
 
 Example network ([`tmp/ar_template/ar.network.yaml`](tmp/ar_template/ar.network.yaml), shortened):
 
@@ -185,12 +209,12 @@ The code follows a clean architecture. Use cases depend only on abstract ports, 
 |---------|----------|
 | [`attack_range/domain`](attack_range/domain) | Pydantic models of the four document kinds, `RangeRecord`, and the `RangeState` state machine |
 | [`attack_range/application`](attack_range/application) | `CyberRange` and its consistency checks, and the ports `CyberRangeRepository`, `RangeStore`, `RangeDocuments`, `Provisioner`, and `ProvisionLog` |
-| [`attack_range/use_cases`](attack_range/use_cases) | `Plan`, `Build`, `Destroy`, and `ListRanges`, with their input and output DTOs and output boundaries |
+| [`attack_range/use_cases`](attack_range/use_cases) | `Plan`, `Build`, `Destroy`, `ListRanges`, and `PruneRanges`, with their input and output DTOs and output boundaries |
 | [`attack_range_infrastructure`](attack_range_infrastructure) | The home folder, `FileCyberRangeRepository` (reads templates), `YamlRangeStore` and `FileRangeDocuments` (keep ranges in the home folder), and `TerraformProvisioner` with one renderer per provider and the state backends |
 | [`cli`](cli) | Argument parsing, the dependency-injection container, and the console presenters |
 | [`tests`](tests) | Unit tests, plus `terraform validate` of the generated code |
 
-A new provisioner, for example one that generates Bicep, implements `Provisioner` (`render`, `plan`, `apply`, `destroy`, `clean`) and is registered in [`cli/container.py`](cli/container.py). The same goes for keeping range records in a database instead of YAML files: implement `RangeStore` (`create`, `get`, `update`, `list`) and swap it in the container.
+A new provisioner, for example one that generates Bicep, implements `Provisioner` (`render`, `plan`, `apply`, `destroy`, `clean`) and is registered in [`cli/container.py`](cli/container.py). The same goes for keeping range records in a database instead of YAML files: implement `RangeStore` (`create`, `get`, `update`, `list`, `delete`), and `RangeDocuments` if the documents should move too, and swap them in the container.
 
 **Run the tests**
 

@@ -1,3 +1,4 @@
+import dataclasses
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -5,6 +6,7 @@ from typing import Optional
 from attr import define
 
 from attack_range.application.cyber_range import CyberRangeError
+from attack_range.application.overrides import DeployOverrides, override_range
 from attack_range.application.provisioner import Provisioner, ProvisionerError
 from attack_range.application.repository import CyberRangeRepository
 from attack_range.domain.entities.common import Provider
@@ -18,6 +20,8 @@ class PlanInputDto:
 
     location: Path
     provider: Optional[Provider] = None
+    user_name: str = ""
+    sets: tuple = ()
 
 
 @define
@@ -38,6 +42,15 @@ class Plan:
             ))
             return
 
+        cyber_range = dataclasses.replace(cyber_range, user_name=input_dto.user_name)
+        try:
+            cyber_range = override_range(cyber_range, DeployOverrides(sets=input_dto.sets))
+        except CyberRangeError as error:
+            self._output_boundary.present(ProvisionOutputDto(
+                action="plan", success=False, location=input_dto.location,
+                cyber_range=cyber_range.name, provider=cyber_range.provider, error=str(error),
+            ))
+            return
         try:
             result = self._provisioner.plan(cyber_range)
         except ProvisionerError as error:
@@ -56,3 +69,4 @@ class Plan:
             output=result.output,
             error=None if result.success else "plan failed",
         ))
+

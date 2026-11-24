@@ -8,6 +8,8 @@ create it on first use, and never delete it. Each cyber range gets its own state
 
 import hashlib
 import os
+import shutil
+import subprocess
 from abc import ABC, abstractmethod
 from typing import Optional
 
@@ -18,6 +20,26 @@ DEFAULT_KEY_PREFIX = "attack-range"
 
 def _setting(value: Optional[str], variable: str, default: Optional[str] = None) -> Optional[str]:
     return value or os.environ.get(variable) or default
+
+
+def azure_cli_subscription() -> Optional[str]:
+    """The subscription selected by `az account show`, or None when the CLI has none."""
+    if shutil.which("az") is None:
+        return None
+    try:
+        completed = subprocess.run(
+            ["az", "account", "show", "--query", "id", "--output", "tsv"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if completed.returncode != 0:
+        return None
+    subscription = completed.stdout.strip()
+    return subscription or None
 
 
 class TerraformBackend(ABC):
@@ -125,7 +147,8 @@ class AzureBlobBackend(TerraformBackend):
     Defaults: resource group `attack-range-tfstate`, container `tfstate`, and a storage account
     named `artfstate<hash of subscription and location>`. Override with the constructor or
     ATTACK_RANGE_STATE_RESOURCE_GROUP and ATTACK_RANGE_STATE_STORAGE_ACCOUNT. The subscription
-    comes from ARM_SUBSCRIPTION_ID or AZURE_SUBSCRIPTION_ID. Blob leases provide locking.
+    comes from ARM_SUBSCRIPTION_ID, AZURE_SUBSCRIPTION_ID, or `az account show`. Blob leases
+    provide locking.
     """
 
     type = "azurerm"
@@ -149,7 +172,12 @@ class AzureBlobBackend(TerraformBackend):
     @property
     def subscription_id(self) -> str:
         if not self._subscription_id:
-            raise ValueError("Azure state backend needs ARM_SUBSCRIPTION_ID or AZURE_SUBSCRIPTION_ID")
+            self._subscription_id = azure_cli_subscription()
+        if not self._subscription_id:
+            raise ValueError(
+                "Azure state backend needs ARM_SUBSCRIPTION_ID, AZURE_SUBSCRIPTION_ID, "
+                "or a subscription from az account show"
+            )
         return self._subscription_id
 
     def storage_account(self, location: str) -> str:

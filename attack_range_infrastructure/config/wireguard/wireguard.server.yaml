@@ -1,0 +1,22 @@
+# Platform gateway, added to every AWS and Azure range. It is not part of a range template.
+# The range replaces network, the interface segment, and location with its own.
+apiVersion: v0.1
+kind: Server
+metadata:
+  name: wireguard
+spec:
+  network: range
+  access:
+    username: ubuntu
+    sshKey: range
+  # The range fills vpn_address, vpn_clients, vpn_allowed_ips, vpn_endpoint, and vpn_physical_interface.
+  provisioning:
+    - type: ansible
+      role: attack_range.wireguard
+      vars:
+        vpn_listen_port: 51820
+  interfaces:
+    - name: eth0
+      segment: internet
+      address: auto
+      public: true

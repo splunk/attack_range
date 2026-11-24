@@ -3,11 +3,11 @@ from pathlib import Path
 import pytest
 
 from attack_range_infrastructure.terraform.renderers import RenderError, VmwareRenderer
-from conftest import edit, load_cyber_range
+from conftest import RESOURCE_PREFIX, RESOURCE_USER, edit, identified, load_cyber_range
 
 
 def render(path: Path) -> dict:
-    return VmwareRenderer().render(load_cyber_range(path, "vmware"))
+    return VmwareRenderer().render(identified(load_cyber_range(path, "vmware")))
 
 
 def test_existing_objects(lab_dir: Path) -> None:
@@ -23,6 +23,8 @@ def test_server(lab_dir: Path) -> None:
     doc = render(lab_dir)
     vm = doc["resource"]["vsphere_virtual_machine"]["app_1"]
 
+    assert vm["name"] == f"app-1-{RESOURCE_PREFIX}-{RESOURCE_USER}"
+    assert vm["clone"]["customize"]["linux_options"]["host_name"] == f"app-1-{RESOURCE_PREFIX}-{RESOURCE_USER}"
     assert vm["num_cpus"] == 2
     assert vm["memory"] == 4096
     assert vm["disk"][0]["size"] == 30

@@ -1,0 +1,43 @@
+---
+
+- name: Enable strong dotnet crypto
+  win_regedit:
+    key: "{{ item }}"
+    value: SchUseStrongCrypto
+    datatype: dword
+    data: 1
+  with_items:
+    - "HKLM:\\SOFTWARE\\Microsoft\\.NetFramework\\v4.0.30319"
+    - "HKLM:\\SOFTWARE\\Wow6432Node\\Microsoft\\.NetFramework\\v4.0.30319"
+
+- name: Check installed providers
+  win_shell: Get-PackageProvider -ListAvailable
+  register: providers
+
+- name: Install NuGet Provider
+  win_shell: |
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+  when: providers.stdout is not search("NuGet")
+
+- name: Set Internet Explorer first run customize
+  win_regedit:
+    path: "HKLM:\\SOFTWARE\\Microsoft\\Internet Explorer\\Main"
+    name: DisableFirstRunCustomize
+    type: dword
+    data: 2
+
+- name: Install powershell-yaml module
+  win_shell: |
+    Install-Module -Name powershell-yaml -Force -SkipPublisherCheck
+
+- name: Install Atomic Red Team
+  win_shell: |
+    IEX (IWR https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1 -UseBasicParsing)
+    Install-AtomicRedTeam -Force
+    IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicsfolder.ps1' -UseBasicParsing)
+    Install-AtomicsFolder -Force -RepoOwner redcanaryco -Branch master
+
+- name: copy default powershell profile
+  win_copy:
+    src: profile.ps1
+    dest: C:\Windows\System32\WindowsPowerShell\v1.0\profile.ps1

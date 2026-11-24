@@ -43,14 +43,16 @@ The block that matches `provider` is required. The other provider blocks are abs
 | Field | Required | Meaning |
 |---|---|---|
 | `aws.instanceType` | yes | EC2 instance type, for example `t3.micro`. |
-| `aws.ami` | yes | AMI id in this region. |
-| `aws.keyName` | yes | Name of an existing EC2 key pair. The pair's public key is one of `access.authorizedKeys`. |
+| `aws.ami` | one of `ami`, or `amiNameFilter` with `amiOwner` | AMI id in this region. |
+| `aws.amiNameFilter` | one of `ami`, or `amiNameFilter` with `amiOwner` | Name pattern of the AMI to use. `*` is a wildcard. Terraform selects the newest match in `location`. `ami_name_filter` is the same field. |
+| `aws.amiOwner` | with `amiNameFilter` | Account that owns the AMI, for example `801119661308`. Quote the value when it has a leading zero. `ami_owner` is the same field. |
+| `aws.keyName` | no | Name of an existing EC2 key pair. Build does not use this field. It generates a key pair for the range, imports the public key into EC2, and uses that pair for every server. |
 | `aws.rootVolume.sizeGiB` | yes | Root volume size in GiB. |
 | `aws.rootVolume.type` | yes | EBS type, for example `gp3`. |
 | `aws.iamInstanceProfile` | no | Existing instance profile name. |
 | `aws.securityGroupNames` | no | Existing security groups, attached beside the groups the network filters compile to. When the interface has no effective filters and this field is omitted, the compiler creates one group named for the server. That group allows all egress and no inbound traffic. When effective filters exist, the compiler does not create that default group. |
 
-An explicit interface address becomes the private IP. `auto` leaves the address to the compiler, then to the subnet allocator. `public: true` allocates an elastic IP on an interface whose segment exposure is `internet`. `bootstrap.userData` names a file in `tmp/user-data`. The compiler delivers that file's contents as instance user data.
+An explicit interface address becomes the private IP. `auto` leaves the address to the compiler, then to the subnet allocator. `public: true` allocates an elastic IP on an interface whose segment exposure is `internet`. `bootstrap.userData` names the bootstrap file. When it is omitted, the compiler uses `config/user_data/<server>.<provider>.*`. The compiler delivers that file's contents as instance user data.
 
 ## Azure
 
@@ -60,15 +62,18 @@ An explicit interface address becomes the private IP. `auto` leaves the address 
 |---|---|---|
 | `azure.resourceGroup` | no | Resource group for the VM. When omitted, the compiler uses `azure.resourceGroup` from the NetworkBinding. |
 | `azure.size` | yes | VM size, for example `Standard_B2s`. |
-| `azure.image` | one of `image`, `imageId` | Marketplace image: `publisher`, `offer`, `sku`, and `version`. |
-| `azure.imageId` | one of `image`, `imageId` | Resource id of a custom image. |
+| `azure.image` | one of `image`, `imageId`, or `imagePublisher` with `imageOffer` and `imageSku` | Marketplace image: `publisher`, `offer`, `sku`, and `version`. |
+| `azure.imageId` | one of `image`, `imageId`, or `imagePublisher` with `imageOffer` and `imageSku` | Resource id of a custom image. |
+| `azure.imagePublisher` | with `imageOffer` and `imageSku` | Marketplace publisher, for example `Canonical`. `image_publisher` is the same field. Terraform selects the newest version in `location`. |
+| `azure.imageOffer` | with `imagePublisher` and `imageSku` | Marketplace offer, for example `0001-com-ubuntu-server-jammy`. `image_offer` is the same field. |
+| `azure.imageSku` | with `imagePublisher` and `imageOffer` | Marketplace SKU, for example `22_04-lts`. `image_sku` is the same field. |
 | `azure.osDisk.sizeGiB` | yes | OS disk size in GiB. |
 | `azure.osDisk.storageAccountType` | yes | Disk sku, for example `Premium_LRS`. |
 | `azure.zone` | no | Availability zone. |
 | `azure.adminPasswordSecret` | no | Name of a secret holding an admin password. v0.1 login uses `access.authorizedKeys` when this field is absent. |
 | `azure.networkSecurityGroup` | no | Existing network security group. Valid when the server's interfaces have no effective filters. When effective filters exist, this field is absent and the compiler's merged group is the NIC group. When there are no filters and this field is omitted, the compiler creates one group named for the server. That group allows all outbound traffic and no inbound traffic. |
 
-`access.username` is the admin user name. The authorized keys are installed for that user. An explicit interface address is a static private IP. `auto` is a dynamic private IP chosen from the subnet. `public: true` creates a public IP on an interface whose segment exposure is `internet`. `bootstrap.userData` names a file in `tmp/user-data`. The compiler delivers that file's contents as VM custom data.
+`access.username` is the admin user name. The authorized keys are installed for that user. An explicit interface address is a static private IP. `auto` is a dynamic private IP chosen from the subnet. `public: true` creates a public IP on an interface whose segment exposure is `internet`. `bootstrap.userData` names the bootstrap file. When it is omitted, the compiler uses `config/user_data/<server>.<provider>.*`. The compiler delivers that file's contents as VM custom data.
 
 ## VMware
 

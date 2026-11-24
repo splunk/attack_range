@@ -14,6 +14,7 @@ dependencies = [
     "attrs>=26.1.0",
     "dependency-injector>=4.49.1",
     "rich>=15.0.0",
+    "cryptography>=50.0.2",
 ]
 
 [project.scripts]

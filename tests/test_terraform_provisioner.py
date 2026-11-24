@@ -1,17 +1,23 @@
 import dataclasses
 import json
+import os
 import shutil
 import subprocess
+import time
 from pathlib import Path
 from typing import Optional
 
 import pytest
+import yaml
 
 from attack_range.application.provisioner import ProvisionLog, Provisioner, ProvisionerError
+from attack_range_infrastructure.guests import AnsibleGuestProvisioner
+from attack_range_infrastructure.keys import RangeKeyPair
 from attack_range_infrastructure.storage import AttackRangeHome
+from attack_range_infrastructure.storage.file_cyber_range_repository import FileCyberRangeRepository
 from attack_range_infrastructure.terraform import LocalBackend, TerraformBackend, TerraformProvisioner
 from attack_range_infrastructure.terraform.provisioner import CONFIG_FILE, PLAN_FILE
-from conftest import edit, load_cyber_range, registered
+from conftest import REPO, edit, load_cyber_range, registered
 
 
 class FakeBackend(TerraformBackend):
@@ -160,6 +166,179 @@ def test_changed_config_discards_saved_plan(home: AttackRangeHome, tmp_path: Pat
     assert provisioner.calls[3][-1] != PLAN_FILE
 
 
+def test_aws_range_keeps_its_key_and_destroy_removes_the_aws_pair(home: AttackRangeHome, cyber_range) -> None:
+    provisioner = RecordingProvisioner(home)
+
+    provisioner.render(cyber_range)
+    private = home.keys_dir(cyber_range.id) / "id_rsa"
+    public = home.keys_dir(cyber_range.id) / "id_rsa.pub"
+    assert private.stat().st_mode & 0o777 == 0o600
+    first = public.read_text()
+    rendered = json.loads((home.terraform_dir(cyber_range.id) / CONFIG_FILE).read_text())
+    assert rendered["resource"]["aws_key_pair"]["range"]["public_key"] == first.strip()
+    assert "OPENSSH PRIVATE KEY" not in (home.terraform_dir(cyber_range.id) / CONFIG_FILE).read_text()
+    for instance in rendered["resource"]["aws_instance"].values():
+        assert instance["key_name"] == "${aws_key_pair.range.key_name}"
+
+    provisioner.render(cyber_range)
+    assert public.read_text() == first
+
+    provisioner.destroy(cyber_range)
+    destroyed = json.loads((home.terraform_dir(cyber_range.id) / CONFIG_FILE).read_text())
+    assert destroyed["resource"]["aws_key_pair"]["range"]["public_key"] == first.strip()
+    assert provisioner.calls[-1][0] == "destroy"
+
+
+def test_gateway_provisioning_saves_the_client_config(home: AttackRangeHome, lab_dir: Path) -> None:
+    cyber_range = registered(load_cyber_range(lab_dir, "aws"))
+    RangeKeyPair(home.keys_dir(cyber_range.id)).ensure()
+
+    class Fetching(AnsibleGuestProvisioner):
+        def _ansible(self, directory: Path, action: str, *, retry: bool) -> None:
+            assert "attack_range.wireguard" in (directory / "provision.yml").read_text()
+            if action == "get_config":
+                fetched = directory / "client_configs"
+                fetched.mkdir()
+                (fetched / "client1.conf").write_text("[Peer]\nEndpoint = REPLACE_ENDPOINT:51820\n")
+
+    config = Fetching(home).provision_gateway(cyber_range, "203.0.113.10")
+
+    assert "Endpoint = 203.0.113.10:51820" in config.text
+    assert config.path == home.wireguard_config(cyber_range.id)
+    assert config.path.read_text() == config.text
+
+
+def test_server_provisioning_runs_the_declared_roles(home: AttackRangeHome, ar_template_dir: Path) -> None:
+    cyber_range = registered(load_cyber_range(ar_template_dir, "aws"))
+    RangeKeyPair(home.keys_dir(cyber_range.id)).ensure()
+    calls: list[list[str]] = []
+
+    class Recording(AnsibleGuestProvisioner):
+        def _run(
+            self, directory: Path, command: list[str], title: str, log: Optional[ProvisionLog] = None
+        ) -> subprocess.CompletedProcess[str]:
+            calls.append(command)
+            return subprocess.CompletedProcess(command, 0, "", "")
+
+    Recording(home).provision_servers(cyber_range, {"splunk": "10.0.2.10"})
+
+    play = (home.range_dir(cyber_range.id) / "ansible" / "provision.yml").read_text()
+    assert "P4T12ICK.ludus_ar_splunk" in play
+    assert "P4T12ICK.ar_guacamole" in play
+    assert calls[0][:3] == ["ansible-galaxy", "install", "P4T12ICK.ludus_ar_splunk"]
+    assert calls[-1][:3] == ["ansible-playbook", "-i", "inventory.yml"]
+
+
+def test_missing_gnu_tar_stops_before_the_play(home: AttackRangeHome, monkeypatch: pytest.MonkeyPatch) -> None:
+    source = REPO / "templates" / "aws" / "ar_splunk_windows"
+    cyber_range = registered(FileCyberRangeRepository(home).load(source, "aws"))
+    RangeKeyPair(home.keys_dir(cyber_range.id)).ensure()
+    monkeypatch.setattr("attack_range_infrastructure.guests._gnu_tar", lambda environment: None)
+    calls: list[list[str]] = []
+
+    class Recording(AnsibleGuestProvisioner):
+        def _run(
+            self, directory: Path, command: list[str], title: str, log: Optional[ProvisionLog] = None
+        ) -> subprocess.CompletedProcess[str]:
+            calls.append(command)
+            return subprocess.CompletedProcess(command, 0, "", "")
+
+    with pytest.raises(ProvisionerError, match="GNU tar"):
+        Recording(home).provision_servers(cyber_range, {"splunk": "10.0.2.10"})
+
+    assert calls == []
+
+
+def test_splunk_search_head_uses_the_official_role(home: AttackRangeHome, monkeypatch: pytest.MonkeyPatch) -> None:
+    source = REPO / "templates" / "aws" / "ar_splunk_windows"
+    cyber_range = registered(FileCyberRangeRepository(home).load(source, "aws"))
+    RangeKeyPair(home.keys_dir(cyber_range.id)).ensure()
+    monkeypatch.setattr("attack_range_infrastructure.guests._gnu_tar", lambda environment: Path("/usr/bin/tar"))
+    calls: list[list[str]] = []
+
+    class Recording(AnsibleGuestProvisioner):
+        def _run(
+            self, directory: Path, command: list[str], title: str, log: Optional[ProvisionLog] = None
+        ) -> subprocess.CompletedProcess[str]:
+            calls.append(command)
+            if command[0] == "git":
+                checkout = Path(command[-1])
+                tasks = checkout / "roles" / "splunk" / "tasks"
+                tasks.mkdir(parents=True)
+                (tasks / "main.yml").write_text("---\n")
+            return subprocess.CompletedProcess(command, 0, "", "")
+
+    Recording(home).provision_servers(cyber_range, {"splunk": "10.0.2.10"})
+
+    ansible = home.range_dir(cyber_range.id) / "ansible"
+    assert calls[0][:3] == ["ansible-galaxy", "collection", "install"]
+    assert calls[0][3:6] == ["ansible.posix", "community.general", "amazon.aws"]
+    clone = calls[1]
+    assert clone[:4] == ["git", "clone", "--depth", "1"]
+    assert clone[4:6] == ["--branch", "v2.2.0"]
+    assert clone[6] == "https://github.com/splunk/ansible-role-for-splunk"
+    assert (ansible / "roles" / "splunk").resolve() == (Path(clone[-1]) / "roles" / "splunk").resolve()
+    inventory = yaml.safe_load((ansible / "inventory.yml").read_text())
+    assert inventory["all"]["children"]["full"]["hosts"] == {"splunk": {}}
+    assert inventory["all"]["children"]["search"]["hosts"] == {"splunk": {}}
+    assert inventory["all"]["hosts"]["splunk"]["ansible_python_interpreter"] == "/usr/bin/python3"
+    assert inventory["all"]["hosts"]["splunk"]["ansible_become"] is True
+    play = yaml.safe_load((ansible / "provision.yml").read_text())
+    assert "become" not in play[0]
+    app_step = cyber_range.servers[0].spec.provisioning[1]
+    assert str(app_step.repository) == "https://github.com/splunk/ansible-role-for-splunk"
+    assert app_step.revision == "v2.2.0"
+    assert app_step.role_path == "roles/splunk"
+    install, apps = play[0]["roles"]
+    assert install["role"] == "splunk"
+    assert install["deployment_task"] == "check_splunk.yml"
+    assert install["splunk_admin_password"] == "Test123!"
+    assert install["splunk_package_version"] == "10.6.2.5"
+    assert install["build_id"] == "b07ce3b48d58"
+    assert install["splunk_download_local"] is False
+    assert apps["deployment_task"] == "configure_apps.yml"
+    assert apps["splunk_app_s3_bucket"] == "attack-range-appbinaries"
+    assert apps["environment"] == {"AWS_DEFAULT_REGION": "us-west-2"}
+    assert [item["s3_object"] for item in apps["apps"]] == [
+        "splunk-add-on-for-microsoft-windows_901.tgz",
+        "splunk-add-on-for-sysmon-for-linux_100.tgz",
+        "splunk-add-on-for-sysmon_402.tgz",
+        "splunk-add-on-for-unix-and-linux_1000.tgz",
+        "splunk-common-information-model-(cim)_602.tgz",
+        "DA-ESS-ContentUpdate-latest.tar.gz",
+        "cisco-security-cloud_372.tgz",
+    ]
+
+
+def test_servers_are_provisioned_together(home: AttackRangeHome, ar_template_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    cyber_range = registered(load_cyber_range(ar_template_dir, "aws"))
+    splunk = cyber_range.servers[0]
+    app = splunk.model_copy(deep=True, update={"metadata": splunk.metadata.model_copy(update={"name": "app"})})
+    cyber_range = dataclasses.replace(cyber_range, servers=[splunk, app])
+    RangeKeyPair(home.keys_dir(cyber_range.id)).ensure()
+    monkeypatch.setattr("attack_range_infrastructure.guests.ATTEMPTS", 1)
+    calls: list[list[str]] = []
+    started: list[float] = []
+
+    class Recording(AnsibleGuestProvisioner):
+        def _run(self, directory: Path, command: list[str], title: str, log: Optional[ProvisionLog] = None) -> subprocess.CompletedProcess[str]:
+            if command[0] == "ansible-playbook":
+                started.append(time.monotonic())
+                failed = "--limit" in command and command[command.index("--limit") + 1] == "app"
+                time.sleep(0.4)
+                calls.append(command)
+                return subprocess.CompletedProcess(command, 1 if failed else 0, "app failed" if failed else "", "")
+            calls.append(command)
+            return subprocess.CompletedProcess(command, 0, "", "")
+
+    with pytest.raises(ProvisionerError, match="ansible-playbook app failed"):
+        Recording(home).provision_servers(cyber_range, {"splunk": "10.0.2.10", "app": "10.0.2.12"})
+
+    limited = [command for command in calls if "--limit" in command]
+    assert {command[command.index("--limit") + 1] for command in limited} == {"splunk", "app"}
+    assert max(started) - min(started) < 0.2
+
+
 def test_destroy(home: AttackRangeHome, cyber_range) -> None:
     provisioner = RecordingProvisioner(home)
 
@@ -201,6 +380,52 @@ class RecordingLog(ProvisionLog):
 
     def line(self, text: str) -> None:
         self.lines.append(text)
+
+
+def _vpc_name(directory: Path) -> str:
+    document = json.loads((directory / CONFIG_FILE).read_text())
+    return document["resource"]["aws_vpc"]["vpc"]["tags"]["Name"]
+
+
+def test_plan_names_stay_stable_and_use_the_configured_user(home: AttackRangeHome, template) -> None:
+    provisioner = TerraformProvisioner(home)
+
+    first = _vpc_name(provisioner.render(template))
+    second = _vpc_name(provisioner.render(template))
+
+    assert first == second
+    assert first.startswith("vpc-") and first.endswith("-tester")
+
+
+def test_registered_names_keep_the_recorded_user(home: AttackRangeHome, template) -> None:
+    home.config_file.write_text("user_name: other\n")
+    cyber_range = dataclasses.replace(registered(template), user_name="ada")
+
+    name = _vpc_name(TerraformProvisioner(home).render(cyber_range))
+
+    prefix = str(cyber_range.id).split("-", 1)[0]
+    assert name == f"vpc-{prefix}-ada"
+
+
+def test_render_without_a_user_name_fails(home: AttackRangeHome, template) -> None:
+    home.config_file.unlink()
+
+    with pytest.raises(ProvisionerError, match="no user name"):
+        TerraformProvisioner(home).render(template)
+
+
+def test_streams_ansible_output_to_log(home: AttackRangeHome, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    binary = tmp_path / "ansible-playbook"
+    binary.write_text('#!/bin/sh\necho "PLAY wireguard"\n')
+    binary.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{tmp_path}{os.pathsep}{os.environ['PATH']}")
+    log = RecordingLog()
+    directory = tmp_path / "play"
+    directory.mkdir()
+
+    AnsibleGuestProvisioner(home, log=log)._ansible(directory, "deploy", retry=False)
+
+    assert log.lines == ["ansible-playbook wireguard deploy", "PLAY wireguard"]
 
 
 def test_streams_terraform_output_to_log(home: AttackRangeHome, tmp_path: Path, template) -> None:

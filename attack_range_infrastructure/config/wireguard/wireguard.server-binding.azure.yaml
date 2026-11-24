@@ -1,0 +1,23 @@
+# Machine settings for the WireGuard gateway on Azure. location is replaced by the range.
+apiVersion: v0.1
+kind: ServerBinding
+metadata:
+  name: wireguard-azure
+spec:
+  server: wireguard
+  provider: azure
+  location: range
+  realize:
+    server: virtual-machine
+    interface: network-interface
+    public: public-ip
+  azure:
+    size: Standard_B2s
+    image:
+      publisher: Canonical
+      offer: "0001-com-ubuntu-server-jammy"
+      sku: 22_04-lts
+      version: latest
+    osDisk:
+      sizeGiB: 30
+      storageAccountType: Standard_LRS

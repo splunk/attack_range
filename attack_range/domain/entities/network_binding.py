@@ -37,21 +37,14 @@ class AwsNetworkRealize(SpecModel):
     filter: Optional[Literal["security-group"]] = None
 
 
-class AwsNetworkSettings(SpecModel):
-    """AWS placement for the subnets."""
-
-    availability_zone: str = Field(min_length=1)
-
-
 class AwsNetworkBindingSpec(SpecModel):
-    """NetworkBinding body for AWS."""
+    """NetworkBinding body for AWS. Subnets are placed in the first zone of `location`."""
 
     network: Name
     provider: Literal["aws"]
     location: str = Field(min_length=1)
     tags: Tags = Field(default_factory=dict)
     realize: AwsNetworkRealize
-    aws: AwsNetworkSettings
 
 
 class AzureNetworkRealize(SpecModel):

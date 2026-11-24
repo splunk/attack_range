@@ -1,0 +1,7 @@
+---
+- name: Fetch each client configuration
+  ansible.builtin.fetch:
+    src: "{{ vpn_clients_dir }}/{{ item.name }}.conf"
+    dest: "{{ client_config_local_dir }}/{{ item.name }}.conf"
+    flat: true
+  loop: "{{ vpn_clients }}"

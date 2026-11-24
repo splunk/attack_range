@@ -1,0 +1,8 @@
+---
+- name: Deploy the WireGuard gateway
+  ansible.builtin.include_tasks: deploy.yml
+  when: wireguard_action == 'deploy'
+
+- name: Fetch the WireGuard client configuration
+  ansible.builtin.include_tasks: get_config.yml
+  when: wireguard_action == 'get_config'

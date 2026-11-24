@@ -34,6 +34,8 @@ class RangeRecord(BaseModel):
 
     id: UUID
     name: str
+    user_name: str = ""
+    """User name from the config at build time. Destroy keeps using it so resource names stay the same."""
     provider: Provider
     location: str
     source: str
@@ -47,12 +49,21 @@ class RangeRecord(BaseModel):
     history: list[StateChange] = Field(default_factory=list)
 
     @classmethod
-    def new(cls, name: str, provider: Provider, location: str, source: str, local_state: bool = False) -> "RangeRecord":
+    def new(
+        cls,
+        name: str,
+        provider: Provider,
+        location: str,
+        source: str,
+        local_state: bool = False,
+        user_name: str = "",
+    ) -> "RangeRecord":
         """Register a range under a fresh id, in state `created`."""
         now = _now()
         return cls(
             id=uuid4(),
             name=name,
+            user_name=user_name,
             provider=provider,
             location=location,
             source=source,

@@ -1,0 +1,126 @@
+---
+- name: Require the addresses supplied by the range
+  ansible.builtin.assert:
+    that:
+      - vpn_address | length > 0
+      - vpn_allowed_ips | length > 0
+      - vpn_endpoint | length > 0
+      - vpn_clients | length > 0
+    fail_msg: The range must set the WireGuard address, allowed networks, endpoint, and client.
+
+- name: Forward IPv4 traffic
+  ansible.builtin.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_file: /etc/sysctl.d/99-wireguard.conf
+    reload: true
+
+- name: Check whether WireGuard is installed
+  ansible.builtin.stat:
+    path: /usr/bin/wg
+  register: wireguard_installed
+
+- name: Install WireGuard when it is missing
+  ansible.builtin.apt:
+    name: "{{ vpn_package }}"
+    state: present
+    update_cache: true
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  when: not wireguard_installed.stat.exists
+
+- name: Ensure the WireGuard directory exists
+  ansible.builtin.file:
+    path: "{{ vpn_clients_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Generate the server keys
+  ansible.builtin.shell: |
+    wg genkey | tee {{ vpn_clients_dir }}/server_private.key | wg pubkey | tee {{ vpn_clients_dir }}/server_public.key
+  args:
+    creates: "{{ vpn_clients_dir }}/server_public.key"
+  no_log: true
+
+- name: Generate a key pair for each client
+  ansible.builtin.shell: |
+    wg genkey | tee {{ vpn_clients_dir }}/{{ item.name }}_private.key | wg pubkey | tee {{ vpn_clients_dir }}/{{ item.name }}_public.key
+  args:
+    creates: "{{ vpn_clients_dir }}/{{ item.name }}_public.key"
+  loop: "{{ vpn_clients }}"
+  no_log: true
+
+- name: Restrict the server private key
+  ansible.builtin.file:
+    path: "{{ vpn_clients_dir }}/server_private.key"
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Restrict the client private keys
+  ansible.builtin.file:
+    path: "{{ vpn_clients_dir }}/{{ item.name }}_private.key"
+    owner: root
+    group: root
+    mode: "0600"
+  loop: "{{ vpn_clients }}"
+
+- name: Read the server private key
+  ansible.builtin.slurp:
+    src: "{{ vpn_clients_dir }}/server_private.key"
+  register: server_private_key_content
+  no_log: true
+
+- name: Read the server public key
+  ansible.builtin.slurp:
+    src: "{{ vpn_clients_dir }}/server_public.key"
+  register: server_public_key_content
+  no_log: true
+
+- name: Read the client public keys
+  ansible.builtin.slurp:
+    src: "{{ vpn_clients_dir }}/{{ item.name }}_public.key"
+  register: client_public_keys
+  loop: "{{ vpn_clients }}"
+  no_log: true
+
+- name: Read the client private keys
+  ansible.builtin.slurp:
+    src: "{{ vpn_clients_dir }}/{{ item.name }}_private.key"
+  register: client_private_keys
+  loop: "{{ vpn_clients }}"
+  no_log: true
+
+- name: Remember the server keys
+  ansible.builtin.set_fact:
+    vpn_private_key: "{{ server_private_key_content.content | b64decode | trim }}"
+    vpn_public_key: "{{ server_public_key_content.content | b64decode | trim }}"
+  no_log: true
+
+- name: Write the server configuration
+  ansible.builtin.template:
+    src: wg0.j2
+    dest: "{{ vpn_clients_dir }}/wg0.conf"
+    owner: root
+    group: root
+    mode: "0640"
+  notify: Restart wireguard
+
+- name: Write each client configuration
+  ansible.builtin.template:
+    src: client.j2
+    dest: "{{ vpn_clients_dir }}/{{ item[0].name }}.conf"
+    owner: root
+    group: root
+    mode: "0600"
+  loop: "{{ vpn_clients | zip(client_private_keys.results) | list }}"
+  no_log: true
+
+- name: Enable the WireGuard interface
+  ansible.builtin.systemd:
+    name: wg-quick@wg0
+    enabled: true
+    state: started
+    daemon_reload: true

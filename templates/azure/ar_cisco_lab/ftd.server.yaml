@@ -1,0 +1,24 @@
+apiVersion: v0.1
+kind: Server
+metadata:
+  name: ftd
+spec:
+  network: ar
+  access:
+    username: ubuntu
+  bootstrap:
+    userData: ftd.txt
+  interfaces:
+    - name: mgmt
+      segment: mgmt
+      address: 10.0.2.10
+    - name: diag
+      segment: diag
+      address: 10.0.3.10
+    - name: outside
+      segment: outside
+      address: 10.0.4.10
+      public: true
+    - name: inside
+      segment: inside
+      address: 10.0.5.10

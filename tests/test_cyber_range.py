@@ -34,6 +34,20 @@ def test_needs_provider_when_several_are_bound(lab_dir: Path) -> None:
         load_cyber_range(lab_dir)
 
 
+def test_user_data_follows_the_provider(ar_template_dir: Path) -> None:
+    root = ar_template_dir.parent
+    aws = load_cyber_range(root / "ar_template_aws", "aws")
+    azure = load_cyber_range(root / "ar_template_azure", "azure")
+    aws_win = next(server for server in aws.servers if server.metadata.name == "win")
+    azure_win = next(server for server in azure.servers if server.metadata.name == "win")
+
+    assert aws_win.spec.bootstrap is not None and aws_win.spec.bootstrap.user_data == "win.ps1"
+    assert "WinNT://./administrator" in aws.user_data(aws_win)
+    assert azure_win.spec.bootstrap is not None and azure_win.spec.bootstrap.user_data == "win.ps1"
+    assert "WinNT://./AzureAdmin" in azure.user_data(azure_win)
+    assert aws.user_data(next(server for server in aws.servers if server.metadata.name == "splunk")) is None
+
+
 def test_missing_user_data(lab_dir: Path) -> None:
     (lab_dir / "user-data" / "app-1.ps1").unlink()
 

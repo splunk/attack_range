@@ -1,0 +1,24 @@
+
+- name: Check if Splunk UF is installed
+  win_service_info:
+    name: SplunkForwarder
+  register: splunk_service
+  failed_when: false
+  changed_when: false
+
+- name: Download Splunk UF from Splunk website
+  win_shell: |
+    [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
+    (New-Object System.Net.WebClient).DownloadFile("{{ ludus_ar_windows_uf_url }}", "C:\splunkuf.msi")
+  when: splunk_service.services | length == 0
+
+- name: Install Splunk_UF MSI
+  win_package:
+    path: C:\splunkuf.msi
+    arguments: 'WINEVENTLOG_SEC_ENABLE=0 WINEVENTLOG_SYS_ENABLE=0 WINEVENTLOG_APP_ENABLE=0 PRIVILEGESECURITY=1 USE_LOCAL_SYSTEM=1 SPLUNKPASSWORD={{ ludus_ar_windows_password }} AGREETOLICENSE=YES /quiet'
+  when: splunk_service.services | length == 0
+
+- name: Start Splunk
+  win_service:
+    name: SplunkForwarder
+    state: started

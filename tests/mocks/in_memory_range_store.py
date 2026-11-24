@@ -30,6 +30,11 @@ class InMemoryRangeStore(RangeStore):
     def list(self) -> list[RangeRecord]:
         return list(self.records.values())
 
+    def delete(self, range_id: UUID) -> None:
+        if range_id not in self.records:
+            raise RangeNotFound(f"no cyber range with id {range_id}")
+        del self.records[range_id]
+
     def _put(self, record: RangeRecord) -> None:
         self.records[record.id] = record
         self.stored_states.append(record.state.value)

@@ -27,8 +27,12 @@ class CyberRange:
     """Contents of each `bootstrap.userData` file, keyed by file name."""
     id: Optional[UUID] = None
     """Id of the registered range. Templates that are only planned have none."""
+    user_name: str = ""
+    """User name copied from the attack range config. Resource names are built from it."""
     local_state: bool = False
     """Keep provisioner state next to the generated code instead of the provider's default store."""
+    ssh_public_key: str = ""
+    """OpenSSH public key of the range. AWS imports it as the key pair used by every server."""
 
     @property
     def name(self) -> str:

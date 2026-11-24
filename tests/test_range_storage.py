@@ -1,5 +1,5 @@
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 import yaml
@@ -65,6 +65,21 @@ def test_store_unknown_id(home: AttackRangeHome) -> None:
         store.update(new_record())
 
 
+def test_list_skips_a_record_this_version_cannot_read(home: AttackRangeHome) -> None:
+    store = YamlRangeStore(home)
+    record = new_record()
+    store.create(record)
+    leftover = home.ranges_dir / "2bf475f0-5bb7-45aa-9c9a-1174a161a6ec"
+    leftover.mkdir()
+    (leftover / "range.yaml").write_text(
+        "id: 2bf475f0-5bb7-45aa-9c9a-1174a161a6ec\nprovider: fusion\n"
+    )
+
+    assert [item.id for item in store.list()] == [record.id]
+    with pytest.raises(ValueError, match="not a valid range record"):
+        store.get(UUID("2bf475f0-5bb7-45aa-9c9a-1174a161a6ec"))
+
+
 def test_store_lists_ranges_and_skips_other_folders(home: AttackRangeHome) -> None:
     store = YamlRangeStore(home)
     first, second = new_record("one"), new_record("two")
@@ -73,6 +88,35 @@ def test_store_lists_ranges_and_skips_other_folders(home: AttackRangeHome) -> No
     (home.ranges_dir / "notes").mkdir()
 
     assert sorted(record.name for record in store.list()) == ["one", "two"]
+
+
+def test_delete_removes_the_range_folder(home: AttackRangeHome, ar_template_dir: Path) -> None:
+    store = YamlRangeStore(home)
+    documents = FileRangeDocuments(home, FileCyberRangeRepository())
+    record = new_record()
+    store.create(record)
+    documents.import_documents(record.id, ar_template_dir)
+
+    documents.delete(record.id)
+    documents.delete(record.id)
+    store.delete(record.id)
+
+    assert not home.range_dir(record.id).exists()
+    assert store.list() == []
+    with pytest.raises(RangeNotFound):
+        store.delete(record.id)
+
+
+def test_delete_keeps_folder_with_other_files(home: AttackRangeHome) -> None:
+    store = YamlRangeStore(home)
+    record = new_record()
+    store.create(record)
+    (home.range_dir(record.id) / "notes.txt").write_text("keep")
+
+    store.delete(record.id)
+
+    assert (home.range_dir(record.id) / "notes.txt").is_file()
+    assert store.list() == []
 
 
 def test_import_copies_documents_and_user_data(home: AttackRangeHome, lab_dir: Path) -> None:

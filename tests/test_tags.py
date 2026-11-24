@@ -5,7 +5,7 @@ import yaml
 
 from attack_range.application.cyber_range import CyberRangeError
 from attack_range_infrastructure.terraform.renderers import AwsRenderer, AzureRenderer
-from conftest import load_cyber_range
+from conftest import RESOURCE_PREFIX, RESOURCE_USER, identified, load_cyber_range
 
 TAGS = {"splunkit_environment_type": "non-prd", "splunkit_data_classification": "private"}
 
@@ -62,20 +62,25 @@ def test_vmware_rejects_tags(lab_dir: Path) -> None:
 
 
 def test_aws_uses_provider_default_tags(lab_dir: Path) -> None:
-    doc = AwsRenderer().render(load_cyber_range(lab_dir, "aws"))
+    doc = AwsRenderer().render(identified(load_cyber_range(lab_dir, "aws")))
 
     assert doc["provider"]["aws"] == {"region": "eu-central-1", "default_tags": {"tags": TAGS}}
-    assert doc["resource"]["aws_vpc"]["vpc"]["tags"] == {"Name": "lab-vpc", "attack-range": "lab"}
+    assert doc["resource"]["aws_vpc"]["vpc"]["tags"] == {
+        "Name": f"vpc-{RESOURCE_PREFIX}-{RESOURCE_USER}",
+        "attack-range": "lab",
+    }
 
 
 def test_aws_without_tags_has_no_default_tags(lab_dir: Path) -> None:
     set_tags(lab_dir / "lab.network-binding.aws.yaml", None)
 
-    assert AwsRenderer().render(load_cyber_range(lab_dir, "aws"))["provider"]["aws"] == {"region": "eu-central-1"}
+    assert AwsRenderer().render(identified(load_cyber_range(lab_dir, "aws")))["provider"]["aws"] == {
+        "region": "eu-central-1"
+    }
 
 
 def test_azure_tags_every_taggable_resource(lab_dir: Path) -> None:
-    resources = AzureRenderer().render(load_cyber_range(lab_dir, "azure"))["resource"]
+    resources = AzureRenderer().render(identified(load_cyber_range(lab_dir, "azure")))["resource"]
 
     tagged = {kind for kind in resources if kind not in UNTAGGED_AZURE}
     assert {"azurerm_resource_group", "azurerm_public_ip", "azurerm_nat_gateway",

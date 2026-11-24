@@ -1,0 +1,6 @@
+---
+
+- name: install {{ item }}
+  ignore_errors: True
+  win_chocolatey:
+    name: "{{ item }}"

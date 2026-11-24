@@ -1,0 +1,20 @@
+apiVersion: v0.1
+kind: ServerBinding
+metadata:
+  name: win-azure
+spec:
+  server: win
+  provider: azure
+  location: westeurope
+  realize:
+    server: virtual-machine
+    interface: network-interface
+    public: public-ip
+  azure:
+    size: Standard_D2s_v3
+    image_publisher: MicrosoftWindowsServer
+    image_offer: WindowsServer
+    image_sku: 2022-datacenter-g2
+    osDisk:
+      sizeGiB: 127
+      storageAccountType: StandardSSD_LRS

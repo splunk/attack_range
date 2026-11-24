@@ -83,6 +83,21 @@ def test_state_key_needs_an_id(ar_template_dir: Path) -> None:
         S3Backend(bucket="state").config(load_cyber_range(ar_template_dir, "aws"))
 
 
-def test_azure_needs_subscription(lab_dir: Path) -> None:
+def test_azure_subscription_comes_from_the_cli(monkeypatch: pytest.MonkeyPatch, lab_dir: Path) -> None:
+    monkeypatch.setattr(
+        "attack_range_infrastructure.terraform.backends.azure_cli_subscription",
+        lambda: "11111111-1111-1111-1111-111111111111",
+    )
+
+    config = AzureBlobBackend().config(registered(load_cyber_range(lab_dir, "azure")))
+
+    assert config["subscription_id"] == "11111111-1111-1111-1111-111111111111"
+
+
+def test_azure_needs_subscription(monkeypatch: pytest.MonkeyPatch, lab_dir: Path) -> None:
+    monkeypatch.setattr(
+        "attack_range_infrastructure.terraform.backends.azure_cli_subscription", lambda: None
+    )
+
     with pytest.raises(ValueError, match="ARM_SUBSCRIPTION_ID"):
         AzureBlobBackend().config(registered(load_cyber_range(lab_dir, "azure")))

@@ -28,3 +28,7 @@ class RangeStore(ABC):
     @abstractmethod
     def list(self) -> list[RangeRecord]:
         """Return every registered range, in no particular order."""
+
+    @abstractmethod
+    def delete(self, range_id: UUID) -> None:
+        """Forget the range. Raises RangeNotFound when there is none."""

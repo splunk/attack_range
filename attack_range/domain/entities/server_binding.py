@@ -26,14 +26,35 @@ class AwsRootVolume(SpecModel):
 
 
 class AwsServerSettings(SpecModel):
-    """EC2 machine settings."""
+    """EC2 machine settings. Set `ami`, or `amiNameFilter` together with `amiOwner`."""
 
     instance_type: str = Field(min_length=1)
-    ami: AmiId
-    key_name: str = Field(min_length=1)
+    ami: Optional[AmiId] = None
+    ami_name_filter: Optional[str] = Field(None, min_length=1)
+    ami_owner: Optional[str] = Field(None, min_length=1)
+    key_name: Optional[str] = Field(None, min_length=1)
+    """Existing EC2 key pair. Build ignores this and uses the key pair it generates for the range."""
     root_volume: AwsRootVolume
     iam_instance_profile: Optional[str] = None
     security_group_names: Optional[list[str]] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _owner_is_text(cls, data: object) -> object:
+        """An unquoted account id in YAML is a number. Keep it as text."""
+        if isinstance(data, dict) and isinstance(data.get("amiOwner", data.get("ami_owner")), int):
+            key = "amiOwner" if "amiOwner" in data else "ami_owner"
+            data = {**data, key: str(data[key])}
+        return data
+
+    @model_validator(mode="after")
+    def _ami_or_filter(self) -> "AwsServerSettings":
+        filtered = self.ami_name_filter is not None or self.ami_owner is not None
+        if filtered and (self.ami_name_filter is None or self.ami_owner is None):
+            raise ValueError("amiNameFilter and amiOwner are set together")
+        if (self.ami is not None) == filtered:
+            raise ValueError("aws sets either ami or amiNameFilter and amiOwner")
+        return self
 
 
 class AwsServerBindingSpec(SpecModel):
@@ -71,21 +92,32 @@ class AzureOsDisk(SpecModel):
 
 
 class AzureServerSettings(SpecModel):
-    """Azure VM settings. Set exactly one of `image` or `imageId`."""
+    """Azure VM settings.
+
+    Set `image`, or `imageId`, or `imagePublisher`, `imageOffer`, and `imageSku` together.
+    Those three fields select the newest marketplace version in `location`.
+    """
 
     resource_group: Optional[str] = None
     size: str = Field(min_length=1)
     image: Optional[AzureImage] = None
     image_id: Optional[str] = None
+    image_publisher: Optional[str] = Field(None, min_length=1)
+    image_offer: Optional[str] = Field(None, min_length=1)
+    image_sku: Optional[str] = Field(None, min_length=1)
     os_disk: AzureOsDisk
     zone: Optional[str] = None
     admin_password_secret: Optional[str] = None
     network_security_group: Optional[str] = None
 
     @model_validator(mode="after")
-    def _image_or_image_id(self) -> "AzureServerSettings":
-        if (self.image is None) == (self.image_id is None):
-            raise ValueError("azure sets exactly one of image or imageId")
+    def _one_image(self) -> "AzureServerSettings":
+        looked_up = (self.image_publisher, self.image_offer, self.image_sku)
+        if any(part is not None for part in looked_up) and not all(part is not None for part in looked_up):
+            raise ValueError("imagePublisher, imageOffer, and imageSku are set together")
+        chosen = sum(item is not None for item in (self.image, self.image_id, self.image_publisher))
+        if chosen != 1:
+            raise ValueError("azure sets exactly one of image, imageId, or imagePublisher, imageOffer, and imageSku")
         return self
 
 

@@ -11,10 +11,13 @@ HOME_VARIABLE = "ATTACK_RANGE_HOME"
 class AttackRangeHome:
     """Paths of the home folder.
 
-    ranges/<id>/range.yaml      state record
-    ranges/<id>/documents/      copy of the template
-    ranges/<id>/terraform/      generated code and local state
-    plans/<name>-<provider>/    scratch folder of `plan`
+    config.yaml                  user name and password, asked for on first use
+    ranges/<id>/range.yaml       state record
+    ranges/<id>/documents/       copy of the template
+    ranges/<id>/keys/            SSH key pair used by AWS servers and the WireGuard gateway
+    ranges/<id>/wireguard/       WireGuard client config of an AWS or Azure range
+    ranges/<id>/terraform/       generated code and local state
+    plans/<name>-<provider>/     scratch folder of `plan`
     """
 
     def __init__(self, root: Optional[Path] = None) -> None:
@@ -25,6 +28,10 @@ class AttackRangeHome:
         self.ranges_dir.mkdir(parents=True, exist_ok=True)
         self.plans_dir.mkdir(parents=True, exist_ok=True)
         return self
+
+    @property
+    def config_file(self) -> Path:
+        return self.root / "config.yaml"
 
     @property
     def ranges_dir(self) -> Path:
@@ -42,6 +49,12 @@ class AttackRangeHome:
 
     def documents_dir(self, range_id: UUID) -> Path:
         return self.range_dir(range_id) / "documents"
+
+    def keys_dir(self, range_id: UUID) -> Path:
+        return self.range_dir(range_id) / "keys"
+
+    def wireguard_config(self, range_id: UUID) -> Path:
+        return self.range_dir(range_id) / "wireguard" / "client.conf"
 
     def terraform_dir(self, range_id: UUID) -> Path:
         return self.range_dir(range_id) / "terraform"

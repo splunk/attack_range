@@ -12,7 +12,7 @@ from attack_range.domain.entities import Server
 from attack_range.domain.entities.network_binding import VmwareNetworkBindingSpec
 from attack_range.domain.entities.server_binding import VmwareServerBindingSpec
 
-from .base import RenderError, Renderer, TerraformDocument, data_ref, ref, tf_name
+from .base import RenderError, Renderer, TerraformDocument, cloud_name, data_ref, ref, tf_name
 
 DATACENTER = "network"
 
@@ -94,7 +94,7 @@ class VmwareRenderer(Renderer):
                 })
 
         customize: dict[str, Any] = {
-            "linux_options": {"host_name": name, "domain": "local"},
+            "linux_options": {"host_name": cloud_name(cyber_range, name, limit=63), "domain": "local"},
             "network_interface": customize_interfaces,
         }
         primary = server.spec.primary_interface
@@ -108,7 +108,7 @@ class VmwareRenderer(Renderer):
             disk_size = settings.disk.size_gib
 
         vm: dict[str, Any] = {
-            "name": name,
+            "name": cloud_name(cyber_range, name, limit=80),
             "resource_pool_id": resource_pool_id,
             "datastore_id": data_ref("vsphere_datastore", key, "id"),
             "num_cpus": settings.cpu or template("num_cpus"),

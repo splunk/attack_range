@@ -1,8 +1,0 @@
-# API dependencies are now integrated into the main requirements.txt file
-# Please install from the project root:
-#
-#   pip install -r ../requirements.txt
-#
-# Or if you're in the project root:
-#
-#   pip install -r requirements.txt

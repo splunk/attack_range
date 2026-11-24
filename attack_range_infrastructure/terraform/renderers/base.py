@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 from attack_range.application.cyber_range import CyberRange
+from attack_range.application.names import resource_name
 from attack_range.domain.entities.network import EgressRule, Filter, IngressRule
 
 FilterRule = IngressRule | EgressRule
@@ -12,6 +13,21 @@ FilterRule = IngressRule | EgressRule
 
 class RenderError(ValueError):
     """Raised when a cyber range cannot be expressed on the target provider."""
+
+
+def cloud_name(cyber_range: CyberRange, name: str, *, limit: Optional[int] = None) -> str:
+    """Cloud resource name `<name>-<first uuid group>-<user name>`, e.g. `win-e6fffcb8-ada`.
+
+    `name` is the resource's own name. A provider that allows fewer characters keeps the
+    uuid group, shortens `name`, and drops the user name only when the name still does not fit.
+    """
+    if cyber_range.id is None or not cyber_range.user_name:
+        raise RenderError("resource names need the range id and the user name")
+    prefix = str(cyber_range.id).split("-", 1)[0]
+    try:
+        return resource_name(name, prefix, cyber_range.user_name, limit=limit)
+    except ValueError as error:
+        raise RenderError(str(error)) from error
 
 
 def tf_name(*parts: str) -> str:
@@ -144,7 +160,7 @@ class Renderer(ABC):
 
     @staticmethod
     def tags(cyber_range: CyberRange, name: str) -> dict[str, str]:
-        return {"Name": f"{cyber_range.name}-{name}", "attack-range": cyber_range.name}
+        return {"Name": cloud_name(cyber_range, name, limit=256), "attack-range": cyber_range.name}
 
     @staticmethod
     def require(value: Optional[object], message: str) -> None:

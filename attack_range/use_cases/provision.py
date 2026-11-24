@@ -11,7 +11,18 @@ from attack_range.domain.entities.common import Provider
 from attack_range.domain.entities.range_record import RangeRecord
 from attack_range.domain.value_objects.range_state import RangeState
 
-Action = Literal["plan", "build", "destroy"]
+Action = Literal["plan", "build", "destroy", "update"]
+ConfigAction = Literal["added", "modified", "removed"]
+
+
+@dataclass(frozen=True)
+class ConfigChange:
+    """One document in an update: a new document, an existing one with changed parameters, or a removal."""
+
+    kind: str
+    name: str
+    action: ConfigAction
+    parameters: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -26,6 +37,7 @@ class ProvisionOutputDto:
     output: str = ""
     outputs: dict[str, Any] = field(default_factory=dict)
     error: Optional[str] = None
+    changes: tuple[ConfigChange, ...] = ()
 
 
 class ProvisionOutputBoundary(abc.ABC):

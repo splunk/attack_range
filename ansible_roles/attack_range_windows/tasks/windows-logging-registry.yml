@@ -1,0 +1,28 @@
+---
+
+- name: WINEVT Channels Event Log Enabled
+  win_regedit:
+    key: "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WINEVT\\Channels\\{{ item }}"
+    value: Enabled
+    datatype: dword
+    data: 1
+  with_items:
+    - 'Microsoft-Windows-Sysmon/Operational'
+
+- name: WINEVT Channels Event Log size review
+  win_regedit:
+    key: "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WINEVT\\Channels\\{{ item }}"
+    value: MaxSize
+    datatype: dword
+    data: "315801600"
+  with_items:
+    - 'Microsoft-Windows-Sysmon/Operational'
+
+- name: WINEVT Channels Event Log retention review
+  win_regedit:
+    key: "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WINEVT\\Channels\\{{ item }}"
+    value: Retention
+    datatype: dword
+    data: "0"
+  with_items:
+    - 'Microsoft-Windows-Sysmon/Operational'

@@ -1,15 +1,21 @@
 """Terraform provisioner: renders `main.tf.json` and drives the terraform CLI."""
 
+import dataclasses
 import json
 import shutil
 import subprocess
 from pathlib import Path
 from typing import Any, Optional
+from uuid import UUID, uuid4
 
 from attack_range.application.cyber_range import CyberRange
 from attack_range.application.provisioner import ProvisionLog, ProvisionResult, Provisioner, ProvisionerError
 from attack_range.domain.entities.common import Provider
+from attack_range_infrastructure.command import stream_command
+from attack_range_infrastructure.keys import KeyPairError, RangeKeyPair
 from attack_range_infrastructure.storage.home import AttackRangeHome
+from attack_range_infrastructure.storage.user_config import UserConfig, UserConfigError
+from attack_range_infrastructure.terraform.wireguard import WireGuardError
 
 from .backends import AzureBlobBackend, LocalBackend, S3Backend, TerraformBackend
 from .renderers.aws import AwsRenderer
@@ -19,6 +25,7 @@ from .renderers.vmware import VmwareRenderer
 
 CONFIG_FILE = "main.tf.json"
 PLAN_FILE = "tfplan"
+PREVIEW_ID_FILE = "preview-id"
 
 
 class TerraformProvisioner(Provisioner):
@@ -70,8 +77,8 @@ class TerraformProvisioner(Provisioner):
         if renderer is None:
             raise ProvisionerError(f"no Terraform renderer for provider '{cyber_range.provider}'")
         try:
-            document = renderer.render(cyber_range)
-        except RenderError as error:
+            document = renderer.render(self._with_key(cyber_range, self._named(cyber_range)))
+        except (RenderError, KeyPairError, WireGuardError) as error:
             raise ProvisionerError(str(error)) from error
         backend = self.backend(cyber_range)
         if backend.type is not None:
@@ -114,6 +121,59 @@ class TerraformProvisioner(Provisioner):
         self._require_id(cyber_range, "cleaned")
         shutil.rmtree(self.directory(cyber_range), ignore_errors=True)
 
+    def _with_key(self, cyber_range: CyberRange, named: CyberRange) -> CyberRange:
+        """Give an AWS or Azure range the key pair stored in its folder.
+
+        AWS servers and the WireGuard gateway use it. Azure uses it for the gateway. A range
+        that is only being planned keeps its key in the plan folder. A later render reuses it.
+        """
+        if cyber_range.provider not in ("aws", "azure"):
+            return named
+        public_key = RangeKeyPair(self._key_directory(cyber_range)).ensure()
+        return dataclasses.replace(named, ssh_public_key=public_key)
+
+    def _key_directory(self, cyber_range: CyberRange) -> Path:
+        if cyber_range.id is not None:
+            return self.home.keys_dir(cyber_range.id)
+        return self.directory(cyber_range) / "keys"
+
+    def _named(self, cyber_range: CyberRange) -> CyberRange:
+        """Give the range the id and user name that cloud resource names are built from.
+
+        A range that is only being planned has no id yet. A preview id is kept in the plan
+        folder so running plan again does not rename every resource. A recorded user name
+        wins over the current config, so destroy still addresses the names that were built.
+        """
+        user_name = cyber_range.user_name or self._configured_user_name()
+        range_id = cyber_range.id or self._preview_id(cyber_range)
+        if user_name == cyber_range.user_name and range_id == cyber_range.id:
+            return cyber_range
+        return dataclasses.replace(cyber_range, id=range_id, user_name=user_name)
+
+    def _configured_user_name(self) -> str:
+        try:
+            config = UserConfig.load(self.home)
+        except UserConfigError as error:
+            raise ProvisionerError(str(error)) from error
+        if config is None:
+            raise ProvisionerError(
+                f"no user name in {self.home.config_file}. Run attack-range in a terminal to set one."
+            )
+        return config.user_name
+
+    def _preview_id(self, cyber_range: CyberRange) -> UUID:
+        directory = self.directory(cyber_range)
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / PREVIEW_ID_FILE
+        if path.is_file():
+            try:
+                return UUID(path.read_text().strip())
+            except ValueError:
+                pass
+        preview = uuid4()
+        path.write_text(f"{preview}\n")
+        return preview
+
     @staticmethod
     def _require_id(cyber_range: CyberRange, verb: str) -> None:
         if cyber_range.id is None:
@@ -155,14 +215,6 @@ class TerraformProvisioner(Provisioner):
         try:
             if not stream:
                 return subprocess.run(command, cwd=directory, capture_output=True, text=True, check=False)
-            lines: list[str] = []
-            with subprocess.Popen(
-                command, cwd=directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1
-            ) as process:
-                assert process.stdout is not None
-                for line in process.stdout:
-                    lines.append(line)
-                    self.log.line(line.rstrip("\n"))
-            return subprocess.CompletedProcess(command, process.returncode, "".join(lines), "")
+            return stream_command(command, directory, self.log)
         except FileNotFoundError as error:
             raise ProvisionerError(f"terraform binary '{self.terraform_bin}' not found") from error

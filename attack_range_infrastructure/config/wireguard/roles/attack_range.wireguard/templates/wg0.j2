@@ -1,0 +1,20 @@
+[Interface]
+PrivateKey = {{ vpn_private_key }}
+Address = {{ vpn_address }}
+ListenPort = {{ vpn_listen_port }}
+SaveConfig = false
+
+PostUp = iptables -t nat -I POSTROUTING -o {{ vpn_physical_interface }} -j MASQUERADE
+PostUp = iptables -I FORWARD -i wg0 -j ACCEPT
+PostUp = iptables -I FORWARD -o wg0 -j ACCEPT
+PreDown = iptables -t nat -D POSTROUTING -o {{ vpn_physical_interface }} -j MASQUERADE
+PreDown = iptables -D FORWARD -i wg0 -j ACCEPT || true
+PreDown = iptables -D FORWARD -o wg0 -j ACCEPT || true
+
+{% for client in vpn_clients %}
+# {{ client.name }}
+[Peer]
+PublicKey = {{ (client_public_keys.results[loop.index0].content | b64decode | trim) }}
+AllowedIPs = {{ client.address }}
+
+{% endfor %}
