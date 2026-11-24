@@ -6,10 +6,10 @@ An Ansible Role that installs a [Attack Range](https://github.com/splunk/attack_
 
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 ```
-ludus_ar_windows_splunk_ip: "10.2.20.1"
-ludus_ar_windows_uf_url: "https://download.splunk.com/products/universalforwarder/releases/9.3.0/windows/splunkforwarder-9.3.0-51ccf43db5bd-x64-release.msi"
-ludus_ar_windows_password: "changeme123!"
-ludus_ar_windows_install_additional_tools: false
+attack_range_windows_splunk_ip: "10.2.20.1"
+attack_range_windows_uf_url: "https://download.splunk.com/products/universalforwarder/releases/9.3.0/windows/splunkforwarder-9.3.0-51ccf43db5bd-x64-release.msi"
+attack_range_windows_password: "changeme123!"
+attack_range_windows_install_additional_tools: false
 ```
 
 ## Dependencies
@@ -53,7 +53,7 @@ ludus:
     roles:
       - P4T12ICK.ludus_ar_windows
     role_vars:
-      ludus_ar_windows_splunk_ip: "10.2.20.1"
+      attack_range_windows_splunk_ip: "10.2.20.1"
 ```
 
 ## License

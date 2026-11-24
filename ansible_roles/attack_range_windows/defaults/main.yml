@@ -1,6 +1,6 @@
 ---
 
-ludus_ar_windows_splunk_ip: "10.2.20.1"
-ludus_ar_windows_uf_url: "https://download.splunk.com/products/universalforwarder/releases/10.6.2.5/windows/splunkforwarder-10.6.2.5-b07ce3b48d58-windows-x64.msi"
-ludus_ar_windows_password: "changeme123!"
-ludus_ar_windows_install_additional_tools: false
+attack_range_windows_splunk_ip: "10.2.20.1"
+attack_range_windows_uf_url: "https://download.splunk.com/products/universalforwarder/releases/10.6.2.5/windows/splunkforwarder-10.6.2.5-b07ce3b48d58-windows-x64.msi"
+attack_range_windows_password: "changeme123!"
+attack_range_windows_install_additional_tools: false

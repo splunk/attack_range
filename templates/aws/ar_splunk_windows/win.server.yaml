@@ -15,11 +15,13 @@ spec:
       timeoutSeconds: 600
   provisioning:
     - type: ansible
-      role: P4T12ICK.ludus_ar_windows
+      repository: https://github.com/splunk/attack_range
+      revision: ar_v6
+      rolePath: ansible_roles/attack_range_windows
       vars:
-        ludus_ar_windows_password: $PASSWORD$
-        ludus_ar_windows_splunk_ip: 10.0.2.10
-        ludus_ar_windows_uf_url: https://download.splunk.com/products/universalforwarder/releases/10.6.2.5/windows/splunkforwarder-10.6.2.5-b07ce3b48d58-windows-x64.msi
+        attack_range_windows_password: $PASSWORD$
+        attack_range_windows_splunk_ip: 10.0.2.10
+        attack_range_windows_uf_url: https://download.splunk.com/products/universalforwarder/releases/10.6.2.5/windows/splunkforwarder-10.6.2.5-b07ce3b48d58-windows-x64.msi
   interfaces:
     - name: eth0
       segment: mgmt

@@ -5,7 +5,7 @@
 - include_tasks: windows-enable-4688-cmd-line-audit.yml
 - include_tasks: install_choco.yml
   ignore_errors: true
-  when: ludus_ar_windows_install_additional_tools
+  when: attack_range_windows_install_additional_tools
 - include_tasks: install_app_chocolatey.yml
   ignore_errors: true
   with_items:
@@ -14,7 +14,7 @@
     - "notepadplusplus"
     - "7zip"
     - "python"
-  when: ludus_ar_windows_install_additional_tools
+  when: attack_range_windows_install_additional_tools
 - include_tasks: install_splunk_uf.yml
 - include_tasks: configure_outputs.yml
 - include_tasks: collect_powershell_logs.yml

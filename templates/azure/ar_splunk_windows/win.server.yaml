@@ -17,8 +17,8 @@ spec:
     - type: ansible
       role: P4T12ICK.ludus_ar_windows
       vars:
-        ludus_ar_windows_password: $PASSWORD$
-        ludus_ar_windows_splunk_ip: 10.0.2.10
+        attack_range_windows_password: $PASSWORD$
+        attack_range_windows_splunk_ip: 10.0.2.10
   interfaces:
     - name: eth0
       segment: mgmt
