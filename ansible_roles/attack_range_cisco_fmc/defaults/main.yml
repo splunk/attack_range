@@ -1,0 +1,94 @@
+---
+ar_cisco_fmc_user: admin
+ar_cisco_fmc_password: "{{ ansible_password | default('changeme123!') }}"
+ar_cisco_fmc_validate_certs: false
+ar_cisco_fmc_port: 443
+ar_cisco_fmc_api_retries: 180
+ar_cisco_fmc_api_delay: 30
+ar_cisco_fmc_register_retries: 60
+ar_cisco_fmc_register_delay: 30
+ar_cisco_fmc_ftd_ssh_port: 22
+ar_cisco_fmc_ftd_wait_timeout: 3600
+ar_cisco_fmc_ftd_ready_delay: 90
+ar_cisco_fmc_device_retries: 90
+ar_cisco_fmc_device_delay: 20
+# DEVICE_DEPLOYMENT tasks report status Deployed / message SUCCEEDED, not SUCCESS.
+ar_cisco_fmc_deploy_success_statuses:
+  - success
+  - succeeded
+  - successful
+  - deployed
+ar_cisco_fmc_deploy_failed_statuses:
+  - failed
+  - failure
+ar_cisco_fmc_access_policy_name: AR-Access-Policy
+ar_cisco_fmc_ftd_name: ftd
+ar_cisco_fmc_ftd_mgmt_ip: ""
+ar_cisco_fmc_reg_key: cisco
+ar_cisco_fmc_nat_id: cisco
+# REST registration defaults to FTDv50 (12 vCPU / 24 GB). c5.xlarge is 4 vCPU / 8 GB.
+ar_cisco_fmc_ftd_performance_tier: FTDv5
+ar_cisco_fmc_ftd_license_caps:
+  - ESSENTIALS
+  - IPS
+  - MALWARE_DEFENSE
+ar_cisco_fmc_ftd_outside_ifname: outside
+ar_cisco_fmc_ftd_inside_ifname: inside
+ar_cisco_fmc_ftd_outside_ip: "10.0.4.{{ ar_cisco_fmc_ftd_mgmt_ip.split('.')[-1] }}"
+ar_cisco_fmc_ftd_inside_ip: "10.0.5.{{ ar_cisco_fmc_ftd_mgmt_ip.split('.')[-1] }}"
+ar_cisco_fmc_ftd_interface_netmask: 255.255.255.0
+# FMCv will not add FTD until licensed. EVALUATION is the 90-day lab mode.
+ar_cisco_fmc_smart_license_type: EVALUATION
+ar_cisco_fmc_syslog_host: ""
+ar_cisco_fmc_syslog_port: 514
+ar_cisco_fmc_syslog_tag: FMC-AUDIT-LOG
+ar_cisco_fmc_syslog_facility: AUDIT
+ar_cisco_fmc_syslog_severity: INFORMATIONAL
+ar_cisco_fmc_syslog_config_changes: JSON
+# System > Configuration > Audit Log is not in the published FMC 10 REST catalog.
+# Probe these paths; the playbook continues if none exist so FTD registration still runs.
+ar_cisco_fmc_audit_api_paths:
+  - /api/fmc_platform/v1/systemconfiguration/auditlog
+  - /api/fmc_platform/v1/systemconfiguration/auditlogs
+  - /api/fmc_platform/v1/systemconfiguration/auditlogconfig
+  - /api/fmc_platform/v1/systemconfiguration/auditlogconfigs
+  - /api/fmc_platform/v1/systemconfiguration/auditsyslog
+  - /api/fmc_platform/v1/systemconfiguration/auditsyslogsettings
+  - /api/fmc_platform/v1/domain/{{ ar_cisco_fmc_domain }}/systemconfiguration/auditlog
+  - /api/fmc_platform/v1/domain/{{ ar_cisco_fmc_domain }}/audit/syslogsettings
+  - /api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/systemconfiguration/auditlog
+ar_cisco_fmc_splunk_port: 1514
+ar_cisco_fmc_splunk_protocol: UDP
+ar_cisco_fmc_splunk_tag: FMC-EVENTS
+ar_cisco_fmc_splunk_facility: SYSLOG
+ar_cisco_fmc_splunk_severity: INFORMATIONAL
+ar_cisco_fmc_splunk_profile_name: AR-Splunk-Events
+ar_cisco_fmc_splunk_host_object_name: splunk
+ar_cisco_fmc_splunk_event_types:
+  - CONNECTION
+  - INTRUSION
+  - FILE
+  - MALWARE
+  - DISCOVERY
+ar_cisco_fmc_inside_zone_name: AR-Inside
+ar_cisco_fmc_outside_zone_name: AR-Outside
+ar_cisco_fmc_access_rule_name: AR-Allow-Inspect
+# System base policy. Talos disables SID 1:498 here, so the lab uses a child policy.
+ar_cisco_fmc_intrusion_policy_name: Balanced Security and Connectivity
+ar_cisco_fmc_lab_ips_policy_name: AR-IPS-Policy
+# Snort 3 replacement for GPL 1:2100498 (not in Talos). Matches http://testmyids.com/.
+ar_cisco_fmc_test_ips_gid: 1
+ar_cisco_fmc_test_ips_sid: 498
+ar_cisco_fmc_variable_set_name: Default-Set
+ar_cisco_fmc_nat_policy_name: AR-NAT-Policy
+ar_cisco_fmc_inside_network_name: AR-Inside-Net
+ar_cisco_fmc_inside_network: 10.0.5.0/24
+ar_cisco_fmc_outside_gateway: 10.0.4.1
+ar_cisco_fmc_outside_gateway_name: ar-outside-gw
+ar_cisco_fmc_route_networks:
+  - name: AR-VPN
+    value: 10.0.1.0/24
+  - name: AR-Mgmt
+    value: 10.0.2.0/24
+  - name: AR-Default
+    value: 0.0.0.0/0

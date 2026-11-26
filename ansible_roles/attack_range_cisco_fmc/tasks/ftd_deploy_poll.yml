@@ -1,0 +1,45 @@
+---
+# One poll of the deploy job. FMC tokens expire after ~30 minutes; refresh on 401.
+# Do not re-register the same variable on the skipped 401 retry — Ansible replaces
+# the successful GET with a skipped stub that has no json.status.
+- name: Get FTD deploy task status
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/job/taskstatuses/{{ ar_cisco_fmc_deploy_task_id }}"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 401]
+    timeout: 30
+  register: ar_cisco_fmc_deploy_task_poll
+
+- name: Refresh FMC API session after deploy-wait 401
+  ansible.builtin.include_tasks: refresh_token.yml
+  when: ar_cisco_fmc_deploy_task_poll.status | default(0) == 401
+
+- name: Get FTD deploy task status after token refresh
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/job/taskstatuses/{{ ar_cisco_fmc_deploy_task_id }}"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 401]
+    timeout: 30
+  register: ar_cisco_fmc_deploy_task_retry
+  when: ar_cisco_fmc_deploy_task_poll.status | default(0) == 401
+
+- name: Keep the successful FTD deploy status response
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_deploy_task: "{{ ar_cisco_fmc_deploy_task_retry if (ar_cisco_fmc_deploy_task_retry is defined and ar_cisco_fmc_deploy_task_retry is not skipped) else ar_cisco_fmc_deploy_task_poll }}"
+
+- name: Record whether FTD policy deploy finished
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_deploy_status: "{{ ar_cisco_fmc_deploy_task['json']['status'] | default('') | lower }}"
+    ar_cisco_fmc_deploy_ok: "{{ (ar_cisco_fmc_deploy_task['json']['status'] | default('') | lower) in ar_cisco_fmc_deploy_success_statuses or 'succeeded' in (ar_cisco_fmc_deploy_task['json']['message'] | default('') | lower) }}"
+    ar_cisco_fmc_deploy_poll_done: "{{ ar_cisco_fmc_deploy_task['status'] | default(0) == 200 and ((ar_cisco_fmc_deploy_task['json']['status'] | default('') | lower) in (ar_cisco_fmc_deploy_success_statuses + ar_cisco_fmc_deploy_failed_statuses) or 'succeeded' in (ar_cisco_fmc_deploy_task['json']['message'] | default('') | lower) or 'failed' in (ar_cisco_fmc_deploy_task['json']['message'] | default('') | lower)) }}"
+
+- name: Pause between FTD deploy status polls
+  ansible.builtin.wait_for:
+    timeout: "{{ ar_cisco_fmc_device_delay | int }}"
+  when: not (ar_cisco_fmc_deploy_poll_done | bool)

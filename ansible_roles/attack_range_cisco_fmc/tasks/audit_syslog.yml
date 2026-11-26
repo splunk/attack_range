@@ -1,0 +1,75 @@
+---
+# System > Configuration > Audit Log is GUI-only in published FMC 10 docs.
+# The syslog-alerts policy API is GET-only (POST returns 405 "Read only resource").
+- name: Discover FMC audit log configuration API
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}{{ item }}"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404, 405]
+    timeout: 30
+  loop: "{{ ar_cisco_fmc_audit_api_paths }}"
+  register: ar_cisco_fmc_audit_discover
+  failed_when: false
+
+- name: Remember the first working audit log API path
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_audit_api_path: "{{ (ar_cisco_fmc_audit_hits | map(attribute='item') | list | first) | default('') }}"
+    ar_cisco_fmc_audit_existing: "{{ (ar_cisco_fmc_audit_hits | map(attribute='json') | list | first) | default({}) }}"
+  vars:
+    ar_cisco_fmc_audit_hits: "{{ ar_cisco_fmc_audit_discover.results | selectattr('status', 'defined') | selectattr('status', 'equalto', 200) | list }}"
+
+- name: Enable FMC audit log export to syslog
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}{{ ar_cisco_fmc_audit_api_path }}"
+    method: PUT
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body: "{{ ar_cisco_fmc_audit_object | combine(ar_cisco_fmc_audit_desired) }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 201, 202, 400, 422]
+    timeout: 60
+  vars:
+    ar_cisco_fmc_audit_object: "{{ (((ar_cisco_fmc_audit_existing | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([ar_cisco_fmc_audit_existing])) | first) | default({}) }}"
+    ar_cisco_fmc_audit_desired:
+      sendAuditLogToSyslog: ENABLED
+      sendConfigurationChanges: "{{ ar_cisco_fmc_syslog_config_changes }}"
+      hosts: "{{ ar_cisco_fmc_syslog_host }}"
+      host: "{{ ar_cisco_fmc_syslog_host }}"
+      facility: "{{ ar_cisco_fmc_syslog_facility }}"
+      severity: "{{ ar_cisco_fmc_syslog_severity }}"
+      tag: "{{ ar_cisco_fmc_syslog_tag }}"
+  when: ar_cisco_fmc_audit_api_path | length > 0
+  register: ar_cisco_fmc_audit_put
+  failed_when: false
+
+- name: Report audit log export result
+  ansible.builtin.debug:
+    msg: >-
+      {{
+        'Enabled FMC System Configuration Audit Log -> '
+        ~ ar_cisco_fmc_syslog_host ~ ':' ~ (ar_cisco_fmc_syslog_port | string)
+        if (ar_cisco_fmc_audit_put.status | default(0) in [200, 201, 202])
+        else (
+          'FMC has no REST API for System > Configuration > Audit Log. Splunk is listening on UDP/TCP '
+          ~ (ar_cisco_fmc_syslog_port | string)
+          ~ '. Set Send Audit Log to Syslog = Enabled, Hosts = '
+          ~ ar_cisco_fmc_syslog_host
+          ~ ', Tag = '
+          ~ ar_cisco_fmc_syslog_tag
+          ~ ' in the FMC GUI. Continuing with FTD registration.'
+          if (ar_cisco_fmc_audit_api_path | length == 0)
+          else (
+            'Audit Log API '
+            ~ ar_cisco_fmc_audit_api_path
+            ~ ' rejected the payload (HTTP '
+            ~ (ar_cisco_fmc_audit_put.status | default(0) | string)
+            ~ '). Set System > Configuration > Audit Log in the GUI. '
+            ~ (ar_cisco_fmc_audit_put.json | default({}))
+          )
+        )
+      }}

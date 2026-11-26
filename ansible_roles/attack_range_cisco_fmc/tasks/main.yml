@@ -1,0 +1,300 @@
+---
+- name: Resolve FMC management address
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_host: "{{ inventory_hostname }}"
+  when: ar_cisco_fmc_host is not defined or ar_cisco_fmc_host | length == 0
+
+- name: Wait for FMC REST API (first boot can take 30-45 minutes)
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_platform/v1/auth/generatetoken"
+    method: POST
+    user: "{{ ar_cisco_fmc_user }}"
+    password: "{{ ar_cisco_fmc_password }}"
+    force_basic_auth: true
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 204]
+    timeout: 30
+  register: ar_cisco_fmc_auth
+  until: ar_cisco_fmc_auth.status in [200, 204]
+  retries: "{{ ar_cisco_fmc_api_retries }}"
+  delay: "{{ ar_cisco_fmc_api_delay }}"
+  no_log: true
+
+- name: Capture FMC API session
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_token: "{{ ar_cisco_fmc_auth.x_auth_access_token | default(ar_cisco_fmc_auth.headers['X-auth-access-token']) }}"
+    ar_cisco_fmc_domain: "{{ ar_cisco_fmc_auth.domain_uuid | default(ar_cisco_fmc_auth.headers['DOMAIN_UUID']) }}"
+
+- name: Configure FMC audit log export to syslog
+  ansible.builtin.include_tasks: audit_syslog.yml
+  when: ar_cisco_fmc_syslog_host | default('') | length > 0
+
+- name: Configure Integrations/Splunk event export
+  ansible.builtin.include_tasks: splunk_profile.yml
+  when:
+    - ar_cisco_fmc_syslog_host | default('') | length > 0
+    - ar_cisco_fmc_ftd_mgmt_ip | length == 0
+
+- name: Skip FTD registration when no management IP was provided
+  ansible.builtin.meta: end_role
+  when: ar_cisco_fmc_ftd_mgmt_ip | length == 0
+
+- name: Wait for FTD SSH (first boot can take 30-45 minutes)
+  ansible.builtin.wait_for:
+    host: "{{ ar_cisco_fmc_ftd_mgmt_ip }}"
+    port: "{{ ar_cisco_fmc_ftd_ssh_port }}"
+    timeout: "{{ ar_cisco_fmc_ftd_wait_timeout }}"
+    sleep: 15
+    msg: "FTD {{ ar_cisco_fmc_ftd_mgmt_ip }} did not become reachable on SSH"
+
+- name: Allow FTD to finish entering waiting-for-manager state
+  ansible.builtin.wait_for:
+    timeout: "{{ ar_cisco_fmc_ftd_ready_delay }}"
+
+- name: Refresh FMC API session after waiting for FTD
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_platform/v1/auth/generatetoken"
+    method: POST
+    user: "{{ ar_cisco_fmc_user }}"
+    password: "{{ ar_cisco_fmc_password }}"
+    force_basic_auth: true
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 204]
+    timeout: 30
+  register: ar_cisco_fmc_auth
+  no_log: true
+
+- name: Capture refreshed FMC API session
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_token: "{{ ar_cisco_fmc_auth.x_auth_access_token | default(ar_cisco_fmc_auth.headers['X-auth-access-token']) }}"
+    ar_cisco_fmc_domain: "{{ ar_cisco_fmc_auth.domain_uuid | default(ar_cisco_fmc_auth.headers['DOMAIN_UUID']) }}"
+
+- name: List access control policies
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/accesspolicies?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_policies
+
+- name: Normalize access control policy list
+  ansible.builtin.set_fact:
+    # Avoid json['items']: Ansible lazy dicts resolve that to dict.items(), not the API key.
+    ar_cisco_fmc_policy_items: "{{ (ar_cisco_fmc_policies.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+
+- name: Create lab access control policy
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/accesspolicies"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: AccessPolicy
+      name: "{{ ar_cisco_fmc_access_policy_name }}"
+      defaultAction:
+        action: BLOCK
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202]
+    timeout: 30
+  register: ar_cisco_fmc_policy_create
+  when: ar_cisco_fmc_policy_items | selectattr('name', 'equalto', ar_cisco_fmc_access_policy_name) | list | length == 0
+
+- name: Resolve access control policy ID from create result
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_policy_id: "{{ ar_cisco_fmc_policy_create.json.id }}"
+  when: ar_cisco_fmc_policy_create is not skipped
+
+- name: Resolve existing access control policy ID
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_policy_id: "{{ ar_cisco_fmc_policy_items | selectattr('name', 'equalto', ar_cisco_fmc_access_policy_name) | map(attribute='id') | first }}"
+  when: ar_cisco_fmc_policy_id is not defined
+
+- name: Get FMC Smart License status
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_platform/v1/license/smartlicenses?expanded=true"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_license
+
+- name: Normalize Smart License list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_license_items: "{{ (ar_cisco_fmc_license.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+
+- name: Start FMC 90-day evaluation license
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_platform/v1/license/smartlicenses"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: SmartLicense
+      registrationType: "{{ ar_cisco_fmc_smart_license_type }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400]
+    timeout: 60
+  register: ar_cisco_fmc_license_eval
+  when: ar_cisco_fmc_license_items | selectattr('regStatus', 'defined') | selectattr('regStatus', 'in', ['EVALUATION', 'REGISTERED']) | list | length == 0
+
+- name: List registered devices
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/devices/devicerecords?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_devices
+
+- name: Normalize registered device list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_device_items: "{{ (ar_cisco_fmc_devices.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+
+- name: Register FTD with FMC
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/devices/devicerecords"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      name: "{{ ar_cisco_fmc_ftd_name }}"
+      hostName: "{{ ar_cisco_fmc_ftd_mgmt_ip }}"
+      regKey: "{{ ar_cisco_fmc_reg_key }}"
+      type: Device
+      natID: "{{ ar_cisco_fmc_nat_id }}"
+      accessPolicy:
+        id: "{{ ar_cisco_fmc_policy_id }}"
+        type: AccessPolicy
+      performanceTier: "{{ ar_cisco_fmc_ftd_performance_tier }}"
+      license_caps: "{{ ar_cisco_fmc_ftd_license_caps }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400]
+    timeout: 60
+  register: ar_cisco_fmc_register
+  until: ar_cisco_fmc_register.status in [201, 202, 400]
+  retries: "{{ ar_cisco_fmc_register_retries }}"
+  delay: "{{ ar_cisco_fmc_register_delay }}"
+  when: ar_cisco_fmc_device_items | selectattr('name', 'equalto', ar_cisco_fmc_ftd_name) | list | length == 0
+
+- name: Capture FTD registration task ID
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_register_task_id: "{{ ar_cisco_fmc_register.json.metadata.task.id }}"
+  when:
+    - ar_cisco_fmc_register is not skipped
+    - ar_cisco_fmc_register.json.metadata.task.id is defined
+
+- name: Wait for FTD registration task
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/job/taskstatuses/{{ ar_cisco_fmc_register_task_id }}"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 401]
+    timeout: 30
+  register: ar_cisco_fmc_register_task
+  until: >
+    ar_cisco_fmc_register_task.status == 200 and
+    (ar_cisco_fmc_register_task.json.status | default('')) in ['SUCCESS', 'FAILED']
+  retries: "{{ ar_cisco_fmc_device_retries }}"
+  delay: "{{ ar_cisco_fmc_device_delay }}"
+  when: ar_cisco_fmc_register_task_id is defined
+
+- name: Fail if FTD registration was rejected
+  ansible.builtin.fail:
+    msg: >-
+      FMC rejected FTD '{{ ar_cisco_fmc_ftd_name }}':
+      {{ ar_cisco_fmc_register_task.json.description | default('') }}
+      {{ ar_cisco_fmc_register_task.json.message | default('') }}
+  when:
+    - ar_cisco_fmc_register_task is not skipped
+    - ar_cisco_fmc_register_task.json.status | default('') == 'FAILED'
+
+- name: Wait until FTD appears in FMC
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/devices/devicerecords?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 401]
+    timeout: 30
+  register: ar_cisco_fmc_devices_wait
+  until: >
+    ar_cisco_fmc_devices_wait.status == 200 and
+    (
+      (ar_cisco_fmc_devices_wait.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([])
+    ) | selectattr('name', 'equalto', ar_cisco_fmc_ftd_name) | list | length > 0
+  retries: "{{ ar_cisco_fmc_device_retries }}"
+  delay: "{{ ar_cisco_fmc_device_delay }}"
+  when: ar_cisco_fmc_device_items | selectattr('name', 'equalto', ar_cisco_fmc_ftd_name) | list | length == 0
+
+- name: Fail if the FMC session expired while waiting for FTD
+  ansible.builtin.fail:
+    msg: "FMC API token expired before FTD '{{ ar_cisco_fmc_ftd_name }}' appeared. Reconnect WireGuard and retry the lab playbook."
+  when:
+    - ar_cisco_fmc_devices_wait is not skipped
+    - ar_cisco_fmc_devices_wait.status | default(0) == 401
+
+- name: Report existing FTD registration
+  ansible.builtin.debug:
+    msg: "FTD '{{ ar_cisco_fmc_ftd_name }}' is already registered with FMC."
+  when: ar_cisco_fmc_device_items | selectattr('name', 'equalto', ar_cisco_fmc_ftd_name) | list | length > 0
+
+- name: Report completed FTD registration
+  ansible.builtin.debug:
+    msg: "FTD '{{ ar_cisco_fmc_ftd_name }}' is now registered with FMC."
+  when: ar_cisco_fmc_device_items | selectattr('name', 'equalto', ar_cisco_fmc_ftd_name) | list | length == 0
+
+- name: Resolve FTD device list after wait
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_device_resolved: "{{ (ar_cisco_fmc_devices_wait.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+  when: ar_cisco_fmc_device_items | selectattr('name', 'equalto', ar_cisco_fmc_ftd_name) | list | length == 0
+
+- name: Resolve FTD device list when already registered
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_device_resolved: "{{ ar_cisco_fmc_device_items }}"
+  when: ar_cisco_fmc_device_items | selectattr('name', 'equalto', ar_cisco_fmc_ftd_name) | list | length > 0
+
+- name: Resolve FTD device ID
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_device_id: "{{ ar_cisco_fmc_device_resolved | selectattr('name', 'equalto', ar_cisco_fmc_ftd_name) | map(attribute='id') | first }}"
+
+- name: Refresh FMC API session before first FTD deploy
+  ansible.builtin.include_tasks: refresh_token.yml
+  when: ar_cisco_fmc_device_id | default('') | length > 0
+
+- name: Configure FTD for first policy deploy
+  ansible.builtin.include_tasks: ftd_first_deploy.yml
+  when: ar_cisco_fmc_device_id | default('') | length > 0
+
+- name: Configure FTD inspection policy for inside hosts
+  ansible.builtin.include_tasks: ftd_inspection.yml
+  when: ar_cisco_fmc_device_id | default('') | length > 0
+
+- name: Configure FTD NAT so inside hosts can reach the internet
+  ansible.builtin.include_tasks: ftd_nat.yml
+  when: ar_cisco_fmc_device_id | default('') | length > 0
+
+- name: Configure Integrations/Splunk event export after FTD registration
+  ansible.builtin.include_tasks: splunk_profile.yml
+  when:
+    - ar_cisco_fmc_syslog_host | default('') | length > 0
+    - ar_cisco_fmc_device_id | default('') | length > 0
+
+- name: Deploy FTD policy
+  ansible.builtin.include_tasks: ftd_deploy.yml
+  when: ar_cisco_fmc_device_id | default('') | length > 0

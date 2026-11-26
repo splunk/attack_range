@@ -1,0 +1,152 @@
+---
+# Integrations > Splunk (FMC 10+): send security events to a dedicated Splunk input.
+# The wizard requires a Host object, not a bare IP string.
+- name: List Splunk integration profiles
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/integration/splunk/profiles?limit=1000&expanded=true"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404]
+    timeout: 30
+  register: ar_cisco_fmc_splunk_profiles
+  failed_when: false
+
+- name: Normalize Splunk profile list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_splunk_profile_items: "{{ (ar_cisco_fmc_splunk_profiles.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+  when: ar_cisco_fmc_splunk_profiles.status | default(0) == 200
+
+- name: Normalize Splunk profile list when the API is missing
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_splunk_profile_items: []
+  when: ar_cisco_fmc_splunk_profiles.status | default(0) != 200
+
+- name: List host objects
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/hosts?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_hosts
+  when: ar_cisco_fmc_splunk_profiles.status | default(0) == 200
+
+- name: Normalize host object list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_host_items: "{{ (ar_cisco_fmc_hosts.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+  when: ar_cisco_fmc_hosts is not skipped
+
+- name: Create Splunk host object
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/hosts"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: Host
+      name: "{{ ar_cisco_fmc_splunk_host_object_name }}"
+      value: "{{ ar_cisco_fmc_syslog_host }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400]
+    timeout: 30
+  register: ar_cisco_fmc_host_create
+  when:
+    - ar_cisco_fmc_hosts is not skipped
+    - ar_cisco_fmc_host_items | selectattr('name', 'equalto', ar_cisco_fmc_splunk_host_object_name) | list | length == 0
+
+- name: Resolve Splunk host object ID
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_splunk_host_id: "{{ ar_cisco_fmc_host_create.json.id | default((ar_cisco_fmc_host_items | selectattr('name', 'equalto', ar_cisco_fmc_splunk_host_object_name) | map(attribute='id') | list | first) | default('')) }}"
+  when: ar_cisco_fmc_hosts is not skipped
+
+- name: Create Integrations/Splunk profile for event syslog
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/integration/splunk/profiles"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: SplunkProfile
+      name: "{{ ar_cisco_fmc_splunk_profile_name }}"
+      destination:
+        host:
+          id: "{{ ar_cisco_fmc_splunk_host_id }}"
+          type: Host
+          name: "{{ ar_cisco_fmc_splunk_host_object_name }}"
+          value: "{{ ar_cisco_fmc_syslog_host }}"
+        protocol: "{{ ar_cisco_fmc_splunk_protocol }}"
+        port: "{{ ar_cisco_fmc_splunk_port | int }}"
+      eventSelection:
+        eventTypes: "{{ ar_cisco_fmc_splunk_event_types }}"
+      sourceSelection:
+        sendEventsUsingManagementInterface: true
+        devices: "{{ [{'id': ar_cisco_fmc_device_id, 'type': 'Device', 'name': ar_cisco_fmc_ftd_name}] if ar_cisco_fmc_device_id | default('') | length > 0 else [] }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400, 422]
+    timeout: 60
+  register: ar_cisco_fmc_splunk_profile_create
+  when:
+    - ar_cisco_fmc_splunk_profiles.status | default(0) == 200
+    - ar_cisco_fmc_splunk_host_id | default('') | length > 0
+    - ar_cisco_fmc_splunk_profile_items | selectattr('name', 'equalto', ar_cisco_fmc_splunk_profile_name) | list | length == 0
+
+- name: Create Integrations/Splunk profile with flattened destination
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/integration/splunk/profiles"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: SplunkProfile
+      name: "{{ ar_cisco_fmc_splunk_profile_name }}"
+      destination:
+        id: "{{ ar_cisco_fmc_splunk_host_id }}"
+        type: Host
+        name: "{{ ar_cisco_fmc_splunk_host_object_name }}"
+        value: "{{ ar_cisco_fmc_syslog_host }}"
+        protocol: "{{ ar_cisco_fmc_splunk_protocol }}"
+        port: "{{ ar_cisco_fmc_splunk_port | int }}"
+      eventSelection: "{{ ar_cisco_fmc_splunk_event_types }}"
+      sourceSelection:
+        sendEventsUsingManagementInterface: true
+        useManagementInterface: true
+        devices: "{{ [{'id': ar_cisco_fmc_device_id, 'type': 'Device', 'name': ar_cisco_fmc_ftd_name}] if ar_cisco_fmc_device_id | default('') | length > 0 else [] }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400, 422]
+    timeout: 60
+  register: ar_cisco_fmc_splunk_profile_create
+  when:
+    - ar_cisco_fmc_splunk_profile_create is defined
+    - ar_cisco_fmc_splunk_profile_create is not skipped
+    - ar_cisco_fmc_splunk_profile_create.status | default(0) == 422
+
+- name: Report Splunk profile result
+  ansible.builtin.debug:
+    msg: >-
+      {{
+        'Splunk integration profile already exists.'
+        if (ar_cisco_fmc_splunk_profile_items | selectattr('name', 'equalto', ar_cisco_fmc_splunk_profile_name) | list | length > 0)
+        else (
+          'Created Integrations/Splunk profile ' ~ ar_cisco_fmc_splunk_profile_name
+          ~ ' -> ' ~ ar_cisco_fmc_syslog_host ~ ':' ~ (ar_cisco_fmc_splunk_port | string)
+          if (ar_cisco_fmc_splunk_profile_create.status | default(0) in [201, 202])
+          else (
+            'Could not auto-create Integrations/Splunk profile (HTTP '
+            ~ (ar_cisco_fmc_splunk_profile_create.status | default(ar_cisco_fmc_splunk_profiles.status) | string)
+            ~ '). Finish Integrations > Splunk: host object splunk (10.0.2.10), UDP '
+            ~ (ar_cisco_fmc_splunk_port | string)
+            ~ ', use management interface, then Deploy. '
+            ~ (ar_cisco_fmc_splunk_profile_create.json | default(ar_cisco_fmc_splunk_profile_create.body | default({})))
+          )
+        )
+      }}

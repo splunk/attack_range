@@ -1,0 +1,180 @@
+---
+# Registration only lists the device. First policy deploy needs a matching
+# performance tier, named data interfaces, and no Splunk logging without a profile.
+- name: Get registered FTD device
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/devices/devicerecords/{{ ar_cisco_fmc_device_id }}"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_device
+
+- name: List FTD device licenses
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_platform/v1/license/devicelicenses?expanded=true"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404]
+    timeout: 30
+  register: ar_cisco_fmc_device_licenses
+  failed_when: false
+
+- name: Normalize FTD device license list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_device_license_items: "{{ (ar_cisco_fmc_device_licenses.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+    ar_cisco_fmc_device_license_id: "{{ ar_cisco_fmc_device_id }}"
+
+- name: Set FTD performance tier and feature licenses
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_platform/v1/license/devicelicenses/{{ ar_cisco_fmc_device_license_id }}"
+    method: PUT
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      id: "{{ ar_cisco_fmc_device_license_id }}"
+      type: DeviceLicense
+      performanceTier: "{{ ar_cisco_fmc_ftd_performance_tier }}"
+      licenseTypes: "{{ ar_cisco_fmc_ftd_license_caps }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 204, 400, 422]
+    timeout: 60
+  register: ar_cisco_fmc_license_put
+  when: ar_cisco_fmc_device_licenses.status | default(0) == 200
+
+- name: Align FTD device record performance tier
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/devices/devicerecords/{{ ar_cisco_fmc_device_id }}"
+    method: PUT
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      id: "{{ ar_cisco_fmc_device_id }}"
+      name: "{{ ar_cisco_fmc_ftd_name }}"
+      type: Device
+      performanceTier: "{{ ar_cisco_fmc_ftd_performance_tier }}"
+      license_caps: "{{ ar_cisco_fmc_ftd_license_caps }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 204, 400, 422]
+    timeout: 60
+  register: ar_cisco_fmc_tier_put
+  when:
+    - ar_cisco_fmc_device.json.performanceTier | default('') != ar_cisco_fmc_ftd_performance_tier
+    - ar_cisco_fmc_license_put is skipped or ar_cisco_fmc_license_put.status | default(0) not in [200, 204]
+
+- name: Report performance-tier update
+  ansible.builtin.debug:
+    msg: >-
+      {{
+        'FTD performance tier is ' ~ ar_cisco_fmc_ftd_performance_tier ~ '.'
+        if (
+          (ar_cisco_fmc_device.json.performanceTier | default('')) == ar_cisco_fmc_ftd_performance_tier
+          or (ar_cisco_fmc_license_put.status | default(0) in [200, 204])
+          or (ar_cisco_fmc_tier_put.status | default(0) in [200, 204])
+        )
+        else (
+          'Could not change performance tier from '
+          ~ (ar_cisco_fmc_device.json.performanceTier | default('unknown'))
+          ~ ' to ' ~ ar_cisco_fmc_ftd_performance_tier
+          ~ '. New registrations send FTDv5 at add-device time; AWS may reject a later change.'
+        )
+      }}
+
+- name: List FTD physical interfaces
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/devices/devicerecords/{{ ar_cisco_fmc_device_id }}/physicalinterfaces?expanded=true"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_phys
+
+- name: Normalize FTD physical interface list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_phys_items: "{{ (ar_cisco_fmc_phys.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+    ar_cisco_fmc_ftd_interfaces:
+      - name: Ethernet0/0
+        ifname: "{{ ar_cisco_fmc_ftd_outside_ifname }}"
+        ip: "{{ ar_cisco_fmc_ftd_outside_ip }}"
+      - name: Ethernet0/1
+        ifname: "{{ ar_cisco_fmc_ftd_inside_ifname }}"
+        ip: "{{ ar_cisco_fmc_ftd_inside_ip }}"
+
+- name: Name and enable FTD data interfaces
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/devices/devicerecords/{{ ar_cisco_fmc_device_id }}/physicalinterfaces/{{ ar_cisco_fmc_iface_id }}"
+    method: PUT
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: PhysicalInterface
+      id: "{{ ar_cisco_fmc_iface_id }}"
+      name: "{{ item.name }}"
+      ifname: "{{ item.ifname }}"
+      enabled: true
+      mode: NONE
+      MTU: 1500
+      ipv4:
+        static:
+          address: "{{ item.ip }}"
+          netmask: "{{ ar_cisco_fmc_ftd_interface_netmask }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 204, 400, 422]
+    timeout: 60
+  register: ar_cisco_fmc_iface_put
+  until: ar_cisco_fmc_iface_put.status in [200, 204]
+  retries: 12
+  delay: 10
+  failed_when: ar_cisco_fmc_iface_put.status not in [200, 204]
+  loop: "{{ ar_cisco_fmc_ftd_interfaces }}"
+  when: ar_cisco_fmc_phys_items | selectattr('name', 'equalto', item.name) | list | length > 0
+  vars:
+    ar_cisco_fmc_iface_id: "{{ ar_cisco_fmc_phys_items | selectattr('name', 'equalto', item.name) | map(attribute='id') | first }}"
+
+- name: List access policy logging settings
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/accesspolicies/{{ ar_cisco_fmc_policy_id }}/loggingsettings?expanded=true"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404]
+    timeout: 30
+  register: ar_cisco_fmc_logging
+  failed_when: false
+  when: ar_cisco_fmc_policy_id | default('') | length > 0
+
+- name: Normalize access policy logging settings
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_logging_items: "{{ (ar_cisco_fmc_logging.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+  when: ar_cisco_fmc_logging is not skipped
+
+- name: Disable Splunk logging until an Integrations/Splunk profile exists
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/accesspolicies/{{ ar_cisco_fmc_policy_id }}/loggingsettings/{{ item.id }}"
+    method: PUT
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body: "{{ item | dict2items | rejectattr('key', 'in', ['metadata', 'links']) | list | items2dict | combine({'enableSplunk': false}) }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 204, 400, 422]
+    timeout: 60
+  loop: "{{ ar_cisco_fmc_logging_items | default([]) }}"
+  when:
+    - ar_cisco_fmc_logging is not skipped
+    - ar_cisco_fmc_logging.status | default(0) == 200
+    - item.enableSplunk | default(false) | bool

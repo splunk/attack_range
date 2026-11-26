@@ -1,0 +1,115 @@
+---
+# Submit policy deploy after interfaces, licenses, and Splunk logging are consistent.
+- name: Wait for FMC to mark FTD deployable after interface changes
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/deployment/deployabledevices?expanded=true"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_deployable
+  until: >
+    ar_cisco_fmc_deployable.status == 200 and
+    (
+      (ar_cisco_fmc_deployable.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([])
+    ) | selectattr('id', 'equalto', ar_cisco_fmc_device_id) | list | length > 0
+  retries: 18
+  delay: 10
+  failed_when: false
+
+- name: Normalize deployable device list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_deployable_items: "{{ (ar_cisco_fmc_deployable.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+
+- name: Resolve FTD deploy version
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_deploy_version: "{{ ar_cisco_fmc_deployable_items | selectattr('id', 'equalto', ar_cisco_fmc_device_id) | map(attribute='version') | first | default('') | string }}"
+
+- name: Deploy pending FTD configuration
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/deployment/deploymentrequests"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: DeploymentRequest
+      version: "{{ ar_cisco_fmc_deploy_version }}"
+      forceDeploy: true
+      ignoreWarning: true
+      deviceList:
+        - "{{ ar_cisco_fmc_device_id }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 202, 400]
+    timeout: 60
+  register: ar_cisco_fmc_deploy
+  until: ar_cisco_fmc_deploy.status in [200, 202]
+  retries: 6
+  delay: 15
+  failed_when: ar_cisco_fmc_deploy.status not in [200, 202]
+  when:
+    - ar_cisco_fmc_device_id | default('') | length > 0
+    - ar_cisco_fmc_deploy_version | default('') | length > 0
+
+- name: Capture FTD deploy task ID
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_deploy_task_id: "{{ ar_cisco_fmc_deploy.json.metadata.task.id }}"
+    ar_cisco_fmc_deploy_poll_done: false
+  when:
+    - ar_cisco_fmc_deploy is not skipped
+    - ar_cisco_fmc_deploy.status | default(0) in [200, 202]
+    - ar_cisco_fmc_deploy.json.metadata.task.id is defined
+
+- name: Refresh FMC API session before FTD policy deploy wait
+  ansible.builtin.include_tasks: refresh_token.yml
+  when: ar_cisco_fmc_deploy_task_id is defined
+
+- name: Wait for FTD policy deploy
+  ansible.builtin.include_tasks: ftd_deploy_poll.yml
+  loop: "{{ range(0, ar_cisco_fmc_device_retries | int) | list }}"
+  loop_control:
+    loop_var: ar_cisco_fmc_deploy_poll_i
+  when:
+    - ar_cisco_fmc_deploy_task_id is defined
+    - not (ar_cisco_fmc_deploy_poll_done | default(false) | bool)
+
+- name: Fail if FTD policy deploy did not finish
+  ansible.builtin.fail:
+    msg: >-
+      FMC deploy of FTD '{{ ar_cisco_fmc_ftd_name }}' did not finish in time.
+      Last status: {{ ar_cisco_fmc_deploy_task.json.status | default(ar_cisco_fmc_deploy_task.status) | default('unknown') }}
+  when:
+    - ar_cisco_fmc_deploy_task_id is defined
+    - not (ar_cisco_fmc_deploy_poll_done | default(false) | bool)
+
+- name: Fail if FTD policy deploy was rejected
+  ansible.builtin.fail:
+    msg: >-
+      FMC deploy of FTD '{{ ar_cisco_fmc_ftd_name }}' failed:
+      {{ ar_cisco_fmc_deploy_task.json.message | default('') }}
+      {{ ar_cisco_fmc_deploy_task.json.description | default('') }}
+  when:
+    - ar_cisco_fmc_deploy_poll_done | default(false) | bool
+    - not (ar_cisco_fmc_deploy_ok | default(false) | bool)
+
+- name: Report FTD policy deploy
+  ansible.builtin.debug:
+    msg: >-
+      {{
+        'FTD policy deploy succeeded.'
+        if (ar_cisco_fmc_deploy_ok | default(false) | bool)
+        else (
+          'FTD policy deploy submitted.'
+          if (ar_cisco_fmc_deploy is not skipped and ar_cisco_fmc_deploy.status | default(0) in [200, 202])
+          else (
+            'No pending FTD deploy after waiting for deployabledevices. If the GUI still shows Deployment failed, set performance tier to '
+            ~ ar_cisco_fmc_ftd_performance_tier
+            ~ ', confirm Ethernet0/0 is ' ~ ar_cisco_fmc_ftd_outside_ifname
+            ~ ' (' ~ ar_cisco_fmc_ftd_outside_ip ~ ') and Ethernet0/1 is '
+            ~ ar_cisco_fmc_ftd_inside_ifname ~ ' (' ~ ar_cisco_fmc_ftd_inside_ip ~ '), then Deploy.'
+          )
+        )
+      }}

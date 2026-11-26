@@ -1,0 +1,135 @@
+---
+# Balanced leaves SID 1:498 disabled. Snort 3 also dropped GPL 1:2100498.
+# A child policy with that Talos rule set to ALERT makes testmyids.com fire.
+- name: Create lab intrusion policy
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/intrusionpolicies"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: IntrusionPolicy
+      name: "{{ ar_cisco_fmc_lab_ips_policy_name }}"
+      inspectionMode: DETECTION
+      basePolicy:
+        id: "{{ ar_cisco_fmc_intrusion_policy_id }}"
+        type: IntrusionPolicy
+        name: "{{ ar_cisco_fmc_intrusion_policy_resolved_name }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400, 422]
+    timeout: 60
+  register: ar_cisco_fmc_lab_ips_create
+  failed_when: >
+    ar_cisco_fmc_lab_ips_create.status | default(0) not in [201, 202]
+    and 'already' not in (ar_cisco_fmc_lab_ips_create.json | default({}) | string | lower)
+    and 'already' not in (ar_cisco_fmc_lab_ips_create.content | default('') | lower)
+  when: ar_cisco_fmc_ips_items | selectattr('name', 'equalto', ar_cisco_fmc_lab_ips_policy_name) | list | length == 0
+
+- name: Resolve lab intrusion policy ID from create
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_lab_ips_policy_id: "{{ ar_cisco_fmc_lab_ips_create.json.id }}"
+  when:
+    - ar_cisco_fmc_lab_ips_create is not skipped
+    - ar_cisco_fmc_lab_ips_create.json.id is defined
+
+- name: Refresh intrusion policy list
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/intrusionpolicies?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_ips_policies
+  when: ar_cisco_fmc_lab_ips_policy_id is not defined
+
+- name: Normalize refreshed intrusion policy list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_ips_items: "{{ (ar_cisco_fmc_ips_policies.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+  when: ar_cisco_fmc_lab_ips_policy_id is not defined
+
+- name: Resolve lab intrusion policy ID when it already exists
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_lab_ips_policy_id: "{{ ar_cisco_fmc_ips_items | selectattr('name', 'equalto', ar_cisco_fmc_lab_ips_policy_name) | map(attribute='id') | list | first | default('') }}"
+  when: ar_cisco_fmc_lab_ips_policy_id is not defined
+
+- name: Fail if the lab intrusion policy was not created
+  ansible.builtin.fail:
+    msg: "Could not create or find intrusion policy '{{ ar_cisco_fmc_lab_ips_policy_name }}'."
+  when: ar_cisco_fmc_lab_ips_policy_id | default('') | length == 0
+
+- name: Find Snort 3 test signature
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/intrusionrules?filter=gid:{{ ar_cisco_fmc_test_ips_gid }};sid:{{ ar_cisco_fmc_test_ips_sid }}&expanded=true"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404]
+    timeout: 30
+  register: ar_cisco_fmc_test_sid
+  failed_when: false
+
+- name: Resolve Snort 3 test signature ID
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_test_sid_id: "{{ (
+        (ar_cisco_fmc_test_sid.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([])
+        | map(attribute='id') | list | first
+      ) | default('') }}"
+    ar_cisco_fmc_test_sid_msg: "{{ (
+        (ar_cisco_fmc_test_sid.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([])
+        | map(attribute='msg') | list | first
+      ) | default('') }}"
+
+- name: Fail if the Snort 3 test signature was not found
+  ansible.builtin.fail:
+    msg: "FMC has no Snort 3 rule gid:{{ ar_cisco_fmc_test_ips_gid }} sid:{{ ar_cisco_fmc_test_ips_sid }} (INDICATOR-COMPROMISE id check returned root)."
+  when: ar_cisco_fmc_test_sid_id | default('') | length == 0
+
+- name: Enable Snort 3 test signature in the lab IPS policy
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/intrusionpolicies/{{ ar_cisco_fmc_lab_ips_policy_id }}/intrusionrules?bulk=true"
+    method: PUT
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      - id: "{{ ar_cisco_fmc_test_sid_id }}"
+        gid: "{{ ar_cisco_fmc_test_ips_gid | int }}"
+        sid: "{{ ar_cisco_fmc_test_ips_sid | int }}"
+        type: IntrusionRule
+        overrideState: ALERT
+        ruleAction:
+          - overrideState: ALERT
+            policy:
+              id: "{{ ar_cisco_fmc_lab_ips_policy_id }}"
+              type: IntrusionPolicy
+              name: "{{ ar_cisco_fmc_lab_ips_policy_name }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 204, 400, 422]
+    timeout: 60
+  register: ar_cisco_fmc_test_sid_enable
+  failed_when: ar_cisco_fmc_test_sid_enable.status | default(0) not in [200, 204]
+
+- name: List variable sets
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/variablesets?limit=100"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404]
+    timeout: 30
+  register: ar_cisco_fmc_varsets
+  failed_when: false
+
+- name: Resolve Default-Set variable set ID
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_variable_set_id: "{{ (
+        (ar_cisco_fmc_varsets.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([])
+        | selectattr('name', 'equalto', ar_cisco_fmc_variable_set_name) | map(attribute='id') | list | first
+      ) | default('') }}"

@@ -1,0 +1,238 @@
+---
+# Dynamic PAT so inside hosts (Windows 10.0.5.11) can reach the internet
+# through FTD. Without this, packets leave with RFC1918 sources and TCP
+# to download.splunk.com times out.
+- name: List FTD NAT policies
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/ftdnatpolicies?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404]
+    timeout: 30
+  register: ar_cisco_fmc_nat_policies
+  failed_when: false
+
+- name: Normalize FTD NAT policy list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_nat_policy_items: "{{ (ar_cisco_fmc_nat_policies.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+  when: ar_cisco_fmc_nat_policies.status | default(0) == 200
+
+- name: Normalize FTD NAT policy list when the API is missing
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_nat_policy_items: []
+  when: ar_cisco_fmc_nat_policies.status | default(0) != 200
+
+- name: Create FTD NAT policy
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/ftdnatpolicies"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: FTDNatPolicy
+      name: "{{ ar_cisco_fmc_nat_policy_name }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400]
+    timeout: 30
+  register: ar_cisco_fmc_nat_policy_create
+  when:
+    - ar_cisco_fmc_nat_policies.status | default(0) == 200
+    - ar_cisco_fmc_nat_policy_items | selectattr('name', 'equalto', ar_cisco_fmc_nat_policy_name) | list | length == 0
+
+- name: Resolve FTD NAT policy ID from create
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_nat_policy_id: "{{ ar_cisco_fmc_nat_policy_create['json']['id'] }}"
+  when:
+    - ar_cisco_fmc_nat_policy_create is defined
+    - ar_cisco_fmc_nat_policy_create is not skipped
+    - ar_cisco_fmc_nat_policy_create['json']['id'] is defined
+
+- name: Resolve FTD NAT policy ID when it already exists
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_nat_policy_id: "{{ ar_cisco_fmc_nat_policy_items | selectattr('name', 'equalto', ar_cisco_fmc_nat_policy_name) | map(attribute='id') | first }}"
+  when: ar_cisco_fmc_nat_policy_id is not defined
+
+- name: List network objects for inside PAT
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/networks?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_nat_networks
+  when: ar_cisco_fmc_nat_policy_id | default('') | length > 0
+
+- name: Normalize network objects for inside PAT
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_nat_network_items: "{{ (ar_cisco_fmc_nat_networks.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+  when: ar_cisco_fmc_nat_networks is not skipped
+
+- name: Create inside network object for PAT
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/networks"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: Network
+      name: "{{ ar_cisco_fmc_inside_network_name }}"
+      value: "{{ ar_cisco_fmc_inside_network }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400]
+    timeout: 30
+  register: ar_cisco_fmc_inside_net_create
+  when:
+    - ar_cisco_fmc_nat_networks is not skipped
+    - ar_cisco_fmc_nat_network_items | selectattr('name', 'equalto', ar_cisco_fmc_inside_network_name) | list | length == 0
+
+- name: Resolve inside network object ID from create
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_inside_net_id: "{{ ar_cisco_fmc_inside_net_create['json']['id'] }}"
+  when:
+    - ar_cisco_fmc_inside_net_create is defined
+    - ar_cisco_fmc_inside_net_create is not skipped
+    - ar_cisco_fmc_inside_net_create['json']['id'] is defined
+
+- name: Resolve inside network object ID when it already exists
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_inside_net_id: "{{ ar_cisco_fmc_nat_network_items | selectattr('name', 'equalto', ar_cisco_fmc_inside_network_name) | map(attribute='id') | first }}"
+  when:
+    - ar_cisco_fmc_inside_net_id is not defined
+    - ar_cisco_fmc_nat_network_items is defined
+
+- name: List Auto NAT rules
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/ftdnatpolicies/{{ ar_cisco_fmc_nat_policy_id }}/autonatrules?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404]
+    timeout: 30
+  register: ar_cisco_fmc_auto_nats
+  failed_when: false
+  when: ar_cisco_fmc_nat_policy_id | default('') | length > 0
+
+- name: Normalize Auto NAT rule list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_auto_nat_items: "{{ (ar_cisco_fmc_auto_nats.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+  when:
+    - ar_cisco_fmc_auto_nats is defined
+    - ar_cisco_fmc_auto_nats is not skipped
+    - ar_cisco_fmc_auto_nats.status | default(0) == 200
+
+- name: Normalize Auto NAT rule list when empty
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_auto_nat_items: []
+  when: ar_cisco_fmc_auto_nat_items is not defined
+
+- name: Create inside-to-outside dynamic PAT
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/ftdnatpolicies/{{ ar_cisco_fmc_nat_policy_id }}/autonatrules"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: FTDAutoNatRule
+      natType: DYNAMIC
+      interfaceInTranslatedNetwork: true
+      originalNetwork:
+        id: "{{ ar_cisco_fmc_inside_net_id }}"
+        type: Network
+        name: "{{ ar_cisco_fmc_inside_network_name }}"
+      sourceInterface:
+        id: "{{ ar_cisco_fmc_inside_zone_id }}"
+        type: SecurityZone
+        name: "{{ ar_cisco_fmc_inside_zone_name }}"
+      destinationInterface:
+        id: "{{ ar_cisco_fmc_outside_zone_id }}"
+        type: SecurityZone
+        name: "{{ ar_cisco_fmc_outside_zone_name }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400, 422]
+    timeout: 30
+  register: ar_cisco_fmc_auto_nat_create
+  failed_when: ar_cisco_fmc_auto_nat_create.status | default(0) not in [201, 202]
+  when:
+    - ar_cisco_fmc_nat_policy_id | default('') | length > 0
+    - ar_cisco_fmc_inside_net_id | default('') | length > 0
+    - ar_cisco_fmc_inside_zone_id | default('') | length > 0
+    - ar_cisco_fmc_outside_zone_id | default('') | length > 0
+    - ar_cisco_fmc_auto_nat_items | length == 0
+
+- name: List policy assignments
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/assignment/policyassignments?limit=1000&expanded=true"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404]
+    timeout: 30
+  register: ar_cisco_fmc_policy_assignments
+  failed_when: false
+  when: ar_cisco_fmc_nat_policy_id | default('') | length > 0
+
+- name: Assign NAT policy to FTD
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/assignment/policyassignments"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: PolicyAssignment
+      policy:
+        id: "{{ ar_cisco_fmc_nat_policy_id }}"
+        type: FTDNatPolicy
+        name: "{{ ar_cisco_fmc_nat_policy_name }}"
+      targets:
+        - id: "{{ ar_cisco_fmc_device_id }}"
+          type: Device
+          name: "{{ ar_cisco_fmc_ftd_name }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400, 422]
+    timeout: 60
+  register: ar_cisco_fmc_nat_assign
+  when:
+    - ar_cisco_fmc_nat_policy_id | default('') | length > 0
+    - ar_cisco_fmc_device_id | default('') | length > 0
+
+- name: Fail if NAT policy was not assigned to FTD
+  ansible.builtin.fail:
+    msg: >-
+      Could not assign {{ ar_cisco_fmc_nat_policy_name }} to FTD:
+      {{ ar_cisco_fmc_nat_assign.body | default(ar_cisco_fmc_nat_assign.json | default({})) }}
+  when:
+    - ar_cisco_fmc_nat_assign is defined
+    - ar_cisco_fmc_nat_assign is not skipped
+    - ar_cisco_fmc_nat_assign.status | default(0) not in [201, 202]
+    - "'already' not in (ar_cisco_fmc_nat_assign.body | default('') | string | lower)"
+
+- name: Report FTD NAT configuration
+  ansible.builtin.debug:
+    msg: >-
+      {{
+        'FTD NAT policy ' ~ ar_cisco_fmc_nat_policy_name ~ ' PAT 10.0.5.0/24 to outside.'
+        if (
+          (ar_cisco_fmc_auto_nat_create.status | default(0) in [201, 202])
+          or (ar_cisco_fmc_auto_nat_items | default([]) | length > 0)
+        )
+        else (
+          'Inside PAT was not created (HTTP '
+          ~ (ar_cisco_fmc_auto_nat_create.status | default(ar_cisco_fmc_nat_policies.status) | default(0) | string)
+          ~ '). '
+          ~ (ar_cisco_fmc_auto_nat_create.body | default(ar_cisco_fmc_auto_nat_create.json | default({})))
+        )
+      }}

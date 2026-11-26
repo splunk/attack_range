@@ -1,0 +1,385 @@
+---
+# Zones, allow-and-log ACP, and data-plane routes so inside hosts (Windows)
+# are inspected by FTD rather than hairpinning around it in the VPC.
+- name: List security zones
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/securityzones?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_zones
+
+- name: Normalize security zone list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_zone_items: "{{ (ar_cisco_fmc_zones.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+
+- name: Create FTD security zones
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/securityzones"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: SecurityZone
+      name: "{{ item }}"
+      interfaceMode: ROUTED
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400]
+    timeout: 30
+  loop:
+    - "{{ ar_cisco_fmc_inside_zone_name }}"
+    - "{{ ar_cisco_fmc_outside_zone_name }}"
+  when: ar_cisco_fmc_zone_items | selectattr('name', 'equalto', item) | list | length == 0
+
+- name: Refresh security zone list
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/securityzones?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_zones
+
+- name: Resolve security zone IDs
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_zone_items: "{{ (ar_cisco_fmc_zones.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+    ar_cisco_fmc_inside_zone_id: "{{ (ar_cisco_fmc_zones.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first | default([]) | selectattr('name', 'equalto', ar_cisco_fmc_inside_zone_name) | map(attribute='id') | list | first) | default('') }}"
+    ar_cisco_fmc_outside_zone_id: "{{ (ar_cisco_fmc_zones.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first | default([]) | selectattr('name', 'equalto', ar_cisco_fmc_outside_zone_name) | map(attribute='id') | list | first) | default('') }}"
+
+- name: List FTD physical interfaces for zone assignment
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/devices/devicerecords/{{ ar_cisco_fmc_device_id }}/physicalinterfaces?expanded=true"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_phys_zones
+
+- name: Normalize interfaces for zone assignment
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_phys_zone_items: "{{ (ar_cisco_fmc_phys_zones.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+
+- name: Assign FTD interfaces to security zones
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/devices/devicerecords/{{ ar_cisco_fmc_device_id }}/physicalinterfaces/{{ ar_cisco_fmc_iface_id }}"
+    method: PUT
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: PhysicalInterface
+      id: "{{ ar_cisco_fmc_iface_id }}"
+      name: "{{ item.name }}"
+      ifname: "{{ item.ifname }}"
+      enabled: true
+      mode: NONE
+      MTU: 1500
+      ipv4:
+        static:
+          address: "{{ item.ip }}"
+          netmask: "{{ ar_cisco_fmc_ftd_interface_netmask }}"
+      securityZone:
+        id: "{{ item.zone_id }}"
+        type: SecurityZone
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 204, 400, 422]
+    timeout: 60
+  loop:
+    - name: Ethernet0/0
+      ifname: "{{ ar_cisco_fmc_ftd_outside_ifname }}"
+      ip: "{{ ar_cisco_fmc_ftd_outside_ip }}"
+      zone_id: "{{ ar_cisco_fmc_outside_zone_id }}"
+    - name: Ethernet0/1
+      ifname: "{{ ar_cisco_fmc_ftd_inside_ifname }}"
+      ip: "{{ ar_cisco_fmc_ftd_inside_ip }}"
+      zone_id: "{{ ar_cisco_fmc_inside_zone_id }}"
+  when:
+    - item.zone_id | length > 0
+    - ar_cisco_fmc_phys_zone_items | selectattr('name', 'equalto', item.name) | list | length > 0
+  vars:
+    ar_cisco_fmc_iface_id: "{{ ar_cisco_fmc_phys_zone_items | selectattr('name', 'equalto', item.name) | map(attribute='id') | first }}"
+
+- name: List intrusion policies
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/intrusionpolicies?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404]
+    timeout: 30
+  register: ar_cisco_fmc_ips_policies
+  failed_when: false
+
+- name: Normalize intrusion policy list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_ips_items: "{{ (ar_cisco_fmc_ips_policies.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+
+- name: Resolve intrusion policy ID
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_intrusion_policy_id: "{{ (
+        ar_cisco_fmc_ips_items | selectattr('name', 'equalto', ar_cisco_fmc_intrusion_policy_name) | list
+        + ar_cisco_fmc_ips_items | selectattr('name', 'search', ar_cisco_fmc_intrusion_policy_name) | list
+      ) | map(attribute='id') | list | first | default('') }}"
+    ar_cisco_fmc_intrusion_policy_resolved_name: "{{ (
+        ar_cisco_fmc_ips_items | selectattr('name', 'equalto', ar_cisco_fmc_intrusion_policy_name) | list
+        + ar_cisco_fmc_ips_items | selectattr('name', 'search', ar_cisco_fmc_intrusion_policy_name) | list
+      ) | map(attribute='name') | list | first | default('') }}"
+
+- name: Fail if the lab intrusion policy was not found
+  ansible.builtin.fail:
+    msg: "FMC has no intrusion policy named '{{ ar_cisco_fmc_intrusion_policy_name }}'. Available: {{ ar_cisco_fmc_ips_items | map(attribute='name') | list }}"
+  when: ar_cisco_fmc_intrusion_policy_id | length == 0
+
+- name: Create lab IPS policy and enable the testmyids signature
+  ansible.builtin.include_tasks: ftd_ips.yml
+  when: ar_cisco_fmc_intrusion_policy_id | length > 0
+
+- name: Build allow-inspect rule payload
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_access_rule_payload: "{{ ar_cisco_fmc_access_rule_base | combine(ar_cisco_fmc_access_rule_varset) }}"
+  vars:
+    ar_cisco_fmc_access_rule_base:
+      type: AccessRule
+      name: "{{ ar_cisco_fmc_access_rule_name }}"
+      action: ALLOW
+      enabled: true
+      logBegin: true
+      logEnd: true
+      sendEventsToFMC: true
+      ipsPolicy:
+        id: "{{ ar_cisco_fmc_lab_ips_policy_id }}"
+        type: IntrusionPolicy
+        name: "{{ ar_cisco_fmc_lab_ips_policy_name }}"
+        inspectionMode: DETECTION
+      sourceZones:
+        objects:
+          - id: "{{ ar_cisco_fmc_inside_zone_id }}"
+            type: SecurityZone
+            name: "{{ ar_cisco_fmc_inside_zone_name }}"
+          - id: "{{ ar_cisco_fmc_outside_zone_id }}"
+            type: SecurityZone
+            name: "{{ ar_cisco_fmc_outside_zone_name }}"
+      destinationZones:
+        objects:
+          - id: "{{ ar_cisco_fmc_inside_zone_id }}"
+            type: SecurityZone
+            name: "{{ ar_cisco_fmc_inside_zone_name }}"
+          - id: "{{ ar_cisco_fmc_outside_zone_id }}"
+            type: SecurityZone
+            name: "{{ ar_cisco_fmc_outside_zone_name }}"
+    ar_cisco_fmc_access_rule_varset: "{{ {'variableSet': {'id': ar_cisco_fmc_variable_set_id, 'type': 'VariableSet', 'name': ar_cisco_fmc_variable_set_name}} if ar_cisco_fmc_variable_set_id | default('') | length > 0 else {} }}"
+  when:
+    - ar_cisco_fmc_lab_ips_policy_id | default('') | length > 0
+    - ar_cisco_fmc_inside_zone_id | length > 0
+    - ar_cisco_fmc_outside_zone_id | length > 0
+
+- name: List access rules
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/accesspolicies/{{ ar_cisco_fmc_policy_id }}/accessrules?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_rules
+  when: ar_cisco_fmc_policy_id | default('') | length > 0
+
+- name: Normalize access rule list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_rule_items: "{{ (ar_cisco_fmc_rules.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+  when: ar_cisco_fmc_rules is not skipped
+
+- name: Resolve existing allow-inspect rule ID
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_existing_rule_id: "{{ ar_cisco_fmc_rule_items | selectattr('name', 'equalto', ar_cisco_fmc_access_rule_name) | map(attribute='id') | list | first | default('') }}"
+  when: ar_cisco_fmc_rules is not skipped
+
+- name: Allow and log inspected traffic
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/accesspolicies/{{ ar_cisco_fmc_policy_id }}/accessrules"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body: "{{ ar_cisco_fmc_access_rule_payload }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400, 422]
+    timeout: 30
+  register: ar_cisco_fmc_rule_create
+  failed_when: >
+    ar_cisco_fmc_rule_create.status | default(0) not in [201, 202]
+    and 'already' not in (ar_cisco_fmc_rule_create.json | default({}) | string | lower)
+    and 'already' not in (ar_cisco_fmc_rule_create.content | default('') | lower)
+  when:
+    - ar_cisco_fmc_rules is not skipped
+    - ar_cisco_fmc_existing_rule_id | default('') | length == 0
+    - ar_cisco_fmc_access_rule_payload is defined
+
+- name: Attach intrusion policy to existing allow-inspect rule
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/accesspolicies/{{ ar_cisco_fmc_policy_id }}/accessrules/{{ ar_cisco_fmc_existing_rule_id }}"
+    method: PUT
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body: "{{ ar_cisco_fmc_access_rule_payload | combine({'id': ar_cisco_fmc_existing_rule_id}) }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 204, 400, 422]
+    timeout: 30
+  register: ar_cisco_fmc_rule_ips_put
+  failed_when: ar_cisco_fmc_rule_ips_put.status | default(0) not in [200, 204]
+  when:
+    - ar_cisco_fmc_rules is not skipped
+    - ar_cisco_fmc_existing_rule_id | default('') | length > 0
+    - ar_cisco_fmc_access_rule_payload is defined
+
+- name: List network objects
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/networks?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_networks
+
+- name: Normalize network object list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_network_items: "{{ (ar_cisco_fmc_networks.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+
+- name: Create FTD route network objects
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/networks"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: Network
+      name: "{{ item.name }}"
+      value: "{{ item.value }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400]
+    timeout: 30
+  loop: "{{ ar_cisco_fmc_route_networks }}"
+  when: ar_cisco_fmc_network_items | selectattr('name', 'equalto', item.name) | list | length == 0
+
+- name: Refresh network object list
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/networks?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_networks
+
+- name: List host objects for route gateway
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/hosts?limit=1000"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: 200
+    timeout: 30
+  register: ar_cisco_fmc_route_hosts
+
+- name: Normalize host object list for route gateway
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_network_items: "{{ (ar_cisco_fmc_networks.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+    ar_cisco_fmc_route_host_items: "{{ (ar_cisco_fmc_route_hosts.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+
+- name: Create outside gateway host object
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/hosts"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: Host
+      name: "{{ ar_cisco_fmc_outside_gateway_name }}"
+      value: "{{ ar_cisco_fmc_outside_gateway }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400]
+    timeout: 30
+  register: ar_cisco_fmc_gw_create
+  when: ar_cisco_fmc_route_host_items | selectattr('name', 'equalto', ar_cisco_fmc_outside_gateway_name) | list | length == 0
+
+- name: Resolve outside gateway host object ID from create
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_outside_gw_id: "{{ ar_cisco_fmc_gw_create.json.id }}"
+  when:
+    - ar_cisco_fmc_gw_create is not skipped
+    - ar_cisco_fmc_gw_create.json.id is defined
+
+- name: Resolve outside gateway host object ID when it already exists
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_outside_gw_id: "{{ ar_cisco_fmc_route_host_items | selectattr('name', 'equalto', ar_cisco_fmc_outside_gateway_name) | map(attribute='id') | first }}"
+  when: ar_cisco_fmc_outside_gw_id is not defined
+
+- name: List FTD static routes
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/devices/devicerecords/{{ ar_cisco_fmc_device_id }}/routing/ipv4staticroutes?expanded=true"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404]
+    timeout: 30
+  register: ar_cisco_fmc_routes
+  failed_when: false
+
+- name: Normalize FTD static route list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_route_items: "{{ (ar_cisco_fmc_routes.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+
+- name: Add FTD static routes via outside
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/devices/devicerecords/{{ ar_cisco_fmc_device_id }}/routing/ipv4staticroutes"
+    method: POST
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: IPv4StaticRoute
+      interfaceName: "{{ ar_cisco_fmc_ftd_outside_ifname }}"
+      metricValue: 1
+      gateway:
+        object:
+          id: "{{ ar_cisco_fmc_outside_gw_id }}"
+          type: Host
+          name: "{{ ar_cisco_fmc_outside_gateway_name }}"
+      selectedNetworks:
+        - id: "{{ ar_cisco_fmc_net_id }}"
+          type: Network
+          name: "{{ item.name }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [201, 202, 400]
+    timeout: 30
+  loop: "{{ ar_cisco_fmc_route_networks }}"
+  when:
+    - ar_cisco_fmc_outside_gw_id | default('') | length > 0
+    - ar_cisco_fmc_net_id | length > 0
+  vars:
+    ar_cisco_fmc_net_id: "{{ ar_cisco_fmc_network_items | selectattr('name', 'equalto', item.name) | map(attribute='id') | list | first | default('') }}"

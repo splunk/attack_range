@@ -1,0 +1,18 @@
+---
+- name: Refresh FMC API session
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_platform/v1/auth/generatetoken"
+    method: POST
+    user: "{{ ar_cisco_fmc_user }}"
+    password: "{{ ar_cisco_fmc_password }}"
+    force_basic_auth: true
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 204]
+    timeout: 30
+  register: ar_cisco_fmc_auth
+  no_log: true
+
+- name: Capture refreshed FMC API session
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_token: "{{ ar_cisco_fmc_auth.x_auth_access_token | default(ar_cisco_fmc_auth.headers['X-auth-access-token']) }}"
+    ar_cisco_fmc_domain: "{{ ar_cisco_fmc_auth.domain_uuid | default(ar_cisco_fmc_auth.headers['DOMAIN_UUID']) }}"

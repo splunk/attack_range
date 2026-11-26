@@ -1,0 +1,21 @@
+---
+dependencies: []
+
+galaxy_info:
+  role_name: attack_range_cisco_fmc
+  author: P4T12ICK
+  description: Wait for Cisco FMCv, register FTDv, deploy lab policy, and stream events to Splunk.
+  company: Cisco
+  license: GPLv3
+  min_ansible_version: "2.14"
+  platforms:
+    - name: GenericLinux
+      versions:
+        - all
+  galaxy_tags:
+    - cisco
+    - fmc
+    - ftd
+    - security
+
+collections: []
