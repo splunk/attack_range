@@ -14,7 +14,11 @@
     ar_cisco_fmc_deployable.status == 200 and
     (
       (ar_cisco_fmc_deployable.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([])
-    ) | selectattr('id', 'equalto', ar_cisco_fmc_device_id) | list | length > 0
+      | selectattr('device', 'defined')
+      | selectattr('device.id', 'equalto', ar_cisco_fmc_device_id)
+      | list
+      | length
+    ) > 0
   retries: 18
   delay: 10
   failed_when: false
@@ -25,7 +29,7 @@
 
 - name: Resolve FTD deploy version
   ansible.builtin.set_fact:
-    ar_cisco_fmc_deploy_version: "{{ ar_cisco_fmc_deployable_items | selectattr('id', 'equalto', ar_cisco_fmc_device_id) | map(attribute='version') | first | default('') | string }}"
+    ar_cisco_fmc_deploy_version: "{{ (ar_cisco_fmc_deployable_items | selectattr('device', 'defined') | selectattr('device.id', 'equalto', ar_cisco_fmc_device_id) | map(attribute='version') | first | default('')) | string }}"
 
 - name: Deploy pending FTD configuration
   ansible.builtin.uri:
