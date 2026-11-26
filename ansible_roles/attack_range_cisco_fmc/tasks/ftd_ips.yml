@@ -61,7 +61,19 @@
     msg: "Could not create or find intrusion policy '{{ ar_cisco_fmc_lab_ips_policy_name }}'."
   when: ar_cisco_fmc_lab_ips_policy_id | default('') | length == 0
 
-- name: Find Snort 3 test signature
+- name: Find Snort 3 test signature in the lab IPS policy
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/policy/intrusionpolicies/{{ ar_cisco_fmc_lab_ips_policy_id }}/intrusionrules?filter=gid:{{ ar_cisco_fmc_test_ips_gid }};sid:{{ ar_cisco_fmc_test_ips_sid }}&expanded=true"
+    method: GET
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 404]
+    timeout: 30
+  register: ar_cisco_fmc_policy_sid
+  failed_when: false
+
+- name: Find Snort 3 test signature in the rule catalog
   ansible.builtin.uri:
     url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/object/intrusionrules?filter=gid:{{ ar_cisco_fmc_test_ips_gid }};sid:{{ ar_cisco_fmc_test_ips_sid }}&expanded=true"
     method: GET
@@ -72,16 +84,21 @@
     timeout: 30
   register: ar_cisco_fmc_test_sid
   failed_when: false
+  when: >-
+    (
+      (ar_cisco_fmc_policy_sid.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([])
+    ) | length == 0
 
 - name: Resolve Snort 3 test signature ID
   ansible.builtin.set_fact:
+    ar_cisco_fmc_policy_sid_items: "{{ (ar_cisco_fmc_policy_sid.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+    ar_cisco_fmc_catalog_sid_items: "{{ (ar_cisco_fmc_test_sid.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+
+- name: Choose the Snort 3 test signature ID
+  ansible.builtin.set_fact:
     ar_cisco_fmc_test_sid_id: "{{ (
-        (ar_cisco_fmc_test_sid.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([])
+        (ar_cisco_fmc_policy_sid_items if ar_cisco_fmc_policy_sid_items | length > 0 else ar_cisco_fmc_catalog_sid_items)
         | map(attribute='id') | list | first
-      ) | default('') }}"
-    ar_cisco_fmc_test_sid_msg: "{{ (
-        (ar_cisco_fmc_test_sid.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([])
-        | map(attribute='msg') | list | first
       ) | default('') }}"
 
 - name: Fail if the Snort 3 test signature was not found
@@ -103,12 +120,6 @@
         sid: "{{ ar_cisco_fmc_test_ips_sid | int }}"
         type: IntrusionRule
         overrideState: ALERT
-        ruleAction:
-          - overrideState: ALERT
-            policy:
-              id: "{{ ar_cisco_fmc_lab_ips_policy_id }}"
-              type: IntrusionPolicy
-              name: "{{ ar_cisco_fmc_lab_ips_policy_name }}"
     validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
     status_code: [200, 204, 400, 422]
     timeout: 60

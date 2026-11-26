@@ -12,7 +12,7 @@ spec:
     public: public-ip
   azure:
     size: Standard_D3_v2
-    imageId: /subscriptions/875403c5-ab47-4410-9292-7cee438cfc93/resourceGroups/rg-cisco-ftdv/providers/Microsoft.Compute/images/cisco-ftdv-7-6-6-115
+    imageId: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/images/providers/Microsoft.Compute/images/cisco-ftd
     osDisk:
       sizeGiB: 127
       storageAccountType: StandardSSD_LRS
