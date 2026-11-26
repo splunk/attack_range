@@ -183,6 +183,16 @@
   failed_when: false
   when: ar_cisco_fmc_nat_policy_id | default('') | length > 0
 
+- name: Normalize policy assignment list
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_policy_assignment_items: "{{ (ar_cisco_fmc_policy_assignments.json | default({}) | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
+  when: ar_cisco_fmc_nat_policy_id | default('') | length > 0
+
+- name: Find the NAT policy assignment
+  ansible.builtin.set_fact:
+    ar_cisco_fmc_nat_assignment: "{{ (ar_cisco_fmc_policy_assignment_items | selectattr('policy', 'defined') | selectattr('policy.id', 'equalto', ar_cisco_fmc_nat_policy_id) | list | first) | default({}) }}"
+  when: ar_cisco_fmc_nat_policy_id | default('') | length > 0
+
 - name: Assign NAT policy to FTD
   ansible.builtin.uri:
     url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/assignment/policyassignments"
@@ -208,6 +218,33 @@
   when:
     - ar_cisco_fmc_nat_policy_id | default('') | length > 0
     - ar_cisco_fmc_device_id | default('') | length > 0
+    - ar_cisco_fmc_nat_assignment.id is not defined
+
+- name: Add FTD to the existing NAT policy assignment
+  ansible.builtin.uri:
+    url: "https://{{ ar_cisco_fmc_host }}:{{ ar_cisco_fmc_port }}/api/fmc_config/v1/domain/{{ ar_cisco_fmc_domain }}/assignment/policyassignments/{{ ar_cisco_fmc_nat_assignment.id }}"
+    method: PUT
+    headers:
+      X-auth-access-token: "{{ ar_cisco_fmc_token }}"
+      Content-Type: application/json
+    body_format: json
+    body:
+      type: PolicyAssignment
+      id: "{{ ar_cisco_fmc_nat_assignment.id }}"
+      name: "{{ ar_cisco_fmc_nat_assignment.name | default(ar_cisco_fmc_nat_policy_name) }}"
+      policy:
+        id: "{{ ar_cisco_fmc_nat_policy_id }}"
+        type: FTDNatPolicy
+        name: "{{ ar_cisco_fmc_nat_policy_name }}"
+      targets: "{{ (ar_cisco_fmc_nat_assignment.targets | default([])) + [{'id': ar_cisco_fmc_device_id, 'type': 'Device', 'name': ar_cisco_fmc_ftd_name}] }}"
+    validate_certs: "{{ ar_cisco_fmc_validate_certs }}"
+    status_code: [200, 202, 400, 422]
+    timeout: 60
+  register: ar_cisco_fmc_nat_assign_update
+  when:
+    - ar_cisco_fmc_nat_assignment.id is defined
+    - ar_cisco_fmc_device_id | default('') | length > 0
+    - ar_cisco_fmc_device_id not in (ar_cisco_fmc_nat_assignment.targets | default([]) | map(attribute='id') | list)
 
 - name: Fail if NAT policy was not assigned to FTD
   ansible.builtin.fail:
@@ -219,6 +256,16 @@
     - ar_cisco_fmc_nat_assign is not skipped
     - ar_cisco_fmc_nat_assign.status | default(0) not in [201, 202]
     - "'already' not in (ar_cisco_fmc_nat_assign.body | default('') | string | lower)"
+
+- name: Fail if the existing NAT policy assignment was not updated
+  ansible.builtin.fail:
+    msg: >-
+      Could not update the assignment for {{ ar_cisco_fmc_nat_policy_name }}:
+      {{ ar_cisco_fmc_nat_assign_update.body | default(ar_cisco_fmc_nat_assign_update.json | default({})) }}
+  when:
+    - ar_cisco_fmc_nat_assign_update is defined
+    - ar_cisco_fmc_nat_assign_update is not skipped
+    - ar_cisco_fmc_nat_assign_update.status | default(0) not in [200, 202]
 
 - name: Report FTD NAT configuration
   ansible.builtin.debug:
