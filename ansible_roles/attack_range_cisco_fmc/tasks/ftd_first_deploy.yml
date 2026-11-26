@@ -103,10 +103,10 @@
   ansible.builtin.set_fact:
     ar_cisco_fmc_phys_items: "{{ (ar_cisco_fmc_phys.json | dict2items | selectattr('key', 'equalto', 'items') | map(attribute='value') | list | first) | default([]) }}"
     ar_cisco_fmc_ftd_interfaces:
-      - name: Ethernet0/0
+      - name: "{{ ar_cisco_fmc_ftd_outside_interface }}"
         ifname: "{{ ar_cisco_fmc_ftd_outside_ifname }}"
         ip: "{{ ar_cisco_fmc_ftd_outside_ip }}"
-      - name: Ethernet0/1
+      - name: "{{ ar_cisco_fmc_ftd_inside_interface }}"
         ifname: "{{ ar_cisco_fmc_ftd_inside_ifname }}"
         ip: "{{ ar_cisco_fmc_ftd_inside_ip }}"
 

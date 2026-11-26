@@ -34,6 +34,9 @@ ar_cisco_fmc_ftd_license_caps:
   - MALWARE_DEFENSE
 ar_cisco_fmc_ftd_outside_ifname: outside
 ar_cisco_fmc_ftd_inside_ifname: inside
+# AWS FTDv reports Ethernet0/0 and Ethernet0/1. Azure FTDv reports GigabitEthernet0/0 and GigabitEthernet0/1.
+ar_cisco_fmc_ftd_outside_interface: Ethernet0/0
+ar_cisco_fmc_ftd_inside_interface: Ethernet0/1
 ar_cisco_fmc_ftd_outside_ip: "10.0.4.{{ ar_cisco_fmc_ftd_mgmt_ip.split('.')[-1] }}"
 ar_cisco_fmc_ftd_inside_ip: "10.0.5.{{ ar_cisco_fmc_ftd_mgmt_ip.split('.')[-1] }}"
 ar_cisco_fmc_ftd_interface_netmask: 255.255.255.0

@@ -95,11 +95,11 @@
     status_code: [200, 204, 400, 422]
     timeout: 60
   loop:
-    - name: Ethernet0/0
+    - name: "{{ ar_cisco_fmc_ftd_outside_interface }}"
       ifname: "{{ ar_cisco_fmc_ftd_outside_ifname }}"
       ip: "{{ ar_cisco_fmc_ftd_outside_ip }}"
       zone_id: "{{ ar_cisco_fmc_outside_zone_id }}"
-    - name: Ethernet0/1
+    - name: "{{ ar_cisco_fmc_ftd_inside_interface }}"
       ifname: "{{ ar_cisco_fmc_ftd_inside_ifname }}"
       ip: "{{ ar_cisco_fmc_ftd_inside_ip }}"
       zone_id: "{{ ar_cisco_fmc_inside_zone_id }}"

@@ -107,8 +107,8 @@
           else (
             'No pending FTD deploy after waiting for deployabledevices. If the GUI still shows Deployment failed, set performance tier to '
             ~ ar_cisco_fmc_ftd_performance_tier
-            ~ ', confirm Ethernet0/0 is ' ~ ar_cisco_fmc_ftd_outside_ifname
-            ~ ' (' ~ ar_cisco_fmc_ftd_outside_ip ~ ') and Ethernet0/1 is '
+            ~ ', confirm ' ~ ar_cisco_fmc_ftd_outside_interface ~ ' is ' ~ ar_cisco_fmc_ftd_outside_ifname
+            ~ ' (' ~ ar_cisco_fmc_ftd_outside_ip ~ ') and ' ~ ar_cisco_fmc_ftd_inside_interface ~ ' is '
             ~ ar_cisco_fmc_ftd_inside_ifname ~ ' (' ~ ar_cisco_fmc_ftd_inside_ip ~ '), then Deploy.'
           )
         )
