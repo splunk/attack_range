@@ -26,13 +26,16 @@ resource "aws_security_group" "zeek_server" {
 }
 
 resource "aws_instance" "zeek_sensor" {
-  count       = var.zeek_server ? 1 : 0
-  ami           = var.ami_id
-  instance_type = "m5.2xlarge"
-  key_name      = var.key_name
-  subnet_id = var.subnet_id
+  count                  = var.zeek_server ? 1 : 0
+  ami                    = var.ami_id
+  instance_type          = "m5.2xlarge"
+  key_name               = var.key_name
+  subnet_id              = var.subnet_id
   vpc_security_group_ids = [aws_security_group.zeek_server[0].id]
-  private_ip = var.private_ip
+  private_ip             = var.private_ip
+  metadata_options {
+    http_tokens = "required"
+  }
 
   tags = {
     Name = "ar-${var.server_name}-${var.attack_range_id}"
@@ -47,34 +50,34 @@ resource "aws_instance" "zeek_sensor" {
 }
 
 resource "aws_ec2_traffic_mirror_target" "zeek_target" {
-  count = var.zeek_server ? 1 : 0
+  count                = var.zeek_server ? 1 : 0
   description          = "VPC Tap for Zeek"
   network_interface_id = aws_instance.zeek_sensor[0].primary_network_interface_id
 }
 
 resource "aws_ec2_traffic_mirror_filter" "zeek_filter" {
-  count = var.zeek_server ? 1 : 0
+  count       = var.zeek_server ? 1 : 0
   description = "Zeek Mirror Filter - Allow All"
 }
 
 resource "aws_ec2_traffic_mirror_filter_rule" "zeek_outbound" {
-  count = var.zeek_server ? 1 : 0
-  description = "Zeek Outbound Rule"
+  count                    = var.zeek_server ? 1 : 0
+  description              = "Zeek Outbound Rule"
   traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter[0].id
-  destination_cidr_block = "0.0.0.0/0"
-  source_cidr_block = "0.0.0.0/0"
-  rule_number = 1
-  rule_action = "accept"
-  traffic_direction = "egress"
+  destination_cidr_block   = "0.0.0.0/0"
+  source_cidr_block        = "0.0.0.0/0"
+  rule_number              = 1
+  rule_action              = "accept"
+  traffic_direction        = "egress"
 }
 
 resource "aws_ec2_traffic_mirror_filter_rule" "zeek_inbound" {
-  count = var.zeek_server ? 1 : 0
-  description = "Zeek Inbound Rule"
+  count                    = var.zeek_server ? 1 : 0
+  description              = "Zeek Inbound Rule"
   traffic_mirror_filter_id = aws_ec2_traffic_mirror_filter.zeek_filter[0].id
-  destination_cidr_block = "0.0.0.0/0"
-  source_cidr_block = "0.0.0.0/0"
-  rule_number = 1
-  rule_action = "accept"
-  traffic_direction = "ingress"
+  destination_cidr_block   = "0.0.0.0/0"
+  source_cidr_block        = "0.0.0.0/0"
+  rule_number              = 1
+  rule_action              = "accept"
+  traffic_direction        = "ingress"
 }

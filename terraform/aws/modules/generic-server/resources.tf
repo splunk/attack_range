@@ -33,6 +33,9 @@ resource "aws_instance" "this" {
   private_ip             = var.private_ip
   vpc_security_group_ids = [aws_security_group.this.id]
   user_data              = var.user_data
+  metadata_options {
+    http_tokens = "required"
+  }
 
   root_block_device {
     volume_type           = var.root_volume_type
@@ -58,7 +61,7 @@ output "instance" {
 
 resource "aws_ec2_traffic_mirror_session" "zeek_session" {
   for_each = var.zeek_monitor ? { zeek = true } : {}
-  
+
   description              = "Zeek Mirror Session for ${var.server_name}"
   depends_on               = [aws_instance.this]
   traffic_mirror_filter_id = var.zeek_traffic_mirror_filter_id
@@ -66,6 +69,3 @@ resource "aws_ec2_traffic_mirror_session" "zeek_session" {
   network_interface_id     = aws_instance.this.primary_network_interface_id
   session_number           = var.zeek_session_number
 }
-
-
-
