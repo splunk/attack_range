@@ -1,0 +1,3 @@
+---
+attack_range_splunk_syslog_app: splunk-add-on-for-attack-range
+attack_range_splunk_home: /opt/splunk

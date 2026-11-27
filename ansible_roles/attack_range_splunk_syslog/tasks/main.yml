@@ -1,0 +1,51 @@
+---
+- name: Detect the Splunk install owner
+  ansible.builtin.stat:
+    path: "{{ attack_range_splunk_home }}/etc/apps"
+  register: attack_range_splunk_apps_dir
+
+- name: Set Splunk file ownership from the existing install
+  ansible.builtin.set_fact:
+    attack_range_splunk_owner: "{{ attack_range_splunk_apps_dir.stat.uid | default(0) }}"
+    attack_range_splunk_group: "{{ attack_range_splunk_apps_dir.stat.gid | default(0) }}"
+
+- name: Allow Splunk to bind syslog ports below 1024
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/99-splunk-syslog.conf
+    content: "net.ipv4.ip_unprivileged_port_start=0\n"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Apply unprivileged port sysctl
+  ansible.builtin.command: sysctl -w net.ipv4.ip_unprivileged_port_start=0
+  changed_when: false
+
+- name: Create Splunk syslog app directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ attack_range_splunk_owner }}"
+    group: "{{ attack_range_splunk_group }}"
+    mode: "0755"
+  loop:
+    - "{{ attack_range_splunk_home }}/etc/apps/{{ attack_range_splunk_syslog_app }}"
+    - "{{ attack_range_splunk_home }}/etc/apps/{{ attack_range_splunk_syslog_app }}/local"
+
+- name: Deploy Splunk syslog index
+  ansible.builtin.copy:
+    src: indexes.conf
+    dest: "{{ attack_range_splunk_home }}/etc/apps/{{ attack_range_splunk_syslog_app }}/local/indexes.conf"
+    owner: "{{ attack_range_splunk_owner }}"
+    group: "{{ attack_range_splunk_group }}"
+    mode: "0644"
+  notify: Restart Splunk
+
+- name: Deploy Splunk UDP/TCP syslog inputs
+  ansible.builtin.copy:
+    src: inputs.conf
+    dest: "{{ attack_range_splunk_home }}/etc/apps/{{ attack_range_splunk_syslog_app }}/local/inputs.conf"
+    owner: "{{ attack_range_splunk_owner }}"
+    group: "{{ attack_range_splunk_group }}"
+    mode: "0644"
+  notify: Restart Splunk

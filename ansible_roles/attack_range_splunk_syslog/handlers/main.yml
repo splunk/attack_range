@@ -1,0 +1,4 @@
+---
+- name: Restart Splunk
+  ansible.builtin.command: "{{ attack_range_splunk_home }}/bin/splunk restart"
+  changed_when: false

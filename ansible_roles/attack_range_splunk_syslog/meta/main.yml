@@ -1,0 +1,17 @@
+---
+dependencies: []
+
+galaxy_info:
+  role_name: attack_range_splunk_syslog
+  author: P4T12ICK
+  description: Open Splunk syslog listeners for FMC audit logs and FTD events.
+  company: Splunk
+  license: GPLv3
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+  galaxy_tags:
+    - security
+    - splunk
